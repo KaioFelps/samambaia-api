@@ -23,7 +23,7 @@ impl UserRepository for SeaUserRepository {
         let new_user = entities::user::ActiveModel {
             id: Uuid::new_v4().into_active_value(),
             nickname: params.nickname.into_active_value(),
-            password: params.password().into_active_value(),
+            password: params.password.into_active_value(),
             ..Default::default()
         };
 

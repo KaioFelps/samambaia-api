@@ -15,12 +15,12 @@ async fn main() {
     let sea_service = SeaService::new().await;
     let user_repository = SeaUserRepository::new(&sea_service).await;
 
-    let user = user_repository.create(CreateUserParam {
-        nickname: "Kaio".to_string(),
-        password: "123".to_string()
-    }).await;
+    // let user = user_repository.create(CreateUserParam {
+    //     nickname: "Kaio".to_string(),
+    //     password: "123".to_string()
+    // }).await;
 
-    println!("{:#?}", user);
+    // println!("{:#?}", user);
 
     // let mut new_article = entities::article::ActiveModel::new();
     // new_article.author_id = created_user.id;

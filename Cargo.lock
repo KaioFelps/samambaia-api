@@ -1105,6 +1105,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "hubbitos-back"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "config",
+ "dotenvy",
+ "entities",
+ "jsonwebtoken",
+ "migration",
+ "once_cell",
+ "sea-orm",
+ "serde",
+ "serde-envfile",
+ "tokio",
+ "uuid",
+ "validator",
+]
+
+[[package]]
 name = "iana-time-zone"
 version = "0.1.59"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2933,25 +2952,6 @@ dependencies = [
  "thread_local",
  "tracing",
  "tracing-core",
-]
-
-[[package]]
-name = "traits"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "config",
- "dotenvy",
- "entities",
- "jsonwebtoken",
- "migration",
- "once_cell",
- "sea-orm",
- "serde",
- "serde-envfile",
- "tokio",
- "uuid",
- "validator",
 ]
 
 [[package]]
