@@ -2,7 +2,7 @@
 members = [".", "migration", "entities"]
 
 [package]
-name = "hubbitos-back"
+name = "hubbitos-backend"
 version = "0.1.0"
 edition = "2021"
 
