@@ -1,7 +1,7 @@
 use entities::article;
 use sea_orm::{EntityTrait, QueryFilter, ColumnTrait};
 
-use crate::{repositories::article_repository::ArticleRepository, infra::sea::sea_service::SeaService};
+use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaArticleRepository {
     // db_conn: DatabaseConnection,
@@ -17,12 +17,12 @@ impl SeaArticleRepository {
     }
 }
 
-impl ArticleRepository for SeaArticleRepository {
-    async fn find_by_id(&self, id: String) -> Result<Option<entities::article::Model>, sea_orm::DbErr> {
+impl SeaArticleRepository {
+    pub async fn find_by_id(&self, id: String) -> Result<Option<entities::article::Model>, sea_orm::DbErr> {
         entities::article::Entity::find().filter(article::Column::Id.eq(id)).one(&self.sea_service.db).await
     }
 
-    async fn find_all(&self) -> Result<Vec<entities::article::Model>, sea_orm::DbErr> {
+    pub async fn find_all(&self) -> Result<Vec<entities::article::Model>, sea_orm::DbErr> {
         entities::article::Entity::find().all(&self.sea_service.db).await
     }
 }
