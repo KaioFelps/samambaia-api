@@ -1,19 +1,26 @@
 use env_config::EnvConfig;
-use infra::sea::repositories::sea_article_repository::SeaArticleRepository;
+use factories::create_user_service_factory;
 use once_cell::sync::Lazy;
-use repositories::article_repository::ArticleRepository;
-mod env_config;
-use crate::{infra::sea::{sea_service::SeaService, repositories::sea_user_repository::SeaUserRepository}, repositories::user_repository::{CreateUserParam, UserRepository}};
+use services::create_user_service::CreateUserParams;
 
-pub mod repositories;
+mod env_config;
+mod services;
 mod infra;
+mod errors;
+mod factories;
 
 static ENV_VARS: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::from_env());
 
 #[tokio::main]
-async fn main() {
-    let sea_service = SeaService::new().await;
-    let user_repository = SeaUserRepository::new(&sea_service).await;
+async fn main() { 
+    let create_user_service = create_user_service_factory::exec().await;
+
+    let result = create_user_service.exec(CreateUserParams {
+        nickname: "Floricultor".to_string(),
+        password: "123456".to_string()
+    }).await;
+
+    println!("{:?}", dbg!(result.unwrap_err()));
 
     // let user = user_repository.create(CreateUserParam {
     //     nickname: "Kaio".to_string(),
@@ -31,9 +38,9 @@ async fn main() {
     // let created_article = new_article.save(&sea_service.db).await.unwrap();
 
 
-    let article_repository = SeaArticleRepository::new(&sea_service).await;
+    // let article_repository = SeaArticleRepository::new(&sea_service).await;
 
-    let articles = article_repository.find_all().await;
+    // let articles = article_repository.find_all().await;
 
-    println!("{:#?}", articles)
+    // println!("{:#?}", articles)
 }
