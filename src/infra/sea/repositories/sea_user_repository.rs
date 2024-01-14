@@ -1,6 +1,6 @@
-use sea_orm::{EntityTrait, ActiveModelTrait, IntoActiveValue, DbErr, QueryFilter, ColumnTrait};
+use sea_orm::{EntityTrait, ActiveModelTrait, IntoActiveValue, DbErr, QueryFilter, ColumnTrait, ActiveValue};
 use entities::user::Model as UserModel;
-
+use entities::sea_orm_active_enums::Role as UserRole;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaUserRepository {
@@ -17,13 +17,14 @@ impl SeaUserRepository {
 }
 
 impl SeaUserRepository {
-    pub async fn create(&self, nickname: String, password: String) -> Result<UserModel, DbErr> {
+    pub async fn create(&self, nickname: String, password: String, role: UserRole) -> Result<UserModel, DbErr> {
         use uuid::Uuid;
 
         let new_user = entities::user::ActiveModel {
             id: Uuid::new_v4().into_active_value(),
             nickname: nickname.into_active_value(),
             password: password.into_active_value(),
+            role: ActiveValue::Set(Some(role)),
             ..Default::default()
         };
 
