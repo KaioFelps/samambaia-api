@@ -2,9 +2,11 @@ use entities::sea_orm_active_enums::Role;
 use env_config::EnvConfig;
 use factories::create_user_service_factory;
 use infra::jwt::jwt_service::JwtService;
-use jsonwebtoken::{EncodingKey, DecodingKey};
+use jsonwebtoken::DecodingKey;
 use once_cell::sync::Lazy;
 use services::create_user_service::CreateUserParams;
+
+use crate::{factories::authenticate_user_service_factory, services::authenticate_user_service::AuthenticateUserParams};
 
 mod env_config;
 mod services;
@@ -23,9 +25,18 @@ async fn main() {
         password: "123456".to_string()
     }, Role::Principal).await;
 
-    let jwt = JwtService::make_jwt(uuid::uuid!("a13196fd-c363-4be3-8ce4-e8d9fe648695"), EncodingKey::from_secret(&ENV_VARS.jwt_secret.as_ref()));
-    println!("Encoded jwt access token: {:#?}. Refresh token: {:#?}", &jwt.as_ref().unwrap().access_token, &jwt.as_ref().unwrap().refresh_token);
+    let authenticate_user_service = authenticate_user_service_factory::exec().await;
 
-    let decoded_jwt = JwtService::decode_jwt(jwt.unwrap().access_token.token.clone(), DecodingKey::from_secret(&ENV_VARS.jwt_secret.as_ref()));
-    println!("Decoded jwt token: {:#?}", decoded_jwt);
+    let tokens = authenticate_user_service.exec(AuthenticateUserParams { nickname: "Floricultor".to_string(), password: "123456".to_string() }).await;
+
+    println!("Encoded jwt access token: {:#?}. Refresh token: {:#?}", &tokens.as_ref().unwrap().access_token, &tokens.as_ref().unwrap().refresh_token);
+
+
+    
+
+
+    let decoded_access_token = JwtService {}.decode_jwt(tokens.as_ref().unwrap().access_token.token.clone(), DecodingKey::from_secret(&ENV_VARS.jwt_secret.as_ref()));
+    let decoded_refresh_token = JwtService {}.decode_jwt(tokens.unwrap().refresh_token.token.clone(), DecodingKey::from_secret(&ENV_VARS.jwt_secret.as_ref()));
+
+    println!("DECODED ACCESS TOKEN: {:#?}. \nDECODED REFRESH TOKEN: {:#?}", decoded_access_token, decoded_refresh_token);
 }
