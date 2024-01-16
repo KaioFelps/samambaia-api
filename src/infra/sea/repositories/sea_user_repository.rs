@@ -32,11 +32,22 @@ impl SeaUserRepository {
         Ok(created_user)
     }
 
-    pub async fn find_all(&self) -> Result<Vec<UserModel>, sea_orm::DbErr> {
-        UserEntity::find().all(&self.sea_service.db).await
-    }
-
     pub async fn find_by_nickname(&self, nickname: &String) -> Result<Option<UserModel>, DbErr> {
         UserEntity::find().filter(UserColumn::Nickname.eq(nickname)).one(&self.sea_service.db).await
+    }
+
+    pub async fn find_by_id(&self, id: &Uuid) -> Result<Option<UserModel>, DbErr> {
+        UserEntity::find_by_id(*id).one(&self.sea_service.db).await
+    }
+
+    pub async fn save(&self, user: &UserActiveModel) -> Result<(), DbErr> {
+        let user_id = &user.id.clone().unwrap();
+
+        let res = UserEntity::update(user.clone()).filter(UserColumn::Id.eq(*user_id)).exec(&self.sea_service.db).await;
+
+        match res {
+            Ok(_) => return Ok(()),
+            Err(err) => return Err(err)
+        }
     }
 }
