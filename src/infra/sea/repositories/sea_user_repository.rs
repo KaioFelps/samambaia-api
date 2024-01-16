@@ -1,7 +1,8 @@
 use sea_orm::{EntityTrait, ActiveModelTrait, IntoActiveValue, DbErr, QueryFilter, ColumnTrait, ActiveValue};
-use entities::user::Model as UserModel;
 use entities::sea_orm_active_enums::Role as UserRole;
+use uuid::Uuid;
 use crate::infra::sea::sea_service::SeaService;
+use entities::user::{Model as UserModel, Column as UserColumn, Entity as UserEntity, ActiveModel as UserActiveModel};
 
 pub struct SeaUserRepository {
     pub sea_service: SeaService,
@@ -14,13 +15,10 @@ impl SeaUserRepository {
             sea_service,
         }
     }
-}
 
-impl SeaUserRepository {
     pub async fn create(&self, nickname: String, password: String, role: UserRole) -> Result<UserModel, DbErr> {
-        use uuid::Uuid;
 
-        let new_user = entities::user::ActiveModel {
+        let new_user = UserActiveModel {
             id: Uuid::new_v4().into_active_value(),
             nickname: nickname.into_active_value(),
             password: password.into_active_value(),
@@ -35,10 +33,10 @@ impl SeaUserRepository {
     }
 
     pub async fn find_all(&self) -> Result<Vec<UserModel>, sea_orm::DbErr> {
-        entities::user::Entity::find().all(&self.sea_service.db).await
+        UserEntity::find().all(&self.sea_service.db).await
     }
 
-    pub async fn find_by_nickname(&self, nickname: &String) -> Result<std::option::Option<entities::user::Model>, sea_orm::DbErr> {
-        entities::user::Entity::find().filter(entities::user::Column::Nickname.eq(nickname)).one(&self.sea_service.db).await
+    pub async fn find_by_nickname(&self, nickname: &String) -> Result<Option<UserModel>, DbErr> {
+        UserEntity::find().filter(UserColumn::Nickname.eq(nickname)).one(&self.sea_service.db).await
     }
 }
