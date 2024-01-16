@@ -10,7 +10,7 @@ pub struct CreateUserParams {
     pub password: String,
 }
 pub struct CreateUserService {
-    users_repository: SeaUserRepository,
+    user_repository: SeaUserRepository,
 }
 
 #[derive(Debug)]
@@ -20,9 +20,9 @@ pub enum CreateUserServiceErrors<UserExist, Internal> {
 }
 
 impl CreateUserService {
-    pub fn new(users_repository: SeaUserRepository) -> Self {
+    pub fn new(user_repository: SeaUserRepository) -> Self {
         CreateUserService {
-            users_repository
+            user_repository
         }
     }
 
@@ -35,7 +35,7 @@ impl CreateUserService {
     { self.create(params, role).await }
 
     async fn create(&self, params: CreateUserParams, role: UserRole) -> Result<UserModel, CreateUserServiceErrors<UserAlreadyExistsError, InternalError>> {
-        let user_on_db = &self.users_repository.find_by_nickname(&params.nickname).await;
+        let user_on_db = &self.user_repository.find_by_nickname(&params.nickname).await;
 
         if user_on_db.is_err() {
             return Err(CreateUserServiceErrors::InternalError(InternalError::new()));
@@ -47,7 +47,7 @@ impl CreateUserService {
 
         let hashed_password = generate_hash(params.password);
 
-       let created_user = self.users_repository.create(params.nickname, hashed_password, role).await;
+       let created_user = self.user_repository.create(params.nickname, hashed_password, role).await;
 
         if user_on_db.is_err() {
             return Err(CreateUserServiceErrors::InternalError(InternalError::new()));
