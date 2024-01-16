@@ -1,6 +1,7 @@
+use std::fmt;
 use http::StatusCode;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UserAlreadyExistsError {
     code: u16,
     message: String,
@@ -22,3 +23,11 @@ impl UserAlreadyExistsError {
         &self.message
     }
 }
+
+impl fmt::Display for UserAlreadyExistsError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl std::error::Error for UserAlreadyExistsError {}
