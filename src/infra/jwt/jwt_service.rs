@@ -1,28 +1,32 @@
 use jsonwebtoken::{encode, Header, Algorithm, EncodingKey, DecodingKey, decode, Validation, errors::Error as JwtError};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use entities::sea_orm_active_enums::Role as UserRole;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     sub: Uuid,
+    user_role: Option<UserRole>,
     exp: i64
 }
 
 impl Claims {
-    pub fn new(user_id: Uuid) -> Self {
+    pub fn new(user_id: Uuid, user_role: Option<UserRole>) -> Self {
         let now = chrono::Utc::now();
-        let exp = (now + chrono::Duration::minutes(5)).timestamp();
+        let exp = (now + chrono::Duration::hours(1)).timestamp();
         
         Claims {
             exp,
-            sub: user_id
+            sub: user_id,
+            user_role
         }
     }
 
-    pub fn new_with_custom_time(user_id: Uuid, exp_time: i64) -> Self {
+    pub fn new_with_custom_time(user_id: Uuid, user_role: Option<UserRole>, exp_time: i64) -> Self {
         Claims {
             exp: exp_time,
-            sub: user_id
+            sub: user_id,
+            user_role
         }
     }
 }
@@ -35,6 +39,7 @@ pub struct EncodedToken {
 #[derive(Debug)]
 pub struct DecodedToken {
     pub user_id: Uuid,
+    pub user_role: Option<UserRole>,
     pub exp: i64
 }
 
@@ -47,15 +52,15 @@ pub struct MakeJwtResult {
 pub struct JwtService {}
 
 impl JwtService {
-    pub fn make_jwt(user_id: uuid::Uuid, encoding_key: EncodingKey) ->  Result<MakeJwtResult, JwtError>{
+    pub fn make_jwt(&self, user_id: uuid::Uuid, user_role: UserRole, encoding_key: EncodingKey) ->  Result<MakeJwtResult, JwtError>{
         let mut header: Header = Header::new(Algorithm::HS256);
         header.typ = Some("JWT".to_string());
 
-        let access_claims: Claims = Claims::new(user_id);
+        let access_claims: Claims = Claims::new(user_id, Some(user_role));
 
-        let one_hour: i64 = (chrono::Utc::now() + chrono::Duration::hours(1)).timestamp();
+        let refresh_token_lifetime: i64 = (chrono::Utc::now() + chrono::Duration::hours(5)).timestamp();
 
-        let refresh_claims: Claims = Claims::new_with_custom_time(user_id, one_hour);
+        let refresh_claims: Claims = Claims::new_with_custom_time(user_id, None, refresh_token_lifetime);
 
         let access_token: Result<String, JwtError> = encode(&header, &access_claims, &encoding_key);
         let refresh_token: Result<String, JwtError> = encode(&header, &refresh_claims, &encoding_key);
@@ -72,7 +77,7 @@ impl JwtService {
         })
     }
 
-    pub fn decode_jwt(token: String, decoding_key: DecodingKey) -> Result<DecodedToken, JwtError> {
+    pub fn decode_jwt(&self, token: String, decoding_key: DecodingKey) -> Result<DecodedToken, JwtError> {
         let mut header: Header = Header::new(Algorithm::HS256);
         header.typ = Some("JWT".to_string());
 
@@ -85,8 +90,13 @@ impl JwtService {
         match token {
             Ok(token) => {
                 let id = token.claims.sub;
+                let role = token.claims.user_role;
 
-                Ok(DecodedToken { user_id: id, exp: token.claims.exp })
+                Ok(DecodedToken {
+                    user_id: id,
+                    exp: token.claims.exp,
+                    user_role: role
+                })
             },
             Err(err) => Err(err)
         }
