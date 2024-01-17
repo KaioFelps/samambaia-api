@@ -3,6 +3,7 @@ use entities::sea_orm_active_enums::Role as UserRole;
 use uuid::Uuid;
 use crate::infra::sea::sea_service::SeaService;
 use entities::user::{Model as UserModel, Column as UserColumn, Entity as UserEntity, ActiveModel as UserActiveModel};
+use crate::repositories::user_repository::UserRepositoryTrait;
 
 pub struct SeaUserRepository {
     pub sea_service: SeaService,
@@ -15,8 +16,10 @@ impl SeaUserRepository {
             sea_service,
         }
     }
+}
 
-    pub async fn create(&self, nickname: String, password: String, role: UserRole) -> Result<UserModel, DbErr> {
+impl UserRepositoryTrait for SeaUserRepository {
+    async fn create(&self, nickname: String, password: String, role: UserRole) -> Result<UserModel, DbErr> {
 
         let new_user = UserActiveModel {
             id: Uuid::new_v4().into_active_value(),
@@ -32,15 +35,15 @@ impl SeaUserRepository {
         Ok(created_user)
     }
 
-    pub async fn find_by_nickname(&self, nickname: &String) -> Result<Option<UserModel>, DbErr> {
+    async fn find_by_nickname(&self, nickname: &String) -> Result<Option<UserModel>, DbErr> {
         UserEntity::find().filter(UserColumn::Nickname.eq(nickname)).one(&self.sea_service.db).await
     }
 
-    pub async fn find_by_id(&self, id: &Uuid) -> Result<Option<UserModel>, DbErr> {
+    async fn find_by_id(&self, id: &Uuid) -> Result<Option<UserModel>, DbErr> {
         UserEntity::find_by_id(*id).one(&self.sea_service.db).await
     }
 
-    pub async fn save(&self, user: &UserActiveModel) -> Result<(), DbErr> {
+    async fn save(&self, user: &UserActiveModel) -> Result<(), DbErr> {
         let user_id = &user.id.clone().unwrap();
 
         let res = UserEntity::update(user.clone()).filter(UserColumn::Id.eq(*user_id)).exec(&self.sea_service.db).await;
