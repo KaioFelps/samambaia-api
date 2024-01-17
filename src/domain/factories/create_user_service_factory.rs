@@ -1,4 +1,4 @@
-use crate::services::create_user_service::CreateUserService;
+use crate::domain::services::create_user_service::CreateUserService;
 use crate::infra::sea::sea_service::SeaService;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 

@@ -1,30 +1,22 @@
-mod repositories;
-
 use entities::sea_orm_active_enums::Role;
 use entities::user::Column;
 use sea_orm::{EntityTrait, QueryFilter, ColumnTrait};
 use uuid::uuid;
 use env_config::EnvConfig;
-use factories::create_user_service_factory;
-// use infra::jwt::jwt_service::JwtService;
-// use jsonwebtoken::DecodingKey;
 use once_cell::sync::Lazy;
-use services::create_user_service::CreateUserParams;
-// use uuid::uuid;
-
-use crate::factories::{authenticate_user_service_factory, update_user_service_factory, change_password_service_factory};
-use crate::infra::sea::sea_service::SeaService;
-use crate::services::authenticate_user_service::AuthenticateUserParams;
-use crate::services::change_password_service::ChangePasswordParams;
-use crate::services::update_user_service::UpdateUserParams;
+use domain::factories::{authenticate_user_service_factory, update_user_service_factory, change_password_service_factory, create_user_service_factory};
+use infra::sea::sea_service::SeaService;
+use domain::services::authenticate_user_service::AuthenticateUserParams;
+use domain::services::change_password_service::ChangePasswordParams;
+use domain::services::update_user_service::UpdateUserParams;
+use domain::services::create_user_service::CreateUserParams;
 
 mod env_config;
 mod infra;
 mod errors;
 mod util;
-mod services;
-mod factories;
 
+mod domain;
 
 
 static ENV_VARS: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::from_env());

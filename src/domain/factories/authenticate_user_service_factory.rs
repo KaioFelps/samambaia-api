@@ -1,5 +1,5 @@
 use crate::infra::jwt::jwt_service::JwtService;
-use crate::services::authenticate_user_service::AuthenticateUserService;
+use crate::domain::services::authenticate_user_service::AuthenticateUserService;
 use crate::infra::sea::sea_service::SeaService;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 

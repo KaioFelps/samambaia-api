@@ -3,7 +3,7 @@ use entities::sea_orm_active_enums::Role as UserRole;
 use uuid::Uuid;
 use crate::infra::sea::sea_service::SeaService;
 use entities::user::{Model as UserModel, Column as UserColumn, Entity as UserEntity, ActiveModel as UserActiveModel};
-use crate::repositories::user_repository::UserRepositoryTrait;
+use crate::domain::repositories::user_repository::UserRepositoryTrait;
 
 pub struct SeaUserRepository {
     pub sea_service: SeaService,

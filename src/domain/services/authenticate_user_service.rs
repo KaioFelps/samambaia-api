@@ -2,7 +2,7 @@ use jsonwebtoken::EncodingKey;
 use crate::ENV_VARS;
 use crate::infra::jwt::jwt_service::{JwtService, MakeJwtResult};
 use crate::errors::{invalid_credentials_error::InvalidCredentialsError, internal_error::InternalError};
-use crate::repositories::user_repository::UserRepositoryTrait;
+use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use password_auth::verify_password;
 
 pub struct AuthenticateUserParams {

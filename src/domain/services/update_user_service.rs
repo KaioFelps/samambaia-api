@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::repositories::user_repository::UserRepositoryTrait;
+use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use entities::sea_orm_active_enums::Role as UserRole;
 use password_auth::generate_hash;
 use crate::util::verify_role_hierarchy_matches;

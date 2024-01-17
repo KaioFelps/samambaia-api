@@ -1,7 +1,7 @@
 use entities::user::Model as UserModel;
 use crate::errors::internal_error::InternalError;
 use crate::errors::user_already_exists_error::UserAlreadyExistsError;
-use crate::repositories::user_repository::UserRepositoryTrait;
+use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use password_auth::generate_hash;
 use entities::sea_orm_active_enums::Role as UserRole;
 
