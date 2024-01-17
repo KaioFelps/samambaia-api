@@ -9,7 +9,8 @@ use once_cell::sync::Lazy;
 use services::create_user_service::CreateUserParams;
 // use uuid::uuid;
 
-// use crate::{factories::{authenticate_user_service_factory, update_user_service_factory}, services::{authenticate_user_service::AuthenticateUserParams, update_user_service::UpdateUserParams}};
+use crate::factories::authenticate_user_service_factory;
+use crate::services::authenticate_user_service::AuthenticateUserParams;
 
 mod env_config;
 mod infra;
@@ -31,11 +32,11 @@ async fn main() {
         password: "velhalinda123".to_string()
     }, Role::Coord).await;
 
-    // let authenticate_user_service = authenticate_user_service_factory::exec().await;
+    let authenticate_user_service = authenticate_user_service_factory::exec().await;
 
-    // let tokens = authenticate_user_service.exec(AuthenticateUserParams { nickname: "Floricultor".to_string(), password: "123456".to_string() }).await;
+    let tokens = authenticate_user_service.exec(AuthenticateUserParams { nickname: "Floricultor".to_string(), password: "123456".to_string() }).await;
 
-    // println!("Encoded jwt access token: {:#?}. Refresh token: {:#?}", &tokens.as_ref().unwrap().access_token, &tokens.as_ref().unwrap().refresh_token);
+    println!("Encoded jwt access token: {:#?}. Refresh token: {:#?}", &tokens.as_ref().unwrap().access_token, &tokens.as_ref().unwrap().refresh_token);
 
 
     // let _ = create_user_service.exec(CreateUserParams {

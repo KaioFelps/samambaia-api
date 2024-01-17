@@ -1,16 +1,16 @@
 use jsonwebtoken::EncodingKey;
 use crate::ENV_VARS;
 use crate::infra::jwt::jwt_service::{JwtService, MakeJwtResult};
-use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::errors::{invalid_credentials_error::InvalidCredentialsError, internal_error::InternalError};
+use crate::repositories::user_repository::UserRepositoryTrait;
 use password_auth::verify_password;
 
 pub struct AuthenticateUserParams {
     pub nickname: String,
     pub password: String,
 }
-pub struct AuthenticateUserService {
-    user_repository: SeaUserRepository,
+pub struct AuthenticateUserService<UserRepository : UserRepositoryTrait> {
+    user_repository: Box<UserRepository>,
     jwt_service: Box<JwtService>
 }
 
@@ -20,8 +20,8 @@ pub enum AuthenticateUserServiceErrors<Cred, Internal> {
     InternalError(Internal)
 }
 
-impl AuthenticateUserService {
-    pub fn new(user_repository: SeaUserRepository, jwt_service: Box<JwtService>) -> Self {
+impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepositoryType> {
+    pub fn new(user_repository: Box<UserRepositoryType>, jwt_service: Box<JwtService>) -> Self {
         AuthenticateUserService {
             user_repository,
             jwt_service
