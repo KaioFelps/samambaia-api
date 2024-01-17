@@ -1,6 +1,8 @@
 mod repositories;
 
 use entities::sea_orm_active_enums::Role;
+use entities::user::Column;
+use sea_orm::{EntityTrait, QueryFilter, ColumnTrait};
 use uuid::uuid;
 use env_config::EnvConfig;
 use factories::create_user_service_factory;
@@ -10,8 +12,10 @@ use once_cell::sync::Lazy;
 use services::create_user_service::CreateUserParams;
 // use uuid::uuid;
 
-use crate::factories::{authenticate_user_service_factory, update_user_service_factory};
+use crate::factories::{authenticate_user_service_factory, update_user_service_factory, change_password_service_factory};
+use crate::infra::sea::sea_service::SeaService;
 use crate::services::authenticate_user_service::AuthenticateUserParams;
+use crate::services::change_password_service::ChangePasswordParams;
 use crate::services::update_user_service::UpdateUserParams;
 
 mod env_config;
@@ -29,10 +33,15 @@ static ENV_VARS: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::from_env());
 async fn main() { 
     let create_user_service = create_user_service_factory::exec().await;
 
-    let _ = create_user_service.exec_with_custom_role(CreateUserParams {
+    let _ = create_user_service.exec(CreateUserParams {
         nickname: "Fierce".to_string(),
         password: "velhalinda123".to_string()
-    }, Role::Coord).await;
+    }).await;
+
+    let _ = create_user_service.exec_with_custom_role(CreateUserParams {
+        nickname: "Floricultor".to_string(),
+        password: "123456".to_owned(),
+    }, Role::Ceo).await;
 
     let authenticate_user_service = authenticate_user_service_factory::exec().await;
 
@@ -41,14 +50,9 @@ async fn main() {
     println!("Encoded jwt access token: {:#?}. Refresh token: {:#?}", &tokens.as_ref().unwrap().access_token, &tokens.as_ref().unwrap().refresh_token);
 
 
-    let _ = create_user_service.exec(CreateUserParams {
-        nickname: "Vamp".to_string(),
-        password: "athos123".to_owned()
-    }).await;
-
     let update_user_service = update_user_service_factory::exec().await;
 
-    let res = update_user_service.exec(UpdateUserParams {
+    let _res = update_user_service.exec(UpdateUserParams {
         nickname: None,
         password: Some("athos123".to_string()),
         role: Some(entities::sea_orm_active_enums::Role::Coord),
@@ -56,7 +60,20 @@ async fn main() {
         user_id: uuid!("f7e38e5e-b0fd-4e28-b7a6-79a4bb38eb3c"),
     }).await;
 
-    println!("deu certo mudar o cargo maior {:#?}", res.unwrap());
+    let floricultor_user = entities::user::Entity::find().filter(Column::Nickname.eq("Floricultor".to_owned())).one(&SeaService::new().await.db).await.unwrap().unwrap();
+    let old_password = floricultor_user.password;
+
+    let change_password_service = change_password_service_factory::exec().await;
+
+    let _ = change_password_service.exec(ChangePasswordParams {
+        user_id: floricultor_user.id,
+        current_password: "123456".to_string(),
+        new_password: "123456791023".to_string()
+    }).await;
+
+    let new_password = entities::user::Entity::find().filter(Column::Nickname.eq("Floricultor".to_owned())).one(&SeaService::new().await.db).await.unwrap().unwrap().password;
+
+    assert_ne!(new_password, old_password);
 
     // let decoded_access_token = JwtService {}.decode_jwt(tokens.as_ref().unwrap().access_token.token.clone(), DecodingKey::from_secret(&ENV_VARS.jwt_secret.as_ref()));
     // let decoded_refresh_token = JwtService {}.decode_jwt(tokens.unwrap().refresh_token.token.clone(), DecodingKey::from_secret(&ENV_VARS.jwt_secret.as_ref()));
