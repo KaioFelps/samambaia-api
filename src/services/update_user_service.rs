@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
+use crate::repositories::user_repository::UserRepositoryTrait;
 use entities::sea_orm_active_enums::Role as UserRole;
 use password_auth::generate_hash;
 use crate::util::verify_role_hierarchy_matches;
@@ -19,8 +19,8 @@ pub struct UpdateUserParams {
     pub password: Option<String>,
     pub role: Option<UserRole>
 }
-pub struct UpdateUserService {
-    user_repository: SeaUserRepository,
+pub struct UpdateUserService<UserRepository: UserRepositoryTrait> {
+    user_repository: Box<UserRepository>,
 }
 
 #[derive(Debug)]
@@ -30,8 +30,8 @@ pub enum UpdateUserServiceErrors<Internal, UnAuth, NFound> {
     NotFound(NFound)
 }
 
-impl UpdateUserService {
-    pub fn new(user_repository: SeaUserRepository) -> Self {
+impl<UserRepositoryType: UserRepositoryTrait> UpdateUserService<UserRepositoryType> {
+    pub fn new(user_repository: Box<UserRepositoryType>) -> Self {
         UpdateUserService {
             user_repository
         }
