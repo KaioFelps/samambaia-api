@@ -1,7 +1,7 @@
 use entities::user::Model as UserModel;
 use crate::errors::internal_error::InternalError;
-use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::errors::user_already_exists_error::UserAlreadyExistsError;
+use crate::repositories::user_repository::UserRepositoryTrait;
 use password_auth::generate_hash;
 use entities::sea_orm_active_enums::Role as UserRole;
 
@@ -9,8 +9,8 @@ pub struct CreateUserParams {
     pub nickname: String,
     pub password: String,
 }
-pub struct CreateUserService {
-    user_repository: SeaUserRepository,
+pub struct CreateUserService<UserRepository: UserRepositoryTrait> {
+    user_repository: Box<UserRepository>,
 }
 
 #[derive(Debug)]
@@ -19,8 +19,8 @@ pub enum CreateUserServiceErrors<UserExist, Internal> {
     InternalError(Internal)
 }
 
-impl CreateUserService {
-    pub fn new(user_repository: SeaUserRepository) -> Self {
+impl<UserRepositoryType : UserRepositoryTrait> CreateUserService<UserRepositoryType> {
+    pub fn new(user_repository: Box<UserRepositoryType>) -> Self {
         CreateUserService {
             user_repository
         }
