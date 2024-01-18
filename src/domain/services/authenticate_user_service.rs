@@ -1,9 +1,9 @@
 use jsonwebtoken::EncodingKey;
 use crate::ENV_VARS;
+use crate::domain::cryptography::comparer::ComparerTrait;
 use crate::infra::jwt::jwt_service::{JwtService, MakeJwtResult};
 use crate::errors::{invalid_credentials_error::InvalidCredentialsError, internal_error::InternalError};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use password_auth::verify_password;
 
 pub struct AuthenticateUserParams {
     pub nickname: String,
@@ -11,7 +11,8 @@ pub struct AuthenticateUserParams {
 }
 pub struct AuthenticateUserService<UserRepository : UserRepositoryTrait> {
     user_repository: Box<UserRepository>,
-    jwt_service: Box<JwtService>
+    jwt_service: Box<JwtService>,
+    verifier: Box<dyn ComparerTrait>
 }
 
 #[derive(Debug)]
@@ -21,10 +22,11 @@ pub enum AuthenticateUserServiceErrors<Cred, Internal> {
 }
 
 impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepositoryType> {
-    pub fn new(user_repository: Box<UserRepositoryType>, jwt_service: Box<JwtService>) -> Self {
+    pub fn new(user_repository: Box<UserRepositoryType>, jwt_service: Box<JwtService>, verifier: Box<dyn ComparerTrait>) -> Self {
         AuthenticateUserService {
             user_repository,
-            jwt_service
+            jwt_service,
+            verifier
         }
     }
 
@@ -43,9 +45,9 @@ impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepos
 
         let user_on_db = user_on_db.as_ref().unwrap();
 
-        let password_matches = verify_password(&params.password, &user_on_db.password);
+        let password_matches = self.verifier.compare(&params.password, &user_on_db.password);
 
-        if password_matches.is_err() {
+        if !password_matches {
             return Err(AuthenticateUserServiceErrors::InvalidCredentials(InvalidCredentialsError::new()));
         }
 

@@ -1,3 +1,4 @@
+use crate::infra::cryptography::PasswordAuthHasherAndVerifier;
 use crate::infra::jwt::jwt_service::JwtService;
 use crate::domain::services::authenticate_user_service::AuthenticateUserService;
 use crate::infra::sea::sea_service::SeaService;
@@ -10,7 +11,9 @@ pub async fn exec() -> AuthenticateUserService<SeaUserRepository> {
     
     let jwt_service = JwtService {};
 
-    let authenticate_user_service = AuthenticateUserService::new(user_repository, Box::new(jwt_service));
+    let verifier = Box::new(PasswordAuthHasherAndVerifier {});
+
+    let authenticate_user_service = AuthenticateUserService::new(user_repository, Box::new(jwt_service), verifier);
 
     authenticate_user_service
 }

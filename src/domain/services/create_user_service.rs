@@ -1,8 +1,8 @@
 use entities::user::Model as UserModel;
+use crate::domain::cryptography::hasher::HasherTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::user_already_exists_error::UserAlreadyExistsError;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use password_auth::generate_hash;
 use entities::sea_orm_active_enums::Role as UserRole;
 
 pub struct CreateUserParams {
@@ -11,6 +11,7 @@ pub struct CreateUserParams {
 }
 pub struct CreateUserService<UserRepository: UserRepositoryTrait> {
     user_repository: Box<UserRepository>,
+    hasher: Box<dyn HasherTrait>
 }
 
 #[derive(Debug)]
@@ -20,9 +21,10 @@ pub enum CreateUserServiceErrors<UserExist, Internal> {
 }
 
 impl<UserRepositoryType : UserRepositoryTrait> CreateUserService<UserRepositoryType> {
-    pub fn new(user_repository: Box<UserRepositoryType>) -> Self {
+    pub fn new(user_repository: Box<UserRepositoryType>, hasher: Box<dyn HasherTrait>) -> Self {
         CreateUserService {
-            user_repository
+            user_repository,
+            hasher,
         }
     }
 
@@ -45,7 +47,7 @@ impl<UserRepositoryType : UserRepositoryTrait> CreateUserService<UserRepositoryT
             return Err(CreateUserServiceErrors::UserAlreadyExist(UserAlreadyExistsError::new(params.nickname)));
         }
 
-        let hashed_password = generate_hash(params.password);
+        let hashed_password = self.hasher.hash(params.password);
 
        let created_user = self.user_repository.create(params.nickname, hashed_password, role).await;
 
