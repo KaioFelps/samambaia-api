@@ -12,7 +12,7 @@ pub struct AuthenticateUserParams {
 pub struct AuthenticateUserService<UserRepository : UserRepositoryTrait> {
     user_repository: Box<UserRepository>,
     jwt_service: Box<JwtService>,
-    verifier: Box<dyn ComparerTrait>
+    comparer: Box<dyn ComparerTrait>
 }
 
 #[derive(Debug)]
@@ -22,11 +22,11 @@ pub enum AuthenticateUserServiceErrors<Cred, Internal> {
 }
 
 impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepositoryType> {
-    pub fn new(user_repository: Box<UserRepositoryType>, jwt_service: Box<JwtService>, verifier: Box<dyn ComparerTrait>) -> Self {
+    pub fn new(user_repository: Box<UserRepositoryType>, jwt_service: Box<JwtService>, comparer: Box<dyn ComparerTrait>) -> Self {
         AuthenticateUserService {
             user_repository,
             jwt_service,
-            verifier
+            comparer
         }
     }
 
@@ -45,7 +45,7 @@ impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepos
 
         let user_on_db = user_on_db.as_ref().unwrap();
 
-        let password_matches = self.verifier.compare(&params.password, &user_on_db.password);
+        let password_matches = self.comparer.compare(&params.password, &user_on_db.password().to_string());
 
         if !password_matches {
             return Err(AuthenticateUserServiceErrors::InvalidCredentials(InvalidCredentialsError::new()));
@@ -54,8 +54,8 @@ impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepos
         let jwt =
         self.jwt_service
         .make_jwt(
-            user_on_db.id,
-            user_on_db.role.clone().unwrap(),
+            user_on_db.id(),
+            user_on_db.role().unwrap(),
             EncodingKey::from_secret(&ENV_VARS.jwt_secret.as_ref())
         );
 
