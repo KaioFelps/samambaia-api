@@ -1,8 +1,8 @@
 [workspace]
-members = [".", "migration", "entities"]
+members = [".", "migration", "entities", "test"]
 
 [package]
-name = "hubbitos-backend"
+name = "hubbitos_backend"
 version = "0.1.0"
 edition = "2021"
 
