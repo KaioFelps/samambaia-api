@@ -1,23 +1,11 @@
-mod env_config;
-mod infra;
-mod errors;
-mod util;
-mod domain;
-
-use entities::sea_orm_active_enums::Role;
 use entities::user::Column;
 use sea_orm::{EntityTrait, QueryFilter, ColumnTrait};
 use uuid::uuid;
-use env_config::EnvConfig;
-use once_cell::sync::Lazy;
-use domain::factories::{authenticate_user_service_factory, update_user_service_factory, change_password_service_factory, create_user_service_factory};
-use infra::sea::sea_service::SeaService;
-use domain::services::authenticate_user_service::AuthenticateUserParams;
-use domain::services::change_password_service::ChangePasswordParams;
-use domain::services::update_user_service::UpdateUserParams;
-use domain::services::create_user_service::CreateUserParams;
 
-static ENV_VARS: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::from_env());
+use hubbitos_backend::domain::factories::{create_user_service_factory, authenticate_user_service_factory, update_user_service_factory, change_password_service_factory};
+use hubbitos_backend::domain::services::{create_user_service::CreateUserParams, authenticate_user_service::AuthenticateUserParams, update_user_service::UpdateUserParams, change_password_service::ChangePasswordParams};
+use hubbitos_backend::infra::sea::sea_service::SeaService;
+use hubbitos_backend::domain::domain_entities::role::Role;
 
 #[tokio::main]
 async fn main() { 
@@ -45,7 +33,7 @@ async fn main() {
     let _res = update_user_service.exec(UpdateUserParams {
         nickname: None,
         password: Some("athos123".to_string()),
-        role: Some(entities::sea_orm_active_enums::Role::Coord),
+        role: Some(Role::Coord),
         staff_id: uuid!("a13196fd-c363-4be3-8ce4-e8d9fe648695"),
         user_id: uuid!("f7e38e5e-b0fd-4e28-b7a6-79a4bb38eb3c"),
     }).await;

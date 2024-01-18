@@ -1,3 +1,4 @@
+use crate::domain::cryptography::both::HasherAndComparerTrait;
 use crate::domain::cryptography::{hasher::HasherTrait, comparer::ComparerTrait};
 use password_auth::generate_hash;
 use password_auth::verify_password;
@@ -20,3 +21,5 @@ impl ComparerTrait for PasswordAuthHasherAndVerifier {
         }
     }
 }
+
+impl HasherAndComparerTrait for PasswordAuthHasherAndVerifier {}

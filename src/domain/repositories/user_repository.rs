@@ -1,16 +1,16 @@
-
-use entities::user::Model as UserModel;
-use entities::user::ActiveModel as UserActiveModel;
-use entities::sea_orm_active_enums::Role as UserRole;
-use sea_orm::DbErr;
+use std::error::Error;
+use std::future::Future;
 use uuid::Uuid;
 
+use crate::domain::domain_entities::role::Role;
+use crate::domain::domain_entities::user::User;
+
 pub trait UserRepositoryTrait {
-    async fn create(&self, nickname: String, password: String, role: UserRole) -> Result<UserModel, DbErr>;
+    fn create(&self, nickname: String, password: String, role: Role) -> impl Future<Output = Result<User, Box<dyn Error>>>;
 
-    async fn find_by_nickname(&self, nickname: &String) -> Result<Option<UserModel>, DbErr> ;
+    fn find_by_nickname(&self, nickname: &String) -> impl Future<Output = Result<Option<User>, Box<dyn Error>>>;
 
-    async fn find_by_id(&self, id: &Uuid) -> Result<Option<UserModel>, DbErr>;
+    fn find_by_id(&self, id: &Uuid) -> impl Future<Output = Result<Option<User>, Box<dyn Error>>>;
 
-    async fn save(&self, user: &UserActiveModel) -> Result<(), DbErr>;
+    fn save(&self, user: User) -> impl Future<Output = Result<User, Box<dyn Error>>>;
 }

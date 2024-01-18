@@ -1,14 +1,9 @@
-use entities::user::Column;
-use entities::user::ActiveModel;
-use password_auth::verify_password;
-use sea_orm::ActiveModelTrait;
-use sea_orm::Value;
 use uuid::Uuid;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use password_auth::generate_hash;
+use crate::domain::cryptography::both::HasherAndComparerTrait;
 
 pub struct ChangePasswordParams {
     pub user_id: Uuid,
@@ -17,6 +12,7 @@ pub struct ChangePasswordParams {
 }
 pub struct ChangePasswordService<UserRepository: UserRepositoryTrait> {
     user_repository: Box<UserRepository>,
+    hasher_and_comparer: Box<dyn HasherAndComparerTrait>
 }
 
 #[derive(Debug)]
@@ -27,9 +23,10 @@ pub enum ChangePasswordServiceErrors<Internal, UnAuth, NFound> {
 }
 
 impl<UserRepositoryType: UserRepositoryTrait> ChangePasswordService<UserRepositoryType> {
-    pub fn new(user_repository: Box<UserRepositoryType>) -> Self {
+    pub fn new(user_repository: Box<UserRepositoryType>, hasher_and_comparer: Box<dyn HasherAndComparerTrait>) -> Self {
         ChangePasswordService {
-            user_repository
+            user_repository,
+            hasher_and_comparer
         }
     }
 
@@ -44,22 +41,19 @@ impl<UserRepositoryType: UserRepositoryTrait> ChangePasswordService<UserReposito
             return Err(ChangePasswordServiceErrors::NotFound(ResourceNotFoundError::new()));
         }
         
-        let user = user_on_db.unwrap().unwrap();
+        let mut user = user_on_db.unwrap().unwrap();
 
-        let password_matches = verify_password(params.current_password, &user.password);
+        let password_matches = self.hasher_and_comparer.compare(&params.current_password, &user.password().to_string());
 
-        match password_matches {
-            Ok(_) => (),
-            Err(_err) => return Err(ChangePasswordServiceErrors::Unauthorized(UnauthorizedError::new())),
+        if !password_matches {
+            return Err(ChangePasswordServiceErrors::Unauthorized(UnauthorizedError::new()));
         }
 
-        let mut user = ActiveModel::from(user.to_owned());
+        let new_password = self.hasher_and_comparer.hash(params.new_password);
 
-        let new_password = generate_hash(params.new_password);
+        user.set_password(new_password);
 
-        user.set(Column::Password, Value::from(new_password));
-
-        let result = self.user_repository.save(&user).await;
+        let result = self.user_repository.save(user).await;
 
         match result {
             Ok(_) => return Ok(()),
