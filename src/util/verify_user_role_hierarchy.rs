@@ -1,47 +1,47 @@
-use entities::sea_orm_active_enums::Role as UserRole;
+use crate::domain::domain_entities::role::Role;
 
-pub fn exec(role_1: &UserRole, role_2: &UserRole) -> bool {
+pub fn exec(role_1: &Role, role_2: &Role) -> bool {
     let is_valid = match role_1 {
-        UserRole::User => true,
-        UserRole::Writter => {
+        Role::User => true,
+        Role::Writter => {
             match role_2 {
-                UserRole::Writter => false,
-                UserRole::User => false,
+                Role::Writter => false,
+                Role::User => false,
                 _ => true
             }
         },
-        UserRole::Editor => {
+        Role::Editor => {
             match role_2 {
-                UserRole::User => false,
-                UserRole::Writter => false,
-                UserRole::Editor => false,
+                Role::User => false,
+                Role::Writter => false,
+                Role::Editor => false,
                 _ => true
             }
         },
-        UserRole::Coord => {
+        Role::Coord => {
             match role_2 {
-                UserRole::Ceo => true,
-                UserRole::Principal => true,
-                UserRole::Admin => true,
+                Role::Ceo => true,
+                Role::Principal => true,
+                Role::Admin => true,
                 _ => false
             }
         },
-        UserRole::Admin => {
+        Role::Admin => {
             match role_2 {
-                UserRole::Ceo => true,
-                UserRole::Principal => true,
+                Role::Ceo => true,
+                Role::Principal => true,
                 _ => false
             }
         },
-        UserRole::Principal => {
+        Role::Principal => {
             match role_2 {
-                UserRole::Ceo => true,
+                Role::Ceo => true,
                 _ => false
             }
         },
-        UserRole::Ceo => {
+        Role::Ceo => {
             match role_2 {
-                UserRole::Ceo => true,
+                Role::Ceo => true,
                 _ => false
             }
         }
