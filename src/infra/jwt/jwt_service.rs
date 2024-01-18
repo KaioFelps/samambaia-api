@@ -1,17 +1,18 @@
 use jsonwebtoken::{encode, Header, Algorithm, EncodingKey, DecodingKey, decode, Validation, errors::Error as JwtError};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use entities::sea_orm_active_enums::Role as UserRole;
+
+use crate::domain::domain_entities::role::Role;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     sub: Uuid,
-    user_role: Option<UserRole>,
+    user_role: Option<Role>,
     exp: i64
 }
 
 impl Claims {
-    pub fn new(user_id: Uuid, user_role: Option<UserRole>) -> Self {
+    pub fn new(user_id: Uuid, user_role: Option<Role>) -> Self {
         let now = chrono::Utc::now();
         let exp = (now + chrono::Duration::hours(1)).timestamp();
         
@@ -22,7 +23,7 @@ impl Claims {
         }
     }
 
-    pub fn new_with_custom_time(user_id: Uuid, user_role: Option<UserRole>, exp_time: i64) -> Self {
+    pub fn new_with_custom_time(user_id: Uuid, user_role: Option<Role>, exp_time: i64) -> Self {
         Claims {
             exp: exp_time,
             sub: user_id,
@@ -39,7 +40,7 @@ pub struct EncodedToken {
 #[derive(Debug)]
 pub struct DecodedToken {
     pub user_id: Uuid,
-    pub user_role: Option<UserRole>,
+    pub user_role: Option<Role>,
     pub exp: i64
 }
 
@@ -52,7 +53,7 @@ pub struct MakeJwtResult {
 pub struct JwtService {}
 
 impl JwtService {
-    pub fn make_jwt(&self, user_id: uuid::Uuid, user_role: UserRole, encoding_key: EncodingKey) ->  Result<MakeJwtResult, JwtError>{
+    pub fn make_jwt(&self, user_id: uuid::Uuid, user_role: Role, encoding_key: EncodingKey) ->  Result<MakeJwtResult, JwtError>{
         let mut header: Header = Header::new(Algorithm::HS256);
         header.typ = Some("JWT".to_string());
 
