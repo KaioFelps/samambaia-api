@@ -2,7 +2,7 @@ use chrono::{NaiveDateTime as DateTime, Utc};
 use uuid::Uuid;
 use super::role::Role;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct User {
     id: Uuid,
     nickname: String,
