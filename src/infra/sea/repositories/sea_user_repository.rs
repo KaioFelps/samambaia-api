@@ -1,5 +1,6 @@
 use std::error::Error;
 
+use async_trait::async_trait;
 use sea_orm::{EntityTrait, ActiveModelTrait, QueryFilter, ColumnTrait};
 use uuid::Uuid;
 use crate::infra::sea::sea_service::SeaService;
@@ -21,6 +22,7 @@ impl SeaUserRepository {
     }
 }
 
+#[async_trait]
 impl UserRepositoryTrait for SeaUserRepository {
     async fn create(&self, nickname: String, password: String, role: Role) -> Result<User, Box<dyn Error>> {
 
