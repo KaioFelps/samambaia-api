@@ -9,5 +9,6 @@ pub mod domain;
 
 static ENV_VARS: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::from_env());
 
-pub use domain::repositories::user_repository::UserRepositoryTrait;
 pub use uuid;
+pub use tokio;
+pub use async_trait;
