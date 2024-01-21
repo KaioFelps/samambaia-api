@@ -60,3 +60,47 @@ impl<UserRepositoryType : UserRepositoryTrait> CreateUserService<UserRepositoryT
        Ok(created_user)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::domain::{repositories::user_repository::MockUserRepositoryTrait, cryptography::hasher::MockHasherTrait};
+    use super::{User, CreateUserParams};
+
+    #[tokio::test]
+    async fn test() {
+        let mut mocked_repo = MockUserRepositoryTrait::new();
+
+        let mut db: Vec<User> = vec![];
+
+        mocked_repo.expect_find_by_nickname().returning(|_| Ok(None));
+
+        mocked_repo
+        .expect_create()
+        .returning(move |nickname, password, role| {
+            let user = User::new(nickname, password, Some(role));
+
+            db.push(user);
+
+            Ok(db[0].clone())
+        })
+        .times(1);
+
+        let mut mocked_hasher = MockHasherTrait::new();
+
+        mocked_hasher.expect_hash().returning(|param_password| {
+            format!("{}--hashed", param_password)
+        });
+
+        let service = super::CreateUserService {
+            user_repository: Box::new(mocked_repo),
+            hasher: Box::new(mocked_hasher)
+        };
+
+        let result = service.exec(CreateUserParams {
+            nickname: "Madalena".to_string(),
+            password: "madalena123".to_string()
+        }).await;
+
+        assert_eq!("Madalena", result.unwrap().nickname());
+    }
+}
