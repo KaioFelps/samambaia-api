@@ -12,8 +12,9 @@ pub struct Model {
     #[sea_orm(column_type = "Text", nullable)]
     pub content: Option<String>,
     pub author_id: Uuid,
-    pub likes: Option<i32>,
     pub created_at: DateTime,
+    pub cover_url: String,
+    pub updated_at: Option<DateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
