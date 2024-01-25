@@ -2,7 +2,6 @@ use std::error::Error;
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::user::User;
 
 #[cfg(test)]
@@ -11,7 +10,8 @@ use mockall::automock;
 #[cfg_attr(test, automock)]
 #[async_trait]
 pub trait UserRepositoryTrait {
-    async fn create(&self, nickname: String, password: String, role: Role) -> Result<User, Box<dyn Error>>;
+    // TODO: make it receives a whole User as a parameter just like 'save' method
+    async fn create(&self, user: User) -> Result<User, Box<dyn Error>>;
     
     async fn find_by_nickname(&self, nickname: &String) -> Result<Option<User>, Box<dyn Error>>;
     
@@ -23,10 +23,12 @@ pub trait UserRepositoryTrait {
 #[cfg(test)]
 mod test {
     use tokio;
+    use crate::domain::domain_entities::role::Role;
     use super::*;
 
     #[tokio::test]
     async fn create() {
+        let mut db: Vec<User> = vec![];
         let mut mocked_repo = MockUserRepositoryTrait::default();
 
         let nickname = "Floricultor".to_string();
@@ -35,13 +37,14 @@ mod test {
 
         mocked_repo
         .expect_create()
-        .returning(|nickname, password, role| {
-            let user = User::new(nickname, password, Some(role));
+        .returning(move |user: User| {
+            db.push(user);
 
-            Ok(user)
+            Ok(db[0].clone())
         });
 
-        let result = mocked_repo.create(nickname, password, role.unwrap()).await;
+        let user = User::new(nickname, password, role);
+        let result = mocked_repo.create(user).await;
 
         assert!(!result.unwrap().id().is_nil());
     }

@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use sea_orm::{EntityTrait, ActiveModelTrait, QueryFilter, ColumnTrait};
 use uuid::Uuid;
 use crate::infra::sea::sea_service::SeaService;
-use crate::domain::domain_entities::{role::Role, user::User};
+use crate::domain::domain_entities::user::User;
 use crate::infra::sea::mappers::user::UserMapper;
 use entities::user::{Column as UserColumn, Entity as UserEntity};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
@@ -24,10 +24,8 @@ impl SeaUserRepository {
 
 #[async_trait]
 impl UserRepositoryTrait for SeaUserRepository {
-    async fn create(&self, nickname: String, password: String, role: Role) -> Result<User, Box<dyn Error>> {
-
-        let new_user = User::new(nickname, password, Some(role));
-        let new_user = UserMapper::user_to_sea_active_model(new_user);
+    async fn create(&self, user: User) -> Result<User, Box<dyn Error>> {
+        let new_user = UserMapper::user_to_sea_active_model(user);
 
         let db = &self.sea_service.db;
 

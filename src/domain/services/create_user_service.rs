@@ -49,7 +49,9 @@ impl<UserRepositoryType : UserRepositoryTrait> CreateUserService<UserRepositoryT
 
         let hashed_password = self.hasher.hash(params.password);
 
-        let created_user = self.user_repository.create(params.nickname, hashed_password, role).await;
+        let user = User::new(params.nickname, hashed_password, Some(role));
+
+        let created_user = self.user_repository.create(user).await;
 
         if user_on_db.is_err() {
             return Err(CreateUserServiceErrors::InternalError(InternalError::new()));
@@ -76,9 +78,7 @@ mod test {
 
         mocked_repo
         .expect_create()
-        .returning(move |nickname, password, role| {
-            let user = User::new(nickname, password, Some(role));
-
+        .returning(move |user: User| {
             db.push(user);
 
             Ok(db[0].clone())
