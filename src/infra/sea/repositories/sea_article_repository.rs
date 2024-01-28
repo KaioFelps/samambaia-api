@@ -4,7 +4,7 @@ use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter};
 use uuid::Uuid;
 use std::error::Error;
 
-use crate::domain::repositories::article_repositoy::ArticleRepositoryTrait;
+use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::domain_entities::article::Article;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
 use crate::infra::sea::sea_service::SeaService;

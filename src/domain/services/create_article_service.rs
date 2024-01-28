@@ -1,7 +1,9 @@
 use std::error::Error;
 use uuid::Uuid;
 
-use crate::{domain::{domain_entities::{article::Article, role::Role}, repositories::{article_repositoy::ArticleRepositoryTrait, user_repository::UserRepositoryTrait}}, errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError}};
+use crate::domain::domain_entities::{article::Article, role::Role};
+use crate::domain::repositories::{article_repository::ArticleRepositoryTrait, user_repository::UserRepositoryTrait};
+use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
 
 pub struct CreateArticleParams {
     pub author_id: Uuid,
@@ -71,7 +73,7 @@ mod test {
     use uuid::Uuid;
 
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
-    use crate::domain::repositories::article_repositoy::MockArticleRepositoryTrait;
+    use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::domain_entities::user::User;
     use crate::domain::domain_entities::role::Role;
     use super::{Article, CreateArticleParams};
