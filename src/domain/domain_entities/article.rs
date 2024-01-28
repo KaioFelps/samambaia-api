@@ -8,6 +8,7 @@ pub struct Article {
     pub cover_url: String,
     pub title: String,
     pub content: String,
+    pub approved: bool,
     pub created_at: DateTime,
     pub updated_at: Option<DateTime>,
 }
@@ -32,6 +33,7 @@ impl Article {
             cover_url,
             title,
             content,
+            approved: false,
             created_at,
             updated_at,
         }
@@ -43,6 +45,7 @@ impl Article {
         cover_url: String,
         title: String,
         content: String,
+        approved: bool,
         created_at: DateTime,
         updated_at: Option<DateTime>,
     ) -> Self {
@@ -52,13 +55,10 @@ impl Article {
             cover_url,
             title,
             content,
+            approved,
             created_at,
             updated_at,
         }
-    }
-
-    pub fn id(&self) -> Uuid {
-        self.id
     }
 
     // METHODS
@@ -68,6 +68,10 @@ impl Article {
     }
 
     // GETTERS
+
+    pub fn id(&self) -> Uuid {
+        self.id
+    }
 
     pub fn author_id(&self) -> Uuid {
         self.author_id
@@ -83,6 +87,10 @@ impl Article {
 
     pub fn content(&self) -> &str {
         self.content.as_ref()
+    }
+
+    pub fn approved(&self) -> bool {
+        self.approved
     }
 
     pub fn created_at(&self) -> DateTime {
@@ -113,5 +121,9 @@ impl Article {
     pub fn set_content(&mut self, content: String) {
         self.content = content;
         self.touch();
+    }
+
+    pub fn set_approved(&mut self, approved: bool) {
+        self.approved = approved;
     }
 }

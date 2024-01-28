@@ -4,6 +4,7 @@ mod m20220101_000001_create_table;
 mod m20240114_032712_add_roles_to_user;
 mod m20240125_212235_add_new_fields_to_articles;
 mod m20240128_044449_make_article_content_not_nullable;
+mod m20240128_070407_add_approved_field_to_article;
 
 pub struct Migrator;
 
@@ -15,6 +16,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20240114_032712_add_roles_to_user::Migration),
             Box::new(m20240125_212235_add_new_fields_to_articles::Migration),
             Box::new(m20240128_044449_make_article_content_not_nullable::Migration),
+            Box::new(m20240128_070407_add_approved_field_to_article::Migration),
         ]
     }
 }

@@ -15,6 +15,7 @@ pub struct Model {
     pub created_at: DateTime,
     pub cover_url: String,
     pub updated_at: Option<DateTime>,
+    pub approved: bool,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
