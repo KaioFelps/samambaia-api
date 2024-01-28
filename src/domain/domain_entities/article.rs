@@ -3,14 +3,14 @@ use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Article {
-    pub id: Uuid,
-    pub author_id: Uuid,
-    pub cover_url: String,
-    pub title: String,
-    pub content: String,
-    pub approved: bool,
-    pub created_at: DateTime,
-    pub updated_at: Option<DateTime>,
+    id: Uuid,
+    author_id: Uuid,
+    cover_url: String,
+    title: String,
+    content: String,
+    approved: bool,
+    created_at: DateTime,
+    updated_at: Option<DateTime>,
 }
 
 impl Article {
