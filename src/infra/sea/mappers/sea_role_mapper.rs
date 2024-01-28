@@ -2,9 +2,9 @@ use entities::sea_orm_active_enums::Role as RoleModel;
 
 use crate::domain::domain_entities::role::Role;
 
-pub struct RoleMapper {}
+pub struct SeaRoleMapper {}
 
-impl RoleMapper {
+impl SeaRoleMapper {
     pub fn to_sea(role: Role) -> RoleModel {
         match role {
             Role::Ceo => RoleModel::Ceo,

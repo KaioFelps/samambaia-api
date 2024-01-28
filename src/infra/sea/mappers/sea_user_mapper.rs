@@ -4,15 +4,15 @@ use sea_orm::IntoActiveValue;
 
 use crate::domain::domain_entities::user::User;
 
-use super::role::RoleMapper;
+use super::sea_role_mapper::SeaRoleMapper;
 
-pub struct UserMapper {}
+pub struct SeaUserMapper {}
 
-impl UserMapper {
+impl SeaUserMapper {
     pub fn user_to_sea_model(user: User) -> UserModel {
         let role = match user.role() {
             None => None,
-            Some(role) => Some(RoleMapper::to_sea(role)),
+            Some(role) => Some(SeaRoleMapper::to_sea(role)),
         };
 
         let sea_model = UserModel {
@@ -30,7 +30,7 @@ impl UserMapper {
     pub fn user_to_sea_active_model(user: User) -> UserActiveModel {
         let role = match user.role() {
             None => None,
-            Some(role) => Some(RoleMapper::to_sea(role)),
+            Some(role) => Some(SeaRoleMapper::to_sea(role)),
         };
 
         let sea_active_model = UserActiveModel {
@@ -50,7 +50,7 @@ impl UserMapper {
 
         let role = match role {
             None => None,
-            Some(role) => Some(RoleMapper::to_domain(role)),
+            Some(role) => Some(SeaRoleMapper::to_domain(role)),
         };
         
         let user = User::new_from_existing(
@@ -70,7 +70,7 @@ impl UserMapper {
 
         let role = match role {
             None => None,
-            Some(role) => Some(RoleMapper::to_domain(role)),
+            Some(role) => Some(SeaRoleMapper::to_domain(role)),
         };
 
         let user = User::new_from_existing(
