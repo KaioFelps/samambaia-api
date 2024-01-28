@@ -24,8 +24,8 @@ CreateArticleService<ArticleRepository, UserRepository>
 {
     pub fn new(article_repository: Box<ArticleRepository>, user_repository: Box<UserRepository>) -> Self {
         CreateArticleService {
-            article_repository: article_repository,
-            user_repository: user_repository,
+            article_repository,
+            user_repository,
         }
     }
 
