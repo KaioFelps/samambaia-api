@@ -14,7 +14,7 @@ impl SeaArticleMapper {
             cover_url: article.cover_url().to_owned(),
             title: article.title().to_owned(),
             content: article.content().to_owned(),
-            approved: article.approved,
+            approved: article.approved(),
             created_at: article.created_at(),
             updated_at: article.updated_at(),
         };
@@ -29,7 +29,7 @@ impl SeaArticleMapper {
             cover_url: article.cover_url().to_owned().into_active_value(),
             title: article.title().to_owned().into_active_value(),
             content: article.content().to_owned().into_active_value(),
-            approved: article.approved.into_active_value(),
+            approved: article.approved().into_active_value(),
             created_at: article.created_at().into_active_value(),
             updated_at: article.updated_at().into_active_value(),
         };
