@@ -71,5 +71,18 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
             Err(err) => Err(Box::new(err))
         }
     }
+
+    async fn delete(&self, article: Article) -> Result<(), Box<dyn Error>> {
+        let article = SeaArticleMapper::article_to_sea_active_model(article);
+
+        let res = ArticleEntity::delete(article)
+        .exec(&self.sea_service.db)
+        .await;
+
+        match res {
+            Ok(_) => Ok(()),
+            Err(err) => Err(Box::new(err))
+        }
+    }
 }
 
