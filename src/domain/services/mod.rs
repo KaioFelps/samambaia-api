@@ -6,3 +6,4 @@ pub mod change_password_service;
 pub mod create_article_service;
 pub mod update_article_service;
 pub mod delete_article_service;
+pub mod fetch_many_articles_service;
