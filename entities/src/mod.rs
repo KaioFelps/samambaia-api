@@ -3,5 +3,5 @@
 pub mod prelude;
 
 pub mod article;
-pub mod user;
 pub mod sea_orm_active_enums;
+pub mod user;
