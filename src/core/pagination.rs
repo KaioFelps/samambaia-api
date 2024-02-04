@@ -5,17 +5,19 @@ pub struct PaginationResponse {
     pub total_items: u64,
 }
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub enum QueryType {
     TITLE,
     AUTHOR,
 }
 
+#[derive(Clone)]
 pub struct Query {
     pub content: String,
     pub query_type: QueryType
 }
 
+#[derive(Clone)]
 pub struct PaginationParameters {
     pub page: u32,
     pub items_per_page: u32,
