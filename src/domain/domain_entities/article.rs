@@ -1,6 +1,8 @@
 use chrono::{NaiveDateTime as DateTime, Utc};
 use uuid::Uuid;
 
+use super::slug::Slug;
+
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Article {
     id: Uuid,
@@ -11,6 +13,7 @@ pub struct Article {
     approved: bool,
     created_at: DateTime,
     updated_at: Option<DateTime>,
+    slug: Slug,
 }
 
 impl Article {
@@ -27,6 +30,8 @@ impl Article {
         let created_at  = Utc::now().naive_utc();
         let updated_at = None;
 
+        let slug = Slug::new(id, title.clone());
+
         Article {
             id,
             author_id,
@@ -36,6 +41,7 @@ impl Article {
             approved: false,
             created_at,
             updated_at,
+            slug
         }
     }
 
@@ -48,6 +54,7 @@ impl Article {
         approved: bool,
         created_at: DateTime,
         updated_at: Option<DateTime>,
+        slug: Slug,
     ) -> Self {
         Article {
             id,
@@ -58,6 +65,7 @@ impl Article {
             approved,
             created_at,
             updated_at,
+            slug
         }
     }
 
@@ -101,6 +109,10 @@ impl Article {
         self.updated_at
     }
 
+    pub fn slug(&self) -> Slug {
+        self.slug.clone()
+    }
+
     // SETTERS
 
     pub fn set_author_id(&mut self, author_id: Uuid) {
@@ -114,7 +126,9 @@ impl Article {
     }
 
     pub fn set_title(&mut self, title: String) {
-        self.title = title;
+        self.title = title.clone();
+        self.slug = Slug::new(self.id.clone(), title);
+
         self.touch();
     }
 
