@@ -1,11 +1,14 @@
 use async_trait::async_trait;
-use sea_orm::ColumnTrait;
+use migration::{Expr, Func};
+use sea_orm::{ColumnTrait, PaginatorTrait, QueryOrder, QuerySelect, QueryTrait};
 use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter};
 use uuid::Uuid;
 use std::error::Error;
 
-use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
+use crate::core::pagination::{PaginationParameters, Query, QueryType};
+use crate::domain::repositories::article_repository::{ArticleRepositoryTrait, FindManyResponse};
 use crate::domain::domain_entities::article::Article;
+use crate::errors::internal_error::InternalError;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
 use crate::infra::sea::sea_service::SeaService;
 
@@ -13,14 +16,14 @@ use entities::article::Entity as ArticleEntity;
 use entities::article::Column as ArticleColumn;
 
 pub struct SeaArticleRepository {
-    sea_service: SeaService
+    sea_service: SeaService,
 }
 
 impl SeaArticleRepository {
     // constructor
     pub async fn new(service: SeaService) -> Self {
         SeaArticleRepository {
-            sea_service: service.clone()
+            sea_service: service.clone(),
         }
     }
 }
@@ -56,6 +59,46 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
         }
     }
 
+    async fn find_many(&self, params: PaginationParameters) -> Result<FindManyResponse, Box<dyn Error>> {
+        #[allow(unused_mut)]
+        let mut articles_response;
+
+        #[allow(unused_mut)]
+        let mut articles_count_response;
+
+        let current_page = params.page as u64;
+        let items_per_page = params.items_per_page as u64;
+
+        let leap = ((&current_page - 1) * items_per_page) as u64;
+
+        articles_response = ArticleEntity::find()
+        .order_by_desc(ArticleColumn::CreatedAt)
+        .apply_if(params.clone().query, |#[allow(unused_mut)] mut query_builder, query| self.find_many_get_filters(query_builder, query))
+        .limit(items_per_page)
+        .offset(leap)
+        .all(&self.sea_service.db).await;
+
+        articles_count_response = ArticleEntity::find()
+        .apply_if(params.query, |#[allow(unused_mut)] mut query_builder, query| self.find_many_get_filters(query_builder, query))
+        .offset(leap)
+        .count(&SeaService::new().await.db).await;
+
+
+        if articles_response.is_err() || articles_count_response.is_err() {
+            return Err(Box::new(InternalError::new()));
+        }
+
+        let mut articles: Vec<Article> = vec![];
+
+        for article in articles_response.unwrap().into_iter() {
+            articles.push(SeaArticleMapper::model_to_article(article));
+        }
+
+        let articles_count = articles_count_response.unwrap();
+
+        Ok(FindManyResponse(articles, articles_count))
+    }
+
     async fn save(&self, article: Article) -> Result<Article, Box<dyn Error>> {
         let article_id = &article.id().clone();
 
@@ -86,3 +129,22 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
     }
 }
 
+impl SeaArticleRepository {
+    fn find_many_get_filters(&self, #[allow(unused_mut)] mut query_builder: sea_orm::Select<ArticleEntity>, query: Query) -> sea_orm::Select<ArticleEntity> {
+        let content = query.content;
+
+        match query.query_type {
+            QueryType::AUTHOR => {
+                let content = Uuid::parse_str(&content).unwrap();
+
+                let filter = ArticleColumn::AuthorId.eq(content);
+    
+                query_builder.filter(filter.clone())
+            },
+            QueryType::TITLE => {
+                let filter = Expr::expr(Func::lower(Expr::col(ArticleColumn::Title))).like(format!("%{}%", content));
+                query_builder.filter(filter.clone())
+            }
+        }
+    }
+}
