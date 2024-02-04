@@ -3,17 +3,22 @@ use std::error::Error;
 use crate::core::pagination::{PaginationParameters, PaginationResponse, Query, QueryType};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::{ArticleRepositoryTrait, FindManyResponse};
+use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::errors::internal_error::InternalError;
+use crate::errors::resource_not_found::ResourceNotFoundError;
 
 pub struct FetchManyArticlesParams {
-    page: Option<u32>,
-    per_page: Option<u32>,
-    query: Option<String>,
-    query_by: Option<QueryType>
+    pub page: Option<u32>,
+    pub per_page: Option<u32>,
+    pub query: Option<String>,
+    pub query_by: Option<QueryType>
 }
 
-pub struct FetchManyArticlesService<ArticleRepository : ArticleRepositoryTrait> {
-    article_repository: ArticleRepository,
+pub struct FetchManyArticlesService<ArticleRepository, UserRepository>
+where ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTrait
+{
+    article_repository: Box<ArticleRepository>,
+    user_repository: Box<UserRepository>,
 }
 
 #[derive(Debug)]
@@ -22,10 +27,13 @@ pub struct FetchManyArticlesResponse {
     pub data: Vec<Article>
 }
 
-impl<ArticleRepository: ArticleRepositoryTrait> FetchManyArticlesService<ArticleRepository> {
-    pub fn new(article_repository: ArticleRepository) -> Self {
+impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTrait>
+FetchManyArticlesService<ArticleRepository, UserRepository> {
+    // CONSTRUCTOR
+    pub fn new(article_repository: Box<ArticleRepository>, user_repository: Box<UserRepository>) -> Self {
         FetchManyArticlesService {
-            article_repository
+            article_repository,
+            user_repository
         }
     }
 
@@ -35,16 +43,13 @@ impl<ArticleRepository: ArticleRepositoryTrait> FetchManyArticlesService<Article
 
         let items_per_page = if params.per_page.is_some() { params.per_page.unwrap() } else { default_items_per_page };
         let page = if params.page.is_some() { params.page.unwrap() } else { default_page };
-        let query = if params.query.is_some() {
-            Some(
-                Query {
-                    content: params.query.unwrap(),
-                    query_type: params.query_by.unwrap(),
-                }
-            )
-        } else {
-            None
-        };
+        let query = self.parse_query(params.query, params.query_by).await;
+
+        if let Err(err) = query {
+            return Err(err)
+        }
+
+        let query = query.unwrap();
 
         let response = self.article_repository.find_many(PaginationParameters {
             items_per_page,
@@ -69,6 +74,41 @@ impl<ArticleRepository: ArticleRepositoryTrait> FetchManyArticlesService<Article
             }
         })
     }
+    
+    async fn parse_query(&self, query: Option<String>, query_by: Option<QueryType>) -> Result<Option<Query>, Box<dyn Error>> {
+        if query.is_none() {
+            return Ok(None);
+        }
+
+        let mut content: String;
+
+        content = query.as_ref().unwrap().clone();
+
+        if query_by.as_ref().unwrap().eq(&QueryType::AUTHOR) {
+            let user = self.user_repository.find_by_nickname(&query.as_ref().unwrap()).await;
+
+            if user.is_err() {
+                return Err(Box::new(InternalError::new()));
+            }
+
+            let user = user.unwrap();
+
+            if user.is_none() {
+                return Err(Box::new(ResourceNotFoundError::new()));
+            }
+
+            content = user.unwrap().id().to_string();
+        }
+
+        Ok(
+            Some(
+                Query {
+                    content,
+                    query_type: query_by.unwrap(),
+                }
+            )
+        )
+    }
 }
 
 #[cfg(test)]
@@ -80,6 +120,7 @@ mod test {
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::domain_entities::user::User;
     use crate::domain::domain_entities::role::Role;
+    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
 
     #[tokio::test]
     async fn test() {
@@ -91,6 +132,21 @@ mod test {
         db.push(Article::new(user.id(), "Article 2 title".to_string(), "Article 2 content here".to_string(), "url".to_string()));
 
         let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
+        let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
+
+        mocked_user_repo
+        .expect_find_by_nickname()
+        .returning(move |nickname| {
+            let user = user.clone();
+
+            let is_user = nickname == user.nickname();
+
+            if is_user {
+                return Ok(Some(user));
+            }
+
+            Ok(None)
+        });
 
         mocked_article_repo
         .expect_find_many()
@@ -110,20 +166,8 @@ mod test {
                                 articles.push(item.clone());
                             }
                         },
-                        QueryType::AUTHOR => {
-                            let user = user.clone();
-
-                            let is_user = content == user.nickname();
-
-                            #[warn(unused_mut)]
-                            let mut id: Uuid;
-                            id = Uuid::new_v4();
-
-                            if is_user {
-                                id = user.id();
-                            }
-                            
-                            if item.author_id().eq(&id) {
+                        QueryType::AUTHOR => {                            
+                            if item.author_id().eq(&Uuid::parse_str(&content).unwrap()) {
                                 articles.push(item.clone());
                             }
                         }
@@ -155,7 +199,7 @@ mod test {
             Ok(FindManyResponse (res_articles, total_of_items_before_paginating as u64))
         });
 
-        let fetch_many_articles_service = FetchManyArticlesService::new(mocked_article_repo);
+        let fetch_many_articles_service = FetchManyArticlesService::new(Box::new(mocked_article_repo), Box::new(mocked_user_repo));
 
         // make a request querying by title
         let res = fetch_many_articles_service.exec(FetchManyArticlesParams {
@@ -188,10 +232,9 @@ mod test {
             per_page: None,
             query: Some("Vamp".to_string()),
             query_by: Some(QueryType::AUTHOR),
-        }).await.unwrap();
+        }).await.unwrap_err();
 
-        assert_eq!(0, res_3.data.len());
-        assert_eq!(res_3.pagination, PaginationResponse { current_page: 1, total_pages: 0, total_items: 0 });
+        assert!(res_3.is::<ResourceNotFoundError>());
 
         // make a request querying by nickname that exists
         let res_4 = fetch_many_articles_service.exec(FetchManyArticlesParams {
