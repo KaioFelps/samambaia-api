@@ -99,6 +99,30 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
         Ok(FindManyResponse(articles, articles_count))
     }
 
+    async fn get_home_articles(&self) -> Result<Vec<Article>, Box<dyn Error>> {
+        let articles = ArticleEntity::find()
+        .limit(3)
+        .order_by_desc(ArticleColumn::CreatedAt)
+        .all(&self.sea_service.db)
+        .await;
+
+        if articles.is_err() {
+            return Err(Box::new(articles.unwrap_err()));
+        }
+
+        let articles = articles.unwrap();
+
+        let mut mapped_articles: Vec<Article> = vec![];
+
+        for article in articles {
+            mapped_articles.push(
+                SeaArticleMapper::model_to_article(article)
+            );
+        }
+
+        Ok(mapped_articles)
+    }
+
     async fn save(&self, article: Article) -> Result<Article, Box<dyn Error>> {
         let article_id = &article.id().clone();
 

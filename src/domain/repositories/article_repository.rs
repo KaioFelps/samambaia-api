@@ -23,6 +23,8 @@ pub trait ArticleRepositoryTrait {
 
     async fn find_many(&self, params: PaginationParameters) -> Result<FindManyResponse, Box<dyn Error>>;
 
+    async fn get_home_articles(&self) -> Result<Vec<Article>, Box<dyn Error>>;
+
     async fn save(&self, article: Article) -> Result<Article, Box<dyn Error>>;
 
     async fn delete(&self, article: Article) -> Result<(), Box<dyn Error>>;
