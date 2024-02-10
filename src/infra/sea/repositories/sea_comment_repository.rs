@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use async_trait::async_trait;
+use log::debug;
 use sea_orm::{ActiveModelTrait, IntoActiveValue, TransactionTrait};
 use uuid::Uuid;
 
@@ -27,36 +28,34 @@ impl SeaCommentRepository {
 
 #[async_trait]
 impl CommentRepositoryTrait for SeaCommentRepository {
-    // async fn create(&self, comment: Comment) -> Result<Comment, Box<dyn Error>> {
-    //     let new_comment = SeaCommentMapper::comment_to_sea_active_model(comment);
-
-    //     let db = &self.sea_service.db;
-
-    //     let created_comment = new_comment.insert(db).await.unwrap();
-    //     let created_comment = SeaCommentMapper::model_to_comment(created_comment);
-
-    //     Ok(created_comment)
-    // }
-
     async fn create(&self, comment: Comment, article_id: Uuid) -> Result<Comment, Box<dyn Error>> {
         let transaction = self.sea_service.db.begin().await?;
 
         let active_comment = SeaCommentMapper::comment_to_sea_active_model(comment);
-        let model_comment = active_comment.insert(&transaction).await?;
+        let model_comment = active_comment.insert(&transaction).await;
 
-        let comment = SeaCommentMapper::model_to_comment(model_comment);
+        if model_comment.is_err().clone() {
+            debug!("\r\n============\r\nComment insert failed with the err: {:#?}.\r\n============\r\n", model_comment.as_ref().unwrap_err());
+        }
 
-        CommentArticleActiveModel {
+        let comment = SeaCommentMapper::model_to_comment(model_comment.unwrap());
+        
+        let comment_article_insert = CommentArticleActiveModel {
+            id: Uuid::new_v4().into_active_value(),
             article_id: article_id.into_active_value(),
             comment_id: comment.id().into_active_value(),
-            ..Default::default()
         }
         .insert(&transaction)
-        .await?;
+        .await;
 
+        if comment_article_insert.is_err() {
+            debug!("\r\n============\r\nComment_Article insert failed with the err: {:#?}.\r\n============\r\n", comment_article_insert.unwrap_err());
+        }
+    
         let res = transaction.commit().await;
 
         if res.is_err() {
+            debug!("===========\r\nError occurred on sea_comment_repository.rs, line 50:\r\n{:#?}\r\n===========", res.unwrap_err());
             return Err(Box::new( InternalError::new() ) );
         }
 
