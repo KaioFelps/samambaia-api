@@ -1,15 +1,17 @@
 use dotenvy::dotenv;
 use entities::user::Column;
+use hubbitos_backend::domain::services::comment_on_article_service::CommentOnArticleParams;
 // use hubbitos_backend::domain::services::create_article_service::CreateArticleParams;
 // use hubbitos_backend::domain::services::fetch_many_articles_service::FetchManyArticlesParams;
 
 
-use hubbitos_backend::domain::factories::{create_article_service_factory, create_user_service_factory};
+use hubbitos_backend::domain::factories::{comment_on_article_service_factory, create_article_service_factory, create_user_service_factory};
 use hubbitos_backend::domain::services::create_user_service::CreateUserParams;
 use hubbitos_backend::domain::domain_entities::role::Role;
 use hubbitos_backend::infra::sea::mappers::sea_user_mapper::SeaUserMapper;
 use hubbitos_backend::infra::sea::sea_service::SeaService;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use uuid::uuid;
 
 use env_logger::{self, Target};
 
@@ -62,6 +64,16 @@ async fn main() {
     // }).await;
 
     // println!("{:#?}", articles.unwrap());
+
+    let cas = comment_on_article_service_factory::exec().await;
+
+    let res = cas.exec(CommentOnArticleParams {
+        article_id: uuid!("a8df0e54-efd4-47cf-867a-7387cbd065ac"),
+        author_id: uuid!("eb2521c7-3ea5-45c1-8c24-dff8e0d0cc42"),
+        content: "comentando na primeira noticiaaaa".into()
+    }).await;
+
+    println!("{:#?}", res.unwrap());
 
     // assert_ne!(new_password, old_password);
 
