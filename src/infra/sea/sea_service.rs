@@ -4,7 +4,7 @@ use sea_orm::{ConnectOptions, DatabaseConnection, Database};
 
 use crate::ENV_VARS;
 
-#[derive(Clone)]
+// #[derive(Clone)]
 pub struct SeaService {
     pub db: DatabaseConnection
 }
@@ -25,6 +25,14 @@ impl SeaService {
     pub async fn new () -> Self {
         Self {
             db: get_db_conn().await
+        }
+    }
+}
+
+impl Clone for SeaService {
+    fn clone(&self) -> Self {
+        Self {
+            db: self.db.clone()
         }
     }
 }
