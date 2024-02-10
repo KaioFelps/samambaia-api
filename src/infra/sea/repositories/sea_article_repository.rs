@@ -23,7 +23,7 @@ impl SeaArticleRepository {
     // constructor
     pub async fn new(service: SeaService) -> Self {
         SeaArticleRepository {
-            sea_service: service.clone(),
+            sea_service: service,
         }
     }
 }

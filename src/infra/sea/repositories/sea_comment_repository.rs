@@ -18,9 +18,9 @@ pub struct SeaCommentRepository {
 
 impl SeaCommentRepository {
     // constructor
-    pub async fn new(service: &SeaService) -> Self {
+    pub async fn new(service: SeaService) -> Self {
         SeaCommentRepository {
-            sea_service: service.clone(),
+            sea_service: service,
         }
     }
 }
