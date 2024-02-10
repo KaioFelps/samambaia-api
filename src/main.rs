@@ -1,13 +1,13 @@
 use dotenvy::dotenv;
 use entities::user::Column;
-use hubbitos_backend::domain::services::comment_on_article_service::CommentOnArticleParams;
 // use hubbitos_backend::domain::services::create_article_service::CreateArticleParams;
 // use hubbitos_backend::domain::services::fetch_many_articles_service::FetchManyArticlesParams;
 
 
-use hubbitos_backend::domain::factories::{comment_on_article_service_factory, create_article_service_factory, create_user_service_factory};
+use hubbitos_backend::domain::factories::{create_article_service_factory, create_user_service_factory, delete_comment_service_factory};
 use hubbitos_backend::domain::services::create_user_service::CreateUserParams;
 use hubbitos_backend::domain::domain_entities::role::Role;
+use hubbitos_backend::domain::services::delete_comment_service::DeleteCommentParams;
 use hubbitos_backend::infra::sea::mappers::sea_user_mapper::SeaUserMapper;
 use hubbitos_backend::infra::sea::sea_service::SeaService;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
@@ -65,15 +65,22 @@ async fn main() {
 
     // println!("{:#?}", articles.unwrap());
 
-    let cas = comment_on_article_service_factory::exec().await;
+    // let cas = comment_on_article_service_factory::exec().await;
 
-    let res = cas.exec(CommentOnArticleParams {
-        article_id: uuid!("a8df0e54-efd4-47cf-867a-7387cbd065ac"),
-        author_id: uuid!("eb2521c7-3ea5-45c1-8c24-dff8e0d0cc42"),
-        content: "comentando na primeira noticiaaaa".into()
+    // let res = cas.exec(CommentOnArticleParams {
+    //     article_id: uuid!("a8df0e54-efd4-47cf-867a-7387cbd065ac"),
+    //     author_id: uuid!("eb2521c7-3ea5-45c1-8c24-dff8e0d0cc42"),
+    //     content: "comentando na primeira noticiaaaa".into()
+    // }).await;
+
+    let dc = delete_comment_service_factory::exec().await;
+
+    let _ = dc.exec(DeleteCommentParams {
+        user_id: _floricultor_user.id(),
+        comment_id: uuid!("f65d2a07-9f42-4754-b052-4272b1a27b22")
     }).await;
 
-    println!("{:#?}", res.unwrap());
+    // println!("{:#?}", res.unwrap());
 
     // assert_ne!(new_password, old_password);
 
