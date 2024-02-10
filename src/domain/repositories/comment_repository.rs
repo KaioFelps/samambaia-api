@@ -18,9 +18,9 @@ pub struct FindManyCommentsResponse (
 pub trait CommentRepositoryTrait {
     async fn create(&self, comment: Comment, article_id: Uuid) -> Result<Comment, Box<dyn Error>>;
 
-    // async fn find_by_id(&self, id: Uuid) -> Result<Option<Comment>, Box<dyn Error>>;
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<Comment>, Box<dyn Error>>;
 
     // async fn find_many_by_comment_id(&self, comment_id: Uuid) -> Result<FindManyCommentsResponse, Box<dyn Error>>;
 
-    // async fn delete(&self, comment: Comment) -> Result<(), Box<dyn Error>>;
+    async fn delete(&self, comment: Comment) -> Result<(), Box<dyn Error>>;
 }
