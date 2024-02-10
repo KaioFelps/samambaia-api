@@ -11,12 +11,12 @@ pub mod core;
 static ENV_VARS: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::from_env());
 
 #[cfg(target_os = "windows")]
-const RUST_EOL: &'static str = "\r\n"; 
+const R_EOL: &'static str = "\r\n"; 
 
 #[cfg(not(target_os = "windows"))]
-const RUST_EOL: &'static str = "\n"; 
+const R_EOL: &'static str = "\n"; 
 
-const LOG_SEPARATOR: &'static str = "==============";
+const LOG_SEP: &'static str = "==============";
 
 pub use uuid;
 pub use tokio;
