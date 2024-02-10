@@ -1,5 +1,8 @@
 use std::error::Error;
+use log::error;
 use uuid::Uuid;
+
+use crate::{LOG_SEP, R_EOL};
 
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
@@ -34,7 +37,14 @@ DeleteArticleService<ArticleRepository, UserRepository>
     pub async fn exec(&self, params: DeleteArticleParams) -> Result<(), Box<dyn Error>> {
         let user_on_db = &self.user_repository.find_by_id(&params.user_id).await;
 
-        if user_on_db.is_err() { return Err(Box::new(InternalError::new())); }
+        if user_on_db.is_err() {
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Article Service, while finding user by Id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                user_on_db.as_ref().unwrap_err()
+            );
+
+            return Err(Box::new(InternalError::new()));
+        }
 
         let user_on_db = user_on_db.as_ref().unwrap().to_owned();
 
@@ -44,7 +54,14 @@ DeleteArticleService<ArticleRepository, UserRepository>
 
         let article_on_db = &self.article_repository.find_by_id(params.article_id).await;
 
-        if article_on_db.is_err() { return Err(Box::new(InternalError::new())); }
+        if article_on_db.is_err() {
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Article Service, while finding article by Id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                article_on_db.as_ref().unwrap_err()
+            );
+
+            return Err(Box::new(InternalError::new()));
+        }
         
         let article_on_db = article_on_db.as_ref().unwrap();
 
@@ -62,13 +79,16 @@ DeleteArticleService<ArticleRepository, UserRepository>
 
         let response = &self.article_repository.delete(article).await;
 
-        if response.as_ref().is_ok() {
-            return Ok(());
-        }
+        if response.as_ref().is_err() {
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Article Service, while deleting the article: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                response.as_ref().unwrap_err()
+            );
 
-        else {
-           return Err(Box::new(InternalError::new()));
+            return Err(Box::new(InternalError::new()));
         }
+        
+        Ok(())
     }
 }
 

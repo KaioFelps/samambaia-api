@@ -1,4 +1,5 @@
 use std::error::Error;
+use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::article::Article;
@@ -8,6 +9,8 @@ use crate::errors::bad_request_error::BadRequestError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
 use crate::util::{RolePermissions, verify_role_has_permission};
+
+use crate::{LOG_SEP, R_EOL};
 
 pub struct UpdateArticleParams {
     pub user_id: Uuid,
@@ -46,9 +49,16 @@ UpdateArticleService<ArticleRepository, UserRepository>
 
         // checks user exists
 
-        let user_on_db = &self.user_repository.find_by_id(&params.user_id).await;
+        let user_on_db = self.user_repository.find_by_id(&params.user_id).await;
 
-        if user_on_db.is_err() { return Err(Box::new(InternalError::new())); }
+        if user_on_db.is_err() {
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update Article Service, while finding user by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                user_on_db.as_ref().unwrap_err()
+            );
+
+            return Err(Box::new(InternalError::new()));
+        }
 
         let user_on_db = user_on_db.as_ref().unwrap().to_owned();
 
@@ -56,9 +66,16 @@ UpdateArticleService<ArticleRepository, UserRepository>
 
         // article verifications
 
-        let article_on_db = &self.article_repository.find_by_id(params.article_id).await;
+        let article_on_db = self.article_repository.find_by_id(params.article_id).await;
 
-        if article_on_db.is_err() { return Err(Box::new(InternalError::new())); }
+        if article_on_db.is_err() {
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update Article Service, while finding article by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                article_on_db.as_ref().unwrap_err()
+            );
+
+            return Err(Box::new(InternalError::new()));
+        }
         
         let article_on_db = article_on_db.as_ref().unwrap();
 
@@ -107,15 +124,18 @@ UpdateArticleService<ArticleRepository, UserRepository>
             article.set_approved(params.approved.unwrap());
         }
 
-        let response = &self.article_repository.save(article).await;
+        let response = self.article_repository.save(article).await;
 
-        if response.as_ref().is_ok() {
-            return Ok(response.as_ref().unwrap().clone());
-        }
+        if response.is_err() {
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update Article Service, while saving the article on the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                response.as_ref().unwrap_err()
+            );
 
-        else {
-           return Err(Box::new(InternalError::new()));
+            return Err(Box::new(InternalError::new()));
         }
+        
+        Ok(response.unwrap())
     }
 }
 

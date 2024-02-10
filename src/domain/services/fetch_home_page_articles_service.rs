@@ -1,5 +1,9 @@
 use std::error::Error;
+use log::error;
+
 use crate::{domain::{domain_entities::article::Article, repositories::article_repository::ArticleRepositoryTrait}, errors::internal_error::InternalError};
+
+use crate::{LOG_SEP, R_EOL};
 
 pub struct FetchHomePageArticlesService<ArticleRepository: ArticleRepositoryTrait> {
     article_repository: Box<ArticleRepository>
@@ -16,6 +20,11 @@ impl<ArticleRepository: ArticleRepositoryTrait> FetchHomePageArticlesService<Art
         let articles = self.article_repository.get_home_articles().await;
 
         if articles.is_err() {
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Home Page Articles Service, while getting the articles from database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                articles.as_ref().unwrap_err()
+            );
+            
             return Err(Box::new(InternalError::new()));
         }
 

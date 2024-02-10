@@ -1,9 +1,14 @@
+use std::error::Error;
 use jsonwebtoken::EncodingKey;
+use log::error;
+
 use crate::ENV_VARS;
 use crate::domain::cryptography::comparer::ComparerTrait;
 use crate::infra::jwt::jwt_service::{JwtService, MakeJwtResult};
 use crate::errors::{invalid_credentials_error::InvalidCredentialsError, internal_error::InternalError};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
+
+use crate::{LOG_SEP, R_EOL};
 
 pub struct AuthenticateUserParams {
     pub nickname: String,
@@ -15,12 +20,6 @@ pub struct AuthenticateUserService<UserRepository : UserRepositoryTrait> {
     comparer: Box<dyn ComparerTrait>
 }
 
-#[derive(Debug)]
-pub enum AuthenticateUserServiceErrors<Cred, Internal> {
-    InvalidCredentials(Cred),
-    InternalError(Internal)
-}
-
 impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepositoryType> {
     pub fn new(user_repository: Box<UserRepositoryType>, jwt_service: Box<JwtService>, comparer: Box<dyn ComparerTrait>) -> Self {
         AuthenticateUserService {
@@ -30,17 +29,22 @@ impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepos
         }
     }
 
-    pub async fn exec(&self, params: AuthenticateUserParams) -> Result<MakeJwtResult, AuthenticateUserServiceErrors<InvalidCredentialsError, InternalError>> {
+    pub async fn exec(&self, params: AuthenticateUserParams) -> Result<MakeJwtResult, Box<dyn Error>> {
         let user_on_db = &self.user_repository.find_by_nickname(&params.nickname).await;
 
         if user_on_db.is_err() {
-            return Err(AuthenticateUserServiceErrors::InternalError(InternalError::new()));
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Authenticate User Service, while fetching user from database:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                user_on_db.as_ref().unwrap_err()
+            );
+            
+            return Err(Box::new(InternalError::new()));
         }
 
         let user_on_db = user_on_db.as_ref().unwrap();
 
         if let None = user_on_db.as_ref() {
-            return Err(AuthenticateUserServiceErrors::InvalidCredentials(InvalidCredentialsError::new()));
+            return Err(Box::new(InvalidCredentialsError::new()));
         }
 
         let user_on_db = user_on_db.as_ref().unwrap();
@@ -48,7 +52,7 @@ impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepos
         let password_matches = self.comparer.compare(&params.password, &user_on_db.password().to_string());
 
         if !password_matches {
-            return Err(AuthenticateUserServiceErrors::InvalidCredentials(InvalidCredentialsError::new()));
+            return Err(Box::new(InvalidCredentialsError::new()));
         }
 
         let jwt =
@@ -62,7 +66,7 @@ impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepos
         match jwt {
             Ok(jwt) => return Ok(jwt),
             Err(_err) => {
-                return Err(AuthenticateUserServiceErrors::InternalError(InternalError::new()));
+                return Err(Box::new(InternalError::new()));
             }
         }
 

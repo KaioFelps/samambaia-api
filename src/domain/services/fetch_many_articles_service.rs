@@ -1,11 +1,15 @@
 use std::error::Error;
 
+use log::error;
+
 use crate::core::pagination::{PaginationParameters, PaginationResponse, Query, QueryType};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::{ArticleRepositoryTrait, FindManyResponse};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
+
+use crate::{LOG_SEP, R_EOL};
 
 pub struct FetchManyArticlesParams {
     pub page: Option<u32>,
@@ -46,6 +50,11 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
         let query = self.parse_query(params.query, params.query_by).await;
 
         if let Err(err) = query {
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Articles Service, while parsing the query: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                err.as_ref()
+            );
+            
             return Err(err)
         }
 
@@ -58,7 +67,11 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
         }).await;
 
         if response.is_err() {
-            dbg!(response.unwrap_err());
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Articles Service, while finding many articles from database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                response.as_ref().unwrap_err()
+            );
+
             return Err(Box::new(InternalError::new()));
         }
 

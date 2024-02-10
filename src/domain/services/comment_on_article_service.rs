@@ -14,6 +14,7 @@ use crate::errors::{
     internal_error::InternalError,
     unauthorized_error::UnauthorizedError
 };
+use crate::{R_EOL, LOG_SEP};
 
 pub struct CommentOnArticleParams {
     pub author_id: Uuid,
@@ -51,7 +52,7 @@ CommentOnArticleService<CR, AR, UR> {
         let user_on_db = self.user_repository.find_by_id(&params.author_id).await;
         
         if user_on_db.is_err() {
-            error!("\r\n===========\r\nError occurred on comment_on_article_service.rs, while fetching user from db:\r\n{:#?}\r\n===========\r\n", user_on_db.unwrap_err());
+            error!("{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while fetching user from db:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}", user_on_db.unwrap_err());
             return Err( Box::new( InternalError::new() ) );
         }
         if user_on_db.unwrap().is_none() { return Err( Box::new( UnauthorizedError::new() ) ); }
@@ -59,7 +60,7 @@ CommentOnArticleService<CR, AR, UR> {
         let article_on_db = self.article_repository.find_by_id(params.article_id.clone()).await;
 
         if article_on_db.is_err() {
-            error!("\r\n===========\r\nError occurred on comment_on_article_service.rs, while fetching article from db:\r\n{:#?}\r\n===========\r\n", article_on_db.unwrap_err());
+            error!("{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while fetching article from db:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}", article_on_db.unwrap_err());
             return Err( Box::new( InternalError::new() ) );
         }
 
@@ -73,7 +74,7 @@ CommentOnArticleService<CR, AR, UR> {
         let response = self.comment_repository.create(comment, params.article_id).await;
 
         if response.is_err() {
-            error!("\r\n===========\r\nError occurred on comment_on_article_service.rs, while creating comment transaction:\r\n{:#?}\r\n===========\r\n", response.unwrap_err());
+            error!("{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while creating comment transaction:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}", response.unwrap_err());
             return Err(Box::new(InternalError::new()));
         }
 

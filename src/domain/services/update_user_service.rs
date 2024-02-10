@@ -1,4 +1,8 @@
+use std::error::Error;
+
+use log::error;
 use uuid::Uuid;
+
 use crate::domain::cryptography::hasher::HasherTrait;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::user::User;
@@ -7,6 +11,8 @@ use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::util::verify_role_hierarchy_matches;
+
+use crate::{LOG_SEP, R_EOL};
 
 pub struct UpdateUserParams {
     pub staff_id: Uuid,
@@ -20,13 +26,6 @@ pub struct UpdateUserService<UserRepository: UserRepositoryTrait> {
     hasher: Box<dyn HasherTrait>
 }
 
-#[derive(Debug)]
-pub enum UpdateUserServiceErrors<Internal, UnAuth, NFound> {
-    InternalError(Internal),
-    Unauthorized(UnAuth),
-    NotFound(NFound)
-}
-
 impl<UserRepositoryType: UserRepositoryTrait> UpdateUserService<UserRepositoryType> {
     pub fn new(user_repository: Box<UserRepositoryType>, hasher: Box<dyn HasherTrait>) -> Self {
         UpdateUserService {
@@ -35,17 +34,22 @@ impl<UserRepositoryType: UserRepositoryTrait> UpdateUserService<UserRepositoryTy
         }
     }
 
-    pub async fn exec(&self, params: UpdateUserParams) -> Result<User, UpdateUserServiceErrors<InternalError, UnauthorizedError, ResourceNotFoundError>> {
+    pub async fn exec(&self, params: UpdateUserParams) -> Result<User, Box<dyn Error>> {
         let staff_on_db = self.user_repository.find_by_id(&params.staff_id).await;
 
         if staff_on_db.is_err() {
-            return Err(UpdateUserServiceErrors::InternalError(InternalError::new()));
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update User Service, while finding the staff user by staff id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                staff_on_db.as_ref().unwrap_err()
+            );
+
+            return Err(Box::new(InternalError::new()));
         }
 
         let staff_on_db = staff_on_db.unwrap();
 
         if staff_on_db.is_none() {
-            return Err(UpdateUserServiceErrors::Unauthorized(UnauthorizedError::new()));
+            return Err(Box::new(UnauthorizedError::new()));
         }
 
         let staff_on_db = staff_on_db.unwrap();
@@ -54,17 +58,22 @@ impl<UserRepositoryType: UserRepositoryTrait> UpdateUserService<UserRepositoryTy
             Some(Role::Admin) => (),
             Some(Role::Ceo) => (),
             Some(Role::Principal) => (),
-            _ => return Err(UpdateUserServiceErrors::Unauthorized(UnauthorizedError::new()))
+            _ => return Err(Box::new(UnauthorizedError::new()))
         }
         
         let user = self.user_repository.find_by_id(&params.user_id).await;
         
         if user.is_err() {
-            return Err(UpdateUserServiceErrors::InternalError(InternalError::new()));
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update User Service, while finding the user by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                user.as_ref().unwrap_err()
+            );
+
+            return Err(Box::new(InternalError::new()));
         }
         
         if let None = user.as_ref().unwrap() {
-            return Err(UpdateUserServiceErrors::NotFound(ResourceNotFoundError::new()));
+            return Err(Box::new(ResourceNotFoundError::new()));
         }
         
         let mut user = user.unwrap().unwrap();
@@ -76,7 +85,7 @@ impl<UserRepositoryType: UserRepositoryTrait> UpdateUserService<UserRepositoryTy
 
         if !operation_follows_role_hierarchy {
             return Err(
-                UpdateUserServiceErrors::Unauthorized(UnauthorizedError::new())
+                Box::new(UnauthorizedError::new())
             );
         }
 
@@ -93,8 +102,13 @@ impl<UserRepositoryType: UserRepositoryTrait> UpdateUserService<UserRepositoryTy
 
         match result {
             Ok(_) => (),
-            Err(_err) => {
-                return Err(UpdateUserServiceErrors::InternalError(InternalError::new()));
+            Err(err) => {
+                error!(
+                    "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update User Service, while saving the user on the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                    err
+                );
+
+                return Err(Box::new(InternalError::new()));
             }
         };
 

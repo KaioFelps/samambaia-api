@@ -1,9 +1,11 @@
 use std::error::Error;
+use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::{article::Article, role::Role};
 use crate::domain::repositories::{article_repository::ArticleRepositoryTrait, user_repository::UserRepositoryTrait};
 use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
+use crate::{LOG_SEP, R_EOL};
 
 pub struct CreateArticleParams {
     pub author_id: Uuid,
@@ -35,6 +37,11 @@ CreateArticleService<ArticleRepository, UserRepository>
         let user_on_db = &self.user_repository.find_by_id(&params.author_id).await;
 
         if user_on_db.is_err() {
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create Article Service, while fetching user from database:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                user_on_db.as_ref().unwrap_err()
+            );
+
             return Err(
                 Box::new(InternalError::new())
             );
@@ -55,15 +62,17 @@ CreateArticleService<ArticleRepository, UserRepository>
             params.cover_url
         );
 
-        let response = &self.article_repository.create(article).await;
+        let response = self.article_repository.create(article).await;
 
-        if response.as_ref().is_ok() {
-            return Ok(response.as_ref().unwrap().clone());
+        if response.is_err() {
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create Article Service, while creating the article:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                response.as_ref().unwrap_err()
+            );
+            return Err(Box::new(InternalError::new()));
         }
-
-        else {
-           return Err(Box::new(InternalError::new()));
-        }
+        
+        return Ok(response.unwrap());
     }
 }
 
