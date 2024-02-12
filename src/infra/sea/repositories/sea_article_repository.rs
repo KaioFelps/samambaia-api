@@ -71,7 +71,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
         let articles_count = ArticleEntity::find()
         .apply_if(params.query, |#[allow(unused_mut)] mut query_builder, query| self.find_many_get_filters(query_builder, query))
         .offset(leap)
-        .count(&SeaService::new().await.db).await?;
+        .count(&self.sea_service.db).await?;
 
         let mut articles: Vec<Article> = vec![];
 
