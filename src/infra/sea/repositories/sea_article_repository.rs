@@ -112,16 +112,6 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
 
         Ok(SeaArticleMapper::model_to_article(article))
     }
-
-    async fn delete(&self, article: Article) -> Result<(), Box<dyn Error>> {
-        let article = SeaArticleMapper::article_to_sea_active_model(article);
-
-        ArticleEntity::delete(article)
-        .exec(&self.sea_service.db)
-        .await?;
-
-        Ok(())
-    }
 }
 
 impl SeaArticleRepository {
