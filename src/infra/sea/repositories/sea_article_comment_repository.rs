@@ -21,7 +21,7 @@ pub struct SeaArticleCommentRepository {
 }
 
 impl SeaArticleCommentRepository {
-    pub fn new(service: SeaService) -> Self {
+    pub async fn new(service: SeaService) -> Self {
         SeaArticleCommentRepository {
             sea_service: service
         }

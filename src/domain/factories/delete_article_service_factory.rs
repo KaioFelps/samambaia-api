@@ -9,7 +9,7 @@ pub async fn exec<'sea_service_lf>() -> DeleteArticleService<SeaArticleRepositor
     let user_repository: Box<SeaUserRepository> = Box::new(SeaUserRepository::new(sea_service).await);
     
     let sea_service = SeaService::new().await;
-    let article_comment_repository = Box::new(SeaArticleCommentRepository::new(sea_service));
+    let article_comment_repository = Box::new(SeaArticleCommentRepository::new(sea_service).await);
 
     let sea_service = SeaService::new().await;
     let article_repository = Box::new(SeaArticleRepository::new(sea_service).await);
