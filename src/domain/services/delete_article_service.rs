@@ -2,34 +2,39 @@ use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
-use crate::{LOG_SEP, R_EOL};
-
+use crate::domain::repositories::article_comment_repository::ArticleCommentRepositoryTrait;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
 use crate::util::{RolePermissions, verify_role_has_permission};
 
+use crate::{LOG_SEP, R_EOL};
+
 pub struct DeleteArticleParams {
     pub user_id: Uuid,
     pub article_id: Uuid,
 }
 pub struct DeleteArticleService<
-ArticleRepository: ArticleRepositoryTrait,
-UserRepository: UserRepositoryTrait
+AR: ArticleRepositoryTrait,
+ACR: ArticleCommentRepositoryTrait,
+UR: UserRepositoryTrait
 > {
-    user_repository: Box<UserRepository>,
-    article_repository: Box<ArticleRepository>,
+    article_repository: Box<AR>,
+    article_comment_repository: Box<ACR>,
+    user_repository: Box<UR>,
 }
 
 impl
-<ArticleRepository: ArticleRepositoryTrait,
-UserRepository: UserRepositoryTrait>
-DeleteArticleService<ArticleRepository, UserRepository>
+<AR: ArticleRepositoryTrait,
+ACR: ArticleCommentRepositoryTrait,
+UR: UserRepositoryTrait> 
+DeleteArticleService<AR, ACR, UR>
 {
-    pub fn new(article_repository: Box<ArticleRepository>, user_repository: Box<UserRepository>) -> Self {
+    pub fn new(article_repository: Box<AR>, article_comment_repository: Box<ACR>, user_repository: Box<UR>) -> Self {
         DeleteArticleService {
             article_repository,
+            article_comment_repository,
             user_repository,
         }
     }
@@ -77,7 +82,7 @@ DeleteArticleService<ArticleRepository, UserRepository>
 
         if !user_can_delete { return Err(Box::new(UnauthorizedError::new())); }
 
-        let response = &self.article_repository.delete(article).await;
+        let response = &self.article_comment_repository.delete_article_with_comments(article).await;
 
         if response.as_ref().is_err() {
             error!(
@@ -101,6 +106,7 @@ mod test {
 
     use super::{DeleteArticleParams, DeleteArticleService};
 
+    use crate::domain::repositories::article_comment_repository::MockArticleCommentRepositoryTrait;
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::domain_entities::user::User;
@@ -156,18 +162,21 @@ mod test {
             Ok(None)
         });
 
+        let mut mocked_article_comment_repo = MockArticleCommentRepositoryTrait::new();
+
         let mocked_article_repo_db_clone = Arc::clone(&article_db);
-        mocked_article_repo
-        .expect_delete()
+        mocked_article_comment_repo
+        .expect_delete_article_with_comments()
         .returning(move |_article| {
             let mut article_db = mocked_article_repo_db_clone.lock().unwrap();
             article_db.truncate(0);
 
             Ok(())
         });
-
+        
         let service = DeleteArticleService {
             user_repository: Box::new(mocked_user_repo),
+            article_comment_repository: Box::new(mocked_article_comment_repo),
             article_repository: Box::new(mocked_article_repo)
         };
 

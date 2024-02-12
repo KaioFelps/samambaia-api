@@ -4,13 +4,15 @@ use entities::user::Column;
 // use hubbitos_backend::domain::services::fetch_many_articles_service::FetchManyArticlesParams;
 
 
+use hubbitos_backend::domain::domain_entities::comment::Comment;
 use hubbitos_backend::domain::factories::{create_article_service_factory, create_user_service_factory, delete_comment_service_factory};
 use hubbitos_backend::domain::services::create_user_service::CreateUserParams;
 use hubbitos_backend::domain::domain_entities::role::Role;
 use hubbitos_backend::domain::services::delete_comment_service::DeleteCommentParams;
 use hubbitos_backend::infra::sea::mappers::sea_user_mapper::SeaUserMapper;
 use hubbitos_backend::infra::sea::sea_service::SeaService;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use migration::{IntoCondition, IntoTableRef};
+use sea_orm::{ColumnTrait, Condition, ConnectionTrait, EntityTrait, QueryFilter, QuerySelect, QueryTrait, RelationTrait};
 use uuid::uuid;
 
 use env_logger::{self, Target};
@@ -18,21 +20,11 @@ use env_logger::{self, Target};
 // use entities::article::Entity as ArticleEntity;
 // use entities::article::Column as ArticleColumn;
 
+
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    env_logger::Builder::new().parse_env("RUST_LOG").target(Target::Stdout).init();        
-
-    let create_user_service = create_user_service_factory::exec().await;
-
-    let _ = create_user_service.exec_with_custom_role(CreateUserParams {
-        nickname: "Floricultor".to_string(),
-        password: "123456".to_owned(),
-    }, Role::Ceo).await;
-
-    // let authenticate_user_service = authenticate_user_service_factory::exec().await;
-
-    // let tokens = authenticate_user_service.exec(AuthenticateUserParams { nickname: "Floricultor".to_string(), password: "123456".to_string() }).await;
+    env_logger::Builder::new().parse_env("RUST_LOG").target(Target::Stdout).init();
 
     let floricultor_user = entities::user::Entity::find().filter(Column::Nickname.eq("Floricultor".to_owned())).one(&SeaService::new().await.db).await.unwrap().unwrap();
     let _floricultor_user = SeaUserMapper::model_to_user(floricultor_user);
@@ -73,19 +65,10 @@ async fn main() {
     //     content: "comentando na primeira noticiaaaa".into()
     // }).await;
 
-    let dc = delete_comment_service_factory::exec().await;
+    // let dc = delete_comment_service_factory::exec().await;
 
-    let _ = dc.exec(DeleteCommentParams {
-        user_id: _floricultor_user.id(),
-        comment_id: uuid!("f65d2a07-9f42-4754-b052-4272b1a27b22")
-    }).await;
-
-    // println!("{:#?}", res.unwrap());
-
-    // assert_ne!(new_password, old_password);
-
-    // let decoded_access_token = JwtService {}.decode_jwt(tokens.as_ref().unwrap().access_token.token.clone(), DecodingKey::from_secret(&ENV_VARS.jwt_secret.as_ref()));
-    // let decoded_refresh_token = JwtService {}.decode_jwt(tokens.unwrap().refresh_token.token.clone(), DecodingKey::from_secret(&ENV_VARS.jwt_secret.as_ref()));
-
-    // println!("DECODED ACCESS TOKEN: {:#?}. \nDECODED REFRESH TOKEN: {:#?}", decoded_access_token, decoded_refresh_token);
+    // let _ = dc.exec(DeleteCommentParams {
+    //     user_id: _floricultor_user.id(),
+    //     comment_id: uuid!("f65d2a07-9f42-4754-b052-4272b1a27b22")
+    // }).await;
 }
