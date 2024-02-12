@@ -12,12 +12,19 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub content: String,
     pub created_at: DateTime,
+    pub article_id: Uuid,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::comment_article::Entity")]
-    CommentArticle,
+    #[sea_orm(
+        belongs_to = "super::article::Entity",
+        from = "Column::ArticleId",
+        to = "super::article::Column::Id",
+        on_update = "NoAction",
+        on_delete = "Cascade"
+    )]
+    Article,
     #[sea_orm(
         belongs_to = "super::user::Entity",
         from = "Column::AuthorId",
@@ -28,9 +35,9 @@ pub enum Relation {
     User,
 }
 
-impl Related<super::comment_article::Entity> for Entity {
+impl Related<super::article::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::CommentArticle.def()
+        Relation::Article.def()
     }
 }
 

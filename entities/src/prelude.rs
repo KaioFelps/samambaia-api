@@ -2,5 +2,4 @@
 
 pub use super::article::Entity as Article;
 pub use super::comment::Entity as Comment;
-pub use super::comment_article::Entity as CommentArticle;
 pub use super::user::Entity as User;
