@@ -4,6 +4,7 @@ use uuid::Uuid;
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Comment {
     id: Uuid,
+    article_id: Uuid,
     author_id: Uuid,
     content: String,
     created_at: DateTime,
@@ -14,6 +15,7 @@ impl Comment {
     // CONSTRUCTORS
     pub fn new(
         author_id: Uuid,
+        article_id: Uuid,
         content: String,
     ) -> Self {
         let id = Uuid::new_v4();
@@ -22,6 +24,7 @@ impl Comment {
 
         Comment {
             id,
+            article_id,
             author_id,
             content,
             created_at
@@ -30,11 +33,13 @@ impl Comment {
 
     pub fn new_from_existing(
         id: Uuid,
+        article_id: Uuid,
         author_id: Uuid,
         content: String,
         created_at: DateTime,
     ) -> Self {
         Comment {
+            article_id,
             author_id,
             content,
             created_at,
@@ -46,6 +51,10 @@ impl Comment {
 
     pub fn id(&self) -> Uuid {
         self.id
+    }
+
+    pub fn article_id(&self) -> Uuid {
+        self.article_id
     }
 
     pub fn author_id(&self) -> Uuid {

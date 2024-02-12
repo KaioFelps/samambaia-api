@@ -10,7 +10,7 @@ use mockall::automock;
 #[cfg_attr(test, automock)]
 #[async_trait]
 pub trait CommentRepositoryTrait {
-    async fn create(&self, comment: Comment, article_id: Uuid) -> Result<Comment, Box<dyn Error>>;
+    async fn create(&self, comment: Comment) -> Result<Comment, Box<dyn Error>>;
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Comment>, Box<dyn Error>>;
 

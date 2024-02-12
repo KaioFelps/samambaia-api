@@ -68,10 +68,11 @@ CommentOnArticleService<CR, AR, UR> {
 
         let comment = Comment::new(
             params.author_id,
+            params.article_id,
             params.content,
         );
 
-        let response = self.comment_repository.create(comment, params.article_id).await;
+        let response = self.comment_repository.create(comment).await;
 
         if response.is_err() {
             error!("{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while creating comment transaction:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}", response.unwrap_err());
@@ -156,10 +157,10 @@ mod test {
 
         mocked_comment_repo
         .expect_create()
-        .returning(move |comment, article_id| {
+        .returning(move |comment| {
             comment_article_db_move_clone.lock().unwrap().push(CommentArticle {
             id: Uuid::new_v4(),
-            article_id,
+            article_id: comment.article_id(),
             comment_id: comment.id()
             });
 

@@ -10,6 +10,7 @@ impl SeaCommentMapper {
     pub fn comment_to_sea_model(comment: Comment) -> CommentModel {
         let sea_model = CommentModel {
             id: comment.id(),
+            article_id: comment.article_id(),
             author_id: comment.author_id(),
             content: comment.content().into(),
             created_at: comment.created_at(),
@@ -21,6 +22,7 @@ impl SeaCommentMapper {
     pub fn comment_to_sea_active_model(comment: Comment) -> CommentActiveModel {
         let sea_active_model = CommentActiveModel {
             id: comment.id().into_active_value(),
+            article_id: comment.article_id().into_active_value(),
             author_id: comment.author_id().into_active_value(),
             content: comment.content().to_string().into_active_value(),
             created_at: comment.created_at().into_active_value(),
@@ -32,6 +34,7 @@ impl SeaCommentMapper {
     pub fn active_model_to_comment(active_model_comment: CommentActiveModel) -> Comment {        
         let comment = Comment::new_from_existing(
             active_model_comment.id.unwrap(),
+            active_model_comment.article_id.unwrap(),
             active_model_comment.author_id.unwrap(),
             active_model_comment.content.unwrap(),
             active_model_comment.created_at.unwrap(),
@@ -42,10 +45,11 @@ impl SeaCommentMapper {
 
     pub fn model_to_comment(model_comment: CommentModel) -> Comment {
         let comment = Comment::new_from_existing(
-            model_comment.id.to_owned(),
-            model_comment.author_id.to_owned(),
-            model_comment.content.to_owned(),
-            model_comment.created_at.to_owned(),
+            model_comment.id.into(),
+            model_comment.article_id.into(),
+            model_comment.author_id.into(),
+            model_comment.content.into(),
+            model_comment.created_at.into(),
         );
 
         comment
