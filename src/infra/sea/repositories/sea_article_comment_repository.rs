@@ -1,12 +1,14 @@
 use std::error::Error;
 use std::future::Future;
 use async_trait::async_trait;
-use sea_orm::{ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, TransactionTrait};
+use migration::{Expr, Func};
+use sea_orm::{ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait, TransactionTrait};
 use uuid::Uuid;
 
+use crate::core::pagination::{PaginationParameters, Query};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment::Comment;
-use crate::domain::repositories::article_comment_repository::{ArticleCommentRepositoryTrait, FindManyCommentsResponse};
+use crate::domain::repositories::article_comment_repository::{ArticleCommentRepositoryTrait, CommentQueryType, FindManyCommentsResponse};
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
 use crate::infra::sea::mappers::sea_comment_mapper::SeaCommentMapper;
 use crate::infra::sea::sea_service::SeaService;
@@ -30,15 +32,25 @@ impl SeaArticleCommentRepository {
 
 #[async_trait]
 impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository {
-    async fn find_many_comments_by_article_id(&self, article_id: Uuid) -> Result<FindManyCommentsResponse, Box<dyn Error>> {
+    async fn find_many_comments(&self, article_id: Option<Uuid>, params: PaginationParameters<CommentQueryType>) -> Result<FindManyCommentsResponse, Box<dyn Error>> {
+        let current_page = params.page as u64;
+        let items_per_page = params.items_per_page as u64;
+
+        let leap = ((&current_page - 1) * items_per_page) as u64;
+
         let comments = CommentEntity::find()
-        .filter(CommentColumn::ArticleId.eq(article_id))
+        .apply_if(article_id, |query_builder, id| query_builder.filter(CommentColumn::ArticleId.eq(id)))
+        .apply_if(params.clone().query, |query_builder, query| self.find_many_get_filters(query_builder, query))
         .order_by_desc(CommentColumn::CreatedAt)
+        .limit(items_per_page)
+        .offset(leap)
         .all(&self.sea_service.db)
         .await?;
 
         let comments_count = CommentEntity::find()
-        .filter(CommentColumn::ArticleId.eq(article_id))
+        .apply_if(article_id, |query_builder, id| query_builder.filter(CommentColumn::ArticleId.eq(id)))
+        .apply_if(params.clone().query, |query_builder, query| self.find_many_get_filters(query_builder, query))
+        .offset(leap)
         .count(&self.sea_service.db)
         .await?;
 
@@ -85,5 +97,23 @@ impl SeaArticleCommentRepository {
         CommentEntity::delete_many()
         .filter(CommentColumn::ArticleId.eq(article_id))
         .exec(conn)
+    }
+
+    fn find_many_get_filters(&self, query_builder: sea_orm::Select<CommentEntity>, query: Query<CommentQueryType>) -> sea_orm::Select<CommentEntity> {
+        let content = query.content;
+
+        match query.query_type {
+            CommentQueryType::AUTHOR => {
+                let content = Uuid::parse_str(&content).unwrap();
+
+                let filter = CommentColumn::AuthorId.eq(content);
+    
+                query_builder.filter(filter)
+            },
+            CommentQueryType::CONTENT => {
+                let filter = Expr::expr(Func::lower(Expr::col(CommentColumn::Content))).like(format!("%{}%", content));
+                query_builder.filter(filter)
+            }
+        }
     }
 }

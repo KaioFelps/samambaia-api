@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use uuid::Uuid;
 use std::error::Error;
+use crate::core::pagination::PaginationParameters;
 
 use crate::domain::domain_entities::{article::Article, comment::Comment};
  
@@ -13,10 +14,16 @@ pub struct FindManyCommentsResponse (
     pub u64, // count
 );
 
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum CommentQueryType {
+    AUTHOR,
+    CONTENT,
+}
+
 #[cfg_attr(test, automock)]
 #[async_trait]
 pub trait ArticleCommentRepositoryTrait {
-    async fn find_many_comments_by_article_id(& self, article_id: Uuid) -> Result<FindManyCommentsResponse, Box<dyn Error>>;
+    async fn find_many_comments(& self, article_id: Option<Uuid>, params: PaginationParameters<CommentQueryType>) -> Result<FindManyCommentsResponse, Box<dyn Error>>;
 
     async fn delete_many_comments_by_article_id(& self, article_id: Uuid) -> Result<(), Box<dyn Error>>;
 
