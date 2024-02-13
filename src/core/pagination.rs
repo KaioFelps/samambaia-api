@@ -5,21 +5,15 @@ pub struct PaginationResponse {
     pub total_items: u64,
 }
 
-#[derive(PartialEq, Eq, Debug, Clone)]
-pub enum QueryType {
-    TITLE,
-    AUTHOR,
-}
-
 #[derive(Clone)]
-pub struct Query {
+pub struct Query<QT> {
     pub content: String,
-    pub query_type: QueryType
+    pub query_type: QT
 }
 
 #[derive(Clone)]
-pub struct PaginationParameters {
+pub struct PaginationParameters<QT> {
     pub page: u32,
     pub items_per_page: u32,
-    pub query: Option<Query>,
+    pub query: Option<Query<QT>>,
 }
