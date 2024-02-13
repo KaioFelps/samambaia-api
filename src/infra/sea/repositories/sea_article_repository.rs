@@ -5,8 +5,8 @@ use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter};
 use uuid::Uuid;
 use std::error::Error;
 
-use crate::core::pagination::{PaginationParameters, Query, QueryType};
-use crate::domain::repositories::article_repository::{ArticleRepositoryTrait, FindManyResponse};
+use crate::core::pagination::{PaginationParameters, Query};
+use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyResponse};
 use crate::domain::domain_entities::article::Article;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
 use crate::infra::sea::sea_service::SeaService;
@@ -52,7 +52,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
         Ok(Some(mapped_article))
     }
 
-    async fn find_many(&self, params: PaginationParameters) -> Result<FindManyResponse, Box<dyn Error>> {
+    async fn find_many(&self, params: PaginationParameters<ArticleQueryType>) -> Result<FindManyResponse, Box<dyn Error>> {
         #[allow(unused_mut)]
         let mut articles_response;
 
@@ -115,18 +115,18 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
 }
 
 impl SeaArticleRepository {
-    fn find_many_get_filters(&self, #[allow(unused_mut)] mut query_builder: sea_orm::Select<ArticleEntity>, query: Query) -> sea_orm::Select<ArticleEntity> {
+    fn find_many_get_filters(&self, #[allow(unused_mut)] mut query_builder: sea_orm::Select<ArticleEntity>, query: Query<ArticleQueryType>) -> sea_orm::Select<ArticleEntity> {
         let content = query.content;
 
         match query.query_type {
-            QueryType::AUTHOR => {
+            ArticleQueryType::AUTHOR => {
                 let content = Uuid::parse_str(&content).unwrap();
 
                 let filter = ArticleColumn::AuthorId.eq(content);
     
                 query_builder.filter(filter.clone())
             },
-            QueryType::TITLE => {
+            ArticleQueryType::TITLE => {
                 let filter = Expr::expr(Func::lower(Expr::col(ArticleColumn::Title))).like(format!("%{}%", content));
                 query_builder.filter(filter.clone())
             }

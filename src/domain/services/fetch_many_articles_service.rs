@@ -2,9 +2,9 @@ use std::error::Error;
 
 use log::error;
 
-use crate::core::pagination::{PaginationParameters, PaginationResponse, Query, QueryType};
+use crate::core::pagination::{PaginationParameters, PaginationResponse, Query};
 use crate::domain::domain_entities::article::Article;
-use crate::domain::repositories::article_repository::{ArticleRepositoryTrait, FindManyResponse};
+use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyResponse};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
@@ -15,7 +15,7 @@ pub struct FetchManyArticlesParams {
     pub page: Option<u32>,
     pub per_page: Option<u32>,
     pub query: Option<String>,
-    pub query_by: Option<QueryType>
+    pub query_by: Option<ArticleQueryType>
 }
 
 pub struct FetchManyArticlesService<ArticleRepository, UserRepository>
@@ -88,7 +88,7 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
         })
     }
     
-    async fn parse_query(&self, query: Option<String>, query_by: Option<QueryType>) -> Result<Option<Query>, Box<dyn Error>> {
+    async fn parse_query(&self, query: Option<String>, query_by: Option<ArticleQueryType>) -> Result<Option<Query<ArticleQueryType>>, Box<dyn Error>> {
         if query.is_none() {
             return Ok(None);
         }
@@ -97,7 +97,7 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
 
         content = query.as_ref().unwrap().clone();
 
-        if query_by.as_ref().unwrap().eq(&QueryType::AUTHOR) {
+        if query_by.as_ref().unwrap().eq(&ArticleQueryType::AUTHOR) {
             let user = self.user_repository.find_by_nickname(&query.as_ref().unwrap()).await;
 
             if user.is_err() {
@@ -174,12 +174,12 @@ mod test {
                 
                 for item in db.iter() {
                     match by {
-                        QueryType::TITLE => {
+                        ArticleQueryType::TITLE => {
                             if item.title().to_lowercase().contains(&content.to_lowercase()[..]) {
                                 articles.push(item.clone());
                             }
                         },
-                        QueryType::AUTHOR => {                            
+                        ArticleQueryType::AUTHOR => {                            
                             if item.author_id().eq(&Uuid::parse_str(&content).unwrap()) {
                                 articles.push(item.clone());
                             }
@@ -219,7 +219,7 @@ mod test {
             page: Some(2),
             per_page: Some(1),
             query: Some("article".to_string()),
-            query_by: Some(QueryType::TITLE)
+            query_by: Some(ArticleQueryType::TITLE)
         }).await.unwrap();
 
         assert_eq!(1, res.data.len());
@@ -244,7 +244,7 @@ mod test {
             page: None,
             per_page: None,
             query: Some("Vamp".to_string()),
-            query_by: Some(QueryType::AUTHOR),
+            query_by: Some(ArticleQueryType::AUTHOR),
         }).await.unwrap_err();
 
         assert!(res_3.is::<ResourceNotFoundError>());
@@ -254,7 +254,7 @@ mod test {
             page: None,
             per_page: None,
             query: Some("Floricultor".to_string()),
-            query_by: Some(QueryType::AUTHOR),
+            query_by: Some(ArticleQueryType::AUTHOR),
         }).await.unwrap();
 
         assert_eq!(2, res_4.data.len());

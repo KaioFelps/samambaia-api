@@ -14,6 +14,13 @@ pub struct FindManyResponse (
     pub u64,
 );
 
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum ArticleQueryType {
+    TITLE,
+    AUTHOR,
+}
+
+
 #[cfg_attr(test, automock)]
 #[async_trait]
 pub trait ArticleRepositoryTrait {
@@ -21,7 +28,7 @@ pub trait ArticleRepositoryTrait {
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Article>, Box<dyn Error>>;
 
-    async fn find_many(&self, params: PaginationParameters) -> Result<FindManyResponse, Box<dyn Error>>;
+    async fn find_many(&self, params: PaginationParameters<ArticleQueryType>) -> Result<FindManyResponse, Box<dyn Error>>;
 
     async fn get_home_articles(&self) -> Result<Vec<Article>, Box<dyn Error>>;
 
