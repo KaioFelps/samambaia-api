@@ -77,6 +77,12 @@ impl CommentReport {
             created_at,
         }
     }
+
+    // SETTERS
+
+    pub fn set_solved(&mut self, value: bool) -> () {
+        self.solved = value;
+    }
 }
 
 #[duplicate::duplicate_item(comment_report; [DraftCommentReport]; [CommentReport])]
