@@ -4,48 +4,41 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "comment")]
+#[sea_orm(table_name = "comment_report")]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
-    pub id: Uuid,
-    pub author_id: Uuid,
+    #[sea_orm(primary_key)]
+    pub id: i32,
+    pub comment_id: Uuid,
+    pub user_id: Uuid,
     #[sea_orm(column_type = "Text")]
-    pub content: String,
+    pub message: String,
+    pub solved: bool,
     pub created_at: DateTime,
-    pub article_id: Uuid,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::article::Entity",
-        from = "Column::ArticleId",
-        to = "super::article::Column::Id",
+        belongs_to = "super::comment::Entity",
+        from = "Column::CommentId",
+        to = "super::comment::Column::Id",
         on_update = "NoAction",
         on_delete = "Cascade"
     )]
-    Article,
-    #[sea_orm(has_many = "super::comment_report::Entity")]
-    CommentReport,
+    Comment,
     #[sea_orm(
         belongs_to = "super::user::Entity",
-        from = "Column::AuthorId",
+        from = "Column::UserId",
         to = "super::user::Column::Id",
         on_update = "NoAction",
-        on_delete = "NoAction"
+        on_delete = "Cascade"
     )]
     User,
 }
 
-impl Related<super::article::Entity> for Entity {
+impl Related<super::comment::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Article.def()
-    }
-}
-
-impl Related<super::comment_report::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::CommentReport.def()
+        Relation::Comment.def()
     }
 }
 
