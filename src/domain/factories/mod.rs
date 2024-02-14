@@ -16,3 +16,4 @@ pub mod fetch_many_comments_service_factory;
 pub mod create_comment_report_service_factory;
 pub mod solve_comment_report_service_factory;
 pub mod delete_comment_report_service_factory;
+pub mod fetch_many_comment_reports_service_factory;
