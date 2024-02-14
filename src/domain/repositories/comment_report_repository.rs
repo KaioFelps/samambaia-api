@@ -13,5 +13,5 @@ pub trait CommentReportRepositoryTrait {
 
     async fn find_by_id(&self, comm_report_id: i32) -> Result<Option<CommentReport>, Box<dyn Error>>;
 
-    async fn save(&self, comment_report: CommentReport) -> Result<(), Box<dyn Error>>;
+    async fn save(&self, comment_report: CommentReport) -> Result<CommentReport, Box<dyn Error>>;
 }

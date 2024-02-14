@@ -205,10 +205,10 @@ mod test {
             }
 
             if index.is_some() {
-                comm_report_db_clone.lock().unwrap()[index.unwrap()] = comm_report;
+                comm_report_db_clone.lock().unwrap()[index.unwrap()] = comm_report.clone();
             }
 
-            Ok(())
+            Ok(comm_report)
         });
 
         let sut = SolveCommentReportService {
