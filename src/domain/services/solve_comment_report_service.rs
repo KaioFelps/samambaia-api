@@ -22,8 +22,8 @@ pub struct SolveCommentReportService<UserRepository, CommentReportRepository>
 where   UserRepository: UserRepositoryTrait,
         CommentReportRepository: CommentReportRepositoryTrait
 {
-    user_repository: UserRepository,
-    comment_report_repository: CommentReportRepository
+    user_repository: Box<UserRepository>,
+    comment_report_repository: Box<CommentReportRepository>
 }
 
 impl<
@@ -31,7 +31,7 @@ UserRepository: UserRepositoryTrait,
 CommentReportRepository: CommentReportRepositoryTrait
 >
 SolveCommentReportService<UserRepository, CommentReportRepository> {
-    pub fn new(user_repository: UserRepository, comment_report_repository: CommentReportRepository) -> Self {
+    pub fn new(user_repository: Box<UserRepository>, comment_report_repository: Box<CommentReportRepository>) -> Self {
         SolveCommentReportService {
             user_repository,
             comment_report_repository
@@ -212,8 +212,8 @@ mod test {
         });
 
         let sut = SolveCommentReportService {
-            user_repository: mocked_user_repo,
-            comment_report_repository: mocked_comment_report_repo
+            user_repository: Box::new(mocked_user_repo),
+            comment_report_repository: Box::new(mocked_comment_report_repo)
         };
 
         let result = sut.exec(SolveCommentReportParams {
