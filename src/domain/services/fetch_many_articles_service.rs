@@ -46,7 +46,12 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
         let default_page = 1;
 
         let items_per_page = if params.per_page.is_some() { params.per_page.unwrap() } else { default_items_per_page };
-        let page = if params.page.is_some() { params.page.unwrap() } else { default_page };
+        
+        let page = if params.page.is_some() {
+            let params_page = params.page.unwrap();
+            if params_page <= 0 { default_page } else { params_page }
+        } else { default_page };
+        
         let query = self.parse_query(params.query, params.query_by).await;
 
         if let Err(err) = query {
