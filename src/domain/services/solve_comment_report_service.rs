@@ -14,8 +14,8 @@ use crate::util::verify_role_has_permission;
 use crate::util::RolePermissions;
 
 pub struct SolveCommentReportParams {
-    staff_id: Uuid,
-    com_report_id: i32,
+    pub staff_id: Uuid,
+    pub com_report_id: i32,
 }
 
 pub struct SolveCommentReportService<UserRepository, CommentReportRepository>
