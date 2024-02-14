@@ -1,11 +1,13 @@
 use async_trait::async_trait;
-use sea_orm::{ColumnTrait, QueryFilter};
+use migration::{Expr, Func};
+use sea_orm::{ColumnTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait};
 use sea_orm::{ActiveModelTrait, EntityTrait};
 use std::error::Error;
 
+use crate::core::pagination::{PaginationParameters, Query};
 use crate::domain::domain_entities::comment_report::CommentReportIdTrait;
 use crate::domain::domain_entities::comment_report::DraftCommentReport;
-use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
+use crate::domain::repositories::comment_report_repository::{CommentReportQueryType, CommentReportRepositoryTrait, FindManyCommentReportsResponse};
 use crate::domain::domain_entities::comment_report::CommentReport;
 use crate::infra::sea::mappers::sea_comment_report_mapper::SeaCommentReportMapper;
 use crate::infra::sea::sea_service::SeaService;
@@ -53,6 +55,35 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository {
         }
     }
 
+    async fn find_many(&self, params: PaginationParameters<CommentReportQueryType>) -> Result<FindManyCommentReportsResponse, Box<dyn Error>> {
+        let comment_reports_response;
+
+        let current_page = params.page as u64;
+        let items_per_page = params.items_per_page as u64;
+
+        let leap = ((&current_page - 1) * items_per_page) as u64;
+
+        comment_reports_response = CommentReportEntity::find()
+        .order_by_desc(CommentReportColumn::CreatedAt)
+        .apply_if(params.clone().query, |#[allow(unused_mut)] mut query_builder, query| self.find_many_get_filters(query_builder, query))
+        .limit(items_per_page)
+        .offset(leap)
+        .all(&self.sea_service.db).await?;
+
+        let comment_reports_count = CommentReportEntity::find()
+        .apply_if(params.query, |#[allow(unused_mut)] mut query_builder, query| self.find_many_get_filters(query_builder, query))
+        .offset(leap)
+        .count(&self.sea_service.db).await?;
+
+        let mut comment_reports: Vec<CommentReport> = vec![];
+
+        for comm_report in comment_reports_response.into_iter() {
+            comment_reports.push(SeaCommentReportMapper::model_to_comment_report(comm_report));
+        }
+
+        Ok(FindManyCommentReportsResponse(comment_reports, comment_reports_count))
+    }
+
     async fn save(&self, comment_report: CommentReport) -> Result<CommentReport, Box<dyn Error>> {
         let comm_rep_id = comment_report.id();
 
@@ -77,5 +108,28 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository {
         .exec(&self.sea_service.db).await?;
 
         Ok(())
+    }
+}
+
+impl SeaCommentReportRepository {
+    fn find_many_get_filters(
+        &self,
+        query_builder: sea_orm::Select<CommentReportEntity>,
+        query: Query<CommentReportQueryType>
+    ) -> sea_orm::Select<CommentReportEntity> {
+        let content = query.content;
+
+        match query.query_type {
+            CommentReportQueryType::SOLVED => {
+                let val = if content.to_uppercase() == "TRUE" { true } else { false };
+                let filter = CommentReportColumn::Solved.eq(val);
+    
+                query_builder.filter(filter)
+            },
+            CommentReportQueryType::CONTENT => {
+                let filter = Expr::expr(Func::lower(Expr::col(CommentReportColumn::Message))).like(format!("%{}%", content));
+                query_builder.filter(filter)
+            }
+        }
     }
 }
