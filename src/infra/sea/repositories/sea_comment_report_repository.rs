@@ -68,4 +68,14 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository {
 
         Ok(comment_report)
     }
+    
+    async fn delete(&self, comment_report: CommentReport) -> Result<(), Box<dyn Error>> {
+        let comment_report = SeaCommentReportMapper::comment_report_to_sea_active_model(comment_report);
+
+        CommentReportEntity
+        ::delete(comment_report)
+        .exec(&self.sea_service.db).await?;
+
+        Ok(())
+    }
 }
