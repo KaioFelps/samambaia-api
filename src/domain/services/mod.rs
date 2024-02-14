@@ -12,3 +12,5 @@ pub mod fetch_home_page_articles_service;
 pub mod comment_on_article_service;
 pub mod delete_comment_service;
 pub mod fetch_many_comments_service;
+
+pub mod create_comment_report_service;
