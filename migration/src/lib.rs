@@ -10,6 +10,7 @@ mod m20240209_010037_setup_comments_table;
 mod m20240212_051303_drop_comment_article_table;
 mod m20240212_051315_add_article_id_field_to_comment_table;
 mod m20240213_214959_create_comment_report_table;
+mod m20240214_030642_fix_comment_report_foreign_key;
 
 pub struct Migrator;
 
@@ -27,6 +28,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20240212_051303_drop_comment_article_table::Migration),
             Box::new(m20240212_051315_add_article_id_field_to_comment_table::Migration),
             Box::new(m20240213_214959_create_comment_report_table::Migration),
+            Box::new(m20240214_030642_fix_comment_report_foreign_key::Migration),
         ]
     }
 }
