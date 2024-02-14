@@ -6,13 +6,10 @@ use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 
 pub async fn exec<'sea_service_lf>() -> DeleteArticleService<SeaArticleRepository, SeaArticleCommentRepository, SeaUserRepository> {
     let sea_service = SeaService::new().await;
-    let user_repository: Box<SeaUserRepository> = Box::new(SeaUserRepository::new(sea_service).await);
     
-    let sea_service = SeaService::new().await;
-    let article_comment_repository = Box::new(SeaArticleCommentRepository::new(sea_service).await);
-
-    let sea_service = SeaService::new().await;
-    let article_repository = Box::new(SeaArticleRepository::new(sea_service).await);
+    let user_repository: Box<SeaUserRepository> = Box::new(SeaUserRepository::new(sea_service.clone()).await);
+    let article_comment_repository: Box<SeaArticleCommentRepository> = Box::new(SeaArticleCommentRepository::new(sea_service.clone()).await);
+    let article_repository: Box<SeaArticleRepository> = Box::new(SeaArticleRepository::new(sea_service).await);
     
     let delete_article_service = DeleteArticleService::new(
         article_repository,
