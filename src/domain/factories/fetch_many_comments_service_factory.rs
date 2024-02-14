@@ -10,7 +10,7 @@ pub async fn exec() -> FetchManyCommentsService<SeaArticleCommentRepository, Sea
     let sea_service = SeaService::new().await;
     let article_comment_repository = Box::new(SeaArticleCommentRepository::new(sea_service).await);
     
-    let fetch_many_articles_service = FetchManyCommentsService::new(article_comment_repository, user_repository);
+    let fetch_many_comments_service = FetchManyCommentsService::new(article_comment_repository, user_repository);
 
-    fetch_many_articles_service
+    fetch_many_comments_service
 }
