@@ -33,4 +33,12 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository {
 
         Ok(created_comment_report)
     }
+
+    async fn find_by_id(&self, comm_report_id: i32) -> Result<Option<CommentReport>, Box<dyn Error>> {
+        todo!();
+    }
+
+    async fn save(&self, comment_report: CommentReport) -> Result<(), Box<dyn Error>> {
+        todo!();
+    }
 }

@@ -14,3 +14,4 @@ pub mod delete_comment_service;
 pub mod fetch_many_comments_service;
 
 pub mod create_comment_report_service;
+pub mod solve_comment_report_service;
