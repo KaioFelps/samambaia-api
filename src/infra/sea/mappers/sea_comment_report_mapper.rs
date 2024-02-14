@@ -23,7 +23,7 @@ impl SeaCommentReportMapper {
         sea_model
     }
 
-    pub fn comment_report_to_sea_active_model(comment_report: DraftCommentReport) -> CommentReportActiveModel {
+    pub fn draft_comment_report_to_sea_active_model(comment_report: DraftCommentReport) -> CommentReportActiveModel {
         let sea_active_model = CommentReportActiveModel {
             user_id: comment_report.user_id().into_active_value(),
             comment_id: comment_report.comment_id().into_active_value(),
@@ -31,6 +31,19 @@ impl SeaCommentReportMapper {
             solved: comment_report.solved().into_active_value(),
             created_at: comment_report.created_at().into_active_value(),
             ..Default::default()
+        };
+
+        sea_active_model
+    }
+
+    pub fn comment_report_to_sea_active_model(comment_report: CommentReport) -> CommentReportActiveModel {
+        let sea_active_model = CommentReportActiveModel {
+            user_id: comment_report.user_id().into_active_value(),
+            comment_id: comment_report.comment_id().into_active_value(),
+            message: comment_report.message().into_active_value(),
+            solved: comment_report.solved().into_active_value(),
+            created_at: comment_report.created_at().into_active_value(),
+            id: comment_report.id().into_active_value(),
         };
 
         sea_active_model
