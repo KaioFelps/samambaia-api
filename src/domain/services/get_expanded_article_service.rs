@@ -15,7 +15,7 @@ use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::{R_EOL, LOG_SEP};
 
 pub struct GetExpandedArticleParams {
-    article_id: Uuid
+    pub article_id: Uuid
 }
 
 pub struct GetExpandedArticleResponse {
