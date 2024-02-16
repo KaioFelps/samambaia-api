@@ -2,7 +2,9 @@ use std::error::Error;
 use log::{error, info};
 use uuid::Uuid;
 
+use crate::core::pagination::PaginationResponse;
 use crate::domain::domain_entities::article::Article;
+use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::comment_user_article_repository::FindManyCommentsWithAuthorResponse;
 use crate::domain::repositories::comment_user_article_repository::CommentUserArticleRepositoryTrait;
@@ -19,10 +21,16 @@ pub struct GetExpandedArticleParams {
 }
 
 #[derive(Debug)]
+pub struct FetchManyCommentsWithAuthorResponse {
+    pub pagination: PaginationResponse,
+    pub data: Vec<CommentWithAuthor>
+}
+
+#[derive(Debug)]
 pub struct GetExpandedArticleResponse {
     pub article: Article,
     pub article_author: User,
-    pub comments: FindManyCommentsWithAuthorResponse,
+    pub comments: FetchManyCommentsWithAuthorResponse,
 }
 
 pub struct GetExpandedArticleService<UR, AR, CUAR>
@@ -53,6 +61,8 @@ impl<
     }
 
     pub async fn exec(&self, params: GetExpandedArticleParams) -> Result<GetExpandedArticleResponse, Box<dyn Error>> {
+        let items_per_page = 5;
+
         let article = self.article_repository.find_by_id(params.article_id).await;
 
         if article.is_err() {
@@ -77,7 +87,7 @@ impl<
         let comments = self.comment_user_article_repository.find_many_comments(
             article.id(),
             PaginationParameters {
-                items_per_page: 5,
+                items_per_page,
                 page: 1,
                 query: None,
             }
@@ -92,7 +102,16 @@ impl<
             return Err(Box::new(InternalError::new()));
         }
 
-        let comments: FindManyCommentsWithAuthorResponse = comments.unwrap();
+        let FindManyCommentsWithAuthorResponse (data, total_items) = comments.unwrap();
+
+        let comments = FetchManyCommentsWithAuthorResponse {
+            data,
+            pagination: PaginationResponse {
+                current_page: 1,
+                total_items,
+                total_pages: (total_items as f64 / items_per_page as f64).ceil() as u32
+            }
+        };
 
         let author = self.user_repository.find_by_id(&article.author_id()).await;
 
@@ -268,11 +287,14 @@ mod test {
         comments
         } = res;
 
-        let FindManyCommentsWithAuthorResponse (comments, total_count) = comments;
+        let FetchManyCommentsWithAuthorResponse {
+            data,
+            pagination
+        } = comments;
 
-        assert_eq!(mocked_comm_1, comments[0].clone());
-        assert_eq!(mocked_comm_2, comments[1].clone());
-        assert_eq!(2, total_count);
+        assert_eq!(mocked_comm_1, data[0].clone());
+        assert_eq!(mocked_comm_2, data[1].clone());
+        assert_eq!(2, pagination.total_items);
         assert_eq!(mocked_article_id, article.id());
         assert_eq!(user_id, article_author.id());
     }
