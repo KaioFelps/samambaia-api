@@ -18,6 +18,7 @@ pub struct GetExpandedArticleParams {
     pub article_id: Uuid
 }
 
+#[derive(Debug)]
 pub struct GetExpandedArticleResponse {
     pub article: Article,
     pub article_author: User,
@@ -66,6 +67,8 @@ impl<
         let article = article.unwrap();
 
         if article.is_none() {
+            info!("{R_EOL}{LOG_SEP}{R_EOL}Article returned None on Get Expanded Article Service.{R_EOL}{LOG_SEP}{R_EOL}");
+
             return Err(Box::new(ResourceNotFoundError::new()));
         }
 
@@ -91,7 +94,7 @@ impl<
 
         let comments: FindManyCommentsWithAuthorResponse = comments.unwrap();
 
-        let author = self.user_repository.find_by_id(&article.id()).await;
+        let author = self.user_repository.find_by_id(&article.author_id()).await;
 
         if author.is_err() {
             error!(
@@ -105,7 +108,7 @@ impl<
         let author = author.unwrap();
 
         if author.is_none() {
-            info!("Autor do usuário é None no Get Expanded Article Service.");
+            error!("Author returned None on Get Expanded Article Service.");
 
             return Err(Box::new(ResourceNotFoundError::new()));
         }
