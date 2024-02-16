@@ -235,18 +235,17 @@ mod test {
             let mut comments: Vec<CommentWithAuthor> = Vec::new();
 
             if query.is_some() {
-                let content = query.as_ref().unwrap().content.clone();
-                let by = query.unwrap().query_type;
-                
-                for item in comments_db_to_move.lock().unwrap().iter() {
-                    match by {
-                        CommentWithAuthorQueryType::CONTENT => {
+                match query.unwrap() {
+                    CommentWithAuthorQueryType::CONTENT(content) => {
+                        for item in comments_db_to_move.lock().unwrap().iter() {
                             if item.content().to_lowercase().contains(&content.to_lowercase()[..]) {
                                 comments.push(item.clone());
                             }
-                        },
-                        CommentWithAuthorQueryType::AUTHOR => {                            
-                            if item.author().id().eq(&Uuid::parse_str(&content).unwrap()) {
+                        }
+                    },
+                    CommentWithAuthorQueryType::AUTHOR(content) => {
+                        for item in comments_db_to_move.lock().unwrap().iter() {
+                            if item.author().id().eq(&content) {
                                 comments.push(item.clone());
                             }
                         }

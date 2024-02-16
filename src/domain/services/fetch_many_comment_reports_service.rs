@@ -3,16 +3,14 @@ use log::error;
 use crate::domain::domain_entities::comment_report::CommentReport;
 use crate::{R_EOL, LOG_SEP};
 
-use crate::core::pagination::{PaginationParameters, PaginationResponse, Query};
+use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::repositories::comment_report_repository::{CommentReportQueryType, CommentReportRepositoryTrait, FindManyCommentReportsResponse};
 use crate::errors::internal_error::InternalError;
 
 pub struct FetchManyCommentReportsParams {
     pub page: Option<u32>,
     pub per_page: Option<u32>,
-    pub query_string: Option<String>,
-    pub query_bool: Option<bool>,
-    pub query_by: Option<CommentReportQueryType>    
+    pub query: Option<CommentReportQueryType>    
 }
 
 
@@ -47,11 +45,7 @@ FetchManyCommentReportsService<CommentReportRepository> {
             if params_page <= 0 { default_page } else { params_page }
         } else { default_page };
 
-        let query = self.parse_query(
-            params.query_string,
-            params.query_bool,
-            params.query_by
-        ).await;
+        let query = params.query;
 
         let response = self.comment_report_repository.find_many(
             PaginationParameters {
@@ -81,38 +75,6 @@ FetchManyCommentReportsService<CommentReportRepository> {
             },
             data,
         })
-    }
-
-    async fn parse_query(
-        &self,
-        query_string: Option<String>,
-        query_bool: Option<bool>,
-        query_by: Option<CommentReportQueryType>
-    ) -> Option<Query<CommentReportQueryType>> {
-        if query_string.is_none() && query_bool.is_none() {
-            return None;
-        }
-
-        match query_by.unwrap() {
-            CommentReportQueryType::CONTENT => {
-                Some(
-                    Query {
-                        content: query_string.unwrap(),
-                        query_type: CommentReportQueryType::CONTENT,
-                    }
-                )
-            },
-            CommentReportQueryType::SOLVED => {
-                let is_solved = if query_bool.unwrap() { "TRUE" } else { "FALSE" }.to_string();
-
-                Some(
-                    Query {
-                        content: is_solved,
-                        query_type: CommentReportQueryType::SOLVED,
-                    }
-                )
-            }
-        }
     }
 }
 
@@ -170,31 +132,22 @@ mod test {
             if query.is_some() {
                 let query = query.unwrap();
 
-                let content = query.content;
-                let query_type = query.query_type;
-
-                for item in comm_repo_db_clone.lock().unwrap().iter() {
-                    match query_type {
-                        CommentReportQueryType::CONTENT => {
+                match query {
+                    CommentReportQueryType::CONTENT(content) => {
+                        for item in comm_repo_db_clone.lock().unwrap().iter() {
                             if item.message().contains(&content[..]) {
                                 comment_reports.push(item.clone());
                             }
-                        },
-                        CommentReportQueryType::SOLVED => {
-                            let is_solved = {
-                                if content == "TRUE" {
-                                    true
-                                } else {
-                                    false
-                                }
-                            };
-
+                        }
+                    },
+                    CommentReportQueryType::SOLVED(is_solved) => {
+                        for item in comm_repo_db_clone.lock().unwrap().iter() {
                             if item.solved().eq(&is_solved) {
                                 comment_reports.push(item.clone());
                             }
                         }
-                    };
-                }
+                    }
+                };
             } else {
                 comment_reports = comm_repo_db_clone.lock().unwrap().to_vec();
             }
@@ -221,9 +174,7 @@ mod test {
         let res = sut.exec(FetchManyCommentReportsParams {
             page: Some(1),
             per_page: Some(1),
-            query_bool: Some(true),
-            query_by: Some(CommentReportQueryType::SOLVED),
-            query_string: None
+            query: Some(CommentReportQueryType::SOLVED(true)),
         }).await;
 
         let res = res.unwrap();

@@ -16,8 +16,8 @@ pub struct FindManyResponse (
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ArticleQueryType {
-    TITLE,
-    AUTHOR,
+    TITLE(String),
+    AUTHOR(Uuid),
 }
 
 

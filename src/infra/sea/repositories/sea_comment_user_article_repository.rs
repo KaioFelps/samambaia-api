@@ -5,7 +5,7 @@ use migration::{Expr, Func};
 use sea_orm::{ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait};
 use uuid::Uuid;
 
-use crate::core::pagination::{PaginationParameters, Query};
+use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::repositories::comment_user_article_repository::{CommentUserArticleRepositoryTrait, CommentWithAuthorQueryType, FindManyCommentsWithAuthorResponse};
 use crate::infra::sea::mappers::sea_comment_with_author_mapper::SeaCommentWithAuthorMapper;
@@ -73,18 +73,13 @@ impl CommentUserArticleRepositoryTrait for SeaCommentUserArticleRepository {
 }
 
 impl SeaCommentUserArticleRepository {
-    fn find_many_get_filters(&self, query_builder: sea_orm::Select<CommentEntity>, query: Query<CommentWithAuthorQueryType>) -> sea_orm::Select<CommentEntity> {
-        let content = query.content;
-
-        match query.query_type {
-            CommentWithAuthorQueryType::AUTHOR => {
-                let content = Uuid::parse_str(&content).unwrap();
-
+    fn find_many_get_filters(&self, query_builder: sea_orm::Select<CommentEntity>, query: CommentWithAuthorQueryType) -> sea_orm::Select<CommentEntity> {
+        match query {
+            CommentWithAuthorQueryType::AUTHOR(content) => {
                 let filter = CommentColumn::AuthorId.eq(content);
-    
                 query_builder.filter(filter)
             },
-            CommentWithAuthorQueryType::CONTENT => {
+            CommentWithAuthorQueryType::CONTENT(content) => {
                 let filter = Expr::expr(Func::lower(Expr::col(CommentColumn::Content))).like(format!("%{}%", content));
                 query_builder.filter(filter)
             }

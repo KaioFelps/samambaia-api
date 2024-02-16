@@ -2,7 +2,7 @@ use std::error::Error;
 
 use log::error;
 
-use crate::core::pagination::{PaginationParameters, PaginationResponse, Query};
+use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyResponse};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
@@ -11,11 +11,16 @@ use crate::errors::resource_not_found::ResourceNotFoundError;
 
 use crate::{LOG_SEP, R_EOL};
 
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum ServiceArticleQueryType {
+    TITLE(String),
+    AUTHOR(String),
+}
+
 pub struct FetchManyArticlesParams {
     pub page: Option<u32>,
     pub per_page: Option<u32>,
-    pub query: Option<String>,
-    pub query_by: Option<ArticleQueryType>
+    pub query: Option<ServiceArticleQueryType>
 }
 
 pub struct FetchManyArticlesService<ArticleRepository, UserRepository>
@@ -52,7 +57,7 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
             if params_page <= 0 { default_page } else { params_page }
         } else { default_page };
         
-        let query = self.parse_query(params.query, params.query_by).await;
+        let query = self.parse_query(params.query).await;
 
         if let Err(err) = query {
             error!(
@@ -93,39 +98,31 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
         })
     }
     
-    async fn parse_query(&self, query: Option<String>, query_by: Option<ArticleQueryType>) -> Result<Option<Query<ArticleQueryType>>, Box<dyn Error>> {
+    async fn parse_query(&self, query: Option<ServiceArticleQueryType>) -> Result<Option<ArticleQueryType>, Box<dyn Error>> {
         if query.is_none() {
             return Ok(None);
         }
 
-        let mut content: String;
+        match query.unwrap() {
+            ServiceArticleQueryType::AUTHOR(content) => {
+                let user = self.user_repository.find_by_nickname(&content).await;
 
-        content = query.as_ref().unwrap().clone();
-
-        if query_by.as_ref().unwrap().eq(&ArticleQueryType::AUTHOR) {
-            let user = self.user_repository.find_by_nickname(&query.as_ref().unwrap()).await;
-
-            if user.is_err() {
-                return Err(Box::new(InternalError::new()));
-            }
-
-            let user = user.unwrap();
-
-            if user.is_none() {
-                return Err(Box::new(ResourceNotFoundError::new()));
-            }
-
-            content = user.unwrap().id().to_string();
-        }
-
-        Ok(
-            Some(
-                Query {
-                    content,
-                    query_type: query_by.unwrap(),
+                if user.is_err() {
+                    return Err(Box::new(InternalError::new()));
                 }
-            )
-        )
+
+                let user = user.unwrap();
+
+                if user.is_none() {
+                    return Err(Box::new(ResourceNotFoundError::new()));
+                }
+
+                Ok(Some(ArticleQueryType::AUTHOR(user.unwrap().id())))
+            },
+            ServiceArticleQueryType::TITLE(content) => {
+                Ok(Some(ArticleQueryType::TITLE(content)))
+            }
+        }
     }
 }
 
@@ -133,7 +130,6 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
 mod test {
     use super::*;
     use tokio;
-    use uuid::Uuid;
 
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::domain_entities::user::User;
@@ -174,22 +170,22 @@ mod test {
             let mut articles: Vec<Article> = Vec::new();
 
             if query.is_some() {
-                let content = query.as_ref().unwrap().content.clone();
-                let by = query.unwrap().query_type;
-                
-                for item in db.iter() {
-                    match by {
-                        ArticleQueryType::TITLE => {
-                            if item.title().to_lowercase().contains(&content.to_lowercase()[..]) {
-                                articles.push(item.clone());
+                let query = query.unwrap();
+                    match query {
+                        ArticleQueryType::TITLE(content) => {
+                            for item in db.iter() {
+                                if item.title().to_lowercase().contains(&content.clone().to_lowercase()[..]) {
+                                    articles.push(item.clone());
+                                }
                             }
                         },
-                        ArticleQueryType::AUTHOR => {                            
-                            if item.author_id().eq(&Uuid::parse_str(&content).unwrap()) {
-                                articles.push(item.clone());
+                        ArticleQueryType::AUTHOR(content) => {
+                            for item in db.iter() {
+                                if item.author_id().eq(&content) {
+                                    articles.push(item.clone());
+                                }
                             }
                         }
-                    }
                 }
             } else {
                 articles = db.clone();
@@ -223,8 +219,7 @@ mod test {
         let res = fetch_many_articles_service.exec(FetchManyArticlesParams {
             page: Some(2),
             per_page: Some(1),
-            query: Some("article".to_string()),
-            query_by: Some(ArticleQueryType::TITLE)
+            query: Some(ServiceArticleQueryType::TITLE("article".to_string()))
         }).await.unwrap();
 
         assert_eq!(1, res.data.len());
@@ -236,7 +231,6 @@ mod test {
             page: None,
             per_page: None,
             query: None,
-            query_by: None,
         }).await.unwrap();
 
         assert_eq!(2, res_2.data.len());
@@ -248,8 +242,7 @@ mod test {
         let res_3 = fetch_many_articles_service.exec(FetchManyArticlesParams {
             page: None,
             per_page: None,
-            query: Some("Vamp".to_string()),
-            query_by: Some(ArticleQueryType::AUTHOR),
+            query: Some(ServiceArticleQueryType::AUTHOR("Vamp".to_string())),
         }).await.unwrap_err();
 
         assert!(res_3.is::<ResourceNotFoundError>());
@@ -258,8 +251,7 @@ mod test {
         let res_4 = fetch_many_articles_service.exec(FetchManyArticlesParams {
             page: None,
             per_page: None,
-            query: Some("Floricultor".to_string()),
-            query_by: Some(ArticleQueryType::AUTHOR),
+            query: Some(ServiceArticleQueryType::AUTHOR("Floricultor".to_string())),
         }).await.unwrap();
 
         assert_eq!(2, res_4.data.len());

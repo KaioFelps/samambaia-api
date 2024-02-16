@@ -4,7 +4,7 @@ use sea_orm::{ColumnTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect,
 use sea_orm::{ActiveModelTrait, EntityTrait};
 use std::error::Error;
 
-use crate::core::pagination::{PaginationParameters, Query};
+use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::comment_report::CommentReportIdTrait;
 use crate::domain::domain_entities::comment_report::DraftCommentReport;
 use crate::domain::repositories::comment_report_repository::{CommentReportQueryType, CommentReportRepositoryTrait, FindManyCommentReportsResponse};
@@ -115,18 +115,14 @@ impl SeaCommentReportRepository {
     fn find_many_get_filters(
         &self,
         query_builder: sea_orm::Select<CommentReportEntity>,
-        query: Query<CommentReportQueryType>
+        query: CommentReportQueryType
     ) -> sea_orm::Select<CommentReportEntity> {
-        let content = query.content;
-
-        match query.query_type {
-            CommentReportQueryType::SOLVED => {
-                let val = if content.to_uppercase() == "TRUE" { true } else { false };
-                let filter = CommentReportColumn::Solved.eq(val);
-    
+        match query {
+            CommentReportQueryType::SOLVED(content) => {
+                let filter = CommentReportColumn::Solved.eq(content);
                 query_builder.filter(filter)
             },
-            CommentReportQueryType::CONTENT => {
+            CommentReportQueryType::CONTENT(content) => {
                 let filter = Expr::expr(Func::lower(Expr::col(CommentReportColumn::Message))).like(format!("%{}%", content));
                 query_builder.filter(filter)
             }

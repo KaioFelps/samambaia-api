@@ -5,7 +5,7 @@ use migration::{Expr, Func};
 use sea_orm::{ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait, TransactionTrait};
 use uuid::Uuid;
 
-use crate::core::pagination::{PaginationParameters, Query};
+use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment::Comment;
 use crate::domain::repositories::article_comment_repository::{ArticleCommentRepositoryTrait, CommentQueryType, FindManyCommentsResponse};
@@ -99,18 +99,14 @@ impl SeaArticleCommentRepository {
         .exec(conn)
     }
 
-    fn find_many_get_filters(&self, query_builder: sea_orm::Select<CommentEntity>, query: Query<CommentQueryType>) -> sea_orm::Select<CommentEntity> {
-        let content = query.content;
-
-        match query.query_type {
-            CommentQueryType::AUTHOR => {
-                let content = Uuid::parse_str(&content).unwrap();
-
+    fn find_many_get_filters(&self, query_builder: sea_orm::Select<CommentEntity>, query: CommentQueryType) -> sea_orm::Select<CommentEntity> {
+        match query {
+            CommentQueryType::AUTHOR(content) => {
                 let filter = CommentColumn::AuthorId.eq(content);
     
                 query_builder.filter(filter)
             },
-            CommentQueryType::CONTENT => {
+            CommentQueryType::CONTENT(content) => {
                 let filter = Expr::expr(Func::lower(Expr::col(CommentColumn::Content))).like(format!("%{}%", content));
                 query_builder.filter(filter)
             }

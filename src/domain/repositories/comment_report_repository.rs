@@ -15,8 +15,8 @@ pub struct FindManyCommentReportsResponse (
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum CommentReportQueryType {
-    SOLVED,
-    CONTENT,
+    SOLVED(bool),
+    CONTENT(String),
 }
 
 #[cfg_attr(test, automock)]

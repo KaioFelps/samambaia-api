@@ -5,7 +5,7 @@ use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter};
 use uuid::Uuid;
 use std::error::Error;
 
-use crate::core::pagination::{PaginationParameters, Query};
+use crate::core::pagination::PaginationParameters;
 use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyResponse};
 use crate::domain::domain_entities::article::Article;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
@@ -115,18 +115,14 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
 }
 
 impl SeaArticleRepository {
-    fn find_many_get_filters(&self, #[allow(unused_mut)] mut query_builder: sea_orm::Select<ArticleEntity>, query: Query<ArticleQueryType>) -> sea_orm::Select<ArticleEntity> {
-        let content = query.content;
-
-        match query.query_type {
-            ArticleQueryType::AUTHOR => {
-                let content = Uuid::parse_str(&content).unwrap();
-
+    fn find_many_get_filters(&self, #[allow(unused_mut)] mut query_builder: sea_orm::Select<ArticleEntity>, query: ArticleQueryType) -> sea_orm::Select<ArticleEntity> {
+        match query {
+            ArticleQueryType::AUTHOR(content) => {
                 let filter = ArticleColumn::AuthorId.eq(content);
     
                 query_builder.filter(filter.clone())
             },
-            ArticleQueryType::TITLE => {
+            ArticleQueryType::TITLE(content) => {
                 let filter = Expr::expr(Func::lower(Expr::col(ArticleColumn::Title))).like(format!("%{}%", content));
                 query_builder.filter(filter.clone())
             }

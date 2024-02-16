@@ -3,7 +3,7 @@ use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
-use crate::core::pagination::{PaginationParameters, PaginationResponse, Query};
+use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::comment::Comment;
 use crate::domain::repositories::article_comment_repository::{ArticleCommentRepositoryTrait, CommentQueryType, FindManyCommentsResponse};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
@@ -12,11 +12,16 @@ use crate::errors::resource_not_found::ResourceNotFoundError;
 
 use crate::{LOG_SEP, R_EOL};
 
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum ServiceCommentQueryType {
+    AUTHOR(String),
+    CONTENT(String),
+}
+
 pub struct FetchManyCommentsParams {
     pub page: Option<u32>,
     pub per_page: Option<u32>,
-    pub query: Option<String>,
-    pub query_by: Option<CommentQueryType>
+    pub query: Option<ServiceCommentQueryType>
 }
 
 pub struct FetchManyCommentsService<ArticleCommentRepository, UserRepository>
@@ -63,7 +68,7 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
             if params_page <= 0 { default_page } else { params_page }
         } else { default_page };
 
-        let query = self.parse_query(params.query, params.query_by).await;
+        let query = self.parse_query(params.query).await;
 
         if let Err(err) = query {
             error!(
@@ -106,39 +111,35 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
         })
     }
     
-    async fn parse_query(&self, query: Option<String>, query_by: Option<CommentQueryType>) -> Result<Option<Query<CommentQueryType>>, Box<dyn Error>> {
+    async fn parse_query(&self, query: Option<ServiceCommentQueryType>) -> Result<Option<CommentQueryType>, Box<dyn Error>> {
         if query.is_none() {
             return Ok(None);
         }
 
-        let mut content: String;
+        let query = query.unwrap();
 
-        content = query.as_ref().unwrap().clone();
+        match query {
+            ServiceCommentQueryType::AUTHOR(content) => {
+                let user = self.user_repository.find_by_nickname(&content).await;
 
-        if query_by.as_ref().unwrap().eq(&CommentQueryType::AUTHOR) {
-            let user = self.user_repository.find_by_nickname(&query.as_ref().unwrap()).await;
-
-            if user.is_err() {
-                return Err(Box::new(InternalError::new()));
-            }
-
-            let user = user.unwrap();
-
-            if user.is_none() {
-                return Err(Box::new(ResourceNotFoundError::new()));
-            }
-
-            content = user.unwrap().id().to_string();
-        }
-
-        Ok(
-            Some(
-                Query {
-                    content,
-                    query_type: query_by.unwrap(),
+                if user.is_err() {
+                    return Err(Box::new(InternalError::new()));
                 }
-            )
-        )
+
+                let user = user.unwrap();
+
+                if user.is_none() {
+                    return Err(Box::new(ResourceNotFoundError::new()));
+                }
+
+                let content = user.unwrap().id();
+
+                Ok(Some(CommentQueryType::AUTHOR(content)))
+            },
+            ServiceCommentQueryType::CONTENT(content) => {
+                Ok(Some(CommentQueryType::CONTENT(content)))
+            }
+        }        
     }
 }
 
@@ -146,7 +147,6 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
 mod test {
     use super::*;
     use tokio;
-    use uuid::Uuid;
 
     use crate::domain::domain_entities::article::Article;
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
@@ -202,19 +202,18 @@ mod test {
 
             let mut comments: Vec<Comment> = Vec::new();
 
-            if query.is_some() {
-                let content = query.as_ref().unwrap().content.clone();
-                let by = query.unwrap().query_type;
-                
-                for item in db.iter() {
-                    match by {
-                        CommentQueryType::CONTENT => {
+            if query.is_some() {                
+                match query.unwrap() {
+                    CommentQueryType::CONTENT(content) => {
+                        for item in db.iter() {
                             if item.content().to_lowercase().contains(&content.to_lowercase()[..]) {
                                 comments.push(item.clone());
                             }
-                        },
-                        CommentQueryType::AUTHOR => {                            
-                            if item.author_id().eq(&Uuid::parse_str(&content).unwrap()) {
+                        }
+                    },
+                    CommentQueryType::AUTHOR(content) => {
+                        for item in db.iter() {
+                            if item.author_id().eq(&content) {
                                 comments.push(item.clone());
                             }
                         }
@@ -252,8 +251,7 @@ mod test {
         let res = fetch_many_comments_service.exec(FetchManyCommentsParams {
             page: Some(2),
             per_page: Some(1),
-            query: Some("comment".to_string()),
-            query_by: Some(CommentQueryType::CONTENT)
+            query: Some(ServiceCommentQueryType::CONTENT("comment".to_string()))
         }).await.unwrap();
 
         assert_eq!(1, res.data.len());
@@ -265,7 +263,6 @@ mod test {
             page: None,
             per_page: None,
             query: None,
-            query_by: None,
         }).await.unwrap();
 
         assert_eq!(2, res_2.data.len());
@@ -277,8 +274,7 @@ mod test {
         let res_3 = fetch_many_comments_service.exec(FetchManyCommentsParams {
             page: None,
             per_page: None,
-            query: Some("Vamp".to_string()),
-            query_by: Some(CommentQueryType::AUTHOR),
+            query: Some(ServiceCommentQueryType::AUTHOR("Vamp".to_string())),
         }).await.unwrap_err();
 
         assert!(res_3.is::<ResourceNotFoundError>());
@@ -287,8 +283,7 @@ mod test {
         let res_4 = fetch_many_comments_service.exec(FetchManyCommentsParams {
             page: None,
             per_page: None,
-            query: Some("Floricultor".to_string()),
-            query_by: Some(CommentQueryType::AUTHOR),
+            query: Some(ServiceCommentQueryType::AUTHOR("Floricultor".to_string())),
         }).await.unwrap();
 
         assert_eq!(2, res_4.data.len());
