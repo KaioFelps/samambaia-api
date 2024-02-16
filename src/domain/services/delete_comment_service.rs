@@ -114,7 +114,7 @@ mod test {
 
         let comment = Comment::new(
             Uuid::new_v4(),
-            Uuid::new_v4(),
+            Some(Uuid::new_v4()),
             "Conteúdo inicial".to_string(),
         );
 

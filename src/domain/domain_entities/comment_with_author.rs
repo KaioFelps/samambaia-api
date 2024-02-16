@@ -6,7 +6,7 @@ use super::user::User;
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CommentWithAuthor {
     id: Uuid,
-    article_id: Uuid,
+    article_id: Option<Uuid>,
     content: String,
     is_active: bool,
     created_at: DateTime,
@@ -16,7 +16,7 @@ pub struct CommentWithAuthor {
 impl CommentWithAuthor{
     // CONSTRUCTORS
     pub fn new(
-        article_id: Uuid,
+        article_id: Option<Uuid>,
         content: String,
         author: User,
     ) -> Self {
@@ -36,7 +36,7 @@ impl CommentWithAuthor{
 
     pub fn new_from_existing(
         id: Uuid,
-        article_id: Uuid,
+        article_id: Option<Uuid>,
         content: String,
         is_active: bool,
         created_at: DateTime,
@@ -57,7 +57,7 @@ impl CommentWithAuthor{
         self.id
     }
 
-    pub fn article_id(&self) -> Uuid {
+    pub fn article_id(&self) -> Option<Uuid> {
         self.article_id
     }
 

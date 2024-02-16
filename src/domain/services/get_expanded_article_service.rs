@@ -177,13 +177,13 @@ mod test {
         articles_db.lock().unwrap().push(mocked_article);
 
         let mocked_comm_1 = CommentWithAuthor::new(
-            mocked_article_id.clone(),
+            Some(mocked_article_id.clone()),
             "comentario 1 conteudo".into(),
             User::new("Salem".into(), "123".into(), Some(Role::User))
         );
 
         let mocked_comm_2 = CommentWithAuthor::new(
-            mocked_article_id.clone(),
+            Some(mocked_article_id.clone()),
             "comentario 2 conteudo".into(),
             User::new("Elffi".into(), "123".into(), Some(Role::User))
         );

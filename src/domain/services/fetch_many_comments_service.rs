@@ -162,8 +162,8 @@ mod test {
         let user = User::new("Floricultor".to_string(), "password".to_string(), Some(Role::Principal));
         let article = Article::new(user.id(), "Título da notícia".into(), "Conteúdo da notícia".into(), "url do cover".into());
 
-        db.push(Comment::new(user.id(), article.id(), "Comment 1 content here".to_string()));
-        db.push(Comment::new(user.id(), article.id(), "Comment 2 content here".to_string()));
+        db.push(Comment::new(user.id(), Some(article.id()), "Comment 1 content here".to_string()));
+        db.push(Comment::new(user.id(), Some(article.id()), "Comment 2 content here".to_string()));
 
         let mut mocked_comment_repo: MockArticleCommentRepositoryTrait = MockArticleCommentRepositoryTrait::new();
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();

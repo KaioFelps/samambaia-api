@@ -68,7 +68,7 @@ CommentOnArticleService<CR, AR, UR> {
 
         let comment = Comment::new(
             params.author_id,
-            params.article_id,
+            Some(params.article_id),
             params.content,
         );
 
@@ -160,7 +160,7 @@ mod test {
         .returning(move |comment| {
             comment_article_db_move_clone.lock().unwrap().push(CommentArticle {
             id: Uuid::new_v4(),
-            article_id: comment.article_id(),
+            article_id: comment.article_id().unwrap(),
             comment_id: comment.id()
             });
 

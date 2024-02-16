@@ -161,7 +161,7 @@ mod test {
         .returning(|id| {
             let fake_comm = Comment::new_from_existing(
                 id,
-                Uuid::new_v4(),
+                Some(Uuid::new_v4()),
                 Uuid::new_v4(),
                 "notíca de um autor de merda fodido".into(),
                 true,
