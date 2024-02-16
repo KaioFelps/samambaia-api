@@ -17,6 +17,7 @@ impl SeaCommentWithAuthorMapper {
             model_comment.id.into(),
             model_comment.article_id.into(),
             model_comment.content.into(),
+            model_comment.is_active,
             model_comment.created_at,
             domain_author,
         );

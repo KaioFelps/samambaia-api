@@ -13,6 +13,7 @@ impl SeaCommentMapper {
             article_id: comment.article_id(),
             author_id: comment.author_id(),
             content: comment.content().into(),
+            is_active: comment.is_active(),
             created_at: comment.created_at(),
         };
 
@@ -25,6 +26,7 @@ impl SeaCommentMapper {
             article_id: comment.article_id().into_active_value(),
             author_id: comment.author_id().into_active_value(),
             content: comment.content().to_string().into_active_value(),
+            is_active: comment.is_active().into_active_value(),
             created_at: comment.created_at().into_active_value(),
         };
 
@@ -37,6 +39,7 @@ impl SeaCommentMapper {
             active_model_comment.article_id.unwrap(),
             active_model_comment.author_id.unwrap(),
             active_model_comment.content.unwrap(),
+            active_model_comment.is_active.unwrap(),
             active_model_comment.created_at.unwrap(),
         );
 
@@ -49,6 +52,7 @@ impl SeaCommentMapper {
             model_comment.article_id.into(),
             model_comment.author_id.into(),
             model_comment.content.into(),
+            model_comment.is_active.into(),
             model_comment.created_at.into(),
         );
 

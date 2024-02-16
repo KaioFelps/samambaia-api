@@ -164,6 +164,7 @@ mod test {
                 Uuid::new_v4(),
                 Uuid::new_v4(),
                 "notíca de um autor de merda fodido".into(),
+                true,
                 Utc::now().naive_utc()
             );
 

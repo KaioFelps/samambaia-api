@@ -7,6 +7,7 @@ pub struct Comment {
     article_id: Uuid,
     author_id: Uuid,
     content: String,
+    is_active: bool,
     created_at: DateTime,
 }
 
@@ -19,14 +20,15 @@ impl Comment {
         content: String,
     ) -> Self {
         let id = Uuid::new_v4();
-
         let created_at  = Utc::now().naive_utc();
+        let is_active = true;
 
         Comment {
             id,
             article_id,
             author_id,
             content,
+            is_active,
             created_at
         }
     }
@@ -36,14 +38,16 @@ impl Comment {
         article_id: Uuid,
         author_id: Uuid,
         content: String,
+        is_active: bool,
         created_at: DateTime,
     ) -> Self {
         Comment {
+            id,
             article_id,
             author_id,
             content,
+            is_active,
             created_at,
-            id
         }
     }
 
@@ -65,6 +69,10 @@ impl Comment {
         self.content.as_ref()
     }
 
+    pub fn is_active(&self) -> bool {
+        self.is_active
+    }
+
     pub fn created_at(&self) -> DateTime {
         self.created_at
     }
@@ -73,5 +81,9 @@ impl Comment {
 
     pub fn set_content(&mut self, content: String) {
         self.content = content;
+    }
+
+    pub fn set_is_active(&mut self, is_active: bool) {
+        self.is_active = is_active
     }
 }
