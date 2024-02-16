@@ -72,7 +72,7 @@ impl<
         let article = article.unwrap();
 
         let comments = self.comment_user_article_repository.find_many_comments(
-            Some(article.id()),
+            article.id(),
             PaginationParameters {
                 items_per_page: 5,
                 page: 1,

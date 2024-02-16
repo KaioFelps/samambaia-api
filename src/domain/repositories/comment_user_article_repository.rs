@@ -25,7 +25,7 @@ pub enum CommentWithAuthorQueryType {
 pub trait CommentUserArticleRepositoryTrait {
     async fn find_many_comments(
         &self,
-        article_id: Option<Uuid>,
+        article_id: Uuid,
         params: PaginationParameters<CommentWithAuthorQueryType>
     ) -> Result<FindManyCommentsWithAuthorResponse, Box<dyn Error>>;
 }
