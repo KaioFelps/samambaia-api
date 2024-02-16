@@ -13,6 +13,7 @@ pub struct Model {
     pub content: String,
     pub created_at: DateTime,
     pub article_id: Uuid,
+    pub is_active: bool,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
