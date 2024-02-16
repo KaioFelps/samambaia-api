@@ -23,7 +23,7 @@ pub enum Relation {
         from = "Column::ArticleId",
         to = "super::article::Column::Id",
         on_update = "NoAction",
-        on_delete = "Cascade"
+        on_delete = "NoAction"
     )]
     Article,
     #[sea_orm(has_many = "super::comment_report::Entity")]
