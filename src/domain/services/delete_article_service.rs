@@ -82,7 +82,10 @@ DeleteArticleService<AR, ACR, UR>
 
         if !user_can_delete { return Err(Box::new(UnauthorizedError::new())); }
 
-        let response = &self.article_comment_repository.delete_article_with_comments(article).await;
+        let response = &self
+        .article_comment_repository
+        .delete_article_and_inactivate_comments(article)
+        .await;
 
         if response.as_ref().is_err() {
             error!(
@@ -166,7 +169,7 @@ mod test {
 
         let mocked_article_repo_db_clone = Arc::clone(&article_db);
         mocked_article_comment_repo
-        .expect_delete_article_with_comments()
+        .expect_delete_article_and_inactivate_comments()
         .returning(move |_article| {
             let mut article_db = mocked_article_repo_db_clone.lock().unwrap();
             article_db.truncate(0);

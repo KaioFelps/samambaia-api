@@ -2,7 +2,7 @@ use std::error::Error;
 use std::future::Future;
 use async_trait::async_trait;
 use migration::{Expr, Func};
-use sea_orm::{ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait, TransactionTrait};
+use sea_orm::{ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait, TransactionTrait, Value};
 use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
@@ -66,7 +66,13 @@ impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository {
     }
 
     async fn delete_many_comments_by_article_id(&self, article_id: Uuid) -> Result<(), Box<dyn Error>> {
-        self.delete_all_articles_comment(&self.sea_service.db, article_id).await?;
+        self.delete_all_articles_comments(&self.sea_service.db, article_id).await?;
+
+        Ok(())
+    }
+
+    async fn inactivate_many_comments_by_article_id(&self, article_id: Uuid) -> Result<(), Box<dyn Error>> {
+        self.inactivate_all_articles_comments(&self.sea_service.db, article_id).await?;
 
         Ok(())
     }
@@ -82,7 +88,25 @@ impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository {
         .exec(&transaction)
         .await?;
 
-        self.delete_all_articles_comment(&transaction, article_id).await?;
+        self.delete_all_articles_comments(&transaction, article_id).await?;
+
+        transaction.commit().await?;
+
+        Ok(())
+    }
+
+    async fn delete_article_and_inactivate_comments(&self, article: Article) -> Result<(), Box<dyn Error>> {
+        let article_id = article.id();
+
+        let article = SeaArticleMapper::article_to_sea_active_model(article);
+
+        let transaction = self.sea_service.db.begin().await?;
+
+        self.inactivate_all_articles_comments(&transaction, article_id).await?;
+
+        ArticleEntity::delete(article)
+        .exec(&transaction)
+        .await?;
 
         transaction.commit().await?;
 
@@ -91,10 +115,20 @@ impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository {
 }
 
 impl SeaArticleCommentRepository {
-    fn delete_all_articles_comment<'lf, C: ConnectionTrait>
+    fn delete_all_articles_comments<'lf, C: ConnectionTrait>
     (&self, conn: &'lf C, article_id: Uuid)
     -> impl Future<Output = Result<sea_orm::DeleteResult, sea_orm::DbErr>> + 'lf{
         CommentEntity::delete_many()
+        .filter(CommentColumn::ArticleId.eq(article_id))
+        .exec(conn)
+    }
+
+    fn inactivate_all_articles_comments<'lf, C: ConnectionTrait>
+    (&self, conn: &'lf C, article_id: Uuid)
+    -> impl Future<Output = Result<sea_orm::UpdateResult, sea_orm::DbErr>> + 'lf{
+        CommentEntity::update_many()
+        .col_expr(CommentColumn::ArticleId, Expr::value(Value::Uuid(None)))
+        .col_expr(CommentColumn::IsActive, Expr::value(Value::Bool(Some(false))))
         .filter(CommentColumn::ArticleId.eq(article_id))
         .exec(conn)
     }
