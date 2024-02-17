@@ -13,6 +13,7 @@ pub struct Model {
     pub task: String,
     pub twitter: Option<String>,
     pub discord: Option<String>,
+    pub created_at: DateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
