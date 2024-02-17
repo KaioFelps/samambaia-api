@@ -11,6 +11,7 @@ pub enum RolePermissions {
     DisapproveArticle,
     DeleteArticle,
 
+    InactivateComment,
     DeleteComment,
 
     SolveReport,
@@ -24,8 +25,8 @@ impl RolePermissions {
         let perms_user = vec![];
         let perms_writter = vec![CreateArticle];
         let perms_editor = [&perms_writter[..], &[UpdateArticle, ApproveArticle]].concat();
-        let perms_coord = [&perms_editor[..], &[DisapproveArticle, DeleteComment, SolveReport]].concat();
-        let perms_admin = [&perms_coord[..], &[UpdateUser]].concat();
+        let perms_coord = [&perms_editor[..], &[DisapproveArticle, InactivateComment, SolveReport]].concat();
+        let perms_admin = [&perms_coord[..], &[UpdateUser, DeleteComment]].concat();
         let perms_principal = [&perms_admin[..], &[ChangeUserPassword, DeleteArticle, DeleteReport]].concat();
         let perms_ceo = perms_principal.clone().to_owned();
     
