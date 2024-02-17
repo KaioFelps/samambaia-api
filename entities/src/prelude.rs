@@ -3,4 +3,7 @@
 pub use super::article::Entity as Article;
 pub use super::comment::Entity as Comment;
 pub use super::comment_report::Entity as CommentReport;
+pub use super::team_role::Entity as TeamRole;
+pub use super::team_role_team_user::Entity as TeamRoleTeamUser;
+pub use super::team_user::Entity as TeamUser;
 pub use super::user::Entity as User;

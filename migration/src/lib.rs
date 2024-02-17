@@ -14,6 +14,7 @@ mod m20240214_030642_fix_comment_report_foreign_key;
 mod m20240216_194500_add_is_active_to_comments;
 mod m20240216_200245_remove_cascade_action_from_comment_article_foreign_key;
 mod m20240216_204934_make_comment_article_id_field_nullable;
+mod m20240217_210055_setup_teams_tables;
 
 pub struct Migrator;
 
@@ -35,6 +36,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20240216_194500_add_is_active_to_comments::Migration),
             Box::new(m20240216_200245_remove_cascade_action_from_comment_article_foreign_key::Migration),
             Box::new(m20240216_204934_make_comment_article_id_field_nullable::Migration),
+            Box::new(m20240217_210055_setup_teams_tables::Migration),
         ]
     }
 }
