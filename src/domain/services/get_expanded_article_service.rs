@@ -86,6 +86,7 @@ impl<
 
         let comments = self.comment_user_article_repository.find_many_comments(
             article.id(),
+            false,
             PaginationParameters {
                 items_per_page,
                 page: 1,
@@ -229,7 +230,7 @@ mod test {
         let comments_db_to_move = Arc::clone(&comments_db);
         mock_comm_user_art_repo
         .expect_find_many_comments()
-        .returning(move |_article_id, params| {
+        .returning(move |_article_id, include_inactive, params| {
             let PaginationParameters { page, items_per_page, query } = params;
 
             let mut comments: Vec<CommentWithAuthor> = Vec::new();
@@ -238,14 +239,22 @@ mod test {
                 match query.unwrap() {
                     CommentWithAuthorQueryType::CONTENT(content) => {
                         for item in comments_db_to_move.lock().unwrap().iter() {
-                            if item.content().to_lowercase().contains(&content.to_lowercase()[..]) {
+                            if
+                                item.content().to_lowercase().contains(&content.to_lowercase()[..])
+                                || include_inactive
+                                || (!include_inactive && item.is_active())
+                            {
                                 comments.push(item.clone());
                             }
                         }
                     },
                     CommentWithAuthorQueryType::AUTHOR(content) => {
                         for item in comments_db_to_move.lock().unwrap().iter() {
-                            if item.author().id().eq(&content) {
+                            if
+                                item.author().id().eq(&content)
+                                || include_inactive
+                                || (!include_inactive && item.is_active())
+                            {
                                 comments.push(item.clone());
                             }
                         }

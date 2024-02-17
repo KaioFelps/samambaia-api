@@ -26,6 +26,7 @@ pub trait CommentUserArticleRepositoryTrait {
     async fn find_many_comments(
         &self,
         article_id: Uuid,
+        include_inactive: bool,
         params: PaginationParameters<CommentWithAuthorQueryType>
     ) -> Result<FindManyCommentsWithAuthorResponse, Box<dyn Error>>;
 }

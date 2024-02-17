@@ -34,6 +34,7 @@ impl CommentUserArticleRepositoryTrait for SeaCommentUserArticleRepository {
     async fn find_many_comments(
         &self,
         article_id: Uuid,
+        include_inactive: bool,
         params: PaginationParameters<CommentWithAuthorQueryType>
     ) -> Result<FindManyCommentsWithAuthorResponse, Box<dyn Error>> {
         let current_page = params.page as u64;
@@ -41,7 +42,16 @@ impl CommentUserArticleRepositoryTrait for SeaCommentUserArticleRepository {
 
         let leap = ((&current_page - 1) * items_per_page) as u64;
 
+        let include_inactive = Some(include_inactive);
+
         let comments = CommentEntity::find()
+        .apply_if(include_inactive, |query_builder, val| {
+            if !val {
+                query_builder.filter(CommentColumn::IsActive.eq(true))
+            } else {
+                query_builder
+            }
+        })
         .filter(CommentColumn::ArticleId.eq(article_id))
         .apply_if(params.clone().query, |query_builder, query| self.find_many_get_filters(query_builder, query))
         .order_by_desc(CommentColumn::CreatedAt)

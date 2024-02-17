@@ -32,13 +32,22 @@ impl SeaArticleCommentRepository {
 
 #[async_trait]
 impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository {
-    async fn find_many_comments(&self, article_id: Option<Uuid>, params: PaginationParameters<CommentQueryType>) -> Result<FindManyCommentsResponse, Box<dyn Error>> {
+    async fn find_many_comments(&self, article_id: Option<Uuid>, include_inactive: bool, params: PaginationParameters<CommentQueryType>) -> Result<FindManyCommentsResponse, Box<dyn Error>> {
         let current_page = params.page as u64;
         let items_per_page = params.items_per_page as u64;
 
         let leap = ((&current_page - 1) * items_per_page) as u64;
 
+        let include_inactive = Some(include_inactive);
+
         let comments = CommentEntity::find()
+        .apply_if(include_inactive, |query_builder, val| {
+            if !val {
+                query_builder.filter(CommentColumn::IsActive.eq(true))
+            } else {
+                query_builder
+            }
+        })
         .apply_if(article_id, |query_builder, id| query_builder.filter(CommentColumn::ArticleId.eq(id)))
         .apply_if(params.clone().query, |query_builder, query| self.find_many_get_filters(query_builder, query))
         .order_by_desc(CommentColumn::CreatedAt)
@@ -48,6 +57,13 @@ impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository {
         .await?;
 
         let comments_count = CommentEntity::find()
+        .apply_if(include_inactive, |query_builder, val| {
+            if !val {
+                query_builder.filter(CommentColumn::IsActive.eq(true))
+            } else {
+                query_builder
+            }
+        })
         .apply_if(article_id, |query_builder, id| query_builder.filter(CommentColumn::ArticleId.eq(id)))
         .apply_if(params.clone().query, |query_builder, query| self.find_many_get_filters(query_builder, query))
         .offset(leap)

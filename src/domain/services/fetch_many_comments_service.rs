@@ -49,15 +49,15 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
         }
     }
 
-    pub async fn exec_with_article_id(&self, article_id: Uuid, params: FetchManyCommentsParams) -> ExecFuncReturn {
-        self.fetch(Some(article_id), params).await
+    pub async fn exec_with_article_id(&self, article_id: Uuid, include_inactive: bool, params: FetchManyCommentsParams) -> ExecFuncReturn {
+        self.fetch(Some(article_id), include_inactive, params).await
     }
 
-    pub async fn exec(&self, params: FetchManyCommentsParams) -> ExecFuncReturn {
-        self.fetch(None, params).await
+    pub async fn exec(&self, include_inactive: bool, params: FetchManyCommentsParams) -> ExecFuncReturn {
+        self.fetch(None, include_inactive, params).await
     }
 
-    async fn fetch(&self, article_id: Option<Uuid>, params: FetchManyCommentsParams) -> ExecFuncReturn {
+    async fn fetch(&self, article_id: Option<Uuid>, include_inactive: bool, params: FetchManyCommentsParams) -> ExecFuncReturn {
         let default_items_per_page = 9;
         let default_page = 1;
 
@@ -83,7 +83,7 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
 
         let response =
         self.article_comment_repository.
-        find_many_comments(article_id, PaginationParameters {
+        find_many_comments(article_id, include_inactive, PaginationParameters {
             items_per_page,
             page,
             query
@@ -147,6 +147,7 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
 mod test {
     use super::*;
     use tokio;
+    use chrono::Utc;
 
     use crate::domain::domain_entities::article::Article;
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
@@ -164,6 +165,14 @@ mod test {
 
         db.push(Comment::new(user.id(), Some(article.id()), "Comment 1 content here".to_string()));
         db.push(Comment::new(user.id(), Some(article.id()), "Comment 2 content here".to_string()));
+        db.push(Comment::new_from_existing(
+            Uuid::new_v4(),
+            Some(article.id()),
+            user.id(),
+            "Coment 2 content here".into(),
+            false,
+            Utc::now().naive_utc()
+        ));
 
         let mut mocked_comment_repo: MockArticleCommentRepositoryTrait = MockArticleCommentRepositoryTrait::new();
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
@@ -197,7 +206,7 @@ mod test {
 
         mocked_comment_repo
         .expect_find_many_comments()
-        .returning(move |_article_id, params| {
+        .returning(move |_article_id, include_inactive, params| {
             let PaginationParameters { page, items_per_page, query } = params;
 
             let mut comments: Vec<Comment> = Vec::new();
@@ -206,21 +215,31 @@ mod test {
                 match query.unwrap() {
                     CommentQueryType::CONTENT(content) => {
                         for item in db.iter() {
-                            if item.content().to_lowercase().contains(&content.to_lowercase()[..]) {
+                            if
+                                item.content().to_lowercase().contains(&content.to_lowercase()[..])
+                                && (include_inactive || item.is_active())
+                            {
                                 comments.push(item.clone());
                             }
                         }
                     },
                     CommentQueryType::AUTHOR(content) => {
                         for item in db.iter() {
-                            if item.author_id().eq(&content) {
+                            if
+                                item.author_id().eq(&content)
+                                && (include_inactive || item.is_active())
+                            {
                                 comments.push(item.clone());
                             }
                         }
                     }
                 }
             } else {
-                comments = db.clone();
+                for item in db.iter() {
+                    if include_inactive || item.is_active() {
+                        comments.push(item.clone());
+                    }
+                }
             }
 
             let total_of_items_before_paginating = comments.len();
@@ -248,22 +267,28 @@ mod test {
         let fetch_many_comments_service = FetchManyCommentsService::new(Box::new(mocked_comment_repo), Box::new(mocked_user_repo));
 
         // make a request querying by title
-        let res = fetch_many_comments_service.exec(FetchManyCommentsParams {
-            page: Some(2),
-            per_page: Some(1),
-            query: Some(ServiceCommentQueryType::CONTENT("comment".to_string()))
-        }).await.unwrap();
+        let res = fetch_many_comments_service.exec(
+            false,
+            FetchManyCommentsParams {
+                page: Some(2),
+                per_page: Some(1),
+                query: Some(ServiceCommentQueryType::CONTENT("comment".to_string()))
+            }
+        ).await.unwrap();
 
         assert_eq!(1, res.data.len());
         assert_eq!(res.pagination, PaginationResponse { current_page: 2, total_pages: 2, total_items: 2 });
         assert_eq!(res.data[0].content(), "Comment 2 content here");
 
         // make a request with no query
-        let res_2 = fetch_many_comments_service.exec(FetchManyCommentsParams {
-            page: None,
-            per_page: None,
-            query: None,
-        }).await.unwrap();
+        let res_2 = fetch_many_comments_service.exec(
+            false,
+            FetchManyCommentsParams {
+                page: None,
+                per_page: None,
+                query: None,
+            }
+        ).await.unwrap();
 
         assert_eq!(2, res_2.data.len());
         assert_eq!(res_2.pagination, PaginationResponse { current_page: 1, total_pages: 1, total_items: 2 });
@@ -271,23 +296,29 @@ mod test {
         assert_eq!(res_2.data[1].content(), "Comment 2 content here");
 
         // make a request querying by nickname that does not exist
-        let res_3 = fetch_many_comments_service.exec(FetchManyCommentsParams {
-            page: None,
-            per_page: None,
-            query: Some(ServiceCommentQueryType::AUTHOR("Vamp".to_string())),
-        }).await.unwrap_err();
+        let res_3 = fetch_many_comments_service.exec(
+            false,
+            FetchManyCommentsParams {
+                page: None,
+                per_page: None,
+                query: Some(ServiceCommentQueryType::AUTHOR("Vamp".to_string())),
+            }
+        ).await.unwrap_err();
 
         assert!(res_3.is::<ResourceNotFoundError>());
 
-        // make a request querying by nickname that exists
-        let res_4 = fetch_many_comments_service.exec(FetchManyCommentsParams {
-            page: None,
-            per_page: None,
-            query: Some(ServiceCommentQueryType::AUTHOR("Floricultor".to_string())),
-        }).await.unwrap();
+        // make a request querying by nickname that exists and include inactive comments
+        let res_4 = fetch_many_comments_service.exec(
+            true,
+            FetchManyCommentsParams {
+                page: None,
+                per_page: None,
+                query: Some(ServiceCommentQueryType::AUTHOR("Floricultor".to_string())),
+            }
+        ).await.unwrap();
 
-        assert_eq!(2, res_4.data.len());
-        assert_eq!(res_4.pagination, PaginationResponse { current_page: 1, total_pages: 1, total_items: 2 });
+        assert_eq!(3, res_4.data.len());
+        assert_eq!(res_4.pagination, PaginationResponse { current_page: 1, total_pages: 1, total_items: 3 });
 
         /* RESPONSE SAMPLE
 

@@ -23,7 +23,7 @@ pub enum CommentQueryType {
 #[cfg_attr(test, automock)]
 #[async_trait]
 pub trait ArticleCommentRepositoryTrait {
-    async fn find_many_comments(&self, article_id: Option<Uuid>, params: PaginationParameters<CommentQueryType>) -> Result<FindManyCommentsResponse, Box<dyn Error>>;
+    async fn find_many_comments(&self, article_id: Option<Uuid>, include_inactive: bool, params: PaginationParameters<CommentQueryType>) -> Result<FindManyCommentsResponse, Box<dyn Error>>;
 
     async fn delete_many_comments_by_article_id(&self, article_id: Uuid) -> Result<(), Box<dyn Error>>;
 
