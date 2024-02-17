@@ -5,3 +5,5 @@ pub mod slug;
 pub mod comment;
 pub mod comment_report;
 pub mod comment_with_author;
+pub mod team_user;
+pub mod team_role;
