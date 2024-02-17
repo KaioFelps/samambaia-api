@@ -15,4 +15,6 @@ pub trait CommentRepositoryTrait {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Comment>, Box<dyn Error>>;
 
     async fn delete(&self, comment: Comment) -> Result<(), Box<dyn Error>>;
+
+    async fn save(&self, comment: Comment) -> Result<Comment, Box<dyn Error>>;
 }

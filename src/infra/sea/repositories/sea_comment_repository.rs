@@ -48,8 +48,6 @@ impl CommentRepositoryTrait for SeaCommentRepository {
         }
     }
 
-    // async fn find_many_by_article_id(&self, article_id: Uuid) -> Result<FindManyCommentsResponse, Box<dyn Error>>;
-
     async fn delete(&self, comment: Comment) -> Result<(), Box<dyn Error>> {
         let comment = SeaCommentMapper::comment_to_sea_model(comment);
 
@@ -58,4 +56,11 @@ impl CommentRepositoryTrait for SeaCommentRepository {
         Ok(())
     }
 
+    async fn save(&self, comment: Comment) -> Result<Comment, Box<dyn Error>> {
+        let comment = SeaCommentMapper::comment_to_sea_active_model(comment);
+
+        let comment = comment.update(&self.sea_service.db).await?;
+
+        Ok(SeaCommentMapper::model_to_comment(comment))
+    }
 }
