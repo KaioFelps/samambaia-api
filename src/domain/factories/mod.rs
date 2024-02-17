@@ -13,6 +13,7 @@ pub mod get_expanded_article_service_factory;
 pub mod comment_on_article_service_factory;
 pub mod delete_comment_service_factory;
 pub mod fetch_many_comments_service_factory;
+pub mod toggle_comment_visibility_service_factory;
 
 pub mod create_comment_report_service_factory;
 pub mod solve_comment_report_service_factory;
