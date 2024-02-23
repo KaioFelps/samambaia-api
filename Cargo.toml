@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "migration", "entities", "test"]
+members = [".", "migration", "entities", "test", "cli"]
 
 [package]
 name = "hubbitos_backend"
@@ -14,6 +14,7 @@ path = "src/lib.rs"
 [dependencies]
 migration = { path = "migration" }
 entities = { path = "entities" }
+hubbitos-cli = { path = "cli" }
 dotenvy = "0.15.7"
 sea-orm = { version = "0.12", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros", "chrono", "with-json", "with-uuid" ] }
 tokio = { version = "1", features = ["full"] }

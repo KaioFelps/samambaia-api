@@ -1611,6 +1611,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "hubbitos-cli"
+version = "0.1.0"
+
+[[package]]
 name = "hubbitos_backend"
 version = "0.1.0"
 dependencies = [
@@ -1623,6 +1627,7 @@ dependencies = [
  "entities",
  "env_logger",
  "http",
+ "hubbitos-cli",
  "jsonwebtoken",
  "log",
  "migration",
