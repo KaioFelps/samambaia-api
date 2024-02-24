@@ -11,9 +11,9 @@ use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
 use crate::util::{verify_role_has_permission, RolePermissions};
 
 pub struct CreateTeamRoleParams {
-    title: String,
-    description: String,
-    staff_id: Uuid,
+    pub title: String,
+    pub description: String,
+    pub staff_id: Uuid,
 }
 
 pub struct CreateTeamRoleService<
