@@ -27,7 +27,7 @@ async fn main() {
     let res = _ctrs.exec(CreateTeamRoleParams {
         title: "Desenvolvedor".into(),
         description: "Desenvolver novas funcionalidades para o fã-site.".into(),
-        staff_id: _floricultor_user.id()
+        staff_role: _floricultor_user.role().unwrap()
     }).await;
 
     println!("{:?}", res.unwrap());
