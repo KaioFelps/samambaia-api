@@ -7,12 +7,10 @@ use crate::domain::domain_entities::comment::Comment;
 use crate::domain::repositories::{
     article_repository::ArticleRepositoryTrait,
     comment_repository::CommentRepositoryTrait,
-    user_repository::UserRepositoryTrait
 };
 use crate::errors::{
     bad_request_error::BadRequestError,
     internal_error::InternalError,
-    unauthorized_error::UnauthorizedError
 };
 use crate::{R_EOL, LOG_SEP};
 
@@ -22,41 +20,29 @@ pub struct CommentOnArticleParams {
     pub content: String
 }
 
-pub struct CommentOnArticleService<CR, AR, UR>
-where CR: CommentRepositoryTrait, AR: ArticleRepositoryTrait, UR: UserRepositoryTrait
+pub struct CommentOnArticleService<CR, AR>
+where CR: CommentRepositoryTrait, AR: ArticleRepositoryTrait
 {
     comment_repository: Box<CR>,
     article_repository: Box<AR>,
-    user_repository: Box<UR>
 }
 
 impl<
 CR: CommentRepositoryTrait,
 AR: ArticleRepositoryTrait,
-UR: UserRepositoryTrait
 >
-CommentOnArticleService<CR, AR, UR> {
+CommentOnArticleService<CR, AR> {
     pub fn new(
         comment_repository: Box<CR>,
         article_repository: Box<AR>,
-        user_repository: Box<UR>
     ) -> Self {
         CommentOnArticleService {
             comment_repository,
             article_repository,
-            user_repository
         }
     }
 
     pub async fn exec(&self, params: CommentOnArticleParams) -> Result<Comment, Box<dyn Error>> {
-        let user_on_db = self.user_repository.find_by_id(&params.author_id).await;
-        
-        if user_on_db.is_err() {
-            error!("{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while fetching user from db:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}", user_on_db.unwrap_err());
-            return Err( Box::new( InternalError::new() ) );
-        }
-        if user_on_db.unwrap().is_none() { return Err( Box::new( UnauthorizedError::new() ) ); }
-        
         let article_on_db = self.article_repository.find_by_id(params.article_id.clone()).await;
 
         if article_on_db.is_err() {
@@ -90,10 +76,7 @@ mod test {
     use std::sync::Arc;
     
     use crate::domain::domain_entities::article::Article;
-    use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::slug::Slug;
-    use crate::domain::domain_entities::user::User;
-    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
 
@@ -109,27 +92,11 @@ mod test {
 
     #[tokio::test]
     async fn test() {
-        let mut mocked_user_repo = MockUserRepositoryTrait::new();
         let mut mocked_article_repo = MockArticleRepositoryTrait::new();
         let mut mocked_comment_repo = MockCommentRepositoryTrait::new();
 
         let user_id = Uuid::new_v4();
         let article_id = Uuid::new_v4();
-
-        mocked_user_repo
-        .expect_find_by_id()
-        .returning(|id| {
-            let user = User::new_from_existing(
-                *id,
-                "User".into(),
-                "123456".into(),
-                Utc::now().naive_utc(),
-                None,
-                Some(Role::User)
-            );
-
-            Ok(Some(user))
-        });
 
         mocked_article_repo
         .expect_find_by_id()
@@ -172,7 +139,6 @@ mod test {
         let sut = CommentOnArticleService::new(
             Box::new(mocked_comment_repo),
             Box::new(mocked_article_repo),
-            Box::new(mocked_user_repo)
         );
 
         let res = sut.exec(CommentOnArticleParams {
