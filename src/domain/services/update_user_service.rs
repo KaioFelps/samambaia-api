@@ -11,11 +11,13 @@ use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::util::verify_role_hierarchy_matches;
+use crate::util::verify_role_has_permission;
 
 use crate::{LOG_SEP, R_EOL};
 
 pub struct UpdateUserParams {
     pub staff_id: Uuid,
+    pub staff_role: Role,
     pub user_id: Uuid,
     pub nickname: Option<String>,
     pub password: Option<String>,
@@ -35,30 +37,10 @@ impl<UserRepositoryType: UserRepositoryTrait> UpdateUserService<UserRepositoryTy
     }
 
     pub async fn exec(&self, params: UpdateUserParams) -> Result<User, Box<dyn Error>> {
-        let staff_on_db = self.user_repository.find_by_id(&params.staff_id).await;
-
-        if staff_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update User Service, while finding the staff user by staff id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                staff_on_db.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let staff_on_db = staff_on_db.unwrap();
-
-        if staff_on_db.is_none() {
+        let staff_can_update_user = verify_role_has_permission(&params.staff_role, crate::util::RolePermissions::UpdateUser);
+        
+        if !staff_can_update_user {
             return Err(Box::new(UnauthorizedError::new()));
-        }
-
-        let staff_on_db = staff_on_db.unwrap();
-
-        match staff_on_db.role() {
-            Some(Role::Admin) => (),
-            Some(Role::Ceo) => (),
-            Some(Role::Principal) => (),
-            _ => return Err(Box::new(UnauthorizedError::new()))
         }
         
         let user = self.user_repository.find_by_id(&params.user_id).await;
@@ -80,7 +62,7 @@ impl<UserRepositoryType: UserRepositoryTrait> UpdateUserService<UserRepositoryTy
 
         let operation_follows_role_hierarchy = verify_role_hierarchy_matches(
             &user.role().as_ref().unwrap(),
-            &staff_on_db.role().as_ref().unwrap()
+            &params.staff_role
         );
 
         if !operation_follows_role_hierarchy {
