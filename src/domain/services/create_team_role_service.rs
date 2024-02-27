@@ -1,9 +1,8 @@
 use std::error::Error;
 use log::error;
-use uuid::Uuid;
+use crate::domain::domain_entities::role::Role;
 use crate::{LOG_SEP, R_EOL};
 
-use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::domain::domain_entities::team_role::TeamRole;
@@ -13,52 +12,27 @@ use crate::util::{verify_role_has_permission, RolePermissions};
 pub struct CreateTeamRoleParams {
     pub title: String,
     pub description: String,
-    pub staff_id: Uuid,
+    pub staff_role: Role
 }
 
-pub struct CreateTeamRoleService<
-TeamRoleRepository: TeamRoleRepositoryTrait,
-UserRepository: UserRepositoryTrait
-> {
+pub struct CreateTeamRoleService<TeamRoleRepository: TeamRoleRepositoryTrait> {
     team_role_repository: Box<TeamRoleRepository>,
-    user_repository: Box<UserRepository>
 }
 
-impl<
-    TeamRoleRepository: TeamRoleRepositoryTrait,
-    UserRepository: UserRepositoryTrait
-> CreateTeamRoleService<TeamRoleRepository, UserRepository> {
+impl<TeamRoleRepository: TeamRoleRepositoryTrait>
+CreateTeamRoleService<TeamRoleRepository> {
     pub fn new(
         team_role_repository: Box<TeamRoleRepository>,
-        user_repository: Box<UserRepository>
     ) -> Self {
         CreateTeamRoleService {
             team_role_repository,
-            user_repository
         }
     }
 
     pub async fn exec(&self, params: CreateTeamRoleParams) -> Result<TeamRole, Box<dyn Error>> {
-        let CreateTeamRoleParams { title, description, staff_id } = params;
+        let CreateTeamRoleParams { title, description, staff_role } = params;
 
-        let user_on_db = self.user_repository.find_by_id(&staff_id).await;
-
-        if user_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create Team Role Service, while finding staff on the database:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                user_on_db.unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let user_on_db = user_on_db.unwrap();
-
-        if user_on_db.is_none() { return Err(Box::new(UnauthorizedError::new())) }
-
-        let user_on_db = user_on_db.unwrap();
-
-        let user_can_create_team_role = verify_role_has_permission(&user_on_db.role().unwrap(), RolePermissions::CreateNewTeamRole);
+        let user_can_create_team_role = verify_role_has_permission(&staff_role, RolePermissions::CreateNewTeamRole);
 
         if !user_can_create_team_role { return Err(Box::new(UnauthorizedError::new())) }
 
@@ -85,8 +59,7 @@ impl<
 #[cfg(test)]
 mod test {
     use crate::domain::domain_entities::role::Role;
-    use crate::domain::repositories::{team_role_repository::MockTeamRoleRepositoryTrait, user_repository::MockUserRepositoryTrait};
-    use crate::domain::domain_entities::user::User;
+    use crate::domain::repositories::team_role_repository::MockTeamRoleRepositoryTrait;
 
     use super::*;
     use tokio;
@@ -95,31 +68,10 @@ mod test {
     #[tokio::test]
     async fn test() {
         // populating
-        let admin_user = User::new("Salem".into(), "123".into(), Some(Role::Admin));
-        let principal_user = User::new("Flori".into(), "123".into(), Some(Role::Principal));
-
-        let user_db: Arc<Mutex<Vec<User>>> = Arc::new(Mutex::new(Vec::new()));
         let team_role_db: Arc<Mutex<Vec<TeamRole>>> = Arc::new(Mutex::new(Vec::new()));
 
-        user_db.lock().unwrap().push(admin_user.clone());
-        user_db.lock().unwrap().push(principal_user.clone());
-
         // mocking the repositories
-        let mut mocked_user_repo = MockUserRepositoryTrait::new();
         let mut mocked_team_role_repo = MockTeamRoleRepositoryTrait::new();
-
-        let arc_user_db = Arc::clone(&user_db);
-        mocked_user_repo
-        .expect_find_by_id()
-        .returning(move |id| {
-            for user in arc_user_db.lock().unwrap().iter() {
-                if user.id().eq(id) {
-                    return Ok(Some(user.clone()));
-                }
-            }
-
-            Ok(None)
-        });
 
         let arc_team_role_db = Arc::clone(&team_role_db);
         mocked_team_role_repo
@@ -131,12 +83,12 @@ mod test {
         });
 
         // testing
-        let sut = CreateTeamRoleService::new(Box::new(mocked_team_role_repo), Box::new(mocked_user_repo));
+        let sut = CreateTeamRoleService::new(Box::new(mocked_team_role_repo));
 
         let response = sut.exec(CreateTeamRoleParams {
             title: "Editor-chefe".into(),
             description: "Responsável por supervisionar a edição e aprovar as notícias.".into(),
-            staff_id: admin_user.id()
+            staff_role: Role::Admin
         }).await;
 
         assert!(response.is_err());
@@ -145,7 +97,7 @@ mod test {
         let response = sut.exec(CreateTeamRoleParams {
             title: "Editor-chefe".into(),
             description: "Responsável por supervisionar a edição e aprovar as notícias.".into(),
-            staff_id: principal_user.id()
+            staff_role: Role::Principal
         }).await;
 
         assert!(response.is_ok());
