@@ -3,8 +3,8 @@ use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::article::Article;
+use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
-use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::errors::bad_request_error::BadRequestError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
@@ -14,29 +14,23 @@ use crate::{LOG_SEP, R_EOL};
 
 pub struct UpdateArticleParams {
     pub user_id: Uuid,
+    pub user_role: Role,
     pub article_id: Uuid,
     pub cover_url: Option<String>,
     pub title: Option<String>,
     pub content: Option<String>,
     pub approved: Option<bool>,
 }
-pub struct UpdateArticleService<
-ArticleRepository: ArticleRepositoryTrait,
-UserRepository: UserRepositoryTrait
-> {
-    user_repository: Box<UserRepository>,
+pub struct UpdateArticleService<ArticleRepository: ArticleRepositoryTrait> {
     article_repository: Box<ArticleRepository>,
 }
 
 impl
-<ArticleRepository: ArticleRepositoryTrait,
-UserRepository: UserRepositoryTrait>
-UpdateArticleService<ArticleRepository, UserRepository>
+<ArticleRepository: ArticleRepositoryTrait> UpdateArticleService<ArticleRepository>
 {
-    pub fn new(article_repository: Box<ArticleRepository>, user_repository: Box<UserRepository>) -> Self {
+    pub fn new(article_repository: Box<ArticleRepository>) -> Self {
         UpdateArticleService {
             article_repository,
-            user_repository,
         }
     }
 
@@ -46,23 +40,6 @@ UpdateArticleService<ArticleRepository, UserRepository>
         if params.cover_url.is_none() && params.title.is_none() && params.cover_url.is_none() && params.approved.is_none() {
             return Err(Box::new(BadRequestError::new()));
         }
-
-        // checks user exists
-
-        let user_on_db = self.user_repository.find_by_id(&params.user_id).await;
-
-        if user_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update Article Service, while finding user by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                user_on_db.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let user_on_db = user_on_db.as_ref().unwrap().to_owned();
-
-        if user_on_db.is_none() { return Err(Box::new(UnauthorizedError::new())) }
 
         // article verifications
 
@@ -85,26 +62,29 @@ UpdateArticleService<ArticleRepository, UserRepository>
 
         // checks user is allowed to perform the update
         let user_can_update = verify_role_has_permission(
-            &user_on_db.as_ref().unwrap().role().unwrap().clone().to_owned(),
+            &params.user_role,
             RolePermissions::UpdateArticle
         );
 
         let user_can_approve = verify_role_has_permission(
-            &user_on_db.as_ref().unwrap().role().unwrap().clone().to_owned(),
+            &params.user_role,
             RolePermissions::ApproveArticle
         );
 
         let user_can_disapprove = verify_role_has_permission(
-            &user_on_db.as_ref().unwrap().role().unwrap().clone().to_owned(),
+            &params.user_role,
             RolePermissions::DisapproveArticle
         );
 
         if !user_can_approve && params.approved.is_some() { return Err(Box::new(UnauthorizedError::new())); }
         if !user_can_disapprove && params.approved.is_some() && params.approved.unwrap() == false { return Err(Box::new(UnauthorizedError::new())); }
         
-        let user_is_author = article.author_id() == user_on_db.unwrap().id();
+        let user_is_author = article.author_id() == params.user_id;
 
         if !user_can_update && !user_is_author { return Err(Box::new(UnauthorizedError::new())); }
+
+        // if user is autho but does no longer belong to the team, he can't delete his own article either.
+        if user_is_author && params.user_role == Role::User { return Err(Box::new(UnauthorizedError::new())); }
 
         // article modifying
 
@@ -145,34 +125,16 @@ mod test {
     use uuid::Uuid;
 
     use crate::errors::unauthorized_error::UnauthorizedError;
-    use crate::{domain::repositories::user_repository::MockUserRepositoryTrait, errors::resource_not_found::ResourceNotFoundError};
+    use crate::errors::resource_not_found::ResourceNotFoundError;
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
-    use crate::domain::domain_entities::user::User;
     use crate::domain::domain_entities::role::Role;
     use super::{Article, UpdateArticleParams};
 
     #[tokio::test]
     async fn test() {
-        let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
         let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
 
         let mut article_db: Vec<Article> = vec![];
-
-        // mocking user repo
-        mocked_user_repo
-        .expect_find_by_id()
-        .returning(|id| {
-            let fake_user = User::new_from_existing(
-                id.clone().to_owned(),
-                "Fake name".to_string(),
-                "password".to_string(),
-                chrono::Utc::now().naive_utc(),
-                None,
-                Some(Role::Writter)
-            );
-
-            Ok(Some(fake_user))
-        });
 
         let article = Article::new(
             Uuid::new_v4(),
@@ -236,12 +198,12 @@ mod test {
         });
 
         let service = super::UpdateArticleService {
-            user_repository: Box::new(mocked_user_repo),
             article_repository: Box::new(mocked_article_repo)
         };
 
         let result = service.exec(UpdateArticleParams {
             user_id: article.author_id(),
+            user_role: Role::Writter,
             article_id: article.id(),
             approved: Some(true),
             title: None,
@@ -253,6 +215,7 @@ mod test {
 
         let result = service.exec(UpdateArticleParams {
             user_id: article.author_id(),
+            user_role: Role::Writter,
             article_id: article.id(),
             approved: None,
             title: Some("Título atualizado".to_string()),
