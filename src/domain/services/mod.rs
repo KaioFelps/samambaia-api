@@ -21,3 +21,4 @@ pub mod fetch_many_comment_reports_service;
 pub mod toggle_comment_visibility_service;
 
 pub mod create_team_role_service;
+pub mod update_team_role_service;
