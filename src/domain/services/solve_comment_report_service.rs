@@ -1,5 +1,6 @@
 use std::error::Error;
 use log::error;
+use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
 use crate::errors::resource_not_found::ResourceNotFoundError;
@@ -12,6 +13,7 @@ use crate::util::verify_role_has_permission;
 use crate::util::RolePermissions;
 
 pub struct SolveCommentReportParams {
+    pub staff_id: Uuid,
     pub staff_role: Role,
     pub com_report_id: i32,
 }
@@ -54,7 +56,7 @@ SolveCommentReportService<CommentReportRepository> {
 
         let mut comm_report = comm_report.unwrap();
 
-        comm_report.set_solved(true);
+        comm_report.set_solved_by(Some(params.staff_id));
 
         let result = self.comment_report_repository.save(comm_report).await;
 
@@ -82,7 +84,6 @@ mod test {
     
     use tokio;
     use chrono::Utc;
-    use uuid::Uuid;
 
     #[tokio::test]
     async fn test() {
@@ -97,7 +98,7 @@ mod test {
             Uuid::new_v4(),
             Uuid::new_v4(),
             "Esse comentário é tóxico.".into(),
-            false,
+            None,
             Utc::now().naive_utc()
         );
 
@@ -108,7 +109,7 @@ mod test {
             Uuid::new_v4(),
             Uuid::new_v4(),
             "Estão me ofendendo neste comentário!".into(),
-            false,
+            None,
             Utc::now().naive_utc()
         );
 
@@ -156,20 +157,24 @@ mod test {
             comment_report_repository: Box::new(mocked_comment_report_repo)
         };
 
+        let fake_staff_id = Uuid::new_v4();
+
         let result = sut.exec(SolveCommentReportParams {
+            staff_id: fake_staff_id.clone(),
             staff_role: Role::Coord,
             com_report_id: comment_report_id_1
         }).await;
 
         assert!(result.is_ok());
-        assert_eq!(true, comm_report_db.lock().unwrap()[0].solved());
+        assert_eq!(Some(fake_staff_id.clone()), comm_report_db.lock().unwrap()[0].solved_by());
 
         let result_2 = sut.exec(SolveCommentReportParams {
+            staff_id: fake_staff_id,
             staff_role: Role::User,
             com_report_id: comment_report_id_2
         }).await;
 
         assert!(result_2.is_err());
-        assert_eq!(false, comm_report_db.lock().unwrap()[1].solved());
+        assert_eq!(None, comm_report_db.lock().unwrap()[1].solved_by());
     }
 }
