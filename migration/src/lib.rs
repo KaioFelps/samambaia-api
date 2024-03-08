@@ -16,6 +16,7 @@ mod m20240216_200245_remove_cascade_action_from_comment_article_foreign_key;
 mod m20240216_204934_make_comment_article_id_field_nullable;
 mod m20240217_210055_setup_teams_tables;
 mod m20240217_212548_add_timestamp_to_team_tables;
+mod m20240307_142155_change_comment_report_solved_field_to_be_solved_by;
 
 pub struct Migrator;
 
@@ -39,6 +40,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20240216_204934_make_comment_article_id_field_nullable::Migration),
             Box::new(m20240217_210055_setup_teams_tables::Migration),
             Box::new(m20240217_212548_add_timestamp_to_team_tables::Migration),
+            Box::new(m20240307_142155_change_comment_report_solved_field_to_be_solved_by::Migration),
         ]
     }
 }

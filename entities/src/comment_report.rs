@@ -12,8 +12,8 @@ pub struct Model {
     pub user_id: Uuid,
     #[sea_orm(column_type = "Text")]
     pub message: String,
-    pub solved: bool,
     pub created_at: DateTime,
+    pub solved_by: Option<Uuid>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -28,23 +28,25 @@ pub enum Relation {
     Comment,
     #[sea_orm(
         belongs_to = "super::user::Entity",
+        from = "Column::SolvedBy",
+        to = "super::user::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    User2,
+    #[sea_orm(
+        belongs_to = "super::user::Entity",
         from = "Column::UserId",
         to = "super::user::Column::Id",
         on_update = "NoAction",
         on_delete = "Cascade"
     )]
-    User,
+    User1,
 }
 
 impl Related<super::comment::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Comment.def()
-    }
-}
-
-impl Related<super::user::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::User.def()
     }
 }
 
