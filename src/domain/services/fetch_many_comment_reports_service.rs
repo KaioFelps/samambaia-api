@@ -1,16 +1,29 @@
 use std::error::Error;
 use log::error;
+use uuid::Uuid;
 use crate::domain::domain_entities::comment_report::CommentReport;
+use crate::domain::repositories::user_repository::UserRepositoryTrait;
+use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::{R_EOL, LOG_SEP};
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::repositories::comment_report_repository::{CommentReportQueryType, CommentReportRepositoryTrait, FindManyCommentReportsResponse};
 use crate::errors::internal_error::InternalError;
 
+pub enum CommentReportServiceQuery {
+   /*
+   * This should receive a option of the user's NICKNAME.
+   * The nickname will be used to get the user's ID that will be, in fact, used to find the related reports.
+   */
+   SolvedBy(String),
+   Solved(bool),
+   Content(String),
+}
+
 pub struct FetchManyCommentReportsParams {
     pub page: Option<u32>,
     pub per_page: Option<u32>,
-    pub query: Option<CommentReportQueryType>    
+    pub query: Option<CommentReportServiceQuery>    
 }
 
 
@@ -20,17 +33,26 @@ pub struct FetchManyCommentReportsResponse {
     pub data: Vec<CommentReport>
 }
 
-pub struct FetchManyCommentReportsService<CommentReportRepository: CommentReportRepositoryTrait> {
-    comment_report_repository: Box<CommentReportRepository>
+pub struct FetchManyCommentReportsService<
+    CommentReportRepository: CommentReportRepositoryTrait,
+    UserRepository: UserRepositoryTrait
+> {
+    comment_report_repository: Box<CommentReportRepository>,
+    user_repository: Box<UserRepository>
 }
 
-impl<CommentReportRepository: CommentReportRepositoryTrait>
-FetchManyCommentReportsService<CommentReportRepository> {
+impl<
+    CommentReportRepository: CommentReportRepositoryTrait,
+    UserRepository: UserRepositoryTrait
+>
+FetchManyCommentReportsService<CommentReportRepository, UserRepository> {
     pub fn new(
-        comment_report_repository: Box<CommentReportRepository>
+        comment_report_repository: Box<CommentReportRepository>,
+        user_repository: Box<UserRepository>
     ) -> Self {
         FetchManyCommentReportsService {
-            comment_report_repository
+            comment_report_repository,
+            user_repository
         }
     }
 
@@ -45,13 +67,13 @@ FetchManyCommentReportsService<CommentReportRepository> {
             if params_page <= 0 { default_page } else { params_page }
         } else { default_page };
 
-        let query = params.query;
+        let parsed_query = self.parse_query(params.query).await?;
 
         let response = self.comment_report_repository.find_many(
             PaginationParameters {
                 items_per_page,
                 page,
-                query,
+                query: parsed_query,
             }
         ).await;
 
@@ -76,11 +98,53 @@ FetchManyCommentReportsService<CommentReportRepository> {
             data,
         })
     }
+
+    async fn parse_query(&self, service_query: Option<CommentReportServiceQuery>) -> Result<Option<CommentReportQueryType>, Box<dyn Error>> {
+        if service_query.is_none() {
+            return Ok(None);
+        }
+
+        match service_query.unwrap() {
+            CommentReportServiceQuery::Content(content) => Ok(Some(CommentReportQueryType::Content(content))),
+            CommentReportServiceQuery::Solved(value) => Ok(Some(CommentReportQueryType::Solved(value))),
+            CommentReportServiceQuery::SolvedBy(nickname) => {
+                let user = self.get_id_from_nickname(nickname).await;
+
+                if user.is_err() {
+                    error!(
+                        "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Articles Service, while parsing the query: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                        user.unwrap_err()
+                    );
+        
+                    return Err(Box::new(InternalError::new()));
+                }
+
+                let user_id = user.unwrap();
+
+                if user_id.is_none() {
+                    return Err(Box::new(ResourceNotFoundError::new()));
+                }
+
+                let user_id = user_id.unwrap();
+
+                Ok(Some(CommentReportQueryType::SolvedBy(user_id)))
+            }
+        }
+    }
+
+    async fn get_id_from_nickname(&self, nickname: String) -> Result<Option<Uuid>, Box<dyn Error>> {
+        let user = self.user_repository.find_by_nickname(&nickname).await?;
+
+        return match user {
+            None => Ok(None),
+            Some(user) => Ok(Some(user.id()))
+        };
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::domain::{domain_entities::comment_report::CommentReportTrait, repositories::comment_report_repository::MockCommentReportRepositoryTrait};
+    use crate::domain::{domain_entities::{comment_report::CommentReportTrait, user::User}, repositories::{comment_report_repository::MockCommentReportRepositoryTrait, user_repository::MockUserRepositoryTrait}};
 
     use super::*;
 
@@ -93,13 +157,16 @@ mod test {
     #[tokio::test]
     async fn test() {
         let comment_report_db: Arc<Mutex<Vec<CommentReport>>> = Arc::new(Mutex::new(Vec::new()));
+        let user_db: Arc<Mutex<Vec<User>>> = Arc::new(Mutex::new(Vec::new()));
+
+        let user = User::new("Floricultor".into(), "123".into(), Some(crate::domain::domain_entities::role::Role::Principal));
 
         let comm_rep_1 = CommentReport::new_from_existing(
             1,
             Uuid::new_v4(),
             Uuid::new_v4(),
             "report numero 1".into(),
-            false,
+            None,
             Utc::now().naive_utc()
         );
 
@@ -108,14 +175,16 @@ mod test {
             Uuid::new_v4(),
             Uuid::new_v4(),
             "report numero 2".into(),
-            true,
+            Some(user.id()),
             Utc::now().naive_utc()
         );
 
         comment_report_db.lock().unwrap().push(comm_rep_1);
         comment_report_db.lock().unwrap().push(comm_rep_2);
+        user_db.lock().unwrap().push(user);
 
         let mut mocked_comm_report_repo = MockCommentReportRepositoryTrait::new();
+        let mut mocked_user_repo = MockUserRepositoryTrait::new();
 
         let comm_repo_db_clone = Arc::clone(&comment_report_db);
         mocked_comm_report_repo
@@ -133,16 +202,23 @@ mod test {
                 let query = query.unwrap();
 
                 match query {
-                    CommentReportQueryType::CONTENT(content) => {
+                    CommentReportQueryType::Content(content) => {
                         for item in comm_repo_db_clone.lock().unwrap().iter() {
                             if item.message().contains(&content[..]) {
                                 comment_reports.push(item.clone());
                             }
                         }
                     },
-                    CommentReportQueryType::SOLVED(is_solved) => {
+                    CommentReportQueryType::SolvedBy(solved_by) => {
                         for item in comm_repo_db_clone.lock().unwrap().iter() {
-                            if item.solved().eq(&is_solved) {
+                            if item.solved_by().is_some() && item.solved_by().unwrap().eq(&solved_by) {
+                                comment_reports.push(item.clone());
+                            }
+                        }
+                    },
+                    CommentReportQueryType::Solved(solved) => {
+                        for item in comm_repo_db_clone.lock().unwrap().iter() {
+                            if item.solved_by().is_some().eq(&solved) {
                                 comment_reports.push(item.clone());
                             }
                         }
@@ -167,14 +243,28 @@ mod test {
             Ok(FindManyCommentReportsResponse (res_comment_reports, total_of_items_before_paginating as u64))
         });
 
+        let user_repo_db_clone = Arc::clone(&user_db);
+        mocked_user_repo
+        .expect_find_by_nickname()
+        .returning(move |nickname| {
+            for user in user_repo_db_clone.lock().unwrap().iter() {
+                if user.nickname().to_lowercase().eq(&nickname.clone().to_lowercase()) {
+                    return Ok(Some(user.clone()));
+                }
+            }
+
+            Ok(None)
+        });
+
         let sut = FetchManyCommentReportsService {
-            comment_report_repository: Box::new(mocked_comm_report_repo)
+            comment_report_repository: Box::new(mocked_comm_report_repo),
+            user_repository: Box::new(mocked_user_repo)
         };
 
         let res = sut.exec(FetchManyCommentReportsParams {
             page: Some(1),
             per_page: Some(1),
-            query: Some(CommentReportQueryType::SOLVED(true)),
+            query: Some(CommentReportServiceQuery::SolvedBy("Floricultor".into())),
         }).await;
 
         let res = res.unwrap();
