@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use uuid::Uuid;
 use std::error::Error;
 
 use crate::domain::domain_entities::comment_report::{DraftCommentReport, CommentReport};
@@ -15,8 +16,9 @@ pub struct FindManyCommentReportsResponse (
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum CommentReportQueryType {
-    SOLVED(bool),
-    CONTENT(String),
+    SolvedBy(Uuid),
+    Solved(bool),
+    Content(String),
 }
 
 #[cfg_attr(test, automock)]
