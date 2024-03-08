@@ -74,7 +74,7 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository {
         .apply_if(params.query, |#[allow(unused_mut)] mut query_builder, query| self.find_many_get_filters(query_builder, query))
         .offset(leap)
         .count(&self.sea_service.db).await?;
-
+    
         let mut comment_reports: Vec<CommentReport> = vec![];
 
         for comm_report in comment_reports_response.into_iter() {
@@ -118,12 +118,16 @@ impl SeaCommentReportRepository {
         query: CommentReportQueryType
     ) -> sea_orm::Select<CommentReportEntity> {
         match query {
-            CommentReportQueryType::SOLVED(content) => {
-                let filter = CommentReportColumn::Solved.eq(content);
+            CommentReportQueryType::Content(content) => {
+                let filter = Expr::expr(Func::lower(Expr::col(CommentReportColumn::Message))).like(format!("%{}%", content));
                 query_builder.filter(filter)
             },
-            CommentReportQueryType::CONTENT(content) => {
-                let filter = Expr::expr(Func::lower(Expr::col(CommentReportColumn::Message))).like(format!("%{}%", content));
+            CommentReportQueryType::SolvedBy(id) => {
+                let filter = CommentReportColumn::SolvedBy.eq(id);
+                query_builder.filter(filter)
+            },
+            CommentReportQueryType::Solved(solved) => {                
+                let filter = CommentReportColumn::SolvedBy.is_null().eq(!solved);
                 query_builder.filter(filter)
             }
         }
