@@ -6,7 +6,7 @@ pub struct DraftCommentReport {
     comment_id: Uuid,
     user_id: Uuid,
     message: String,
-    solved: bool,
+    solved_by: Option<Uuid>,
     created_at: DateTime
 }
 
@@ -17,27 +17,26 @@ impl DraftCommentReport {
         user_id: Uuid,
         message: String,
     ) -> Self {
-        let solved = false;
+        let solved_by = None;
         let created_at  = Utc::now().naive_utc();
 
         DraftCommentReport {
             comment_id,
             user_id,
             message,
-            solved,
+            solved_by,
             created_at
         }
     }
 
     // METHODS
-
     pub fn to_comment_report(self, id: i32) -> CommentReport {
         CommentReport {
             id,
             user_id: self.user_id,
             comment_id: self.comment_id,
             message: self.message,
-            solved: self.solved,
+            solved_by: self.solved_by,
             created_at: self.created_at,
         }
     }
@@ -49,7 +48,7 @@ pub struct CommentReport {
     comment_id: Uuid,
     user_id: Uuid,
     message: String,
-    solved: bool,
+    solved_by: Option<Uuid>,
     created_at: DateTime
 }
 
@@ -65,7 +64,7 @@ impl CommentReport {
         comment_id: Uuid,
         user_id: Uuid,
         message: String,
-        solved: bool,
+        solved_by: Option<Uuid>,
         created_at: DateTime
     ) -> Self {
         CommentReport {
@@ -73,15 +72,15 @@ impl CommentReport {
             user_id,
             comment_id,
             message,
-            solved,
+            solved_by,
             created_at,
         }
     }
 
     // SETTERS
 
-    pub fn set_solved(&mut self, value: bool) -> () {
-        self.solved = value;
+    pub fn set_solved_by(&mut self, value: Option<Uuid>) -> () {
+        self.solved_by = value;
     }
 }
 
@@ -93,7 +92,7 @@ impl CommentReportTrait for comment_report {
 
     fn message(&self) -> String { self.message.clone() }
 
-    fn solved(&self) -> bool { self.solved }
+    fn solved_by(&self) -> Option<Uuid> { self.solved_by }
 
     fn created_at(&self) -> DateTime { self.created_at }
 }
@@ -102,7 +101,7 @@ pub trait CommentReportTrait {
     fn comment_id(&self) -> Uuid;
     fn user_id(&self) -> Uuid;
     fn message(&self) -> String;
-    fn solved(&self) -> bool;
+    fn solved_by(&self) -> Option<Uuid>;
     fn created_at(&self) -> DateTime;
 }
 
