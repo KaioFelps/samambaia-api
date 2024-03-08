@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use async_trait::async_trait;
+use migration::{Expr, Func};
 use sea_orm::{EntityTrait, ActiveModelTrait, QueryFilter, ColumnTrait};
 use uuid::Uuid;
 use crate::infra::sea::sea_service::SeaService;
@@ -37,7 +38,7 @@ impl UserRepositoryTrait for SeaUserRepository {
 
     async fn find_by_nickname(&self, nickname: &String) -> Result<Option<User>, Box<dyn Error>> {
         let user = UserEntity::find()
-        .filter(UserColumn::Nickname.eq(nickname))
+        .filter(Expr::expr(Func::lower(Expr::col(UserColumn::Nickname))).like(nickname))
         .one(&self.sea_service.db)
         .await?;
 
