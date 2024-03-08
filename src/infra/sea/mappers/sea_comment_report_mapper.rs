@@ -15,7 +15,7 @@ impl SeaCommentReportMapper {
             comment_id: comment_report.comment_id(),
             created_at: comment_report.created_at(),
             message: comment_report.message(),
-            solved: comment_report.solved(),
+            solved_by: comment_report.solved_by(),
             user_id: comment_report.user_id(),
             id: comment_report.id()
         };
@@ -28,7 +28,7 @@ impl SeaCommentReportMapper {
             user_id: comment_report.user_id().into_active_value(),
             comment_id: comment_report.comment_id().into_active_value(),
             message: comment_report.message().into_active_value(),
-            solved: comment_report.solved().into_active_value(),
+            solved_by: comment_report.solved_by().into_active_value(),
             created_at: comment_report.created_at().into_active_value(),
             ..Default::default()
         };
@@ -41,7 +41,7 @@ impl SeaCommentReportMapper {
             user_id: comment_report.user_id().into_active_value(),
             comment_id: comment_report.comment_id().into_active_value(),
             message: comment_report.message().into_active_value(),
-            solved: comment_report.solved().into_active_value(),
+            solved_by: comment_report.solved_by().into_active_value(),
             created_at: comment_report.created_at().into_active_value(),
             id: comment_report.id().into_active_value(),
         };
@@ -55,7 +55,7 @@ impl SeaCommentReportMapper {
             active_model_comment_report.comment_id.unwrap(),
             active_model_comment_report.user_id.unwrap(),
             active_model_comment_report.message.unwrap(),
-            active_model_comment_report.solved.unwrap(),
+            active_model_comment_report.solved_by.unwrap(),
             active_model_comment_report.created_at.unwrap(),
         );
 
@@ -68,7 +68,7 @@ impl SeaCommentReportMapper {
             model_comment_report.comment_id.into(),
             model_comment_report.user_id.into(),
             model_comment_report.message.into(),
-            model_comment_report.solved.into(),
+            model_comment_report.solved_by.into(),
             model_comment_report.created_at.into(),
         );
 
