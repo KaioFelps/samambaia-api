@@ -93,7 +93,7 @@ mod test {
             Uuid::new_v4(),
             Uuid::new_v4(),
             "Esse comentário é tóxico.".into(),
-            false,
+            None,
             Utc::now().naive_utc()
         );
 
@@ -104,7 +104,7 @@ mod test {
             Uuid::new_v4(),
             Uuid::new_v4(),
             "Estão me ofendendo neste comentário!".into(),
-            false,
+            None,
             Utc::now().naive_utc()
         );
 
