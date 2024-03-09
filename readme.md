@@ -59,24 +59,24 @@ A aplicação implementa a Arquitetura Limpa (clean architecture) até onde for 
 | entities/ | diretório gerado e gerenciado pela ORM utilizada pela aplicação. |
 | migration/    | diretório gerado e gerenciado pela ORM utilizada pela aplicação. |
 | src/  | contém todo o código fonte da aplicação. |
-| core/ | tipos utilizados por todos os domínios da aplicação. |
-| domain/   | contém todos os arquivos relacionados ao núcleo da aplicação, independentes de serviços externos. |
-| cryptography/ | traits (interfaces) para manejos relacionados a criptografia (hasher, comparador). |
-| domain_entities/  | entidades de domínio da aplicação. |
-| factories/    | fábricas dos "services" das aplicações, responsáveis pela injeção das dependência dos serviços. |
-| repositories/ | traits (interfaces) de contrato dos repositórios de cada entidade de domínio, com os métodos para manipulá-las (criar, apagar, salvar, etc). |
-| services/ | casos de uso; serviços da aplicação. São responsáveis por implementar as regras de negócio e algorítmos de cada caso de uso da aplicação. |
-| env_config/   | contém a configuração de variáveis de ambiente (não substitui o `.env`, apenas providencia uma API para acessar as propriedades do arquivo `.env`). |
-| errors/   | contém os erros que podem ser escalados pela aplicação. Um erro contém uma mensagem e um código HTTP. |
-| infra/    | contém todas as dependências que serão injetadas pelas fábricas nos services |
-| cryptography/ | implementação das traits (interfaces de contrato) do diretório `/domain/cryptography` utilizando serviços externos. |
-| jwt/jwt_service.rs    | serviço responsável por lidar com o JWT (json-web-token), providenciando uma API. |
-| sea/  | contém todas as implementações das traits (interfaces de contrato) necessárias utilizando o [Sea-ORM](https://github.com/SeaQL/sea-orm). |
-| mappers/  | contempla "structs" (estruturas) com métodos para converter entidades de domínio em modelos do Sea-ORM e vice-versa. |
-| repositories/ | implementação dos contratos dos repositórios de domínio utilizando Sea-ORM. |
-| sea_service.rs    | struct" (estrutura) contendo uma conexão com o banco de dados a ser fornecida para operações utilizando o Sea-ORM. |
-| util/ | contém funções auxiliares utilizadas pelos "services" ou qualquer outro algoritmo/função. |
-| main.rs   | ponto de entrada de qualquer aplicação Rust. |
+| src/core/ | tipos utilizados por todos os domínios da aplicação. |
+| src/domain/   | contém todos os arquivos relacionados ao núcleo da aplicação, independentes de serviços externos. |
+| src/domain/cryptography/ | traits (interfaces) para manejos relacionados a criptografia (hasher, comparador). |
+| src/domain/domain_entities/  | entidades de domínio da aplicação. |
+| src/domain/factories/    | fábricas dos "services" das aplicações, responsáveis pela injeção das dependência dos serviços. |
+| src/domain/repositories/ | traits (interfaces) de contrato dos repositórios de cada entidade de domínio, com os métodos para manipulá-las (criar, apagar, salvar, etc). |
+| src/domain/services/ | casos de uso; serviços da aplicação. São responsáveis por implementar as regras de negócio e algorítmos de cada caso de uso da aplicação. |
+| src/env_config/   | contém a configuração de variáveis de ambiente (não substitui o `.env`, apenas providencia uma API para acessar as propriedades do arquivo `.env`). |
+| src/errors/   | contém os erros que podem ser escalados pela aplicação. Um erro contém uma mensagem e um código HTTP. |
+| src/infra/    | contém todas as dependências que serão injetadas pelas fábricas nos services |
+| src/infra/cryptography/ | implementação das traits (interfaces de contrato) do diretório `/domain/cryptography` utilizando serviços externos. |
+| src/infra/jwt/jwt_service.rs    | serviço responsável por lidar com o JWT (json-web-token), providenciando uma API. |
+| src/infra/sea/  | contém todas as implementações das traits (interfaces de contrato) necessárias utilizando o [Sea-ORM](https://github.com/SeaQL/sea-orm). |
+| src/infra/sea/mappers/  | contempla "structs" (estruturas) com métodos para converter entidades de domínio em modelos do Sea-ORM e vice-versa. |
+| src/infra/sea/repositories/ | implementação dos contratos dos repositórios de domínio utilizando Sea-ORM. |
+| src/infra/sea/sea_service.rs    | struct" (estrutura) contendo uma conexão com o banco de dados a ser fornecida para operações utilizando o Sea-ORM. |
+| src/util/ | contém funções auxiliares utilizadas pelos "services" ou qualquer outro algoritmo/função. |
+| src/main.rs   | ponto de entrada de qualquer aplicação Rust. |
 | test/ | diretório para testes que fogem do contexto de um arquivo. Inutilizado no momento. |
 
 ## Bibliografia
