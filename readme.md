@@ -53,7 +53,7 @@ Leia a [documentação do Cargo](https://doc.rust-lang.org/book/ch01-03-hello-ca
 
 ## Estrutura da aplicação
 A aplicação implementa a Arquitetura Limpa (clean architecture) até onde for conveniente. Abaixo, está uma tabela contendo os diretórios da aplicação e suas respectivas "funções":
-| Rota | Finalidade |
+| Diretório | Finalidade |
 | :---  | :---      |
 | cli/  | contém a micro-aplicação de linha de comando Hubbitos CLI. |
 | entities/ | diretório gerado e gerenciado pela ORM utilizada pela aplicação. |
