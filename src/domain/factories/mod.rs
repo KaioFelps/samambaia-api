@@ -22,3 +22,4 @@ pub mod fetch_many_comment_reports_service_factory;
 
 pub mod create_team_role_service_factory;
 pub mod update_team_role_service_factory;
+pub mod delete_team_role_service_factory;

@@ -22,3 +22,4 @@ pub mod toggle_comment_visibility_service;
 
 pub mod create_team_role_service;
 pub mod update_team_role_service;
+pub mod delete_team_role_service;
