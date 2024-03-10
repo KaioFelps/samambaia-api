@@ -53,4 +53,12 @@ impl TeamRoleRepositoryTrait for SeaTeamRoleRepository {
 
         Ok(SeaTeamRoleMapper::model_to_team_role(team_role))
     }
+
+    async fn delete(&self, team_role: TeamRole) -> Result<(), Box<dyn Error>> {
+        let team_role = SeaTeamRoleMapper::team_role_to_sea_active_model(team_role);
+
+        team_role.delete(&self.sea_service.db).await?;
+
+        Ok(())
+    }
 }
