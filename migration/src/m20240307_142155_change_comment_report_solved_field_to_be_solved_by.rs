@@ -11,12 +11,9 @@ impl MigrationTrait for Migration {
                 Table::alter()
                 .table(CommentReport::Table)
                 .drop_column(CommentReport::Solved)
-                .add_column(ColumnDef::new(CommentReport::SolvedBy)
-                    .null().uuid()
-                )
+                .add_column(ColumnDef::new(CommentReport::SolvedBy).null().uuid())
                 .to_owned()
-            )
-            .await?;
+            ).await?;
 
             manager
             .create_foreign_key(
@@ -33,27 +30,17 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_foreign_key(
-                ForeignKey::drop()
-                .table(CommentReport::SolvedBy)
-                .name("fk-solved-by-user-id")
-                .to_owned()
+        .alter_table(
+            Table::alter()
+            .table(CommentReport::Table)
+            .drop_foreign_key(Alias::new("fk-solved-by-user-id"))
+            .drop_column(Alias::new("solved_by"))
+            .add_column_if_not_exists(ColumnDef::new(CommentReport::Solved)
+                .boolean().not_null().default(false)
             )
-            .await?;
-
-        manager
-            .alter_table(
-                Table::alter()
-                .table(CommentReport::Table)
-                .drop_column(CommentReport::SolvedBy)
-                .add_column(ColumnDef::new(CommentReport::Solved)
-                    .boolean().not_null().default(false)
-                )
-                .to_owned()
-            )
-            .await?;
-
-        Ok(())
+            .to_owned()
+        )
+        .await
     }
 }
 
