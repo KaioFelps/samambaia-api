@@ -10,21 +10,28 @@ pub struct Model {
     pub id: Uuid,
     #[sea_orm(unique)]
     pub nickname: String,
-    pub task: String,
+    pub user_function: String,
     pub twitter: Option<String>,
     pub discord: Option<String>,
     pub created_at: DateTime,
+    pub team_role_id: Uuid,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::team_role_team_user::Entity")]
-    TeamRoleTeamUser,
+    #[sea_orm(
+        belongs_to = "super::team_role::Entity",
+        from = "Column::TeamRoleId",
+        to = "super::team_role::Column::Id",
+        on_update = "NoAction",
+        on_delete = "Cascade"
+    )]
+    TeamRole,
 }
 
-impl Related<super::team_role_team_user::Entity> for Entity {
+impl Related<super::team_role::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::TeamRoleTeamUser.def()
+        Relation::TeamRole.def()
     }
 }
 

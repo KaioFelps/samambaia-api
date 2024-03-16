@@ -15,13 +15,13 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::team_role_team_user::Entity")]
-    TeamRoleTeamUser,
+    #[sea_orm(has_many = "super::team_user::Entity")]
+    TeamUser,
 }
 
-impl Related<super::team_role_team_user::Entity> for Entity {
+impl Related<super::team_user::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::TeamRoleTeamUser.def()
+        Relation::TeamUser.def()
     }
 }
 

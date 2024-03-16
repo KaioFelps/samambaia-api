@@ -7,6 +7,5 @@ pub mod comment;
 pub mod comment_report;
 pub mod sea_orm_active_enums;
 pub mod team_role;
-pub mod team_role_team_user;
 pub mod team_user;
 pub mod user;
