@@ -48,7 +48,7 @@ impl MigrationTrait for Migration {
         .alter_table(
             Table::alter()
                 .table(Comment::Table)
-                .add_column(ColumnDef::new(Comment::ArticleId).uuid().not_null().default("98afa6c5-71c3-4d44-a731-a54c6adf0c6e"))
+                .add_column(ColumnDef::new(Comment::ArticleId).uuid().not_null())
                 .to_owned(),
         )
         .await?;
