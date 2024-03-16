@@ -14,7 +14,7 @@ pub struct Claims {
 impl Claims {
     pub fn new(user_id: Uuid, user_role: Option<Role>) -> Self {
         let now = chrono::Utc::now();
-        let exp = (now + chrono::Duration::hours(1)).timestamp();
+        let exp = (now + chrono::Duration::try_hours(1).unwrap()).timestamp();
         
         Claims {
             exp,
@@ -59,7 +59,7 @@ impl JwtService {
 
         let access_claims: Claims = Claims::new(user_id, Some(user_role));
 
-        let refresh_token_lifetime: i64 = (chrono::Utc::now() + chrono::Duration::hours(5)).timestamp();
+        let refresh_token_lifetime: i64 = (chrono::Utc::now() + chrono::Duration::try_hours(5).unwrap()).timestamp();
 
         let refresh_claims: Claims = Claims::new_with_custom_time(user_id, None, refresh_token_lifetime);
 
