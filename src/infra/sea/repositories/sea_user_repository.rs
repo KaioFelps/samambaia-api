@@ -38,7 +38,7 @@ impl UserRepositoryTrait for SeaUserRepository {
 
     async fn find_by_nickname(&self, nickname: &String) -> Result<Option<User>, Box<dyn Error>> {
         let user = UserEntity::find()
-        .filter(Expr::expr(Func::lower(Expr::col(UserColumn::Nickname))).like(nickname))
+        .filter(Expr::expr(Func::lower(Expr::col(UserColumn::Nickname))).like(nickname.to_lowercase()))
         .one(&self.sea_service.db)
         .await?;
 
