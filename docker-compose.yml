@@ -12,4 +12,16 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: docker
       POSTGRES_DB: rust-clean
+    profiles:
+      - dev
     
+  pgadmin:
+    container_name: postgres-admin
+    image: dpage/pgadmin4
+    ports:
+      - 82:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: tempemail@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    profiles:
+      - analytic
