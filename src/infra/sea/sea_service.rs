@@ -11,7 +11,7 @@ pub struct SeaService {
 
 async fn get_db_conn() -> DatabaseConnection {
     let mut db_opts: ConnectOptions = ConnectOptions::new(&ENV_VARS.database_url);
-    db_opts.max_connections(25)
+    db_opts.max_connections(15)
     .connect_timeout(Duration::from_secs(8))
     .idle_timeout(Duration::from_secs(8))
     .max_lifetime(Duration::from_secs(8))
