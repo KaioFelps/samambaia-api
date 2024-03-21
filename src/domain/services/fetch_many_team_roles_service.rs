@@ -58,10 +58,10 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<Team
         }
 
         let response = response.unwrap();
-        let FindManyTeamRolesResponse (articles, total_items) = response;
+        let FindManyTeamRolesResponse (team_roles, total_items) = response;
 
         Ok(FetchManyTeamRolesResponse {
-            data: articles,
+            data: team_roles,
             pagination: PaginationResponse {
                 current_page: page,
                 total_items,
