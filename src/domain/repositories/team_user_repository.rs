@@ -7,6 +7,20 @@ use uuid::Uuid;
 #[cfg(test)]
 use mockall::automock;
 
+use crate::core::pagination::PaginationParameters;
+
+#[derive(Debug)]
+pub struct FindManyTeamUsersResponse (
+    pub Vec<TeamUser>,
+    pub u64,
+);
+
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum TeamUserQueryType {
+    TeamRole(Uuid),
+    Nickname(String)
+}
+
 #[cfg_attr(test, automock)]
 #[async_trait]
 pub trait TeamUserRepositoryTrait {
@@ -17,4 +31,6 @@ pub trait TeamUserRepositoryTrait {
     async fn save(&self, team_user: TeamUser) -> Result<TeamUser, Box<dyn Error>>;
 
     async fn delete(&self, team_role: TeamUser) -> Result<(), Box<dyn Error>>;
+    
+    async fn find_many(&self, params: PaginationParameters<TeamUserQueryType>) -> Result<FindManyTeamUsersResponse, Box<dyn Error>>;
 }
