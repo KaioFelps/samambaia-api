@@ -90,7 +90,7 @@ impl SeaCommentUserArticleRepository {
                 query_builder.filter(filter)
             },
             CommentWithAuthorQueryType::CONTENT(content) => {
-                let filter = Expr::expr(Func::lower(Expr::col(CommentColumn::Content))).like(format!("%{}%", content));
+                let filter = Expr::expr(Func::lower(Expr::col(CommentColumn::Content))).like(format!("%{}%", content.to_lowercase()));
                 query_builder.filter(filter)
             }
         }

@@ -119,7 +119,7 @@ impl SeaCommentReportRepository {
     ) -> sea_orm::Select<CommentReportEntity> {
         match query {
             CommentReportQueryType::Content(content) => {
-                let filter = Expr::expr(Func::lower(Expr::col(CommentReportColumn::Message))).like(format!("%{}%", content));
+                let filter = Expr::expr(Func::lower(Expr::col(CommentReportColumn::Message))).like(format!("%{}%", content.to_lowercase()));
                 query_builder.filter(filter)
             },
             CommentReportQueryType::SolvedBy(id) => {

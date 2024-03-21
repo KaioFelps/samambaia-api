@@ -123,7 +123,7 @@ impl SeaArticleRepository {
                 query_builder.filter(filter.clone())
             },
             ArticleQueryType::TITLE(content) => {
-                let filter = Expr::expr(Func::lower(Expr::col(ArticleColumn::Title))).like(format!("%{}%", content));
+                let filter = Expr::expr(Func::lower(Expr::col(ArticleColumn::Title))).like(format!("%{}%", content.to_lowercase()));
                 query_builder.filter(filter.clone())
             }
         }
