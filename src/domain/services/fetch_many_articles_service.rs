@@ -13,8 +13,8 @@ use crate::{LOG_SEP, R_EOL};
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ServiceArticleQueryType {
-    TITLE(String),
-    AUTHOR(String),
+    Title(String),
+    Author(String),
 }
 
 pub struct FetchManyArticlesParams {
@@ -104,7 +104,7 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
         }
 
         match query.unwrap() {
-            ServiceArticleQueryType::AUTHOR(content) => {
+            ServiceArticleQueryType::Author(content) => {
                 let user = self.user_repository.find_by_nickname(&content).await;
 
                 if user.is_err() {
@@ -117,10 +117,10 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
                     return Err(Box::new(ResourceNotFoundError::new()));
                 }
 
-                Ok(Some(ArticleQueryType::AUTHOR(user.unwrap().id())))
+                Ok(Some(ArticleQueryType::Author(user.unwrap().id())))
             },
-            ServiceArticleQueryType::TITLE(content) => {
-                Ok(Some(ArticleQueryType::TITLE(content)))
+            ServiceArticleQueryType::Title(content) => {
+                Ok(Some(ArticleQueryType::Title(content)))
             }
         }
     }
@@ -172,14 +172,14 @@ mod test {
             if query.is_some() {
                 let query = query.unwrap();
                     match query {
-                        ArticleQueryType::TITLE(content) => {
+                        ArticleQueryType::Title(content) => {
                             for item in db.iter() {
                                 if item.title().to_lowercase().contains(&content.clone().to_lowercase()[..]) {
                                     articles.push(item.clone());
                                 }
                             }
                         },
-                        ArticleQueryType::AUTHOR(content) => {
+                        ArticleQueryType::Author(content) => {
                             for item in db.iter() {
                                 if item.author_id().eq(&content) {
                                     articles.push(item.clone());
@@ -219,7 +219,7 @@ mod test {
         let res = fetch_many_articles_service.exec(FetchManyArticlesParams {
             page: Some(2),
             per_page: Some(1),
-            query: Some(ServiceArticleQueryType::TITLE("article".to_string()))
+            query: Some(ServiceArticleQueryType::Title("article".to_string()))
         }).await.unwrap();
 
         assert_eq!(1, res.data.len());
@@ -242,7 +242,7 @@ mod test {
         let res_3 = fetch_many_articles_service.exec(FetchManyArticlesParams {
             page: None,
             per_page: None,
-            query: Some(ServiceArticleQueryType::AUTHOR("Vamp".to_string())),
+            query: Some(ServiceArticleQueryType::Author("Vamp".to_string())),
         }).await.unwrap_err();
 
         assert!(res_3.is::<ResourceNotFoundError>());
@@ -251,7 +251,7 @@ mod test {
         let res_4 = fetch_many_articles_service.exec(FetchManyArticlesParams {
             page: None,
             per_page: None,
-            query: Some(ServiceArticleQueryType::AUTHOR("Floricultor".to_string())),
+            query: Some(ServiceArticleQueryType::Author("Floricultor".to_string())),
         }).await.unwrap();
 
         assert_eq!(2, res_4.data.len());

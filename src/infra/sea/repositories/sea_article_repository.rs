@@ -117,12 +117,12 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
 impl SeaArticleRepository {
     fn find_many_get_filters(&self, #[allow(unused_mut)] mut query_builder: sea_orm::Select<ArticleEntity>, query: ArticleQueryType) -> sea_orm::Select<ArticleEntity> {
         match query {
-            ArticleQueryType::AUTHOR(content) => {
+            ArticleQueryType::Author(content) => {
                 let filter = ArticleColumn::AuthorId.eq(content);
     
                 query_builder.filter(filter.clone())
             },
-            ArticleQueryType::TITLE(content) => {
+            ArticleQueryType::Title(content) => {
                 let filter = Expr::expr(Func::lower(Expr::col(ArticleColumn::Title))).like(format!("%{}%", content.to_lowercase()));
                 query_builder.filter(filter.clone())
             }

@@ -16,8 +16,8 @@ pub struct FindManyCommentsWithAuthorResponse (
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum CommentWithAuthorQueryType {
-    AUTHOR(Uuid),
-    CONTENT(String),
+    Author(Uuid),
+    Content(String),
 }
 
 #[cfg_attr(test, automock)]

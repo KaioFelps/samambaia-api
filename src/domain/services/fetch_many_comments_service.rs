@@ -14,8 +14,8 @@ use crate::{LOG_SEP, R_EOL};
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ServiceCommentQueryType {
-    AUTHOR(String),
-    CONTENT(String),
+    Author(String),
+    Content(String),
 }
 
 pub struct FetchManyCommentsParams {
@@ -119,7 +119,7 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
         let query = query.unwrap();
 
         match query {
-            ServiceCommentQueryType::AUTHOR(content) => {
+            ServiceCommentQueryType::Author(content) => {
                 let user = self.user_repository.find_by_nickname(&content).await;
 
                 if user.is_err() {
@@ -134,10 +134,10 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
 
                 let content = user.unwrap().id();
 
-                Ok(Some(CommentQueryType::AUTHOR(content)))
+                Ok(Some(CommentQueryType::Author(content)))
             },
-            ServiceCommentQueryType::CONTENT(content) => {
-                Ok(Some(CommentQueryType::CONTENT(content)))
+            ServiceCommentQueryType::Content(content) => {
+                Ok(Some(CommentQueryType::Content(content)))
             }
         }        
     }
@@ -213,7 +213,7 @@ mod test {
 
             if query.is_some() {                
                 match query.unwrap() {
-                    CommentQueryType::CONTENT(content) => {
+                    CommentQueryType::Content(content) => {
                         for item in db.iter() {
                             if
                                 item.content().to_lowercase().contains(&content.to_lowercase()[..])
@@ -223,7 +223,7 @@ mod test {
                             }
                         }
                     },
-                    CommentQueryType::AUTHOR(content) => {
+                    CommentQueryType::Author(content) => {
                         for item in db.iter() {
                             if
                                 item.author_id().eq(&content)
@@ -272,7 +272,7 @@ mod test {
             FetchManyCommentsParams {
                 page: Some(2),
                 per_page: Some(1),
-                query: Some(ServiceCommentQueryType::CONTENT("comment".to_string()))
+                query: Some(ServiceCommentQueryType::Content("comment".to_string()))
             }
         ).await.unwrap();
 
@@ -301,7 +301,7 @@ mod test {
             FetchManyCommentsParams {
                 page: None,
                 per_page: None,
-                query: Some(ServiceCommentQueryType::AUTHOR("Vamp".to_string())),
+                query: Some(ServiceCommentQueryType::Author("Vamp".to_string())),
             }
         ).await.unwrap_err();
 
@@ -313,7 +313,7 @@ mod test {
             FetchManyCommentsParams {
                 page: None,
                 per_page: None,
-                query: Some(ServiceCommentQueryType::AUTHOR("Floricultor".to_string())),
+                query: Some(ServiceCommentQueryType::Author("Floricultor".to_string())),
             }
         ).await.unwrap();
 

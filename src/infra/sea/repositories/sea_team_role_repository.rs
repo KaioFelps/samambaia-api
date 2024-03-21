@@ -98,7 +98,7 @@ impl TeamRoleRepositoryTrait for SeaTeamRoleRepository {
 impl SeaTeamRoleRepository {
     fn find_many_get_filters(&self, #[allow(unused_mut)] mut query_builder: sea_orm::Select<TeamRoleEntity>, query: TeamRoleQueryType) -> sea_orm::Select<TeamRoleEntity> {
         match query {
-            TeamRoleQueryType::TITLE(content) => {
+            TeamRoleQueryType::Title(content) => {
                 let filter = Expr::expr(Func::lower(Expr::col(TeamRoleColumn::Title))).like(format!("%{}%", content.to_lowercase()));
                 query_builder.filter(filter.clone())
             }

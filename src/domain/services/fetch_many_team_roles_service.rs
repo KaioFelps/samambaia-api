@@ -106,7 +106,7 @@ mod test {
                 roles = to_move_tr_db.lock().unwrap().clone();
             } else {
                 match query.unwrap() {
-                    TeamRoleQueryType::TITLE(title) => {
+                    TeamRoleQueryType::Title(title) => {
                         for tr in to_move_tr_db.lock().unwrap().iter() {
                             if tr.title().contains(&title) {
                                 roles.push(tr.clone());
@@ -140,7 +140,7 @@ mod test {
         let result_1 = sut.exec(FetchManyTeamRolesParams {
             page: None,
             per_page: None,
-            query: Some(TeamRoleQueryType::TITLE("1".to_string())),
+            query: Some(TeamRoleQueryType::Title("1".to_string())),
         }).await;
 
         assert!(result_1.is_ok());

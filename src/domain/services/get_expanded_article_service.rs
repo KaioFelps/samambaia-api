@@ -237,7 +237,7 @@ mod test {
 
             if query.is_some() {
                 match query.unwrap() {
-                    CommentWithAuthorQueryType::CONTENT(content) => {
+                    CommentWithAuthorQueryType::Content(content) => {
                         for item in comments_db_to_move.lock().unwrap().iter() {
                             if
                                 item.content().to_lowercase().contains(&content.to_lowercase()[..])
@@ -248,7 +248,7 @@ mod test {
                             }
                         }
                     },
-                    CommentWithAuthorQueryType::AUTHOR(content) => {
+                    CommentWithAuthorQueryType::Author(content) => {
                         for item in comments_db_to_move.lock().unwrap().iter() {
                             if
                                 item.author().id().eq(&content)

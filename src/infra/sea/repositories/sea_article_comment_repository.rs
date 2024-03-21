@@ -151,12 +151,12 @@ impl SeaArticleCommentRepository {
 
     fn find_many_get_filters(&self, query_builder: sea_orm::Select<CommentEntity>, query: CommentQueryType) -> sea_orm::Select<CommentEntity> {
         match query {
-            CommentQueryType::AUTHOR(content) => {
+            CommentQueryType::Author(content) => {
                 let filter = CommentColumn::AuthorId.eq(content);
     
                 query_builder.filter(filter)
             },
-            CommentQueryType::CONTENT(content) => {
+            CommentQueryType::Content(content) => {
                 let filter = Expr::expr(Func::lower(Expr::col(CommentColumn::Content))).like(format!("%{}%", content.to_lowercase()));
                 query_builder.filter(filter)
             }

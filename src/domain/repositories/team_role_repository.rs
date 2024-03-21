@@ -15,7 +15,7 @@ pub struct FindManyTeamRolesResponse (
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TeamRoleQueryType {
-    TITLE(String),
+    Title(String),
 }
 
 #[cfg_attr(test, automock)]
