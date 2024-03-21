@@ -54,4 +54,12 @@ impl TeamUserRepositoryTrait for SeaTeamUserRepository {
 
         Ok(SeaTeamUserMapper::model_to_team_user(team_user))
     }
+
+    async fn delete(&self, team_user: TeamUser) -> Result<(), Box<dyn Error>> {
+        let team_user = SeaTeamUserMapper::team_user_to_sea_active_model(team_user);
+
+        team_user.delete(&self.sea_service.db).await?;
+
+        Ok(())
+    }
 }

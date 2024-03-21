@@ -15,4 +15,6 @@ pub trait TeamUserRepositoryTrait {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<TeamUser>, Box<dyn Error>>;
 
     async fn save(&self, team_user: TeamUser) -> Result<TeamUser, Box<dyn Error>>;
+
+    async fn delete(&self, team_role: TeamUser) -> Result<(), Box<dyn Error>>;
 }
