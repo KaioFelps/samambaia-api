@@ -1,5 +1,5 @@
 # Hubbitos
-Hubbitos é um fã-site do Hubbe Hotel com as seguintes funcionalidades:
+Hubbitos é um fã-site de Habbo com as seguintes funcionalidades:
 - Fluxo e gerenciamento de usuários (login, registro, edição);
 - Controle de usuários de equipe (criação, apagamento, edição, busca);
 - Notícias (publicar notícias, se autorizado, visualizar notícias, alterar e apagar);
