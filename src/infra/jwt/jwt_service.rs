@@ -37,7 +37,7 @@ pub struct EncodedToken {
     pub token: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DecodedToken {
     pub user_id: Uuid,
     pub user_role: Option<Role>,

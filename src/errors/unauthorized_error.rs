@@ -1,8 +1,9 @@
 use std::fmt;
 
 use http::StatusCode;
+use serde::Serialize;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct UnauthorizedError {
     code: u16,
     message: String,

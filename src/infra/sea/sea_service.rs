@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use sea_orm::{ConnectOptions, DatabaseConnection, Database};
+use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
 use crate::ENV_VARS;
 
@@ -18,7 +18,7 @@ async fn get_db_conn() -> DatabaseConnection {
     .sqlx_logging(true)
     .set_schema_search_path("public");
 
-    Database::connect(db_opts).await.unwrap()
+    Database::connect(db_opts).await.expect("Database connection failed.")
 }
 
 impl SeaService {
