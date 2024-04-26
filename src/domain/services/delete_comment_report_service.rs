@@ -75,9 +75,9 @@ mod test {
 
     use crate::domain::domain_entities::comment_report::{CommentReport, CommentReportIdTrait};
     use crate::domain::repositories::comment_report_repository::MockCommentReportRepositoryTrait;
+    use crate::libs::time::TimeHelper;
 
     use tokio;
-    use chrono::Utc;
     use uuid::Uuid;
 
     #[tokio::test]
@@ -94,7 +94,7 @@ mod test {
             Uuid::new_v4(),
             "Esse comentário é tóxico.".into(),
             None,
-            Utc::now().naive_utc()
+            TimeHelper::now()
         );
 
         let comment_report_id_1 = comment_report_1.id();
@@ -105,7 +105,7 @@ mod test {
             Uuid::new_v4(),
             "Estão me ofendendo neste comentário!".into(),
             None,
-            Utc::now().naive_utc()
+            TimeHelper::now()
         );
 
         let comment_report_id_2 = comment_report_2.id();

@@ -144,7 +144,7 @@ FetchManyCommentReportsService<CommentReportRepository, UserRepository> {
 
 #[cfg(test)]
 mod test {
-    use crate::domain::{domain_entities::{comment_report::CommentReportTrait, user::User}, repositories::{comment_report_repository::MockCommentReportRepositoryTrait, user_repository::MockUserRepositoryTrait}};
+    use crate::{domain::{domain_entities::{comment_report::CommentReportTrait, user::User}, repositories::{comment_report_repository::MockCommentReportRepositoryTrait, user_repository::MockUserRepositoryTrait}}, libs::time::TimeHelper};
 
     use super::*;
 
@@ -152,7 +152,6 @@ mod test {
 
     use tokio;
     use uuid::Uuid;
-    use chrono::Utc;
 
     #[tokio::test]
     async fn test() {
@@ -167,7 +166,7 @@ mod test {
             Uuid::new_v4(),
             "report numero 1".into(),
             None,
-            Utc::now().naive_utc()
+            TimeHelper::now()
         );
 
         let comm_rep_2 = CommentReport::new_from_existing(
@@ -176,7 +175,7 @@ mod test {
             Uuid::new_v4(),
             "report numero 2".into(),
             Some(user.id()),
-            Utc::now().naive_utc()
+            TimeHelper::now()
         );
 
         comment_report_db.lock().unwrap().push(comm_rep_1);

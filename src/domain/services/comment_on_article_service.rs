@@ -79,8 +79,7 @@ mod test {
     use crate::domain::domain_entities::slug::Slug;
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
-
-    use chrono::Utc;
+    use crate::libs::time::TimeHelper;
 
     #[allow(dead_code)]
     #[derive(Clone, Copy)]
@@ -108,7 +107,7 @@ mod test {
                 "title".into(),
                 "content".into(),
                 false,
-                Utc::now().naive_utc(),
+                TimeHelper::now(),
                 None,
                 Slug::new(id, "title".into())
             );

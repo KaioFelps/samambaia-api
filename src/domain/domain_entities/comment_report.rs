@@ -1,5 +1,7 @@
-use chrono::{NaiveDateTime as DateTime, Utc};
+use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
+
+use crate::libs::time::TimeHelper;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct DraftCommentReport {
@@ -18,7 +20,7 @@ impl DraftCommentReport {
         message: String,
     ) -> Self {
         let solved_by = None;
-        let created_at  = Utc::now().naive_utc();
+        let created_at  = TimeHelper::now();
 
         DraftCommentReport {
             comment_id,

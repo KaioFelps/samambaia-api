@@ -1,5 +1,7 @@
-use chrono::{NaiveDateTime as DateTime, Utc};
+use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
+
+use crate::libs::time::TimeHelper;
 
 use super::slug::Slug;
 
@@ -27,7 +29,7 @@ impl Article {
     ) -> Self {
         let id = Uuid::new_v4();
 
-        let created_at  = Utc::now().naive_utc();
+        let created_at  = TimeHelper::now();
         let updated_at = None;
 
         let slug = Slug::new(id, title.clone());
@@ -72,7 +74,7 @@ impl Article {
     // METHODS
 
     fn touch(&mut self) {
-        self.updated_at = Some(Utc::now().naive_utc());
+        self.updated_at = Some(TimeHelper::now());
     }
 
     // GETTERS

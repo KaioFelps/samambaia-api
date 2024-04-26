@@ -148,13 +148,13 @@ mod test {
     use super::*;
 
     use tokio;
-    use chrono::Utc;
     use std::sync::{Arc, Mutex};
     
     use crate::domain::domain_entities::{comment_with_author::CommentWithAuthor, role::Role}; 
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::repositories::comment_user_article_repository::{CommentWithAuthorQueryType, MockCommentUserArticleRepositoryTrait};
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
+    use crate::libs::time::TimeHelper;
 
     #[tokio::test]
     async fn test() {
@@ -196,7 +196,7 @@ mod test {
             Uuid::new_v4(),
             "Floricultor".into(),
             "123".into(),
-            Utc::now().naive_utc(),
+            TimeHelper::now(),
             None,
             Some(Role::Ceo)
         );

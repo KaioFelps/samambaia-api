@@ -115,6 +115,7 @@ mod test {
     use crate::domain::domain_entities::user::User;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::article::Article;
+    use crate::libs::time::TimeHelper;
 
     #[tokio::test]
     async fn test() {
@@ -140,7 +141,7 @@ mod test {
                 id.clone().to_owned(),
                 "Fake name".to_string(),
                 "password".to_string(),
-                chrono::Utc::now().naive_utc(),
+                TimeHelper::now(),
                 None,
                 Some(Role::Principal)
             );

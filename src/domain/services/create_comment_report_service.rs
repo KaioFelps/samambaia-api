@@ -90,7 +90,6 @@ mod test {
     use std::sync::Mutex;
     use std::sync::Arc;
 
-    use chrono::Utc;
     use uuid::Uuid;
 
     use crate::domain::domain_entities::comment::Comment;
@@ -98,6 +97,7 @@ mod test {
     use crate::domain::domain_entities::comment_report::DraftCommentReport;
     use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
     use crate::domain::repositories::comment_report_repository::MockCommentReportRepositoryTrait;
+    use crate::libs::time::TimeHelper;
     use super::{CommentReport, CreateCommentReportParams};
 
     #[tokio::test]
@@ -118,7 +118,7 @@ mod test {
                 Uuid::new_v4(),
                 "notíca de um autor de merda fodido".into(),
                 true,
-                Utc::now().naive_utc()
+                TimeHelper::now()
             );
 
             Ok(Some(fake_comm))

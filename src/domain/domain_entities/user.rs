@@ -1,5 +1,7 @@
-use chrono::{NaiveDateTime as DateTime, Utc};
+use crate::libs::time::TimeHelper;
+use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
+
 use super::role::Role;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -22,7 +24,7 @@ impl User {
     ) -> Self {
         let id = Uuid::new_v4();
 
-        let created_at  = Utc::now().naive_utc();
+        let created_at  = TimeHelper::now();
         let last_login = None;
 
         User {
