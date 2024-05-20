@@ -64,17 +64,26 @@ A aplicação implementa a Arquitetura Limpa (clean architecture) até onde for 
 | src/domain/cryptography/ | traits (interfaces) para manejos relacionados a criptografia (hasher, comparador). |
 | src/domain/domain_entities/  | entidades de domínio da aplicação. |
 | src/domain/factories/    | fábricas dos "services" das aplicações, responsáveis pela injeção das dependência dos serviços. |
+| src/domain/politics/     | funções agrupadas com base nos domínios que fazem verificações a nível do núcleo da aplicação. |
 | src/domain/repositories/ | traits (interfaces) de contrato dos repositórios de cada entidade de domínio, com os métodos para manipulá-las (criar, apagar, salvar, etc). |
 | src/domain/services/ | casos de uso; serviços da aplicação. São responsáveis por implementar as regras de negócio e algorítmos de cada caso de uso da aplicação. |
 | src/env_config/   | contém a configuração de variáveis de ambiente (não substitui o `.env`, apenas providencia uma API para acessar as propriedades do arquivo `.env`). |
 | src/errors/   | contém os erros que podem ser escalados pela aplicação. Um erro contém uma mensagem e um código HTTP. |
-| src/infra/    | contém todas as dependências que serão injetadas pelas fábricas nos services |
+| src/infra/    | contém todas as dependências que serão injetadas pelas fábricas nos services. |
 | src/infra/cryptography/ | implementação das traits (interfaces de contrato) do diretório `/domain/cryptography` utilizando serviços externos. |
-| src/infra/jwt/jwt_service.rs    | serviço responsável por lidar com o JWT (json-web-token), providenciando uma API. |
-| src/infra/sea/  | contém todas as implementações das traits (interfaces de contrato) necessárias utilizando o [Sea-ORM](https://github.com/SeaQL/sea-orm). |
-| src/infra/sea/mappers/  | contempla "structs" (estruturas) com métodos para converter entidades de domínio em modelos do Sea-ORM e vice-versa. |
+| src/infra/http/   | contém todos os arquivos de adaptação da aplicação para requisições http. |
+| src/infra/http/controllers/   | contém os controllers (structs que implementam a trait `ControllerTrait` e registram as rotas) da aplicação.  |
+| src/infra/http/dtos/  | abrange os DataObects (dtos) da aplicação: structs responsáveis por validar os corpos das requisições https feitas nos controllers.   |
+| src/infra/http/extractors/    | contém os extractors, isso é, estruturas que extraem informações dos corpos das requisições "parsiadas" pro seu próprio tipo. |
+| src/infra/http/middlewares/   | contém os middlewares. |
+| src/infra/http/presenters/    | contém os presenters da aplicação (structs com métodos responsáveis por formatar entidades de domínio em structs serializáveis para json).    |
+| src/infra/http/routes/        | contém as structs que implementam a trait `RouteTrait`, que garante o método `register` utilizado para registrar todas as rotas do escopo no servidor.    |
+| src/infra/jwt/jwt_service.rs    | serviço responsável por lidar com o JWT (json-web-token), providenciando uma API.   |
+| src/infra/sea/  | contém todas as implementações das traits (interfaces de contrato) necessárias utilizando o [Sea-ORM](https://github.com/SeaQL/sea-orm).    |
+| src/infra/sea/mappers/  | contempla "structs" (estruturas) com métodos para converter entidades de domínio em modelos do Sea-ORM e vice-versa.    |
 | src/infra/sea/repositories/ | implementação dos contratos dos repositórios de domínio utilizando Sea-ORM. |
-| src/infra/sea/sea_service.rs    | struct" (estrutura) contendo uma conexão com o banco de dados a ser fornecida para operações utilizando o Sea-ORM. |
+| src/infra/sea/sea_service.rs    | struct" (estrutura) contendo uma conexão com o banco de dados a ser fornecida para operações utilizando o Sea-ORM.  |
+| src/libs/ | contem funções "wrappers" de funções frequentemente usadas de bibliotecas third-parties.  |
 | src/util/ | contém funções auxiliares utilizadas pelos "services" ou qualquer outro algoritmo/função. |
 | src/main.rs   | ponto de entrada de qualquer aplicação Rust. |
 | test/ | diretório para testes que fogem do contexto de um arquivo. Inutilizado no momento. |
