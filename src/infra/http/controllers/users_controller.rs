@@ -12,10 +12,12 @@ use crate::infra::http::dtos::create_user::CreateUserDto;
 use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenter::user::UserPresenter;
 
-pub struct UsersController {}
+use super::controller::ControllerTrait;
 
-impl UsersController {
-    pub fn register(cfg: &mut web::ServiceConfig) {
+pub struct UsersController;
+
+impl ControllerTrait for UsersController {
+    fn register(cfg: &mut web::ServiceConfig) {
         cfg.service(web::scope("/users")
             // CREATE
             .route("/new", web::post().to(Self::create))
@@ -24,7 +26,9 @@ impl UsersController {
             .route("/{id}/update", web::put().to(Self::update).wrap(from_fn(authentication_middleware)))
         );
     }
+}
 
+impl UsersController {
     async fn create(
         body: web::Json<CreateUserDto>,
     ) -> impl Responder {
@@ -55,7 +59,7 @@ impl UsersController {
             }
 
             let err = err.downcast::<InternalError>().unwrap();
-            
+
             return HttpResponseBuilder::new(StatusCode::from_u16(err.code().to_owned()).unwrap())
             .json(json!({"error": err.message()}));
         }

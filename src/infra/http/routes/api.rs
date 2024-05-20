@@ -1,5 +1,6 @@
 use actix_web::web;
 
+use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::middlewares::RequestUserMiddleware;
 use crate::infra::http::controllers::users_controller::UsersController;
 
