@@ -4348,11 +4348,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3369f5ac52d5eb6ab48c6b4ffdc8efbcad6b89c765749064ba298f2c68a16a76"
 
 [[package]]
-name = "test"
+name = "tests"
 version = "0.1.0"
 dependencies = [
+ "actix-web",
+ "dotenvy",
+ "env_logger",
  "hubbitos_backend",
+ "log",
  "mockall",
+ "once_cell",
+ "rand",
 ]
 
 [[package]]
