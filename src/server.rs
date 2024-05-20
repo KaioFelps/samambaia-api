@@ -1,6 +1,7 @@
 use actix_web::{dev::{ServiceFactory, ServiceRequest, ServiceResponse}, middleware, web, App, HttpResponse};
 use serde_json::json;
 
+use crate::infra::http::routes::route::RouteTrait;
 use crate::infra::http::routes::api::ApiRoutes;
 
 pub struct ServerFactory;
