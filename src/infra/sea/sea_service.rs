@@ -15,8 +15,7 @@ async fn get_db_conn() -> DatabaseConnection {
     .connect_timeout(Duration::from_secs(8))
     .idle_timeout(Duration::from_secs(8))
     .max_lifetime(Duration::from_secs(8))
-    .sqlx_logging(true)
-    .set_schema_search_path("public");
+    .sqlx_logging(true);
 
     Database::connect(db_opts).await.expect("Database connection failed.")
 }
