@@ -10,7 +10,7 @@ use crate::errors::internal_error::InternalError;
 use crate::errors::user_already_exists_error::UserAlreadyExistsError;
 use crate::infra::http::dtos::create_user::CreateUserDto;
 use crate::infra::http::middlewares::authentication_middleware;
-use crate::infra::http::presenter::user::UserPresenter;
+use crate::infra::http::presenters::user::UserPresenter;
 
 use super::controller::ControllerTrait;
 
