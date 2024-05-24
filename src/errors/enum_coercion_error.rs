@@ -1,31 +1,26 @@
 use std::fmt;
 
 use http::StatusCode;
-use serde::Serialize;
 
-use super::error::DomainErrorTrait;
-
-#[derive(Debug, Clone, Serialize)]
-pub struct UnauthorizedError {
+#[derive(Debug, Clone)]
+pub struct EnumCoercionError {
     code: u16,
     message: String,
 }
 
-impl UnauthorizedError {
-    pub fn new() -> Self {
-        UnauthorizedError {
-            code: StatusCode::UNAUTHORIZED.as_u16(),
-            message: format!("Unauthorized.")
+impl EnumCoercionError {
+    pub fn new(enum_name: &str) -> Self {
+        EnumCoercionError {
+            code: StatusCode::BAD_REQUEST.as_u16(),
+            message: format!("{enum_name} enum coercion error.")
         }
     }
-}
 
-impl DomainErrorTrait for UnauthorizedError {
-    fn code(&self) -> &u16 {
+    pub fn code(&self) -> &u16 {
         &self.code
     }
 
-    fn message(&self) -> &String {
+    pub fn message(&self) -> &String {
         &self.message
     }
 }
@@ -35,10 +30,10 @@ impl DomainErrorTrait for UnauthorizedError {
 //
 // Note that we don't store any extra info about the errors. This means we can't state
 // which string failed to parse without modifying our types to carry that information.
-impl fmt::Display for UnauthorizedError {
+impl fmt::Display for EnumCoercionError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.message)
     }
 }
 
-impl std::error::Error for UnauthorizedError {}
+impl std::error::Error for EnumCoercionError {}

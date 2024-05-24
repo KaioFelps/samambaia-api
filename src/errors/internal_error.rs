@@ -2,6 +2,8 @@ use std::fmt;
 
 use http::StatusCode;
 
+use super::error::DomainErrorTrait;
+
 #[derive(Debug, Clone)]
 pub struct InternalError {
     code: u16,
@@ -15,12 +17,14 @@ impl InternalError {
             message: format!("Internal server error.")
         }
     }
+}
 
-    pub fn code(&self) -> &u16 {
+impl DomainErrorTrait for InternalError {
+    fn code(&self) -> &u16 {
         &self.code
     }
 
-    pub fn message(&self) -> &String {
+    fn message(&self) -> &String {
         &self.message
     }
 }

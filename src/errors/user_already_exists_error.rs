@@ -1,6 +1,8 @@
 use std::fmt;
 use http::StatusCode;
 
+use super::error::DomainErrorTrait;
+
 #[derive(Debug, Clone)]
 pub struct UserAlreadyExistsError {
     code: u16,
@@ -14,12 +16,14 @@ impl UserAlreadyExistsError {
             message: format!("User with nickname {} already exist.", nickname)
         }
     }
+}
 
-    pub fn code(&self) -> &u16 {
+impl DomainErrorTrait for UserAlreadyExistsError {
+    fn code(&self) -> &u16 {
         &self.code
     }
 
-    pub fn message(&self) -> &String {
+    fn message(&self) -> &String {
         &self.message
     }
 }
