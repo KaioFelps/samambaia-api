@@ -10,6 +10,7 @@ use validator::Validate;
 use crate::domain::factories::authenticate_user_service_factory;
 use crate::domain::services::authenticate_user_service::AuthenticateUserParams;
 use crate::infra::http::dtos::login::LoginDto;
+use crate::infra::http::presenters::error::ErrorPresenter;
 use crate::infra::jwt::jwt_service::{DecodedToken, JwtService, MakeJwtResult};
 use crate::ENV_VARS;
 
@@ -33,9 +34,8 @@ impl SessionsController {
     ) -> impl Responder {
         match body.validate() {
             Err(e) => {
-                return HttpResponse::BadRequest().json(json!({
-                    "error": e.field_errors()
-                }));
+                return HttpResponse::BadRequest()
+                    .json(ErrorPresenter::to_http_from_validator(e.field_errors()));
             },
             Ok(()) => ()
         };
@@ -51,7 +51,7 @@ impl SessionsController {
             let err = result.unwrap_err();
 
             return HttpResponseBuilder::new(StatusCode::from_u16(err.code().to_owned()).unwrap())
-            .json(json!({"error": err.message()}));
+                .json(ErrorPresenter::to_http(err));
         }
 
         let MakeJwtResult { access_token, refresh_token } = result.unwrap();
