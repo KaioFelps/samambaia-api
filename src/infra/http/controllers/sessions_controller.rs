@@ -9,6 +9,8 @@ use validator::Validate;
 
 use crate::domain::factories::authenticate_user_service_factory;
 use crate::domain::services::authenticate_user_service::AuthenticateUserParams;
+use crate::errors::bad_request_error::BadRequestError;
+use crate::errors::internal_error::InternalError;
 use crate::infra::http::dtos::login::LoginDto;
 use crate::infra::http::presenters::error::ErrorPresenter;
 use crate::infra::jwt::jwt_service::{DecodedToken, JwtService, MakeJwtResult};
@@ -29,9 +31,7 @@ impl ControllerTrait for SessionsController {
 }
 
 impl SessionsController {
-    async fn login(
-        body: web::Json<LoginDto>,
-    ) -> impl Responder {
+    async fn login(body: web::Json<LoginDto>) -> impl Responder {
         match body.validate() {
             Err(e) => {
                 return HttpResponse::BadRequest()
@@ -75,7 +75,8 @@ impl SessionsController {
 
         if refresh_token.is_none() {
             info!("Refresh token is None; bad request.");
-            return HttpResponse::BadRequest().finish();
+            return HttpResponse::BadRequest()
+                .json(ErrorPresenter::to_http(Box::new(BadRequestError::new())));
         }
 
         let refresh_token = refresh_token.unwrap();
@@ -100,11 +101,14 @@ impl SessionsController {
                 ErrorKind::Json(_) |
                 ErrorKind::Utf8(_) => {
                     info!("Token decoding validation error; bad request.");
-                    return HttpResponse::BadRequest().finish();
+                    return HttpResponse::BadRequest()
+                        .json(ErrorPresenter::to_http(Box::new(BadRequestError::new())));
+
                 },
                 _ => {
                     info!("Token decoding configuration error; internal server error.");
-                    return HttpResponse::InternalServerError().finish();
+                    return HttpResponse::InternalServerError()
+                        .json(ErrorPresenter::to_http(Box::new(InternalError::new())));
                 },
             }
         }
@@ -113,7 +117,8 @@ impl SessionsController {
 
         if user_role.is_none() {
             info!("User role from decoded jwt token is None; bad request.");
-            return HttpResponse::BadRequest().finish();
+            return HttpResponse::BadRequest()
+                .json(ErrorPresenter::to_http(Box::new(BadRequestError::new())));
         }
 
         let tokens = jwt_service.make_jwt(
@@ -124,7 +129,8 @@ impl SessionsController {
         
         if tokens.is_err() {
             info!("Failed to make new jwt token; internal server error.");
-            return HttpResponse::InternalServerError().finish();
+            return HttpResponse::InternalServerError()
+                .json(ErrorPresenter::to_http(Box::new(InternalError::new())));
         }
 
         let MakeJwtResult {access_token, refresh_token} = tokens.unwrap();
