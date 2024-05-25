@@ -1,8 +1,8 @@
-use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
+use crate::errors::error::DomainErrorTrait;
 use crate::{LOG_SEP, R_EOL};
 
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
@@ -28,7 +28,7 @@ DeleteCommentService<CommentRepository>
         }
     }
 
-    pub async fn exec(&self, params: DeleteCommentParams) -> Result<(), Box<dyn Error>> {
+    pub async fn exec(&self, params: DeleteCommentParams) -> Result<(), Box<dyn DomainErrorTrait>> {
         let comment_on_db = self.comment_repository.find_by_id(params.comment_id).await;
 
         if comment_on_db.is_err() {

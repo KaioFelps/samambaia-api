@@ -1,10 +1,9 @@
-use std::error::Error;
-
 use uuid::Uuid;
 use log::error;
 
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
 use crate::errors::bad_request_error::BadRequestError;
+use crate::errors::error::DomainErrorTrait;
 use crate::{R_EOL, LOG_SEP};
 
 use crate::domain::domain_entities::{role::Role, team_user::TeamUser};
@@ -42,7 +41,7 @@ CreateTeamUserService<TeamUserRepository, TeamRoleRepository> {
         }
     }
 
-    pub async fn exec(&self, params: CreateTeamUserParams) -> Result<TeamUser, Box<dyn Error>> {
+    pub async fn exec(&self, params: CreateTeamUserParams) -> Result<TeamUser, Box<dyn DomainErrorTrait>> {
         let team_user = TeamUser::new(
             params.nickname,
             params.user_function,
@@ -101,6 +100,7 @@ mod test {
     use crate::domain::{domain_entities::team_role::TeamRole, repositories::{team_role_repository::MockTeamRoleRepositoryTrait, team_user_repository::MockTeamUserRepositoryTrait}};
 
     use super::*;
+    use http::StatusCode;
     use tokio;
     use std::sync::{Arc, Mutex};
 
@@ -157,8 +157,8 @@ mod test {
         }).await;
 
         // Coords are not allowed to manage team users, only admin above.
-        assert!(result.unwrap_err().is::<UnauthorizedError>());
-
+        assert_eq!(result.unwrap_err().code(), &StatusCode::UNAUTHORIZED);
+        
         let result = sut.exec(CreateTeamUserParams {
             nickname: "Floricultor".into(),
             user_function: "Do he shits a Ceo does".into(),
@@ -169,7 +169,7 @@ mod test {
         }).await;
 
         // If team role id points to a non-existing team role, it throws a bad request error.
-        assert!(result.unwrap_err().is::<BadRequestError>());
+        assert_eq!(result.unwrap_err().code(), &StatusCode::BAD_REQUEST);
 
         let result = sut.exec(CreateTeamUserParams {
             nickname: "Floricultor".into(),

@@ -1,7 +1,7 @@
-use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
@@ -28,7 +28,7 @@ impl<UserRepositoryType: UserRepositoryTrait> ChangePasswordService<UserReposito
         }
     }
 
-    pub async fn exec(&self, params: ChangePasswordParams) -> Result<(), Box<dyn Error>> {
+    pub async fn exec(&self, params: ChangePasswordParams) -> Result<(), Box<dyn DomainErrorTrait>> {
         let user_on_db = self.user_repository.find_by_id(&params.user_id).await;
                 
         if user_on_db.is_err() {

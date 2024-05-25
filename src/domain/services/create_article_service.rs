@@ -1,9 +1,9 @@
-use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::{LOG_SEP, R_EOL};
 
@@ -27,7 +27,7 @@ impl<ArticleRepository: ArticleRepositoryTrait> CreateArticleService<ArticleRepo
         }
     }
 
-    pub async fn exec(&self, params: CreateArticleParams) -> Result<Article, Box<dyn Error>> {
+    pub async fn exec(&self, params: CreateArticleParams) -> Result<Article, Box<dyn DomainErrorTrait>> {
         let article = Article::new(
             params.author_id,
             params.title,

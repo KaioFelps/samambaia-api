@@ -1,9 +1,9 @@
-use std::error::Error;
 use log::error;
 
 use crate::domain::cryptography::hasher::HasherTrait;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::user::User;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::user_already_exists_error::UserAlreadyExistsError;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
@@ -27,11 +27,12 @@ impl<UserRepositoryType : UserRepositoryTrait> CreateUserService<UserRepositoryT
         }
     }
 
-    pub async fn exec(&self, params: CreateUserParams) -> Result<User, Box<dyn Error>> { self.create(params, Role::User).await }
+    pub async fn exec(&self, params: CreateUserParams) -> Result<User, Box<dyn DomainErrorTrait>> { self.create(params, Role::User).await }
 
-    pub async fn exec_with_custom_role(&self, params: CreateUserParams, role: Role) -> Result<User, Box<dyn Error>> { self.create(params, role).await }
+    pub async fn exec_with_custom_role(&self, params: CreateUserParams, role: Role) -> Result<User, Box<dyn DomainErrorTrait>> { self.create(params, role).await }
 
-    async fn create(&self, params: CreateUserParams, role: Role) -> Result<User, Box<dyn Error>> {
+    #[inline]
+    async fn create(&self, params: CreateUserParams, role: Role) -> Result<User, Box<dyn DomainErrorTrait>> {
         let user_on_db = self.user_repository.find_by_nickname(&params.nickname).await;
 
         if user_on_db.is_err() {

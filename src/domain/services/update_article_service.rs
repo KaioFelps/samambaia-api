@@ -1,4 +1,3 @@
-use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
@@ -6,6 +5,7 @@ use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::errors::bad_request_error::BadRequestError;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
 use crate::util::{RolePermissions, verify_role_has_permission};
@@ -34,7 +34,7 @@ impl
         }
     }
 
-    pub async fn exec(&self, params: UpdateArticleParams) -> Result<Article, Box<dyn Error>> {
+    pub async fn exec(&self, params: UpdateArticleParams) -> Result<Article, Box<dyn DomainErrorTrait>> {
         // checks if there is something to be updated
 
         if params.cover_url.is_none() && params.title.is_none() && params.cover_url.is_none() && params.approved.is_none() {
@@ -122,9 +122,9 @@ impl
 
 #[cfg(test)]
 mod test {
+    use http::StatusCode;
     use uuid::Uuid;
 
-    use crate::errors::unauthorized_error::UnauthorizedError;
     use crate::errors::resource_not_found::ResourceNotFoundError;
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::domain_entities::role::Role;
@@ -211,7 +211,7 @@ mod test {
             cover_url: None,
         }).await;
 
-        assert!(result.unwrap_err().is::<UnauthorizedError>()); // writter can't approve any article
+        assert_eq!(result.unwrap_err().code(), &StatusCode::UNAUTHORIZED); // writter can't approve any article
 
         let result = service.exec(UpdateArticleParams {
             user_id: article.author_id(),

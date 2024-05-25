@@ -1,10 +1,10 @@
-use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
 use crate::domain::repositories::article_comment_repository::ArticleCommentRepositoryTrait;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
 use crate::util::{RolePermissions, verify_role_has_permission};
@@ -39,7 +39,7 @@ DeleteArticleService<AR, ACR, UR>
         }
     }
 
-    pub async fn exec(&self, params: DeleteArticleParams) -> Result<(), Box<dyn Error>> {
+    pub async fn exec(&self, params: DeleteArticleParams) -> Result<(), Box<dyn DomainErrorTrait>> {
         let user_on_db = &self.user_repository.find_by_id(&params.user_id).await;
 
         if user_on_db.is_err() {
@@ -151,7 +151,7 @@ mod test {
 
         // mocking article repo
     
-        let mocked_article_repo_db_clone = Arc::clone(&article_db);
+        let mocked_article_repo_db_clone: Arc<Mutex<Vec<Article>>> = Arc::clone(&article_db);
         mocked_article_repo
         .expect_find_by_id()
         .returning(move |id| {

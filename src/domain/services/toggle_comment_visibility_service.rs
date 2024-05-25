@@ -1,10 +1,10 @@
-use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::comment::Comment;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::util::{verify_role_has_permission, RolePermissions};
@@ -30,7 +30,7 @@ ToggleCommentVisibilityService<CommentRepository> {
         }
     }
 
-    pub async fn exec(&self, params: ToggleCommentVisibilityParams) -> Result<Comment, Box<dyn Error>> {
+    pub async fn exec(&self, params: ToggleCommentVisibilityParams) -> Result<Comment, Box<dyn DomainErrorTrait>> {
         let user_can_toggle_visibility = verify_role_has_permission(&params.user_role, RolePermissions::InactivateComment);
 
         if !user_can_toggle_visibility {

@@ -1,7 +1,7 @@
-use std::error::Error;
 use jsonwebtoken::EncodingKey;
 use log::error;
 
+use crate::errors::error::DomainErrorTrait;
 use crate::ENV_VARS;
 use crate::domain::cryptography::comparer::ComparerTrait;
 use crate::infra::jwt::jwt_service::{JwtService, MakeJwtResult};
@@ -29,7 +29,7 @@ impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepos
         }
     }
 
-    pub async fn exec(&self, params: AuthenticateUserParams) -> Result<MakeJwtResult, Box<dyn Error>> {
+    pub async fn exec(&self, params: AuthenticateUserParams) -> Result<MakeJwtResult, Box<dyn DomainErrorTrait>> {
         let user_on_db = &self.user_repository.find_by_nickname(&params.nickname).await;
 
         if user_on_db.is_err() {

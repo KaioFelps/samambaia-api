@@ -1,8 +1,8 @@
-use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::{R_EOL, LOG_SEP};
@@ -30,7 +30,7 @@ SolveCommentReportService<CommentReportRepository> {
         }
     }
 
-    pub async fn exec(&self, params: SolveCommentReportParams) -> Result<(), Box<dyn Error>> {
+    pub async fn exec(&self, params: SolveCommentReportParams) -> Result<(), Box<dyn DomainErrorTrait>> {
         let staff_can_solve = verify_role_has_permission(&params.staff_role, RolePermissions::SolveReport);
 
         if !staff_can_solve {

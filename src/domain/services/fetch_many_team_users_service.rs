@@ -1,6 +1,6 @@
-use std::error::Error;
 use log::error;
 use crate::domain::repositories::team_user_repository::{FindManyTeamUsersResponse, TeamUserQueryType, TeamUserRepositoryTrait};
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::{LOG_SEP, R_EOL};
 
@@ -30,7 +30,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> FetchManyTeamUsersService<Team
         }
     }
 
-    pub async fn exec(&self, params: FetchManyTeamUsersParams) -> Result<FetchManyTeamRolesResponse, Box<dyn Error>> {
+    pub async fn exec(&self, params: FetchManyTeamUsersParams) -> Result<FetchManyTeamRolesResponse, Box<dyn DomainErrorTrait>> {
         let default_items_per_page = 9;
         let default_page = 1;
 

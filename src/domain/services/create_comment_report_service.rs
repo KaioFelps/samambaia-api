@@ -1,4 +1,3 @@
-use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
@@ -7,6 +6,7 @@ use crate::domain::domain_entities::comment_report::CommentReport;
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
 use crate::errors::bad_request_error::BadRequestError;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 
 use crate::{LOG_SEP, R_EOL};
@@ -39,7 +39,7 @@ CreateCommentReportService<CR, CRR> {
         }
     }
 
-    pub async fn exec(&self, params: CreateCommentReportParams) -> Result<CommentReport, Box<dyn Error>> {
+    pub async fn exec(&self, params: CreateCommentReportParams) -> Result<CommentReport, Box<dyn DomainErrorTrait>> {
         let comment_on_db = self.comment_repository.find_by_id(params.comment_id).await;
         
         if comment_on_db.is_err() {

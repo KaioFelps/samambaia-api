@@ -1,8 +1,8 @@
-use std::error::Error;
 use log::error;
 
 use crate::domain::domain_entities::role::Role;
 use crate::errors::bad_request_error::BadRequestError;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::{R_EOL, LOG_SEP};
 
@@ -27,7 +27,7 @@ DeleteCommentReportService<CommentReportRepository> {
         }
     }
 
-    pub async fn exec(&self, params: DeleteCommentReportParams) -> Result<(), Box<dyn Error>> {
+    pub async fn exec(&self, params: DeleteCommentReportParams) -> Result<(), Box<dyn DomainErrorTrait>> {
         let staff_can_delete = verify_role_has_permission(&params.staff_role, RolePermissions::DeleteReport);
 
         if !staff_can_delete {

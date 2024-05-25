@@ -1,8 +1,7 @@
-use std::error::Error;
-
 use log::error;
 use uuid::Uuid;
 use crate::domain::domain_entities::team_user::TeamUser;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::{LOG_SEP, R_EOL};
@@ -33,7 +32,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> UpdateTeamUserService<TeamUser
         }
     }
 
-    pub async fn exec(&self, params: UpdateTeamUserParams) -> Result<TeamUser, Box<dyn Error>> {
+    pub async fn exec(&self, params: UpdateTeamUserParams) -> Result<TeamUser, Box<dyn DomainErrorTrait>> {
         // verifying staff/user can perform this action
         let user_can_update_team_user = verify_role_has_permission(
             &params.staff_role,

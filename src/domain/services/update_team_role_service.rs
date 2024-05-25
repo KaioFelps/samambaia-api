@@ -1,11 +1,10 @@
-use std::error::Error;
-
 use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
@@ -31,7 +30,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> UpdateTeamRoleService<TeamRole
         }
     }
 
-    pub async fn exec(&self, params: UpdateTeamRoleParams) -> Result<TeamRole, Box<dyn Error>> {
+    pub async fn exec(&self, params: UpdateTeamRoleParams) -> Result<TeamRole, Box<dyn DomainErrorTrait>> {
         let user_can_update_team_role = verify_role_has_permission(
             &params.staff_role,
             crate::util::RolePermissions::UpdateTeamRole

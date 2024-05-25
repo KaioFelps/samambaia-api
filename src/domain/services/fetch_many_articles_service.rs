@@ -1,15 +1,16 @@
-use std::error::Error;
-
 use log::error;
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyResponse};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 
 use crate::{LOG_SEP, R_EOL};
+
+type Error = Box<dyn DomainErrorTrait>;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ServiceArticleQueryType {
@@ -46,7 +47,7 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
         }
     }
 
-    pub async fn exec(&self, params: FetchManyArticlesParams) -> Result<FetchManyArticlesResponse, Box<dyn Error>> {
+    pub async fn exec(&self, params: FetchManyArticlesParams) -> Result<FetchManyArticlesResponse, Error> {
         let default_items_per_page = 9;
         let default_page = 1;
 
@@ -98,7 +99,7 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
         })
     }
     
-    async fn parse_query(&self, query: Option<ServiceArticleQueryType>) -> Result<Option<ArticleQueryType>, Box<dyn Error>> {
+    async fn parse_query(&self, query: Option<ServiceArticleQueryType>) -> Result<Option<ArticleQueryType>, Error> {
         if query.is_none() {
             return Ok(None);
         }
@@ -129,6 +130,7 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use http::StatusCode;
     use tokio;
 
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
@@ -245,7 +247,7 @@ mod test {
             query: Some(ServiceArticleQueryType::Author("Vamp".to_string())),
         }).await.unwrap_err();
 
-        assert!(res_3.is::<ResourceNotFoundError>());
+        assert_eq!(res_3.code(), &StatusCode::NOT_FOUND);
 
         // make a request querying by nickname that exists
         let res_4 = fetch_many_articles_service.exec(FetchManyArticlesParams {

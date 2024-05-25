@@ -1,7 +1,6 @@
-use std::error::Error;
 use log::error;
 
-use crate::{domain::{domain_entities::article::Article, repositories::article_repository::ArticleRepositoryTrait}, errors::internal_error::InternalError};
+use crate::{domain::{domain_entities::article::Article, repositories::article_repository::ArticleRepositoryTrait}, errors::{error::DomainErrorTrait, internal_error::InternalError}};
 
 use crate::{LOG_SEP, R_EOL};
 
@@ -16,7 +15,7 @@ impl<ArticleRepository: ArticleRepositoryTrait> FetchHomePageArticlesService<Art
         }
     }
 
-    pub async fn exec(&self) -> Result<Vec<Article>, Box<dyn Error>> {
+    pub async fn exec(&self) -> Result<Vec<Article>, Box<dyn DomainErrorTrait>> {
         let articles = self.article_repository.get_home_articles().await;
 
         if articles.is_err() {

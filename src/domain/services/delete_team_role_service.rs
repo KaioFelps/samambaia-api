@@ -1,9 +1,9 @@
-use std::error::Error;
 use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
@@ -28,7 +28,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> DeleteTeamRoleService<TeamRole
         }
     }
 
-    pub async fn exec(&self, params: DeleteTeamRoleParams) -> Result<(), Box<dyn Error>> {
+    pub async fn exec(&self, params: DeleteTeamRoleParams) -> Result<(), Box<dyn DomainErrorTrait>> {
         let staff_can_delete = verify_role_has_permission(&params.staff_role, DeleteTeamRole);
 
         if !staff_can_delete {

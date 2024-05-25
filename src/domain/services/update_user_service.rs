@@ -1,11 +1,10 @@
-use std::error::Error;
-
 use log::error;
 use uuid::Uuid;
 
 use crate::domain::cryptography::hasher::HasherTrait;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::user::User;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
@@ -36,7 +35,7 @@ impl<UserRepositoryType: UserRepositoryTrait> UpdateUserService<UserRepositoryTy
         }
     }
 
-    pub async fn exec(&self, params: UpdateUserParams) -> Result<User, Box<dyn Error>> {
+    pub async fn exec(&self, params: UpdateUserParams) -> Result<User, Box<dyn DomainErrorTrait>> {
         let staff_can_update_user = verify_role_has_permission(&params.staff_role, crate::util::RolePermissions::UpdateUser);
         
         if !staff_can_update_user {

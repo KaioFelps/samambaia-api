@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use log::error;
 use uuid::Uuid;
 
@@ -8,6 +6,7 @@ use crate::domain::repositories::{
     article_repository::ArticleRepositoryTrait,
     comment_repository::CommentRepositoryTrait,
 };
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::{
     bad_request_error::BadRequestError,
     internal_error::InternalError,
@@ -42,7 +41,7 @@ CommentOnArticleService<CR, AR> {
         }
     }
 
-    pub async fn exec(&self, params: CommentOnArticleParams) -> Result<Comment, Box<dyn Error>> {
+    pub async fn exec(&self, params: CommentOnArticleParams) -> Result<Comment, Box<dyn DomainErrorTrait>> {
         let article_on_db = self.article_repository.find_by_id(params.article_id.clone()).await;
 
         if article_on_db.is_err() {

@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use log::error;
 use uuid::Uuid;
 
@@ -7,6 +5,7 @@ use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::comment::Comment;
 use crate::domain::repositories::article_comment_repository::{ArticleCommentRepositoryTrait, CommentQueryType, FindManyCommentsResponse};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 
@@ -37,7 +36,7 @@ pub struct FetchManyCommentsResponse {
     pub data: Vec<Comment>
 }
 
-type ExecFuncReturn = Result<FetchManyCommentsResponse, Box<dyn Error>>;
+type ExecFuncReturn = Result<FetchManyCommentsResponse, Box<dyn DomainErrorTrait>>;
 
 impl<ArticleCommentRepository: ArticleCommentRepositoryTrait, UserRepository: UserRepositoryTrait>
 FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
@@ -111,7 +110,7 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
         })
     }
     
-    async fn parse_query(&self, query: Option<ServiceCommentQueryType>) -> Result<Option<CommentQueryType>, Box<dyn Error>> {
+    async fn parse_query(&self, query: Option<ServiceCommentQueryType>) -> Result<Option<CommentQueryType>, Box<dyn DomainErrorTrait>> {
         if query.is_none() {
             return Ok(None);
         }
@@ -146,6 +145,7 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use http::StatusCode;
     use tokio;
 
     use crate::domain::domain_entities::article::Article;
@@ -305,7 +305,7 @@ mod test {
             }
         ).await.unwrap_err();
 
-        assert!(res_3.is::<ResourceNotFoundError>());
+        assert_eq!(res_3.code(), &StatusCode::NOT_FOUND);
 
         // make a request querying by nickname that exists and include inactive comments
         let res_4 = fetch_many_comments_service.exec(

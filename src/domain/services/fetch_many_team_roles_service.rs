@@ -1,9 +1,9 @@
-use std::error::Error;
 use log::error;
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::{FindManyTeamRolesResponse, TeamRoleQueryType, TeamRoleRepositoryTrait};
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 
 use crate::{LOG_SEP, R_EOL};
@@ -31,7 +31,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<Team
         }
     }
 
-    pub async fn exec(&self, params: FetchManyTeamRolesParams) -> Result<FetchManyTeamRolesResponse, Box<dyn Error>> {
+    pub async fn exec(&self, params: FetchManyTeamRolesParams) -> Result<FetchManyTeamRolesResponse, Box<dyn DomainErrorTrait>> {
         let default_items_per_page = 9;
         let default_page = 1;
 

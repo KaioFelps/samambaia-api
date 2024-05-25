@@ -1,14 +1,16 @@
-use std::error::Error;
 use log::error;
 use uuid::Uuid;
 use crate::domain::domain_entities::comment_report::CommentReport;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::{R_EOL, LOG_SEP};
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::repositories::comment_report_repository::{CommentReportQueryType, CommentReportRepositoryTrait, FindManyCommentReportsResponse};
 use crate::errors::internal_error::InternalError;
+
+type Error = Box<dyn DomainErrorTrait>;
 
 pub enum CommentReportServiceQuery {
    /*
@@ -25,7 +27,6 @@ pub struct FetchManyCommentReportsParams {
     pub per_page: Option<u32>,
     pub query: Option<CommentReportServiceQuery>    
 }
-
 
 #[derive(Debug)]
 pub struct FetchManyCommentReportsResponse {
@@ -56,7 +57,7 @@ FetchManyCommentReportsService<CommentReportRepository, UserRepository> {
         }
     }
 
-    pub async fn exec(&self, params: FetchManyCommentReportsParams) -> Result<FetchManyCommentReportsResponse, Box<dyn Error>> {
+    pub async fn exec(&self, params: FetchManyCommentReportsParams) -> Result<FetchManyCommentReportsResponse, Error> {
         let default_items_per_page = 9;
         let default_page = 1;
 
@@ -99,7 +100,7 @@ FetchManyCommentReportsService<CommentReportRepository, UserRepository> {
         })
     }
 
-    async fn parse_query(&self, service_query: Option<CommentReportServiceQuery>) -> Result<Option<CommentReportQueryType>, Box<dyn Error>> {
+    async fn parse_query(&self, service_query: Option<CommentReportServiceQuery>) -> Result<Option<CommentReportQueryType>, Error> {
         if service_query.is_none() {
             return Ok(None);
         }
@@ -132,7 +133,7 @@ FetchManyCommentReportsService<CommentReportRepository, UserRepository> {
         }
     }
 
-    async fn get_id_from_nickname(&self, nickname: String) -> Result<Option<Uuid>, Box<dyn Error>> {
+    async fn get_id_from_nickname(&self, nickname: String) -> Result<Option<Uuid>, Box<dyn std::error::Error>> {
         let user = self.user_repository.find_by_nickname(&nickname).await?;
 
         return match user {

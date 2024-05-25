@@ -1,6 +1,6 @@
-use std::error::Error;
 use log::error;
 use crate::domain::domain_entities::role::Role;
+use crate::errors::error::DomainErrorTrait;
 use crate::{LOG_SEP, R_EOL};
 
 use crate::errors::internal_error::InternalError;
@@ -29,7 +29,7 @@ CreateTeamRoleService<TeamRoleRepository> {
         }
     }
 
-    pub async fn exec(&self, params: CreateTeamRoleParams) -> Result<TeamRole, Box<dyn Error>> {
+    pub async fn exec(&self, params: CreateTeamRoleParams) -> Result<TeamRole, Box<dyn DomainErrorTrait>> {
         let CreateTeamRoleParams { title, description, staff_role } = params;
 
         let user_can_create_team_role = verify_role_has_permission(&staff_role, RolePermissions::CreateNewTeamRole);

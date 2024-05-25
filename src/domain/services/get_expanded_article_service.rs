@@ -1,4 +1,3 @@
-use std::error::Error;
 use log::{error, info};
 use uuid::Uuid;
 
@@ -9,6 +8,7 @@ use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::comment_user_article_repository::FindManyCommentsWithAuthorResponse;
 use crate::domain::repositories::comment_user_article_repository::CommentUserArticleRepositoryTrait;
 use crate::core::pagination::PaginationParameters;
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
@@ -60,7 +60,7 @@ impl<
         }
     }
 
-    pub async fn exec(&self, params: GetExpandedArticleParams) -> Result<GetExpandedArticleResponse, Box<dyn Error>> {
+    pub async fn exec(&self, params: GetExpandedArticleParams) -> Result<GetExpandedArticleResponse, Box<dyn DomainErrorTrait>> {
         let items_per_page = 5;
 
         let article = self.article_repository.find_by_id(params.article_id).await;
