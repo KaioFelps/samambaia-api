@@ -7,6 +7,7 @@ use serde_envfile::from_env as lib_from_env;
 #[derive(Debug, Deserialize)]
 pub struct EnvConfig {
     pub database_url: String,
+    pub domain: String,
     pub jwt_secret: String
 }
 
