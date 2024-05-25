@@ -57,11 +57,11 @@ impl JwtService {
         let mut header: Header = Header::new(Algorithm::HS256);
         header.typ = Some("JWT".to_string());
 
-        let access_claims: Claims = Claims::new(user_id, Some(user_role));
+        let access_claims: Claims = Claims::new(user_id, Some(user_role.clone()));
 
         let refresh_token_lifetime: i64 = (chrono::Utc::now() + chrono::Duration::try_hours(5).unwrap()).timestamp();
 
-        let refresh_claims: Claims = Claims::new_with_custom_time(user_id, None, refresh_token_lifetime);
+        let refresh_claims: Claims = Claims::new_with_custom_time(user_id, Some(user_role), refresh_token_lifetime);
 
         let access_token: Result<String, JwtError> = encode(&header, &access_claims, &encoding_key);
         let refresh_token: Result<String, JwtError> = encode(&header, &refresh_claims, &encoding_key);
