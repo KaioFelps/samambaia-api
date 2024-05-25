@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use validator::Validate;
-use crate::domain::domain_entities::role::Role;
 use crate::core::NICKNAME_REGX;
+use crate::libs::custom_validators::validate_user_role;
 
 #[derive(Serialize, Deserialize, Validate)]
 pub struct UpdateUserDto {
@@ -14,5 +14,6 @@ pub struct UpdateUserDto {
     #[validate(length(min = 1))]
     pub password: Option<String>,
 
-    pub role: Option<Role>
+    #[validate(custom(function = "validate_user_role"))]
+    pub role: Option<String>,
 }
