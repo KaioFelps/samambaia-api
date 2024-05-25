@@ -1,8 +1,9 @@
 @baseUrl = http://localhost:3000/api
 # @authToken = {{authenticate.response.body.access_token}}
 
-# @name create_user_account
-POST {{baseUrl}}/users/new
+### SESSIONS ########################
+# @name login
+POST {{baseUrl}}/session/login
 Content-Type: application/json
 
 {
@@ -11,3 +12,17 @@ Content-Type: application/json
 }
 
 ###
+
+# @name logout
+POST {{baseUrl}}/session/logout
+
+### USERS ###########################
+
+# @name create_user_account
+POST {{baseUrl}}/users/new
+Content-Type: application/json
+
+{
+    "nickname": "KaioFelipe",
+    "password": "12345"
+}
