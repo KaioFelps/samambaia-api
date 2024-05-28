@@ -8,7 +8,10 @@ use serde_envfile::from_env as lib_from_env;
 pub struct EnvConfig {
     pub database_url: String,
     pub domain: String,
-    pub jwt_secret: String
+    pub jwt_secret: String,
+    pub host: String,
+    pub port: u16,
+    pub workers: usize
 }
 
 impl EnvConfig {
