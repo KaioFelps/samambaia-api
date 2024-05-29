@@ -4,3 +4,4 @@ DESCRIPTION=backend do hubbitos
 VERSION=recommended
 SUBDOMAIN=hubbitosbackend
 MEMORY=1000
+AUTORESTART=true
