@@ -11,3 +11,5 @@ pub struct PaginationParameters<QT> {
     pub items_per_page: u32,
     pub query: Option<QT>,
 }
+
+pub const DEFAULT_PER_PAGE: u8 = 9;
