@@ -1,3 +1,3 @@
 function hubbitos-cli {
-    & "target/debug/hubbitos-cli.exe" $args
+    & "target/release/hubbitos-cli.exe" $args
 }
