@@ -23,7 +23,7 @@ POST {{baseUrl}}/users/new
 Content-Type: application/json
 
 {
-    "nickname": "Cinthia",
+    "nickname": "Cinthia2",
     "password": "12345"
 }
 
@@ -38,3 +38,9 @@ Authorization: Bearer {{login.response.body.accessToken}}
     "current_password": "123456a",
     "new_password": "123456a"
 }
+
+###
+
+# @name get_user_by_id
+GET {{baseUrl}}/users/4e513fab-bd50-4614-85eb-f3cfa3ad8a39
+Authorization: Bearer {{login.response.body.accessToken}}

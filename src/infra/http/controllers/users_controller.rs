@@ -8,9 +8,10 @@ use uuid::Uuid;
 use validator::Validate;
 
 use crate::domain::domain_entities::role::Role;
-use crate::domain::factories::{change_password_service_factory, create_user_service_factory, update_user_service_factory};
+use crate::domain::factories::{change_password_service_factory, create_user_service_factory, get_user_service_factory, update_user_service_factory};
 use crate::domain::services::change_password_service::ChangePasswordParams;
 use crate::domain::services::create_user_service::CreateUserParams;
+use crate::domain::services::get_user_service::GetUserServiceParams;
 use crate::domain::services::update_user_service::UpdateUserParams;
 use crate::infra::http::dtos::change_password::ChangePasswordDto;
 use crate::infra::http::dtos::create_user::CreateUserDto;
@@ -43,6 +44,14 @@ impl ControllerTrait for UsersController {
                 "/password",
                 web::put()
                 .to(Self::edit_password)
+                .wrap(from_fn(authentication_middleware))
+            )
+
+            // GET SINGLE USER BY ID
+            .route(
+                "/{id}",
+                web::get()
+                .to(Self::get)
                 .wrap(from_fn(authentication_middleware))
             )
         );
@@ -178,5 +187,31 @@ impl UsersController {
         }
 
         return HttpResponse::Ok().finish();
+    }
+
+    async fn get(user_id: web::Path<Uuid>) -> impl Responder {
+        let get_user_service = get_user_service_factory::exec().await;
+
+        let result = get_user_service.exec(GetUserServiceParams {
+            user_id: user_id.into_inner()
+        }).await;
+
+        if result.is_err() {
+            let err = result.unwrap_err();
+
+            return HttpResponseBuilder::new(StatusCode::from_u16(err.code().to_owned()).unwrap())
+            .json(ErrorPresenter::to_http(err));
+        }
+
+        let mapped_user = {
+            let user = result.unwrap();
+
+            match user {
+                None => None,
+                Some(user) => Some(UserPresenter::to_http(user))
+            }
+        };
+
+        return HttpResponse::Ok().json(json!({"user": mapped_user}));
     }
 }
