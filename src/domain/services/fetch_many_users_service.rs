@@ -1,9 +1,9 @@
-use std::error::Error;
 use log::error;
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::{FindManyUsersResponse, UserQueryType, UserRepositoryTrait};
+use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::{LOG_SEP, R_EOL};
 
@@ -30,7 +30,7 @@ impl<UserRepository: UserRepositoryTrait> FetchManyUsersService<UserRepository> 
         }
     }
 
-    pub async fn exec(&self, params: FetchManyUsersParams) -> Result<FetchManyUsersResponse, Box<dyn Error>> {
+    pub async fn exec(&self, params: FetchManyUsersParams) -> Result<FetchManyUsersResponse, Box<dyn DomainErrorTrait>> {
         let items_per_page = if params.per_page.is_some() { params.per_page.unwrap() } else { DEFAULT_PER_PAGE as u32 };
 
         let page = if params.page.is_some() {
