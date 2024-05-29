@@ -4,11 +4,11 @@ use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
 use crate::{LOG_SEP, R_EOL};
 
-use crate::core::pagination::{PaginationParameters, PaginationResponse};
+use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
 use crate::domain::domain_entities::team_user::TeamUser;
 
 #[derive(Debug)]
-pub struct FetchManyTeamRolesResponse {
+pub struct FetchManyTeamUsersResponse {
     pub pagination: PaginationResponse,
     pub data: Vec<TeamUser>
 }
@@ -30,16 +30,13 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> FetchManyTeamUsersService<Team
         }
     }
 
-    pub async fn exec(&self, params: FetchManyTeamUsersParams) -> Result<FetchManyTeamRolesResponse, Box<dyn DomainErrorTrait>> {
-        let default_items_per_page = 9;
-        let default_page = 1;
-
-        let items_per_page = if params.per_page.is_some() { params.per_page.unwrap() } else { default_items_per_page };
+    pub async fn exec(&self, params: FetchManyTeamUsersParams) -> Result<FetchManyTeamUsersResponse, Box<dyn DomainErrorTrait>> {
+        let items_per_page = if params.per_page.is_some() { params.per_page.unwrap() } else { DEFAULT_PER_PAGE as u32 };
 
         let page = if params.page.is_some() {
             let params_page = params.page.unwrap();
-            if params_page <= 0 { default_page } else { params_page }
-        } else { default_page };
+            if params_page <= 0 { 1 } else { params_page }
+        } else { 1 };
 
         let response = self.team_user_repository.find_many(PaginationParameters {
             items_per_page,
@@ -49,7 +46,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> FetchManyTeamUsersService<Team
 
         if response.is_err() {
             error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Team Roles Service, while finding many team roles from database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Team Users Service, while selecting many team users from the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
                 response.as_ref().unwrap_err()
             );
 
@@ -59,7 +56,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> FetchManyTeamUsersService<Team
         let response = response.unwrap();
         let FindManyTeamUsersResponse (team_users, total_items) = response;
 
-        Ok(FetchManyTeamRolesResponse {
+        Ok(FetchManyTeamUsersResponse {
             data: team_users,
             pagination: PaginationResponse {
                 current_page: page,

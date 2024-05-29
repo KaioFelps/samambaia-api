@@ -1,6 +1,6 @@
 use log::error;
 
-use crate::core::pagination::{PaginationParameters, PaginationResponse};
+use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::{FindManyTeamRolesResponse, TeamRoleQueryType, TeamRoleRepositoryTrait};
 use crate::errors::error::DomainErrorTrait;
@@ -32,15 +32,12 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<Team
     }
 
     pub async fn exec(&self, params: FetchManyTeamRolesParams) -> Result<FetchManyTeamRolesResponse, Box<dyn DomainErrorTrait>> {
-        let default_items_per_page = 9;
-        let default_page = 1;
-
-        let items_per_page = if params.per_page.is_some() { params.per_page.unwrap() } else { default_items_per_page };
+        let items_per_page = if params.per_page.is_some() { params.per_page.unwrap() } else { DEFAULT_PER_PAGE as u32 };
 
         let page = if params.page.is_some() {
             let params_page = params.page.unwrap();
-            if params_page <= 0 { default_page } else { params_page }
-        } else { default_page };
+            if params_page <= 0 { 1 } else { params_page }
+        } else { 1 };
 
         let response = self.team_role_repository.find_many(PaginationParameters {
             items_per_page,
