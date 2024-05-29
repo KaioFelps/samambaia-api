@@ -7,8 +7,8 @@ POST {{baseUrl}}/session/login
 Content-Type: application/json
 
 {
-    "nickname": "KaioFelipe",
-    "password": "12345"
+    "nickname": "Cinthia",
+    "password": "123456a"
 }
 
 ###
@@ -23,6 +23,18 @@ POST {{baseUrl}}/users/new
 Content-Type: application/json
 
 {
-    "nickname": "KaioFelipe",
+    "nickname": "Cinthia",
     "password": "12345"
+}
+
+###
+
+# @name change_user_password
+PUT {{baseUrl}}/users/password
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.accessToken}}
+
+{
+    "current_password": "123456a",
+    "new_password": "123456a"
 }
