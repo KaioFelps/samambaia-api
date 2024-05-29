@@ -23,3 +23,33 @@ impl ComparerTrait for PasswordAuthHasherAndVerifier {
 }
 
 impl HasherAndComparerTrait for PasswordAuthHasherAndVerifier {}
+
+#[cfg(test)]
+#[derive(Clone)]
+pub struct FakeAuthHasherAndVerifier;
+
+#[cfg(test)]
+impl HasherTrait for FakeAuthHasherAndVerifier {
+    fn hash(&self, password: String) -> String {
+        let mut password = password;
+        password.push_str("--hashed");
+        password
+    }
+}
+
+#[cfg(test)]
+impl ComparerTrait for FakeAuthHasherAndVerifier {
+    fn compare(&self, password: &String, hashed_password: &String) -> bool {
+        let mut password = password.clone();
+        password.push_str("--hashed");
+        
+        if &password == hashed_password {
+            true
+        } else {
+            false
+        }
+    }
+}
+
+#[cfg(test)]
+impl HasherAndComparerTrait for FakeAuthHasherAndVerifier {}
