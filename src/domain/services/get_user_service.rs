@@ -6,7 +6,7 @@ use crate::errors::error::DomainErrorTrait;
 use crate::util::generate_service_internal_error;
 
 pub struct GetUserServiceParams {
-    user_id: Uuid
+    pub user_id: Uuid
 }
 
 pub struct GetUserService<UserRepository: UserRepositoryTrait> {
