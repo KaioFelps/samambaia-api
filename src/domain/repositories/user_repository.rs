@@ -2,10 +2,22 @@ use std::error::Error;
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use crate::domain::domain_entities::user::User;
+use crate::{core::pagination::PaginationParameters, domain::domain_entities::{role::Role, user::User}};
 
 #[cfg(test)]
 use mockall::automock;
+
+#[derive(Debug)]
+pub struct FindManyUsersResponse (
+    pub Vec<User>,
+    pub u64,
+);
+
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum UserQueryType {
+    Role(Role),
+    Nickname(String)
+}
 
 #[cfg_attr(test, automock)]
 #[async_trait]
@@ -18,4 +30,6 @@ pub trait UserRepositoryTrait {
     async fn find_by_id(&self, id: &Uuid) -> Result<Option<User>, Box<dyn Error>>;
     
     async fn save(&self, user: User) -> Result<User, Box<dyn Error>>;
+
+    async fn find_many(&self, params: PaginationParameters<UserQueryType>) -> Result<FindManyUsersResponse, Box<dyn Error>>;
 }
