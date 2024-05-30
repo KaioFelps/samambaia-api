@@ -17,6 +17,9 @@ pub enum Role {
 
 impl FromStr for Role {
     fn from_str(s: &str) -> Result<Self, EnumCoercionError> {
+        let s = s.to_uppercase();
+        let s = s.as_str();
+        
         match s {
             "ADMIN" => Ok(Self::Admin),
             "CEO" => Ok(Self::Ceo),
