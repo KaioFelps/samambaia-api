@@ -44,3 +44,15 @@ Authorization: Bearer {{login.response.body.accessToken}}
 # @name get_user_by_id
 GET {{baseUrl}}/users/4e513fab-bd50-4614-85eb-f3cfa3ad8a39
 Authorization: Bearer {{login.response.body.accessToken}}
+
+###
+
+# @name get_list_of_users
+GET {{baseUrl}}/users/list/
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.accessToken}}
+
+{
+    "page": 1,
+    "role": "usEr"
+}

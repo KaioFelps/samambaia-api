@@ -7,18 +7,23 @@ use serde_json::json;
 use uuid::Uuid;
 use validator::Validate;
 
+use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::role::Role;
-use crate::domain::factories::{change_password_service_factory, create_user_service_factory, get_user_service_factory, update_user_service_factory};
+use crate::domain::factories::{change_password_service_factory, create_user_service_factory, fetch_many_users_service_factory, get_user_service_factory, update_user_service_factory};
+use crate::domain::repositories::user_repository::UserQueryType;
 use crate::domain::services::change_password_service::ChangePasswordParams;
 use crate::domain::services::create_user_service::CreateUserParams;
+use crate::domain::services::fetch_many_users_service::FetchManyUsersParams;
 use crate::domain::services::get_user_service::GetUserServiceParams;
 use crate::domain::services::update_user_service::UpdateUserParams;
 use crate::infra::http::dtos::change_password::ChangePasswordDto;
 use crate::infra::http::dtos::create_user::CreateUserDto;
+use crate::infra::http::dtos::list_users::ListUsersDto;
 use crate::infra::http::dtos::update_user::UpdateUserDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::error::ErrorPresenter;
+use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::user::UserPresenter;
 
 use super::controller::ControllerTrait;
@@ -44,6 +49,14 @@ impl ControllerTrait for UsersController {
                 "/password",
                 web::put()
                 .to(Self::edit_password)
+                .wrap(from_fn(authentication_middleware))
+            )
+
+            // LIST USERS WITH PAGINATION
+            .route(
+                "/list",
+                web::get()
+                .to(Self::list)
                 .wrap(from_fn(authentication_middleware))
             )
 
@@ -213,5 +226,72 @@ impl UsersController {
         };
 
         return HttpResponse::Ok().json(json!({"user": mapped_user}));
+    }
+
+    async fn list(body: web::Json<ListUsersDto>) -> impl Responder {
+        match body.validate() {
+            Err(e) => {
+                return HttpResponse::BadRequest()
+                .json(ErrorPresenter::to_http_from_validator(e.field_errors()));
+            },
+            Ok(()) => ()
+        };
+
+        let fetch_many_users_service = fetch_many_users_service_factory::exec().await;
+
+        let ListUsersDto {
+            nickname,
+            page,
+            per_page,
+            role
+        } = body.into_inner();
+
+        let query: Option<UserQueryType>;
+
+        if nickname.is_some() {
+            query = Some(UserQueryType::Nickname(nickname.unwrap()));
+        } else if role.is_none() {
+            query = None;
+        } else {
+            let parsed_role = Role::from_str(role.unwrap().as_str());
+
+            if parsed_role.is_err() {
+                let err = parsed_role.unwrap_err();
+
+                return HttpResponseBuilder::new(StatusCode::from_u16(err.code().to_owned()).unwrap())
+                .json(json!({"error": err.message()}));
+            }
+
+            query = Some(UserQueryType::Role(parsed_role.unwrap()));
+        }
+
+
+        let result = fetch_many_users_service.exec(FetchManyUsersParams {
+            page,
+            per_page: match per_page {
+                Some(v) => Some(v as u32),
+                None => None
+            },
+            query,
+        }).await;
+
+        if result.is_err() {
+            let err = result.unwrap_err();
+
+            return HttpResponseBuilder::new(StatusCode::from_u16(err.code().to_owned()).unwrap())
+            .json(ErrorPresenter::to_http(err));
+        }
+
+        let result = result.unwrap();
+        let mut mapped_users = Vec::new();
+        
+        for user in result.data.into_iter() {
+            mapped_users.push(UserPresenter::to_http(user));
+        }
+
+        return HttpResponse::Ok().json(json!({
+            "pagination": PaginationPresenter::to_http(result.pagination, per_page.unwrap_or(DEFAULT_PER_PAGE) ),
+            "data": mapped_users
+        }));
     }
 }
