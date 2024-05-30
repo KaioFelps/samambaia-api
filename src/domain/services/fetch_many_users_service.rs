@@ -1,11 +1,8 @@
-use log::error;
-
 use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::{FindManyUsersResponse, UserQueryType, UserRepositoryTrait};
 use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::{LOG_SEP, R_EOL};
+use crate::util::generate_service_internal_error;
 
 #[derive(Debug)]
 pub struct FetchManyUsersResponse {
@@ -45,12 +42,10 @@ impl<UserRepository: UserRepositoryTrait> FetchManyUsersService<UserRepository> 
         }).await;
 
         if response.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Users Service, while selecting many users from the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+            return Err(generate_service_internal_error(
+                "Error occurred on Fetch Many Users Service, while selecting many users from the database",
                 response.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
+            ));
         }
 
         let response = response.unwrap();
