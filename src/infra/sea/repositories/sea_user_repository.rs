@@ -1,8 +1,8 @@
 use std::error::Error;
 
 use async_trait::async_trait;
-use migration::{Expr, Func};
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait};
+use migration::{Alias, Expr, Func};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, IntoSimpleExpr, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait};
 use uuid::Uuid;
 use crate::core::pagination::PaginationParameters;
 use crate::infra::sea::mappers::sea_role_mapper::SeaRoleMapper;
@@ -116,7 +116,7 @@ impl SeaUserRepository {
                 query_builder.filter(filter)
             },
             UserQueryType::Role(content) => {
-                let filter = Expr::col(UserColumn::Role).eq(SeaRoleMapper::to_sea(content));
+                let filter = Expr::expr(Func::cast_as(UserColumn::Role.into_simple_expr(), Alias::new("text"))).eq(SeaRoleMapper::to_sea(content));
                 query_builder.filter(filter)
             }
         }
