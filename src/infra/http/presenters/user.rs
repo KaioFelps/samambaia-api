@@ -5,10 +5,11 @@ use uuid::Uuid;
 use crate::domain::domain_entities::{role::Role, user::User};
 
 #[derive(Serialize, Deserialize)]
+#[allow(non_snake_case)]
 pub struct MappedUser {
     id: Uuid,
     nickname: String,
-    created_at: DateTime,
+    createdAt: DateTime,
     role: Role,
 }
 
@@ -20,7 +21,7 @@ impl UserPresenter {
             nickname: user.nickname().into(),
             id: user.id(),
             role: user.role().unwrap(),
-            created_at: user.created_at()
+            createdAt: user.created_at()
         }
     }
 }
