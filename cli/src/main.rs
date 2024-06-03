@@ -17,18 +17,17 @@ fn main() {
     ];
 
     if generate_aliases.contains(&&args[1][..]) {
-        let generators = ["service", "repository"];
+        let generators = ["service", "repository", "controller"];
         
         if args.len() < 3 || !generators.contains(&&args[2][..]) {
             return;
         }
 
-        if args[2] == "service" {
-            generators::service(&args, &current_dir);
-        }
-
-        if args[2] == "repository" {
-            generators::repository(&args, &current_dir);
-        }
+        match args[2].as_str() {
+            "service" => generators::service(&args, &current_dir),
+            "repository" => generators::repository(&args, &current_dir),
+            "controller" => generators::controller(&args, &current_dir),
+            _ => eprintln!("Invalid argument --{} provided: {}.", args[1], args[2])
+        };
     };
 }

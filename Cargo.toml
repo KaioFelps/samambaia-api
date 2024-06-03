@@ -24,7 +24,6 @@ end-to-end-test = []
 [dependencies]
 migration = { path = "migration" }
 entities = { path = "entities" }
-hubbitos-cli = { path = "cli" }
 sea-orm = { version = "0.12", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros", "chrono", "with-json", "with-uuid" ] }
 tokio = { version = "1", features = ["full"] }
 serde = "1.0.195"
