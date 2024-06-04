@@ -17,27 +17,29 @@ impl ControllerTrait for {capitalized_entity}sController {{
             .route("/new", web::post().to(Self::create))
 
             // READ
-            .route("/{{id}}", web::get().to(Self::get))
+            .route("/{{id}}/get", web::get().to(Self::get))
             .route("/list", web::get().to(Self::list))
             
             // UPDATE
             .route("/{{id}}/update", web::put().to(Self::update))
 
             // DELETE
-            .route("/delete", web::put().to(Self::delete))
+            .route("/{{id}}/delete", web::put().to(Self::delete))
         );
     }}
 }}
 
 impl {capitalized_entity}sController {{
     async fn create() -> impl Responder {{
-        // let service = service_factory::exec().unwrap();
+        // let service = service_factory::exec().await;
         //
         // let result = service.exec();
         //
         // if result.is_err() {{
+        //     let err = result.unwrap_err();
+        //
         //     return HttpResponseBuilder::new(StatusCode::from_u16(err.code().to_owned()).unwrap())
-        //     .json(ErrorPresenter::to_http(result.unwrap_err()));
+        //     .json(ErrorPresenter::to_http(err));
         // }}
 
         return HttpResponse::Created().finish();
