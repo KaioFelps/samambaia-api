@@ -56,3 +56,17 @@ Authorization: Bearer {{login.response.body.accessToken}}
     "page": 1,
     "role": "usEr"
 }
+
+###
+
+# @name create_an_article
+POST {{baseUrl}}/articles/new
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.accessToken}}
+
+{
+    // "authorId": "we can omit this to use the auth user as the article's author!",
+    "coverUrl": "https://habbotoolss.weebly.com/uploads/1/3/3/8/13386862/4988184.png",
+    "title": "Hubbitos!",
+    "content": "<h1>O maioral do habbo está chegando aí!</h1>"
+}
