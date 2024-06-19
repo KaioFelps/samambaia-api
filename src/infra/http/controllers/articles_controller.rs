@@ -1,8 +1,17 @@
-use actix_web::{http::StatusCode, web, HttpResponse, HttpResponseBuilder, Responder};
+use actix_web::{web, HttpResponse, Responder};
 use actix_web_lab::middleware::from_fn;
 use serde_json::json;
+use uuid::Uuid;
 
-use crate::{domain::{factories::create_article_service_factory, services::create_article_service::CreateArticleParams}, infra::http::{dtos::create_article::CreateArticleDto, extractors::req_user::ReqUser, middlewares::authentication_middleware, presenters::{article::ArticlePresenter, error::ErrorPresenter}}};
+use crate::core::pagination::DEFAULT_PER_PAGE;
+use crate::domain::factories::{create_article_service_factory, get_expanded_article_service_factory};
+use crate::domain::services::create_article_service::CreateArticleParams;
+use crate::domain::services::get_expanded_article_service::{FetchManyCommentsWithAuthorResponse, GetExpandedArticleParams, GetExpandedArticleResponse};
+use crate::infra::http::dtos::create_article::CreateArticleDto;
+use crate::infra::http::extractors::req_user::ReqUser;
+use crate::infra::http::middlewares::authentication_middleware;
+use crate::infra::http::presenters::{article::ArticlePresenter, expanded_article::ExpandedArticlePresenter};
+use crate::util::generate_error_response;
 
 use super::controller::ControllerTrait;
 
@@ -12,7 +21,12 @@ impl ControllerTrait for ArticlesController {
     fn register(cfg: &mut web::ServiceConfig) {
         cfg.service(web::scope("/articles")
             // CREATE
-            .route("/new", web::post().to(Self::create)).wrap(from_fn(authentication_middleware))
+            .route(
+                "/new", 
+                web::post()
+                    .to(Self::create)
+                    .wrap(from_fn(authentication_middleware))
+            ) 
 
             // READ
             .route("/{id}/get", web::get().to(Self::get))
@@ -48,9 +62,7 @@ impl ArticlesController {
                 
         if result.is_err() {
             let err = result.unwrap_err();
-
-            return HttpResponseBuilder::new(StatusCode::from_u16(err.code().to_owned()).unwrap())
-            .json(ErrorPresenter::to_http(err));
+            return generate_error_response(err);
         }
 
         let article = result.unwrap();
@@ -59,8 +71,32 @@ impl ArticlesController {
         return HttpResponse::Created().json(json!({"data": mapped_article}));
     }
 
-    async fn get() -> impl Responder {
-        return HttpResponse::Ok().finish();
+    async fn get(article_id: web::Path<Uuid>) -> impl Responder {
+        let service = get_expanded_article_service_factory::exec().await;
+
+        let result = service.exec(GetExpandedArticleParams {
+            article_id: article_id.into_inner(),
+            comments_per_page: Some(DEFAULT_PER_PAGE as u32,)
+        }).await;
+
+        if result.is_err() {
+            let err = result.unwrap_err();
+            return generate_error_response(err)
+        }
+
+        let GetExpandedArticleResponse { article, article_author, comments: comment_response } = result.unwrap();
+        let FetchManyCommentsWithAuthorResponse {data: comments, pagination: comments_pagination} = comment_response;
+
+        let mapped_article = ExpandedArticlePresenter::to_http(
+            article,
+            article_author,
+            comments,
+            (comments_pagination, DEFAULT_PER_PAGE)
+        );
+
+        return HttpResponse::Ok().json(json!({
+            "data": mapped_article,
+        }));
     }
 
     async fn list() -> impl Responder {

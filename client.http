@@ -70,3 +70,9 @@ Authorization: Bearer {{login.response.body.accessToken}}
     "title": "Hubbitos!",
     "content": "<h1>O maioral do habbo está chegando aí!</h1>"
 }
+
+###
+
+# @name get_expanded_article
+GET {{baseUrl}}/articles/f1b8d187-1317-425c-b175-ad57502558b2/get
+Content-Type: application/json

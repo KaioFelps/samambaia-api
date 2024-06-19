@@ -2,6 +2,7 @@ use log::{error, info};
 use uuid::Uuid;
 
 use crate::core::pagination::PaginationResponse;
+use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::domain_entities::user::User;
@@ -17,7 +18,8 @@ use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::{R_EOL, LOG_SEP};
 
 pub struct GetExpandedArticleParams {
-    pub article_id: Uuid
+    pub article_id: Uuid,
+    pub comments_per_page: Option<u32>,
 }
 
 #[derive(Debug)]
@@ -61,7 +63,10 @@ impl<
     }
 
     pub async fn exec(&self, params: GetExpandedArticleParams) -> Result<GetExpandedArticleResponse, Box<dyn DomainErrorTrait>> {
-        let items_per_page = 5;
+        let items_per_page = match params.comments_per_page {
+            None => DEFAULT_PER_PAGE as u32,
+            Some(per_page) => per_page
+        };
 
         let article = self.article_repository.find_by_id(params.article_id).await;
 
@@ -286,7 +291,8 @@ mod test {
         };
 
         let res = sut.exec(GetExpandedArticleParams {
-            article_id: mocked_article_id
+            article_id: mocked_article_id,
+            comments_per_page: None,
         }).await.unwrap();
 
         let GetExpandedArticleResponse {
