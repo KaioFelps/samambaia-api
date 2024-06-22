@@ -6,6 +6,7 @@ use jsonwebtoken::{DecodingKey, EncodingKey};
 use log::info;
 use serde_json::json;
 use validator::Validate;
+use either::Either::*;
 
 use crate::domain::factories::authenticate_user_service_factory;
 use crate::domain::services::authenticate_user_service::AuthenticateUserParams;
@@ -40,7 +41,10 @@ impl SessionsController {
             Ok(()) => ()
         };
 
-        let authenticate_service = authenticate_user_service_factory::exec().await;
+        let authenticate_service = match authenticate_user_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
 
         let LoginDto { nickname, password } = body.into_inner();
 

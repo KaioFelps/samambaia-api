@@ -1,10 +1,19 @@
 use crate::domain::services::create_article_service::CreateArticleService;
+use actix_web::HttpResponse;
+use either::Either::{self, *};
+use crate::errors::internal_error::InternalError;
 use crate::infra::sea::repositories::sea_article_repository::SeaArticleRepository;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 
-pub async fn exec() -> CreateArticleService<SeaArticleRepository, SeaUserRepository> {
+pub async fn exec() -> Either<CreateArticleService<SeaArticleRepository, SeaUserRepository>, HttpResponse> {
     let sea_service = SeaService::new().await;
+
+    if sea_service.is_err() {
+        return Right(crate::util::generate_error_response(Box::new(InternalError::new())))
+    }
+
+    let sea_service = sea_service.unwrap();
 
     let sea_article_repository: Box<SeaArticleRepository> = Box::new(SeaArticleRepository::new(sea_service.clone()).await);
     let sea_user_repository: Box<SeaUserRepository> = Box::new(SeaUserRepository::new(sea_service).await);
@@ -14,5 +23,5 @@ pub async fn exec() -> CreateArticleService<SeaArticleRepository, SeaUserReposit
         sea_user_repository
     );
 
-    create_article_service
+    Left(create_article_service)
 }

@@ -1,15 +1,13 @@
 use std::time::Duration;
-
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
-
-use crate::ENV_VARS;
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
+use crate::{ENV_VARS, R_EOL, LOG_SEP};
 
 // #[derive(Clone)]
 pub struct SeaService {
     pub db: DatabaseConnection
 }
 
-async fn get_db_conn() -> DatabaseConnection {
+async fn get_db_conn() -> Result<DatabaseConnection, DbErr> {
     let mut db_opts: ConnectOptions = ConnectOptions::new(&ENV_VARS.database_url);
     db_opts.max_connections(15)
     .connect_timeout(Duration::from_secs(8))
@@ -17,14 +15,29 @@ async fn get_db_conn() -> DatabaseConnection {
     .max_lifetime(Duration::from_secs(8))
     .sqlx_logging(true);
 
-    Database::connect(db_opts).await.expect("Database connection failed.")
+    let connection = Database::connect(db_opts).await;
+
+    if connection.is_err() {
+        let err = connection.unwrap_err();
+
+        log::error!(
+            "{R_EOL}{LOG_SEP}{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
+            err.to_string()
+        );
+
+        return Err(err);
+    }
+
+    return Ok(connection.unwrap());
 }
 
 impl SeaService {
-    pub async fn new () -> Self {
-        Self {
-            db: get_db_conn().await
-        }
+    pub async fn new () -> Result<Self, DbErr> {
+        let db = get_db_conn().await?;
+        
+        Ok(Self {
+            db
+        })
     }
 }
 

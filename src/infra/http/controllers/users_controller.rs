@@ -6,6 +6,7 @@ use actix_web_lab::middleware::from_fn;
 use serde_json::json;
 use uuid::Uuid;
 use validator::Validate;
+use either::Either::*;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::role::Role;
@@ -83,7 +84,10 @@ impl UsersController {
             Ok(()) => ()
         };
 
-        let create_user_service = create_user_service_factory::exec().await;
+        let create_user_service = match create_user_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
 
         let CreateUserDto { nickname, password } = body.into_inner();
 
@@ -116,7 +120,10 @@ impl UsersController {
             Ok(()) => ()
         };
 
-        let update_user_service = update_user_service_factory::exec().await;
+        let update_user_service = match update_user_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
 
         let UpdateUserDto {
             nickname,
@@ -182,7 +189,10 @@ impl UsersController {
             Ok(()) => ()
         };
 
-        let change_password_service = change_password_service_factory::exec().await;
+        let change_password_service = match change_password_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
 
         let ChangePasswordDto { current_password, new_password } = body.into_inner();
 
@@ -203,7 +213,10 @@ impl UsersController {
     }
 
     async fn get(user_id: web::Path<Uuid>) -> impl Responder {
-        let get_user_service = get_user_service_factory::exec().await;
+        let get_user_service = match get_user_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
 
         let result = get_user_service.exec(GetUserServiceParams {
             user_id: user_id.into_inner()
@@ -237,7 +250,10 @@ impl UsersController {
             Ok(()) => ()
         };
 
-        let fetch_many_users_service = fetch_many_users_service_factory::exec().await;
+        let fetch_many_users_service = match fetch_many_users_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
 
         let ListUsersDto {
             nickname,

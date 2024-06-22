@@ -2,6 +2,7 @@ use actix_web::{web, HttpResponse, Responder};
 use actix_web_lab::middleware::from_fn;
 use serde_json::json;
 use uuid::Uuid;
+use either::Either::*;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::{create_article_service_factory, get_expanded_article_service_factory};
@@ -48,7 +49,10 @@ impl ArticlesController {
     ) -> impl Responder {
         let auth_user = user.into_inner();
 
-        let service = create_article_service_factory::exec().await;
+        let service = match create_article_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
 
         let CreateArticleDto {author_id, content, cover_url, title} = body.into_inner();
 
@@ -72,7 +76,10 @@ impl ArticlesController {
     }
 
     async fn get(article_id: web::Path<Uuid>) -> impl Responder {
-        let service = get_expanded_article_service_factory::exec().await;
+        let service = match get_expanded_article_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
 
         let result = service.exec(GetExpandedArticleParams {
             article_id: article_id.into_inner(),
@@ -99,7 +106,7 @@ impl ArticlesController {
         }));
     }
 
-    async fn list() -> impl Responder {
+    async fn list(/* body: web::Json<listpa> */) -> impl Responder {
         return HttpResponse::Ok().finish();
     }
 
