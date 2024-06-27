@@ -76,3 +76,26 @@ Authorization: Bearer {{login.response.body.accessToken}}
 # @name get_expanded_article
 GET {{baseUrl}}/articles/3aaa17d3-hubbitossss/get
 Content-Type: application/json
+
+###
+
+# @name fetch_list_of_articles_as_user
+GET {{baseUrl}}/articles/list
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.accessToken}}
+
+{}
+
+###
+
+# @name fetch_list_of_articles_as_admin
+GET {{baseUrl}}/articles/list/admin
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.accessToken}}
+
+{
+    "approvedState": false
+}
+

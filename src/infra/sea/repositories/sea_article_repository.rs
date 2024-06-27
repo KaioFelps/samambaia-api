@@ -65,7 +65,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
         Ok(Some(mapped_article))
     }
 
-    async fn find_many(&self, params: PaginationParameters<ArticleQueryType>) -> Result<FindManyResponse, Box<dyn Error>> {
+    async fn find_many(&self, params: PaginationParameters<ArticleQueryType>, show_only_approved_state: Option<bool>) -> Result<FindManyResponse, Box<dyn Error>> {
         #[allow(unused_mut)]
         let mut articles_response;
 
@@ -77,12 +77,14 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
         articles_response = ArticleEntity::find()
         .order_by_desc(ArticleColumn::CreatedAt)
         .apply_if(params.clone().query, |#[allow(unused_mut)] mut query_builder, query| self.find_many_get_filters(query_builder, query))
+        .apply_if(show_only_approved_state, |query_builder, approved| query_builder.filter(ArticleColumn::Approved.eq(approved)))
         .limit(items_per_page)
         .offset(leap)
         .all(&self.sea_service.db).await?;
 
         let articles_count = ArticleEntity::find()
         .apply_if(params.query, |#[allow(unused_mut)] mut query_builder, query| self.find_many_get_filters(query_builder, query))
+        .apply_if(show_only_approved_state, |query_builder, approved| query_builder.filter(ArticleColumn::Approved.eq(approved)))
         .offset(leap)
         .count(&self.sea_service.db).await?;
 

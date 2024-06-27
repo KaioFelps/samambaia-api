@@ -21,7 +21,8 @@ pub enum ServiceArticleQueryType {
 pub struct FetchManyArticlesParams {
     pub page: Option<u32>,
     pub per_page: Option<u32>,
-    pub query: Option<ServiceArticleQueryType>
+    pub query: Option<ServiceArticleQueryType>,
+    pub approved_state: Option<bool>
 }
 
 pub struct FetchManyArticlesService<ArticleRepository, UserRepository>
@@ -71,11 +72,10 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
 
         let query = query.unwrap();
 
-        let response = self.article_repository.find_many(PaginationParameters {
-            items_per_page,
-            page,
-            query
-        }).await;
+        let response = self.article_repository.find_many(
+            PaginationParameters { items_per_page, page, query },
+            params.approved_state
+        ).await;
 
         if response.is_err() {
             error!(
@@ -144,7 +144,10 @@ mod test {
 
         let user = User::new("Floricultor".to_string(), "password".to_string(), Some(Role::Principal));
 
-        db.push(Article::new(user.id(), "Article 1 title".to_string(), "Article 1 content here".to_string(), "url".to_string()));
+        let mut approved_article = Article::new(user.id(), "Article 1 title".to_string(), "Article 1 content here".to_string(), "url".to_string());
+        approved_article.set_approved(true);
+
+        db.push(approved_article);
         db.push(Article::new(user.id(), "Article 2 title".to_string(), "Article 2 content here".to_string(), "url".to_string()));
 
         let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
@@ -166,7 +169,7 @@ mod test {
 
         mocked_article_repo
         .expect_find_many()
-        .returning(move |params| {
+        .returning(move |params, approved_status_filter| {
             let PaginationParameters { page, items_per_page, query } = params;
 
             let mut articles: Vec<Article> = Vec::new();
@@ -193,6 +196,11 @@ mod test {
                 articles = db.clone();
             }
 
+            if approved_status_filter.is_some() {
+                let approved_filter: bool = approved_status_filter.unwrap();
+                articles = articles.into_iter().filter(|article| article.approved().eq(&approved_filter)).collect::<Vec<Article>>();
+            }
+
             let total_of_items_before_paginating = articles.len();
 
             let leap = (page - 1) * items_per_page;
@@ -217,47 +225,67 @@ mod test {
 
         let fetch_many_articles_service = FetchManyArticlesService::new(Box::new(mocked_article_repo), Box::new(mocked_user_repo));
 
-        // make a request querying by title
-        let res = fetch_many_articles_service.exec(FetchManyArticlesParams {
-            page: Some(2),
-            per_page: Some(1),
-            query: Some(ServiceArticleQueryType::Title("article".to_string()))
-        }).await.unwrap();
+        let query_by_title_request = fetch_many_articles_service.exec(
+            FetchManyArticlesParams {
+                page: Some(2),
+                per_page: Some(1),
+                query: Some(ServiceArticleQueryType::Title("article".to_string())),
+                approved_state: None,
+            },
+        ).await.unwrap();
 
-        assert_eq!(1, res.data.len());
-        assert_eq!(res.pagination, PaginationResponse { current_page: 2, total_pages: 2, total_items: 2 });
-        assert_eq!(res.data[0].title(), "Article 2 title");
+        assert_eq!(1, query_by_title_request.data.len(), "Expected exactly one article with the queried title.");
+        assert_eq!(query_by_title_request.pagination, PaginationResponse { current_page: 2, total_pages: 2, total_items: 2 });
+        assert_eq!(query_by_title_request.data[0].title(), "Article 2 title", "Expected queried article to have title \"Article 2 title\".");
 
-        // make a request with no query
-        let res_2 = fetch_many_articles_service.exec(FetchManyArticlesParams {
+        let no_query_request = fetch_many_articles_service.exec(FetchManyArticlesParams {
             page: None,
             per_page: None,
             query: None,
+            approved_state: None,
         }).await.unwrap();
 
-        assert_eq!(2, res_2.data.len());
-        assert_eq!(res_2.pagination, PaginationResponse { current_page: 1, total_pages: 1, total_items: 2 });
-        assert_eq!(res_2.data[0].title(), "Article 1 title");
-        assert_eq!(res_2.data[1].title(), "Article 2 title");
+        assert_eq!(2, no_query_request.data.len(), "Expected to get all the 2 existing articles.");
+        assert_eq!(no_query_request.pagination, PaginationResponse { current_page: 1, total_pages: 1, total_items: 2 });
+        assert_eq!(no_query_request.data[0].title(), "Article 1 title");
+        assert_eq!(no_query_request.data[1].title(), "Article 2 title");
 
         // make a request querying by nickname that does not exist
-        let res_3 = fetch_many_articles_service.exec(FetchManyArticlesParams {
-            page: None,
-            per_page: None,
-            query: Some(ServiceArticleQueryType::Author("Vamp".to_string())),
-        }).await.unwrap_err();
+        let failing_query_by_unexisting_nickname_request = fetch_many_articles_service.exec(
+            FetchManyArticlesParams {
+                page: None,
+                per_page: None,
+                query: Some(ServiceArticleQueryType::Author("Vamp".to_string())),
+                approved_state: None
+            },
+        ).await.unwrap_err();
 
-        assert_eq!(res_3.code(), &StatusCode::NOT_FOUND);
+        assert_eq!(failing_query_by_unexisting_nickname_request.code(), &StatusCode::NOT_FOUND);
 
         // make a request querying by nickname that exists
-        let res_4 = fetch_many_articles_service.exec(FetchManyArticlesParams {
-            page: None,
-            per_page: None,
-            query: Some(ServiceArticleQueryType::Author("Floricultor".to_string())),
-        }).await.unwrap();
+        let query_by_nickname_request = fetch_many_articles_service.exec(
+            FetchManyArticlesParams {
+                page: None,
+                per_page: None,
+                query: Some(ServiceArticleQueryType::Author("Floricultor".to_string())),
+                approved_state: None
+            },
+        ).await.unwrap();
 
-        assert_eq!(2, res_4.data.len());
-        assert_eq!(res_4.pagination, PaginationResponse { current_page: 1, total_pages: 1, total_items: 2 });
+        assert_eq!(2, query_by_nickname_request.data.len());
+        assert_eq!(query_by_nickname_request.pagination, PaginationResponse { current_page: 1, total_pages: 1, total_items: 2 });
+
+        let query_approved_only_articles_request = fetch_many_articles_service.exec(
+            FetchManyArticlesParams {
+                page: None,
+                per_page: None,
+                query: None,
+                approved_state: Some(true)
+            }
+        ).await.unwrap();
+
+        assert_eq!(1, query_approved_only_articles_request.data.len(), "Expected only-approved-articles request to be 1 item length.");
+        assert_eq!(1, query_approved_only_articles_request.pagination.total_items, "Expected only-approved-articles request pagination total_items to be 1.")
 
         /* RESPONSE SAMPLE
 
