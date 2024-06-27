@@ -1,10 +1,10 @@
 use actix_web::{web, HttpResponse, Responder};
 use actix_web_lab::middleware::from_fn;
 use serde_json::json;
-use uuid::Uuid;
 use either::Either::*;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
+use crate::domain::domain_entities::slug::Slug;
 use crate::domain::factories::{create_article_service_factory, get_expanded_article_service_factory};
 use crate::domain::services::create_article_service::CreateArticleParams;
 use crate::domain::services::get_expanded_article_service::{FetchManyCommentsWithAuthorResponse, GetExpandedArticleParams, GetExpandedArticleResponse};
@@ -30,7 +30,7 @@ impl ControllerTrait for ArticlesController {
             ) 
 
             // READ
-            .route("/{id}/get", web::get().to(Self::get))
+            .route("/{slug}/get", web::get().to(Self::get))
             .route("/list", web::get().to(Self::list))
             
             // UPDATE
@@ -75,14 +75,14 @@ impl ArticlesController {
         return HttpResponse::Created().json(json!({"data": mapped_article}));
     }
 
-    async fn get(article_id: web::Path<Uuid>) -> impl Responder {
+    async fn get(article_slug: web::Path<String>) -> impl Responder {
         let service = match get_expanded_article_service_factory::exec().await {
             Left(service) => service,
             Right(error) => return error
         };
 
         let result = service.exec(GetExpandedArticleParams {
-            article_id: article_id.into_inner(),
+            article_slug: Slug::new_from_existing(article_slug.into_inner()),
             comments_per_page: Some(DEFAULT_PER_PAGE as u32,)
         }).await;
 

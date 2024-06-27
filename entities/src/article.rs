@@ -16,6 +16,7 @@ pub struct Model {
     pub cover_url: String,
     pub updated_at: Option<DateTime>,
     pub approved: bool,
+    #[sea_orm(unique)]
     pub slug: String,
 }
 

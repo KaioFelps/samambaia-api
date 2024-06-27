@@ -1,10 +1,10 @@
-use log::{error, info};
-use uuid::Uuid;
+use log::{error, debug};
 
 use crate::core::pagination::PaginationResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
+use crate::domain::domain_entities::slug::Slug;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::comment_user_article_repository::FindManyCommentsWithAuthorResponse;
 use crate::domain::repositories::comment_user_article_repository::CommentUserArticleRepositoryTrait;
@@ -18,7 +18,7 @@ use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::{R_EOL, LOG_SEP};
 
 pub struct GetExpandedArticleParams {
-    pub article_id: Uuid,
+    pub article_slug: Slug,
     pub comments_per_page: Option<u32>,
 }
 
@@ -68,7 +68,7 @@ impl<
             Some(per_page) => per_page
         };
 
-        let article = self.article_repository.find_by_id(params.article_id).await;
+        let article = self.article_repository.find_by_slug(&params.article_slug).await;
 
         if article.is_err() {
             error!(
@@ -82,7 +82,10 @@ impl<
         let article = article.unwrap();
 
         if article.is_none() {
-            info!("{R_EOL}{LOG_SEP}{R_EOL}Article returned None on Get Expanded Article Service.{R_EOL}{LOG_SEP}{R_EOL}");
+            debug!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Article returned None on Get Expanded Article Service. Searched by slug {}{R_EOL}{LOG_SEP}{R_EOL}",
+                params.article_slug.to_string()
+            );
 
             return Err(Box::new(ResourceNotFoundError::new()));
         }
@@ -154,6 +157,7 @@ mod test {
 
     use tokio;
     use std::sync::{Arc, Mutex};
+    use uuid::Uuid;
     
     use crate::domain::domain_entities::{comment_with_author::CommentWithAuthor, role::Role}; 
     use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
@@ -180,6 +184,7 @@ mod test {
         );
 
         let mocked_article_id = mocked_article.id();
+        let mocked_article_slug = mocked_article.slug();
         articles_db.lock().unwrap().push(mocked_article);
 
         let mocked_comm_1 = CommentWithAuthor::new(
@@ -218,12 +223,12 @@ mod test {
 
         let articles_db_to_move = Arc::clone(&articles_db);
         mocked_article_repository
-        .expect_find_by_id()
-        .returning(move |article_id| {
+        .expect_find_by_slug()
+        .returning(move |article_slug| {
             let mut article: Option<Article> = None;
 
             for item in articles_db_to_move.lock().unwrap().iter() {
-                if item.id().eq(&article_id) {
+                if item.slug().eq(article_slug) {
                     article = Some(item.clone());
                     break;
                 }
@@ -291,7 +296,7 @@ mod test {
         };
 
         let res = sut.exec(GetExpandedArticleParams {
-            article_id: mocked_article_id,
+            article_slug: mocked_article_slug,
             comments_per_page: None,
         }).await.unwrap();
 

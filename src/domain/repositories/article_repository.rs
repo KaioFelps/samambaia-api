@@ -4,6 +4,7 @@ use std::error::Error;
 
 use crate::domain::domain_entities::article::Article;
 use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::slug::Slug;
 
 #[cfg(test)]
 use mockall::automock;
@@ -27,6 +28,8 @@ pub trait ArticleRepositoryTrait {
     async fn create(&self, article: Article) -> Result<Article, Box<dyn Error>>;
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Article>, Box<dyn Error>>;
+
+    async fn find_by_slug(&self, slug: &Slug) -> Result<Option<Article>, Box<dyn Error>>;
 
     async fn find_many(&self, params: PaginationParameters<ArticleQueryType>) -> Result<FindManyResponse, Box<dyn Error>>;
 

@@ -6,6 +6,7 @@ use uuid::Uuid;
 use std::error::Error;
 
 use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::slug::Slug;
 use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyResponse};
 use crate::domain::domain_entities::article::Article;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
@@ -42,6 +43,18 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Article>, Box<dyn Error>> {
         let article = ArticleEntity::find_by_id(id).one(&self.sea_service.db).await?;
+
+        if article.is_none() {
+            return Ok(None);
+        }
+
+        let mapped_article = SeaArticleMapper::model_to_article(article.unwrap());
+
+        Ok(Some(mapped_article))
+    }
+
+    async fn find_by_slug(&self, slug: &Slug) -> Result<Option<Article>, Box<dyn Error>> {
+        let article = ArticleEntity::find().filter(ArticleColumn::Slug.eq(slug.to_string())).one(&self.sea_service.db).await?;
 
         if article.is_none() {
             return Ok(None);

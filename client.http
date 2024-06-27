@@ -67,12 +67,12 @@ Authorization: Bearer {{login.response.body.accessToken}}
 {
     // "authorId": "we can omit this to use the auth user as the article's author!",
     "coverUrl": "https://habbotoolss.weebly.com/uploads/1/3/3/8/13386862/4988184.png",
-    "title": "Hubbitos!",
+    "title": "Hubbitossss!",
     "content": "<h1>O maioral do habbo está chegando aí!</h1>"
 }
 
 ###
 
 # @name get_expanded_article
-GET {{baseUrl}}/articles/f1b8d187-1317-425c-b175-ad57502558b2/get
+GET {{baseUrl}}/articles/3aaa17d3-hubbitossss/get
 Content-Type: application/json
