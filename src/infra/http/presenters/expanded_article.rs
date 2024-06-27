@@ -18,7 +18,7 @@ pub struct MappedExpandedArticle {
     updated_at: Option<DateTime>,
     slug: String,
 
-    user: MappedUser,
+    author: MappedUser,
 
     comments: MappedExpandedArticleComments
 }
@@ -43,7 +43,7 @@ impl ExpandedArticlePresenter {
             created_at: article.created_at(),
             updated_at: article.updated_at(),
 
-            user: UserPresenter::to_http(author),
+            author: UserPresenter::to_http(author),
 
             comments: MappedExpandedArticleComments {
                 data: comments.into_iter().map(CommentPresenter::to_http).collect(),

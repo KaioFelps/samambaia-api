@@ -1,9 +1,11 @@
 use log::{error, debug};
+use uuid::Uuid;
 
 use crate::core::pagination::PaginationResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
+use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::slug::Slug;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::comment_user_article_repository::FindManyCommentsWithAuthorResponse;
@@ -14,12 +16,15 @@ use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
+use crate::util::{verify_role_has_permission, RolePermissions};
 
 use crate::{R_EOL, LOG_SEP};
 
-pub struct GetExpandedArticleParams {
+pub struct GetExpandedArticleParams<'exec> {
     pub article_slug: Slug,
     pub comments_per_page: Option<u32>,
+    pub user_role: Option<&'exec Role>,
+    pub user_id: Option<&'exec Uuid>,
 }
 
 #[derive(Debug)]
@@ -62,7 +67,7 @@ impl<
         }
     }
 
-    pub async fn exec(&self, params: GetExpandedArticleParams) -> Result<GetExpandedArticleResponse, Box<dyn DomainErrorTrait>> {
+    pub async fn exec<'exec>(&self, params: GetExpandedArticleParams<'exec>) -> Result<GetExpandedArticleResponse, Box<dyn DomainErrorTrait>> {
         let items_per_page = match params.comments_per_page {
             None => DEFAULT_PER_PAGE as u32,
             Some(per_page) => per_page
@@ -91,6 +96,23 @@ impl<
         }
 
         let article = article.unwrap();
+
+        let user_can_see_article = {
+            if params.user_id.is_none() || params.user_role.is_none() {
+                false
+            } else if article.author_id().eq(params.user_id.unwrap()) {
+                true
+            } else if verify_role_has_permission(params.user_role.unwrap(), RolePermissions::SeeUnapprovedArticle) {
+                true
+            } else {
+                false
+            }
+        };
+
+        if !article.approved() && !user_can_see_article {
+            debug!("{R_EOL}{LOG_SEP}{R_EOL}Article returned None on Get Expanded Article Service because user are not allowed to see it.{R_EOL}{LOG_SEP}{R_EOL}");
+            return Err(Box::new(ResourceNotFoundError::new()));
+        }
 
         let comments = self.comment_user_article_repository.find_many_comments(
             article.id(),
@@ -295,16 +317,18 @@ mod test {
             article_repository: Box::new(mocked_article_repository),
         };
 
-        let res = sut.exec(GetExpandedArticleParams {
-            article_slug: mocked_article_slug,
+        let allowed_result = sut.exec(GetExpandedArticleParams {
+            article_slug: mocked_article_slug.clone(),
             comments_per_page: None,
+            user_id: Some(&user_id),
+            user_role: Some(&Role::Editor),
         }).await.unwrap();
 
         let GetExpandedArticleResponse {
         article,
         article_author,
         comments
-        } = res;
+        } = allowed_result;
 
         let FetchManyCommentsWithAuthorResponse {
             data,
@@ -316,5 +340,17 @@ mod test {
         assert_eq!(2, pagination.total_items);
         assert_eq!(mocked_article_id, article.id());
         assert_eq!(user_id, article_author.id());
+
+        let unauthorized_result = sut.exec(GetExpandedArticleParams {
+            article_slug: mocked_article_slug,
+            comments_per_page: None,
+            user_id: None,
+            user_role: None,
+        }).await;
+
+        assert!(
+            unauthorized_result.is_err(),
+            "Expected a user not to be able to see an unapproved article if it's not the author and nor has the permission to see unapproved articles."
+        );
     }
 }

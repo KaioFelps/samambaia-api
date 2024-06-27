@@ -76,6 +76,7 @@ Authorization: Bearer {{login.response.body.accessToken}}
 # @name get_expanded_article
 GET {{baseUrl}}/articles/3aaa17d3-hubbitossss/get
 Content-Type: application/json
+Authorization: Bearer {{login.response.body.accessToken}}
 
 ###
 

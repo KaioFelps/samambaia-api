@@ -83,15 +83,30 @@ impl ArticlesController {
         return HttpResponse::Created().json(json!({"data": mapped_article}));
     }
 
-    async fn get(article_slug: web::Path<String>) -> impl Responder {
+    async fn get(
+        article_slug: web::Path<String>,
+        user: Option<web::ReqData<ReqUser>>
+    ) -> impl Responder {
         let service = match get_expanded_article_service_factory::exec().await {
             Left(service) => service,
             Right(error) => return error
         };
 
+        let user = match user {
+            None => None,
+            Some(user) => Some(user)
+        };
+
+        let (user_id, user_role) = match &user {
+            None => (None, None),
+            Some(user) => (Some(&user.user_id), Some(user.user_role.as_ref().unwrap()))
+        };
+
         let result = service.exec(GetExpandedArticleParams {
             article_slug: Slug::new_from_existing(article_slug.into_inner()),
-            comments_per_page: Some(DEFAULT_PER_PAGE as u32,)
+            comments_per_page: Some(DEFAULT_PER_PAGE as u32),
+            user_id,
+            user_role,
         }).await;
 
         if result.is_err() {
