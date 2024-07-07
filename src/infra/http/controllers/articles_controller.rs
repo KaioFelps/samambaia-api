@@ -2,17 +2,20 @@ use actix_web::{web, HttpResponse, Responder};
 use actix_web_lab::middleware::from_fn;
 use serde_json::json;
 use either::Either::*;
+use uuid::Uuid;
 use validator::Validate;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::slug::Slug;
-use crate::domain::factories::{create_article_service_factory, fetch_many_articles_service_factory, get_expanded_article_service_factory};
+use crate::domain::factories::{create_article_service_factory, fetch_many_articles_service_factory, get_expanded_article_service_factory, update_article_service_factory};
 use crate::domain::services::create_article_service::CreateArticleParams;
 use crate::domain::services::fetch_many_articles_service::{FetchManyArticlesParams, ServiceArticleQueryType};
 use crate::domain::services::get_expanded_article_service::{FetchManyCommentsWithAuthorResponse, GetExpandedArticleParams, GetExpandedArticleResponse};
+use crate::domain::services::update_article_service::UpdateArticleParams;
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
 use crate::infra::http::dtos::list_articles::ListArticlesDto;
+use crate::infra::http::dtos::update_article::UpdateArticleDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::article::MappedArticle;
@@ -42,7 +45,7 @@ impl ControllerTrait for ArticlesController {
             .route("/list/admin", web::get().to(Self::admin_list).wrap(from_fn(authentication_middleware)))
             
             // UPDATE
-            .route("/{id}/update", web::put().to(Self::update))
+            .route("/{id}/update", web::put().to(Self::update).wrap(from_fn(authentication_middleware)))
 
             // DELETE
             .route("/{id}/delete", web::put().to(Self::delete))
@@ -130,12 +133,9 @@ impl ArticlesController {
     }
 
     async fn list(body: web::Json<ListArticlesDto>) -> impl Responder {
-        let req_body = match body.validate() {
+        let req_body: ListArticlesDto = match body.validate() {
             Ok(()) => body.into_inner(),
-            Err(err) => {
-                return HttpResponse::BadRequest()
-                .json(ErrorPresenter::to_http_from_validator(err.field_errors()));
-            }
+            Err(err) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(err.field_errors())),
         };
 
         return Self::get_list_of_articles(
@@ -148,12 +148,9 @@ impl ArticlesController {
     }
 
     async fn admin_list(body: web::Json<AdminListArticlesDto>) -> impl Responder {
-        let req_body = match body.validate() {
+        let req_body: AdminListArticlesDto = match body.validate() {
             Ok(()) => body.into_inner(),
-            Err(err) => {
-                return HttpResponse::BadRequest()
-                .json(ErrorPresenter::to_http_from_validator(err.field_errors()));
-            }
+            Err(err) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(err.field_errors())),
         };
 
         return Self::get_list_of_articles(
@@ -165,8 +162,37 @@ impl ArticlesController {
         ).await;
     }
 
-    async fn update() -> impl Responder {
-        return HttpResponse::NoContent().finish();
+    async fn update(user: web::ReqData<ReqUser>, body: web::Json<UpdateArticleDto>, article_id: web::Path<Uuid>) -> impl Responder {
+        let UpdateArticleDto {title, approved, cover_url, content, author_id} = match body.validate() {
+            Err(e) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(e.field_errors())),
+            Ok(()) => body.into_inner()
+        };
+
+        let service = match update_article_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
+
+        let ReqUser {user_role, user_id, ..} = user.into_inner();
+
+        let result = service.exec( UpdateArticleParams {
+            user_id,
+            user_role: user_role.unwrap(),
+            content,
+            cover_url,
+            approved,
+            article_id: article_id.into_inner(),
+            title,
+            author_id,
+        }).await;
+
+        if result.is_err() {
+            return generate_error_response(result.unwrap_err());
+        }
+
+        let mapped_article = ArticlePresenter::to_http(result.unwrap());
+
+        return HttpResponse::Ok().json(json!({"data": mapped_article}));
     }
 
     async fn delete() -> impl Responder {

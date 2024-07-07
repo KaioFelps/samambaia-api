@@ -20,6 +20,7 @@ pub struct UpdateArticleParams {
     pub title: Option<String>,
     pub content: Option<String>,
     pub approved: Option<bool>,
+    pub author_id: Option<Uuid>
 }
 pub struct UpdateArticleService<ArticleRepository: ArticleRepositoryTrait> {
     article_repository: Box<ArticleRepository>,
@@ -83,24 +84,34 @@ impl
 
         if !user_can_update && !user_is_author { return Err(Box::new(UnauthorizedError::new())); }
 
-        // if user is autho but does no longer belong to the team, he can't delete his own article either.
+        // if user is author but does no longer belong to the team, he can't delete his own article either.
         if user_is_author && params.user_role == Role::User { return Err(Box::new(UnauthorizedError::new())); }
 
-        // article modifying
+        let user_can_change_article_author = verify_role_has_permission(
+            &params.user_role,
+            RolePermissions::ChangeArticleAuthor
+        );
 
-        if !params.content.is_none() {
+        if !user_can_change_article_author && params.author_id.is_some() { return Err(Box::new(UnauthorizedError::new())) }
+
+        // article modifying
+        if params.author_id.is_some() {
+            article.set_author_id(params.author_id.unwrap())
+        }
+
+        if params.content.is_some() {
             article.set_content(params.content.unwrap())
         }
 
-        if !params.title.is_none() {
+        if params.title.is_some() {
             article.set_title(params.title.unwrap());
         }
 
-        if !params.cover_url.is_none() {
+        if params.cover_url.is_some() {
             article.set_cover_url(params.cover_url.unwrap());
         }
 
-        if !params.approved.is_none() {
+        if params.approved.is_some() {
             article.set_approved(params.approved.unwrap());
         }
 
@@ -209,6 +220,7 @@ mod test {
             title: None,
             content: None,
             cover_url: None,
+            author_id: None,
         }).await;
 
         assert_eq!(result.unwrap_err().code(), &StatusCode::UNAUTHORIZED); // writter can't approve any article
@@ -221,6 +233,7 @@ mod test {
             title: Some("Título atualizado".to_string()),
             content: Some("Conteúdo atualizado".to_string()),
             cover_url: None,
+            author_id: None,
         }).await;
 
         assert_eq!("Título atualizado", result.unwrap().title());

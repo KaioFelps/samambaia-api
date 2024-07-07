@@ -10,6 +10,7 @@ pub enum RolePermissions {
     ApproveArticle,
     DisapproveArticle,
     SeeUnapprovedArticle,
+    ChangeArticleAuthor,
     DeleteArticle,
 
     InactivateComment,
@@ -36,7 +37,7 @@ impl RolePermissions {
         let perms_editor = [&perms_writter[..], &[UpdateArticle, ApproveArticle, SeeUnapprovedArticle]].concat();
         let perms_coord = [&perms_editor[..], &[DisapproveArticle, InactivateComment, SolveReport]].concat();
         let perms_admin = [&perms_coord[..], &[UpdateUser, DeleteComment, CreateTeamUser, UpdateTeamUser, DeleteTeamUser]].concat();
-        let perms_principal = [&perms_admin[..], &[ChangeUserPassword, DeleteArticle, DeleteReport, CreateNewTeamRole, UpdateTeamRole]].concat();
+        let perms_principal = [&perms_admin[..], &[ChangeUserPassword, DeleteArticle, DeleteReport, CreateNewTeamRole, UpdateTeamRole, ChangeArticleAuthor]].concat();
         let perms_ceo = [&perms_principal[..], &[DeleteTeamRole]].concat();
     
         match role {

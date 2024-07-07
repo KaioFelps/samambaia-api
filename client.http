@@ -100,3 +100,17 @@ Authorization: Bearer {{login.response.body.accessToken}}
     "approvedState": false
 }
 
+###
+
+# @name update_article
+PUT {{baseUrl}}/articles/3aaa17d3-9279-4fec-a4af-812dfc63e1ee/update
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{login.response.body.accessToken}}
+
+{
+    "approved": true,
+    "title": "Título editado"
+}
+
+###
