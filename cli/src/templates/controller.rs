@@ -24,7 +24,7 @@ impl ControllerTrait for {capitalized_entity}sController {{
             .route("/{{id}}/update", web::put().to(Self::update))
 
             // DELETE
-            .route("/{{id}}/delete", web::put().to(Self::delete))
+            .route("/{{id}}/delete", web::delete().to(Self::delete))
         );
     }}
 }}
