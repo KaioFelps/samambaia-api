@@ -7,8 +7,15 @@ use validator::Validate;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::slug::Slug;
-use crate::domain::factories::{create_article_service_factory, fetch_many_articles_service_factory, get_expanded_article_service_factory, update_article_service_factory};
+use crate::domain::factories::{
+    create_article_service_factory,
+    fetch_many_articles_service_factory,
+    get_expanded_article_service_factory,
+    update_article_service_factory,
+    delete_article_service_factory
+};
 use crate::domain::services::create_article_service::CreateArticleParams;
+use crate::domain::services::delete_article_service::DeleteArticleParams;
 use crate::domain::services::fetch_many_articles_service::{FetchManyArticlesParams, ServiceArticleQueryType};
 use crate::domain::services::get_expanded_article_service::{FetchManyCommentsWithAuthorResponse, GetExpandedArticleParams, GetExpandedArticleResponse};
 use crate::domain::services::update_article_service::UpdateArticleParams;
@@ -48,7 +55,7 @@ impl ControllerTrait for ArticlesController {
             .route("/{id}/update", web::put().to(Self::update).wrap(from_fn(authentication_middleware)))
 
             // DELETE
-            .route("/{id}/delete", web::put().to(Self::delete))
+            .route("/{id}/delete", web::delete().to(Self::delete).wrap(from_fn(authentication_middleware)))
         );
     }
 }
@@ -195,7 +202,22 @@ impl ArticlesController {
         return HttpResponse::Ok().json(json!({"data": mapped_article}));
     }
 
-    async fn delete() -> impl Responder {
+    async fn delete(req_user: web::ReqData<ReqUser>, article_id: web::Path<Uuid>) -> impl Responder {
+        let service = match delete_article_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
+
+        let response = service.exec(DeleteArticleParams {
+            user_id: req_user.user_id,
+            article_id: article_id.into_inner(),
+        }).await;
+
+        if response.is_err() {
+            let error = response.unwrap_err();
+            return generate_error_response(error);
+        }
+
         return HttpResponse::NoContent().finish();
     }
 

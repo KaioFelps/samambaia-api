@@ -7,8 +7,8 @@ POST {{baseUrl}}/session/login
 Content-Type: application/json
 
 {
-    "nickname": "Cinthia",
-    "password": "123456a"
+    "nickname": "Cinthia2",
+    "password": "12345"
 }
 
 ###
@@ -114,3 +114,7 @@ Authorization: Bearer {{login.response.body.accessToken}}
 }
 
 ###
+
+# @name delete_article
+DELETE {{baseUrl}}/articles/f1b8d187-1317-425c-b175-ad57502558b2/delete
+Authorization: Bearer {{login.response.body.accessToken}}
