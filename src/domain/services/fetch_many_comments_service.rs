@@ -74,19 +74,18 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
                 "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Comments Service, while parsing the query: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
                 err.as_ref()
             );
-            
+
             return Err(err)
         }
 
         let query = query.unwrap();
 
-        let response =
-        self.article_comment_repository.
-        find_many_comments(article_id, include_inactive, PaginationParameters {
-            items_per_page,
-            page,
-            query
-        }).await;
+        let response = self.article_comment_repository.
+            find_many_comments(article_id, include_inactive, PaginationParameters {
+                items_per_page,
+                page,
+                query
+            }).await;
 
         if response.is_err() {
             error!(
@@ -109,7 +108,7 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
             }
         })
     }
-    
+
     async fn parse_query(&self, query: Option<ServiceCommentQueryType>) -> Result<Option<CommentQueryType>, Box<dyn DomainErrorTrait>> {
         if query.is_none() {
             return Ok(None);
@@ -138,7 +137,7 @@ FetchManyCommentsService<ArticleCommentRepository, UserRepository> {
             ServiceCommentQueryType::Content(content) => {
                 Ok(Some(CommentQueryType::Content(content)))
             }
-        }        
+        }
     }
 }
 
