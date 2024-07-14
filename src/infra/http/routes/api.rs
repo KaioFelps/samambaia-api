@@ -1,6 +1,7 @@
 use actix_web::web;
 
 use crate::infra::http::controllers::articles_controller::ArticlesController;
+use crate::infra::http::controllers::comments_controller::CommentsController;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::sessions_controller::SessionsController;
 use crate::infra::http::middlewares::RequestUserMiddleware;
@@ -17,6 +18,7 @@ impl RouteTrait for ApiRoutes {
             .configure(UsersController::register)
             .configure(SessionsController::register)
             .configure(ArticlesController::register)
+            .configure(CommentsController::register)
         );
     }
 }
