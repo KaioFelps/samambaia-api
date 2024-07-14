@@ -2,6 +2,13 @@ use crate::domain::domain_entities::{comment_with_author::CommentWithAuthor, rol
 use chrono::NaiveDateTime as DateTime;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
+use crate::domain::domain_entities::comment::Comment;
+
+#[derive(Serialize, Deserialize)]
+struct MappedCommentAuthor {
+    nickname: String,
+    role: Role
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct MappedComment {
@@ -9,12 +16,19 @@ pub struct MappedComment {
     content: String,
     #[serde(rename = "createdAt")]
     created_at: DateTime,
-    #[serde(rename = "author.nickname")]
-    author_nickname: String,
-    #[serde(rename = "author.role")]
-    author_role: Role
+    author: MappedCommentAuthor
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct MappedRawComment {
+    id: Uuid,
+    content: String,
+    #[serde(rename = "createdAt")]
+    created_at: DateTime,
+    #[serde(rename = "isActive")]
+    is_active: bool,
+    author_id: Uuid
+}
 
 pub struct CommentPresenter;
 
@@ -23,9 +37,21 @@ impl CommentPresenter {
         let author = comment.author();
         MappedComment {
             id: comment.id(),
-            author_nickname: author.nickname().to_owned(),
-            author_role: author.role().unwrap(),
             content: comment.content().to_owned(),
+            created_at: comment.created_at(),
+            author: MappedCommentAuthor {
+                nickname: author.nickname().to_owned(),
+                role: author.role().unwrap(),
+            }
+        }
+    }
+    
+    pub fn to_http_raw(comment: Comment) -> MappedRawComment {
+        MappedRawComment {
+            id: comment.id(),
+            author_id: comment.author_id(),
+            content: comment.content().to_owned(),
+            is_active: comment.is_active(),
             created_at: comment.created_at()
         }
     }
