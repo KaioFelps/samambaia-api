@@ -7,3 +7,6 @@ pub mod create_article;
 pub mod list_articles;
 pub mod list_article_admin;
 pub mod update_article;
+pub mod comment_on_article;
+pub mod list_comments;
+pub mod simple_pagination_query;
