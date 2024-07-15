@@ -34,7 +34,7 @@ impl ControllerTrait for CommentsController {
             // Get a comments list
             .route("/list/admin", web::get().to(Self::admin_list).wrap(from_fn(authentication_middleware)))
             // Deactivate comment visibility
-            .route("/{id}/deactivate", web::put().to(Self::disable_visibility).wrap(from_fn(authentication_middleware)))
+            .route("/{id}/deactivate", web::patch().to(Self::disable_visibility).wrap(from_fn(authentication_middleware)))
             // Definitely delete a comment
             .route("/{id}/delete", web::delete().to(Self::delete).wrap(from_fn(authentication_middleware)))
         );
