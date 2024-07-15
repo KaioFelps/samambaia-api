@@ -5,10 +5,11 @@ use serde_json::json;
 use uuid::Uuid;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use super::controller::ControllerTrait;
-use crate::domain::factories::{comment_on_article_service_factory, fetch_many_comments_with_author_service_factory};
+use crate::domain::factories::{comment_on_article_service_factory, delete_comment_service_factory, fetch_many_comments_with_author_service_factory};
 use crate::domain::factories::fetch_many_comments_service_factory;
 use crate::domain::factories::toggle_comment_visibility_service_factory;
 use crate::domain::services::comment_on_article_service::CommentOnArticleParams;
+use crate::domain::services::delete_comment_service::DeleteCommentParams;
 use crate::domain::services::fetch_many_comments_service::{FetchManyCommentsParams, ServiceCommentQueryType};
 use crate::domain::services::fetch_many_comments_with_author_service::FetchManyArticleCommentsWithAuthorParams;
 use crate::domain::services::toggle_comment_visibility_service::ToggleCommentVisibilityParams;
@@ -26,18 +27,16 @@ pub struct CommentsController;
 impl ControllerTrait for CommentsController {
     fn register(cfg: &mut web::ServiceConfig) {
         cfg.service(web::scope("/comments")
-            // CREATE
+            // Comment on an article
             .route("/{article_id}/new", web::post().to(Self::create).wrap(from_fn(authentication_middleware)))
-
-            // READ
+            // Get an article's comments with author list
             .route("/{article_id}/list", web::get().to(Self::list))
+            // Get a comments list
             .route("/list/admin", web::get().to(Self::admin_list).wrap(from_fn(authentication_middleware)))
-
-            // UPDATE
+            // Deactivate comment visibility
             .route("/{id}/deactivate", web::put().to(Self::disable_visibility).wrap(from_fn(authentication_middleware)))
-
-            // DELETE
-            .route("/{id}/delete", web::delete().to(Self::delete))
+            // Definitely delete a comment
+            .route("/{id}/delete", web::delete().to(Self::delete).wrap(from_fn(authentication_middleware)))
         );
     }
 }
@@ -170,7 +169,27 @@ impl CommentsController {
         return HttpResponse::NoContent().finish();
     }
 
-    async fn delete() -> impl Responder {
+    async fn delete(
+        comment_id: web::Path<Uuid>,
+        user: web::ReqData<ReqUser>
+    ) -> impl Responder {
+        let service = match delete_comment_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error,
+        };
+
+        let ReqUser {user_role, user_id, exp: _} = user.into_inner();
+
+        let result = service.exec(DeleteCommentParams {
+            comment_id: comment_id.into_inner(),
+            user_id,
+            staff_role: user_role.unwrap(),
+        }).await;
+
+        if result.is_err() {
+            return generate_error_response(result.unwrap_err());
+        }
+
         return HttpResponse::NoContent().finish();
     }
 }
