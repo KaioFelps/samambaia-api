@@ -11,8 +11,8 @@ use crate::util::{verify_role_has_permission, RolePermissions};
 
 use crate::{LOG_SEP, R_EOL};
 
-pub struct ToggleCommentVisibilityParams {
-    pub user_role: Role,
+pub struct ToggleCommentVisibilityParams<'exec> {
+    pub user_role: &'exec Role,
     pub comment_id: Uuid
 }
 
@@ -30,7 +30,7 @@ ToggleCommentVisibilityService<CommentRepository> {
         }
     }
 
-    pub async fn exec(&self, params: ToggleCommentVisibilityParams) -> Result<Comment, Box<dyn DomainErrorTrait>> {
+    pub async fn exec<'exec>(&self, params: ToggleCommentVisibilityParams<'exec>) -> Result<Comment, Box<dyn DomainErrorTrait>> {
         let user_can_toggle_visibility = verify_role_has_permission(&params.user_role, RolePermissions::InactivateComment);
 
         if !user_can_toggle_visibility {
@@ -123,13 +123,13 @@ mod test {
             Ok(comment)
         });
 
-        // SERVICE INSTANCIATING
+        // SERVICE INSTANTIATING
         let sut = ToggleCommentVisibilityService {
             comment_repository: Box::new(mocked_comment_repo)
         };
 
         let res = sut.exec(ToggleCommentVisibilityParams {
-            user_role: Role::Editor,
+            user_role: &Role::Editor,
             comment_id: comment.id(),
         }).await;
 
@@ -137,7 +137,7 @@ mod test {
         assert_eq!(true, comment_db.lock().unwrap()[0].is_active());
 
         let res = sut.exec(ToggleCommentVisibilityParams {
-            user_role: Role::Coord,
+            user_role: &Role::Coord,
             comment_id: comment.id(),
         }).await;
 

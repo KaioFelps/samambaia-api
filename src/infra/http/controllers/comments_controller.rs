@@ -7,9 +7,11 @@ use crate::core::pagination::DEFAULT_PER_PAGE;
 use super::controller::ControllerTrait;
 use crate::domain::factories::{comment_on_article_service_factory, fetch_many_comments_with_author_service_factory};
 use crate::domain::factories::fetch_many_comments_service_factory;
+use crate::domain::factories::toggle_comment_visibility_service_factory;
 use crate::domain::services::comment_on_article_service::CommentOnArticleParams;
 use crate::domain::services::fetch_many_comments_service::{FetchManyCommentsParams, ServiceCommentQueryType};
 use crate::domain::services::fetch_many_comments_with_author_service::FetchManyArticleCommentsWithAuthorParams;
+use crate::domain::services::toggle_comment_visibility_service::ToggleCommentVisibilityParams;
 use crate::infra::http::dtos::comment_on_article::CommentOnArticleDto;
 use crate::infra::http::dtos::list_comments::ListCommentsDto;
 use crate::infra::http::dtos::simple_pagination_query::SimplePaginationQueryDto;
@@ -32,7 +34,7 @@ impl ControllerTrait for CommentsController {
             .route("/list/admin", web::get().to(Self::admin_list).wrap(from_fn(authentication_middleware)))
 
             // UPDATE
-            .route("/{id}/update", web::put().to(Self::update))
+            .route("/{id}/deactivate", web::put().to(Self::disable_visibility).wrap(from_fn(authentication_middleware)))
 
             // DELETE
             .route("/{id}/delete", web::delete().to(Self::delete))
@@ -145,7 +147,26 @@ impl CommentsController {
         }));
     }
 
-    async fn update() -> impl Responder {
+    async fn disable_visibility(
+        user: web::ReqData<ReqUser>,
+        comment_id: web::Path<Uuid>
+    ) -> impl Responder {
+        let service = match toggle_comment_visibility_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error,
+        };
+
+        let user_role = &user.user_role;
+
+        let result = service.exec(ToggleCommentVisibilityParams {
+            user_role: user_role.as_ref().unwrap(),
+            comment_id: comment_id.into_inner(),
+        }).await;
+
+        if result.is_err() {
+            return generate_error_response(result.unwrap_err());
+        }
+
         return HttpResponse::NoContent().finish();
     }
 
