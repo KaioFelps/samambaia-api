@@ -20,7 +20,7 @@ hubbitos-cli generate service "service name" --dir new/path
 ```
 
 This will generate a service just like:
-```rs
+```rust
 use std::error::Error;
 
 pub struct ServiceNameParams {}
@@ -54,7 +54,7 @@ hubbitos-cli generate repository "repository name" --dir "src/custom/path"
 ```
 
 This will generate a repository like:
-```rs
+```rust
 use async_trait::async_trait;
 use std::error::Error;
 
@@ -72,10 +72,11 @@ Generate a controller on `src/infra/http/controllers/` and append it on `src/inf
 hubbitos-cli generate controller "user"
 # you can also overwrite the default directory with --dir flag
 # note that the domain entity is written in lowercase singular
+# for compound names, simply add whitespaces, ie: "comment report"
 ```
 
 This command would generate a following `src/infra/http/controllers/users_controller.rs` file:
-```rs
+```rust
 use actix_web::{web, HttpResponse, Responder};
 
 use super::controller::ControllerTrait;
