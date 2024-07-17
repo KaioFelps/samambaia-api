@@ -4,13 +4,24 @@ use either::{Left, Right};
 use serde_json::json;
 use uuid::Uuid;
 use validator::Validate;
-use crate::domain::factories::create_comment_report_service_factory;
+use crate::core::pagination::DEFAULT_PER_PAGE;
+use crate::domain::factories::{
+    create_comment_report_service_factory,
+    delete_comment_report_service_factory,
+    solve_comment_report_service_factory,
+    fetch_many_comment_reports_service_factory
+};
 use crate::domain::services::create_comment_report_service::CreateCommentReportParams;
+use crate::domain::services::fetch_many_comment_reports_service::{CommentReportServiceQuery, FetchManyCommentReportsParams};
 use crate::infra::http::dtos::create_comment_report::CreateCommentReportDto;
+use crate::infra::http::dtos::list_comment_reports::ListCommentReportsDto;
+use crate::infra::http::dtos::simple_pagination_query::SimplePaginationQueryDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
-use crate::infra::http::presenters::comment_report::CommentReportPresenter;
+use crate::infra::http::presenters::comment_report::{CommentReportPresenter, MappedCommentReport};
 use crate::infra::http::presenters::error::ErrorPresenter;
+use crate::infra::http::presenters::pagination::PaginationPresenter;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::util::generate_error_response;
 use super::controller::ControllerTrait;
 
@@ -19,18 +30,17 @@ pub struct CommentReportsController;
 impl ControllerTrait for CommentReportsController {
     fn register(cfg: &mut web::ServiceConfig) {
         cfg.service(web::scope("/comment_reports")
-            // CREATE
+            // REPORT A COMMENT
             .route("/{comment_id}/new", web::post().to(Self::create).wrap(from_fn(authentication_middleware)))
 
-            // READ
-            .route("/{id}/get", web::get().to(Self::get))
-            .route("/list", web::get().to(Self::list))
+            // GET A PAGINATED LIST OF COMMENT REPORTS
+            .route("/list", web::get().to(Self::list).wrap(from_fn(authentication_middleware)))
             
-            // UPDATE
-            .route("/{id}/update", web::put().to(Self::update))
+            // SOLVE A COMMENT REPORT
+            .route("/{id}/solve", web::patch().to(Self::update).wrap(from_fn(authentication_middleware)))
 
-            // DELETE
-            .route("/{id}/delete", web::delete().to(Self::delete))
+            // DESTROY A COMMENT REPORT
+            .route("/{id}/delete", web::delete().to(Self::delete).wrap(from_fn(authentication_middleware)))
         );
     }
 }
@@ -69,12 +79,49 @@ impl CommentReportsController {
         return HttpResponse::Created().json(json!({"data": mapped_comment_report}));
     }
 
-    async fn get() -> impl Responder {
-        return HttpResponse::Ok().finish();
-    }
+    async fn list(query: web::Path<ListCommentReportsDto>) -> impl Responder {
+        let service = match fetch_many_comment_reports_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error,
+        };
 
-    async fn list() -> impl Responder {
-        return HttpResponse::Ok().finish();
+        let ListCommentReportsDto {
+            per_page,
+            page,
+            solved,
+            solved_by,
+            content
+        } = query.into_inner();
+
+        let query = {
+            if solved_by.is_some() {
+                Some(CommentReportServiceQuery::SolvedBy(solved_by.unwrap()))
+            } else if solved.is_some() {
+                Some(CommentReportServiceQuery::Solved(solved.unwrap()))
+            } else if content.is_some() {
+                Some(CommentReportServiceQuery::Content(content.unwrap()))
+            } else {
+                None
+            }
+        };
+
+        let result = service.exec(FetchManyCommentReportsParams {
+            query,
+            per_page: if per_page.is_some() { Some(per_page.unwrap() as u32) } else { None },
+            page
+        }).await;
+
+        if result.is_err() {
+            return generate_error_response(result.unwrap_err());
+        }
+
+        let comment_reports_paginated_data = result.unwrap();
+        let mapped_reports = comment_reports_paginated_data.data.into_iter().map(CommentReportPresenter::to_http).collect::<Vec<MappedCommentReport>>();
+
+        return HttpResponse::Ok().json(CommentReportPresenter::to_json_paginated_wrapper(
+            mapped_reports,
+            PaginationPresenter::to_http(comment_reports_paginated_data.pagination, per_page.unwrap_or(DEFAULT_PER_PAGE))
+        ));
     }
 
     async fn update() -> impl Responder {
