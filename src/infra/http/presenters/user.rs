@@ -3,7 +3,7 @@ use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::{role::Role, user::User};
-
+use crate::infra::http::presenters::presenter::PresenterTrait;
 #[derive(Serialize, Deserialize)]
 #[allow(non_snake_case)]
 pub struct MappedUser {
@@ -15,8 +15,8 @@ pub struct MappedUser {
 
 pub struct UserPresenter;
 
-impl UserPresenter {
-    pub fn to_http(user: User) -> MappedUser {
+impl PresenterTrait<User, MappedUser> for UserPresenter {
+    fn to_http(user: User) -> MappedUser {
         MappedUser {
             nickname: user.nickname().into(),
             id: user.id(),

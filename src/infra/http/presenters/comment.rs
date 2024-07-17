@@ -3,6 +3,7 @@ use chrono::NaiveDateTime as DateTime;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use crate::domain::domain_entities::comment::Comment;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 
 #[derive(Serialize, Deserialize)]
 struct MappedCommentAuthor {
@@ -32,8 +33,8 @@ pub struct MappedRawComment {
 
 pub struct CommentPresenter;
 
-impl CommentPresenter {
-    pub fn to_http(comment: CommentWithAuthor) -> MappedComment {
+impl PresenterTrait<CommentWithAuthor, MappedComment> for CommentPresenter {
+    fn to_http(comment: CommentWithAuthor) -> MappedComment {
         let author = comment.author();
         MappedComment {
             id: comment.id(),
@@ -45,7 +46,10 @@ impl CommentPresenter {
             }
         }
     }
-    
+}
+
+impl CommentPresenter {
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_http_raw(comment: Comment) -> MappedRawComment {
         MappedRawComment {
             id: comment.id(),

@@ -3,6 +3,7 @@ use chrono::NaiveDateTime as DateTime;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use crate::domain::domain_entities::comment_report::{CommentReport, CommentReportIdTrait, CommentReportTrait};
+use crate::infra::http::presenters::presenter::PresenterTrait;
 
 #[derive(Serialize, Deserialize)]
 struct MappedCommentAuthor {
@@ -26,8 +27,8 @@ pub struct MappedCommentReport {
 
 pub struct CommentReportPresenter;
 
-impl CommentReportPresenter {
-    pub fn to_http(report: CommentReport) -> MappedCommentReport {
+impl PresenterTrait<CommentReport, MappedCommentReport> for CommentReportPresenter {
+    fn to_http(report: CommentReport) -> MappedCommentReport {
         MappedCommentReport {
             id: report.id(),
             user_id: report.user_id(),

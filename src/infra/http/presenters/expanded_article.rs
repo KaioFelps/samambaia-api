@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
 use crate::{core::pagination::PaginationResponse, domain::domain_entities::{article::Article, comment_with_author::CommentWithAuthor, user::User}};
+use crate::infra::http::presenters::presenter::PresenterTrait;
 use super::{comment::{CommentPresenter, MappedComment}, pagination::{MappedPagination, PaginationPresenter}, user::{MappedUser, UserPresenter}};
 
 #[derive(Serialize, Deserialize)]
@@ -32,6 +33,7 @@ struct MappedExpandedArticleComments {
 pub struct ExpandedArticlePresenter;
 
 impl ExpandedArticlePresenter {
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_http(article: Article, author: User, comments: Vec<CommentWithAuthor>, pagination: (PaginationResponse, u8)) -> MappedExpandedArticle {
         MappedExpandedArticle {
             id: article.id(),

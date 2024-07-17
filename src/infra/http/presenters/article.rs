@@ -3,6 +3,7 @@ use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::article::Article;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 
 #[derive(Serialize, Deserialize)]
 pub struct MappedArticle {
@@ -23,8 +24,8 @@ pub struct MappedArticle {
 
 pub struct ArticlePresenter;
 
-impl ArticlePresenter {
-    pub fn to_http(article: Article) -> MappedArticle {
+impl PresenterTrait<Article, MappedArticle> for ArticlePresenter {
+    fn to_http(article: Article) -> MappedArticle {
         MappedArticle {
             id: article.id(),
             author_id: article.author_id(),
