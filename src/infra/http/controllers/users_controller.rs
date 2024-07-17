@@ -242,8 +242,8 @@ impl UsersController {
         return HttpResponse::Ok().json(json!({"user": mapped_user}));
     }
 
-    async fn list(body: web::Json<ListUsersDto>) -> impl Responder {
-        match body.validate() {
+    async fn list(query: web::Query<ListUsersDto>) -> impl Responder {
+        match query.validate() {
             Err(e) => {
                 return HttpResponse::BadRequest()
                 .json(ErrorPresenter::to_http_from_validator(e.field_errors()));
@@ -261,7 +261,7 @@ impl UsersController {
             page,
             per_page,
             role
-        } = body.into_inner();
+        } = query.into_inner();
 
         let query: Option<UserQueryType>;
 

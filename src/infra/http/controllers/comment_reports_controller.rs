@@ -79,7 +79,7 @@ impl CommentReportsController {
         return HttpResponse::Created().json(json!({"data": mapped_comment_report}));
     }
 
-    async fn list(query: web::Path<ListCommentReportsDto>) -> impl Responder {
+    async fn list(query: web::Query<ListCommentReportsDto>) -> impl Responder {
         let service = match fetch_many_comment_reports_service_factory::exec().await {
             Left(service) => service,
             Right(error) => return error,

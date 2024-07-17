@@ -140,33 +140,33 @@ impl ArticlesController {
         }));
     }
 
-    async fn list(body: web::Json<ListArticlesDto>) -> impl Responder {
-        let req_body: ListArticlesDto = match body.validate() {
-            Ok(()) => body.into_inner(),
+    async fn list(query: web::Query<ListArticlesDto>) -> impl Responder {
+        let query_body: ListArticlesDto = match query.validate() {
+            Ok(()) => query.into_inner(),
             Err(err) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(err.field_errors())),
         };
 
         return Self::get_list_of_articles(
-            req_body.title,
-            req_body.author,
-            req_body.page,
-            req_body.per_page,
+            query_body.title,
+            query_body.author,
+            query_body.page,
+            query_body.per_page,
             Some(true)
         ).await;
     }
 
-    async fn admin_list(body: web::Json<AdminListArticlesDto>) -> impl Responder {
-        let req_body: AdminListArticlesDto = match body.validate() {
-            Ok(()) => body.into_inner(),
+    async fn admin_list(query: web::Query<AdminListArticlesDto>) -> impl Responder {
+        let query_body: AdminListArticlesDto = match query.validate() {
+            Ok(()) => query.into_inner(),
             Err(err) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(err.field_errors())),
         };
 
         return Self::get_list_of_articles(
-            req_body.title,
-            req_body.author,
-            req_body.page,
-            req_body.per_page,
-            req_body.approved_state,
+            query_body.title,
+            query_body.author,
+            query_body.page,
+            query_body.per_page,
+            query_body.approved_state,
         ).await;
     }
 
