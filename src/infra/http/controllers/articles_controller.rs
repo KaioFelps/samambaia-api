@@ -25,6 +25,7 @@ use crate::infra::http::dtos::list_articles::ListArticlesDto;
 use crate::infra::http::dtos::update_article::UpdateArticleDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::http::presenters::article::MappedArticle;
 use crate::infra::http::presenters::error::ErrorPresenter;
 use crate::infra::http::presenters::pagination::PaginationPresenter;

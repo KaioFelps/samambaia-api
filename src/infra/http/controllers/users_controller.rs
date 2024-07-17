@@ -25,6 +25,7 @@ use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::error::ErrorPresenter;
 use crate::infra::http::presenters::pagination::PaginationPresenter;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::http::presenters::user::UserPresenter;
 
 use super::controller::ControllerTrait;

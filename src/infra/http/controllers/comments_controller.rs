@@ -18,6 +18,7 @@ use crate::infra::http::dtos::list_comments::ListCommentsDto;
 use crate::infra::http::dtos::simple_pagination_query::SimplePaginationQueryDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::http::presenters::comment::{CommentPresenter, MappedComment, MappedRawComment};
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::util::generate_error_response;
