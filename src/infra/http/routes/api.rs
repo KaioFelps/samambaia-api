@@ -5,6 +5,7 @@ use crate::infra::http::controllers::comment_reports_controller::CommentReportsC
 use crate::infra::http::controllers::comments_controller::CommentsController;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::sessions_controller::SessionsController;
+use crate::infra::http::controllers::team_roles_controller::TeamRolesController;
 use crate::infra::http::middlewares::RequestUserMiddleware;
 use crate::infra::http::controllers::users_controller::UsersController;
 use crate::infra::http::routes::route::RouteTrait;
@@ -21,6 +22,7 @@ impl RouteTrait for ApiRoutes {
             .configure(ArticlesController::register)
             .configure(CommentsController::register)
             .configure(CommentReportsController::register)
+            .configure(TeamRolesController::register)
         );
     }
 }

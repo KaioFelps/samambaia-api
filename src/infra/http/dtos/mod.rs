@@ -12,3 +12,6 @@ pub mod list_comments;
 pub mod simple_pagination_query;
 pub mod create_comment_report;
 pub mod list_comment_reports;
+pub mod create_team_role;
+pub mod list_team_role;
+pub mod update_team_role;

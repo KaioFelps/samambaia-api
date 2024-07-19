@@ -6,3 +6,4 @@ pub mod expanded_article;
 pub mod comment;
 pub mod comment_report;
 pub mod presenter;
+pub mod team_role;
