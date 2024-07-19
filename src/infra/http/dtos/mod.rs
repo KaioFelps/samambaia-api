@@ -15,3 +15,6 @@ pub mod list_comment_reports;
 pub mod create_team_role;
 pub mod list_team_role;
 pub mod update_team_role;
+pub mod create_team_user;
+pub mod list_team_user;
+pub mod update_team_user;
