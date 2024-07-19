@@ -12,7 +12,9 @@ use crate::domain::factories::{
     fetch_many_comment_reports_service_factory
 };
 use crate::domain::services::create_comment_report_service::CreateCommentReportParams;
+use crate::domain::services::delete_comment_report_service::DeleteCommentReportParams;
 use crate::domain::services::fetch_many_comment_reports_service::{CommentReportServiceQuery, FetchManyCommentReportsParams};
+use crate::domain::services::solve_comment_report_service::SolveCommentReportParams;
 use crate::infra::http::dtos::create_comment_report::CreateCommentReportDto;
 use crate::infra::http::dtos::list_comment_reports::ListCommentReportsDto;
 use crate::infra::http::dtos::simple_pagination_query::SimplePaginationQueryDto;
@@ -124,11 +126,42 @@ impl CommentReportsController {
         ));
     }
 
-    async fn update() -> impl Responder {
+    async fn update(user: web::ReqData<ReqUser>, report_id: web::Path<i32>) -> impl Responder {
+        let service = match solve_comment_report_service_factory::exec().await {
+          Left(service) => service,
+            Right(error) => return error,
+        };
+
+        let user = user.into_inner();
+
+        let result = service.exec(SolveCommentReportParams {
+            staff_role: user.user_role.unwrap(),
+            com_report_id: report_id.into_inner(),
+            staff_id: user.user_id
+        }).await;
+
+        if result.is_err() {
+            return generate_error_response(result.unwrap_err());
+        }
+
         return HttpResponse::NoContent().finish();
     }
 
-    async fn delete() -> impl Responder {
+    async fn delete(user: web::ReqData<ReqUser>, report_id: web::Path<i32>) -> impl Responder {
+        let service = match delete_comment_report_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error,
+        };
+
+        let result = service.exec(DeleteCommentReportParams {
+            com_report_id: report_id.into_inner(),
+            staff_role: user.into_inner().user_role.unwrap()
+        }).await;
+
+        if result.is_err() {
+            return generate_error_response(result.unwrap_err());
+        }
+
         return HttpResponse::NoContent().finish();
     }
 }
