@@ -17,7 +17,6 @@ use crate::domain::services::fetch_many_comment_reports_service::{CommentReportS
 use crate::domain::services::solve_comment_report_service::SolveCommentReportParams;
 use crate::infra::http::dtos::create_comment_report::CreateCommentReportDto;
 use crate::infra::http::dtos::list_comment_reports::ListCommentReportsDto;
-use crate::infra::http::dtos::simple_pagination_query::SimplePaginationQueryDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::comment_report::{CommentReportPresenter, MappedCommentReport};
