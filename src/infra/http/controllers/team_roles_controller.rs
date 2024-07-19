@@ -39,10 +39,10 @@ impl ControllerTrait for TeamRolesController {
             .route("/list", web::get().to(Self::list))
             
             // UPDATE
-            .route("/{id}/update", web::put().to(Self::update))
+            .route("/{id}/update", web::put().to(Self::update).wrap(from_fn(authentication_middleware)))
 
             // DELETE
-            .route("/{id}/delete", web::delete().to(Self::delete))
+            .route("/{id}/delete", web::delete().to(Self::delete).wrap(from_fn(authentication_middleware)))
         );
     }
 }
