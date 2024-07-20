@@ -105,12 +105,12 @@ impl SessionsController {
                 ErrorKind::Json(_) |
                 ErrorKind::Utf8(_) => {
                     info!("Token decoding validation error; bad request.");
-                    HttpResponse::BadRequest().json(ErrorPresenter::to_http(Box::new(BadRequestError::new())));
+                    HttpResponse::BadRequest().json(ErrorPresenter::to_http(Box::new(BadRequestError::new())))
 
                 },
                 _ => {
                     info!("Token decoding configuration error; internal server error.");
-                    HttpResponse::InternalServerError().json(ErrorPresenter::to_http(Box::new(InternalError::new())));
+                    HttpResponse::InternalServerError().json(ErrorPresenter::to_http(Box::new(InternalError::new())))
                 },
             }
         }
