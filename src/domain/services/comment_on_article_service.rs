@@ -108,6 +108,8 @@ mod test {
                 false,
                 TimeHelper::now(),
                 None,
+                Some(1),
+                "Foo".into(),
                 Slug::new(id, "title".into())
             );
 
