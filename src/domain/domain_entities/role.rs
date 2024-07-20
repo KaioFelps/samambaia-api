@@ -12,7 +12,7 @@ pub enum Role {
     Editor,
     Principal,
     User,
-    Writter,
+    Writer,
 }
 
 impl FromStr for Role {
@@ -29,7 +29,7 @@ impl FromStr for Role {
             "EDITOR" => Ok(Self::Editor),
             "PRINCIPAL" => Ok(Self::Principal),
             "USER" => Ok(Self::User),
-            "WRITTER" => Ok(Self::Writter),
+            "WRITER" => Ok(Self::Writer),
             _ => Err(EnumCoercionError::new("Role"))
         }
     }

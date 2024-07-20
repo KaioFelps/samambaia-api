@@ -58,8 +58,8 @@ pub enum Role {
     Table,
     #[iden = "User"]
     User,
-    #[iden = "Writter"]
-    Writter,
+    #[iden = "Writer"]
+    Writer,
     #[iden = "Editor"]
     Editor,
     #[iden = "Coord"]

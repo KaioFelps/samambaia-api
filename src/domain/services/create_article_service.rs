@@ -127,7 +127,7 @@ mod test {
         let tag_db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(vec![]));
         let user_db: Arc<Mutex<Vec<User>>> = Arc::new(Mutex::new(vec![]));
 
-        let user = User::new("Kaio".into(), "123".into(), Some(Role::Writter));
+        let user = User::new("Kaio".into(), "123".into(), Some(Role::Writer));
         let tag = ArticleTag::new_from_existing(1, "News".into());
 
         user_db.lock().unwrap().push(user.clone());

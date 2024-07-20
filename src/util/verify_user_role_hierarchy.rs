@@ -3,9 +3,9 @@ use crate::domain::domain_entities::role::Role;
 pub fn exec(role_1: &Role, role_2: &Role) -> bool {
     let is_valid = match role_1 {
         Role::User => true,
-        Role::Writter => {
+        Role::Writer => {
             match role_2 {
-                Role::Writter => false,
+                Role::Writer => false,
                 Role::User => false,
                 _ => true
             }
@@ -13,7 +13,7 @@ pub fn exec(role_1: &Role, role_2: &Role) -> bool {
         Role::Editor => {
             match role_2 {
                 Role::User => false,
-                Role::Writter => false,
+                Role::Writer => false,
                 Role::Editor => false,
                 _ => true
             }

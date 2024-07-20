@@ -12,7 +12,7 @@ impl SeaRoleMapper {
             Role::Admin => RoleModel::Admin,
             Role::Coord => RoleModel::Coord,
             Role::Editor => RoleModel::Editor,
-            Role::Writter => RoleModel::Writter,
+            Role::Writer => RoleModel::Writer,
             Role::User => RoleModel::User,
         }
     }
@@ -24,7 +24,7 @@ impl SeaRoleMapper {
             RoleModel::Admin => Role::Admin,
             RoleModel::Coord => Role::Coord,
             RoleModel::Editor => Role::Editor,
-            RoleModel::Writter => Role::Writter,
+            RoleModel::Writer => Role::Writer,
             RoleModel::User => Role::User,
         }
     }

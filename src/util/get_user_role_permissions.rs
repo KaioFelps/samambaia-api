@@ -46,7 +46,7 @@ impl RolePermissions {
     
         match role {
             Role::User => perms_user,
-            Role::Writter => perms_writer,
+            Role::Writer => perms_writer,
             Role::Editor => perms_editor,
             Role::Coord => perms_coord,
             Role::Admin => perms_admin,

@@ -256,7 +256,7 @@ mod test {
 
         let result = service.exec(UpdateArticleParams {
             user_id: article.author_id(),
-            user_role: Role::Writter,
+            user_role: Role::Writer,
             article_id: article.id(),
             approved: Some(true),
             title: None,
@@ -270,7 +270,7 @@ mod test {
 
         let result = service.exec(UpdateArticleParams {
             user_id: article.author_id(),
-            user_role: Role::Writter,
+            user_role: Role::Writer,
             article_id: article.id(),
             approved: None,
             title: Some("Título atualizado".to_string()),
