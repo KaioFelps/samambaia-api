@@ -14,4 +14,7 @@ pub struct CreateArticleDto {
     pub cover_url: String,
 
     pub title: String,
+
+    #[serde(rename = "tagId")]
+    pub tag_id: i32
 }
