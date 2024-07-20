@@ -144,84 +144,98 @@ mod test {
 
         let user = User::new("Floricultor".to_string(), "password".to_string(), Some(Role::Principal));
 
-        let mut approved_article = Article::new(user.id(), "Article 1 title".to_string(), "Article 1 content here".to_string(), "url".to_string());
+        let mut approved_article = Article::new(
+            user.id(),
+            "Article 1 title".to_string(),
+            "Article 1 content here".to_string(),
+            "url".to_string(),
+            1,
+            "Foo".into()
+        );
         approved_article.set_approved(true);
 
         db.push(approved_article);
-        db.push(Article::new(user.id(), "Article 2 title".to_string(), "Article 2 content here".to_string(), "url".to_string()));
+        db.push(Article::new(
+            user.id(),
+            "Article 2 title".to_string(),
+            "Article 2 content here".to_string(),
+            "url".to_string(),
+            1,
+            "Foo".into()
+        ));
 
         let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
 
         mocked_user_repo
-        .expect_find_by_nickname()
-        .returning(move |nickname| {
-            let user = user.clone();
+            .expect_find_by_nickname()
+            .returning(move |nickname| {
+                let user = user.clone();
 
-            let is_user = nickname == user.nickname();
+                let is_user = nickname == user.nickname();
 
-            if is_user {
-                return Ok(Some(user));
-            }
+                if is_user {
+                    return Ok(Some(user));
+                }
 
-            Ok(None)
-        });
+                Ok(None)
+            });
 
         mocked_article_repo
-        .expect_find_many()
-        .returning(move |params, approved_status_filter| {
-            let PaginationParameters { page, items_per_page, query } = params;
+            .expect_find_many()
+            .returning(move |params, approved_status_filter| {
+                let PaginationParameters { page, items_per_page, query } = params;
 
-            let mut articles: Vec<Article> = Vec::new();
+                let mut articles: Vec<Article> = Vec::new();
 
-            if query.is_some() {
-                let query = query.unwrap();
-                    match query {
-                        ArticleQueryType::Title(content) => {
-                            for item in db.iter() {
-                                if item.title().to_lowercase().contains(&content.clone().to_lowercase()[..]) {
-                                    articles.push(item.clone());
+                if query.is_some() {
+                    let query = query.unwrap();
+                        match query {
+                            ArticleQueryType::Title(content) => {
+                                for item in db.iter() {
+                                    if item.title().to_lowercase().contains(&content.clone().to_lowercase()[..]) {
+                                        articles.push(item.clone());
+                                    }
+                                }
+                            },
+                            ArticleQueryType::Author(content) => {
+                                for item in db.iter() {
+                                    if item.author_id().eq(&content) {
+                                        articles.push(item.clone());
+                                    }
                                 }
                             }
-                        },
-                        ArticleQueryType::Author(content) => {
-                            for item in db.iter() {
-                                if item.author_id().eq(&content) {
-                                    articles.push(item.clone());
-                                }
-                            }
-                        }
+                    }
+                } else {
+                    articles = db.clone();
                 }
-            } else {
-                articles = db.clone();
-            }
 
-            if approved_status_filter.is_some() {
-                let approved_filter: bool = approved_status_filter.unwrap();
-                articles = articles.into_iter().filter(|article| article.approved().eq(&approved_filter)).collect::<Vec<Article>>();
-            }
-
-            let total_of_items_before_paginating = articles.len();
-
-            let leap = (page - 1) * items_per_page;
-
-            /* SAMPLE
-            * page = 2
-            * items per page = 9
-            * leap = (2 - 1)*9 = 9
-            * articles from index 8 (leap - 1) on
-            */
-
-            let mut res_articles = vec![];
-
-            for (index, item) in articles.iter().enumerate() {
-                if index >= leap as usize {
-                    res_articles.push(item.to_owned());
+                if approved_status_filter.is_some() {
+                    let approved_filter: bool = approved_status_filter.unwrap();
+                    articles = articles.into_iter().filter(|article| article.approved().eq(&approved_filter)).collect::<Vec<Article>>();
                 }
-            }
 
-            Ok(FindManyResponse (res_articles, total_of_items_before_paginating as u64))
-        });
+                let total_of_items_before_paginating = articles.len();
+
+                let leap = (page - 1) * items_per_page;
+
+                /* SAMPLE
+                * page = 2
+                * items per page = 9
+                * leap = (2 - 1)*9 = 9
+                * articles from index 8 (leap - 1) on
+                */
+
+                let mut res_articles = vec![];
+
+                for (index, item) in articles.iter().enumerate() {
+                    if index >= leap as usize {
+                        res_articles.push(item.to_owned());
+                    }
+                }
+
+                Ok(FindManyResponse (res_articles, total_of_items_before_paginating as u64))
+            });
 
         let fetch_many_articles_service = FetchManyArticlesService::new(Box::new(mocked_article_repo), Box::new(mocked_user_repo));
 
