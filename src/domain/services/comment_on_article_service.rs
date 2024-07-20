@@ -109,7 +109,7 @@ mod test {
                 TimeHelper::now(),
                 None,
                 Some(1),
-                "Foo".into(),
+                Some("Foo".to_string()),
                 Slug::new(id, "title".into())
             );
 
