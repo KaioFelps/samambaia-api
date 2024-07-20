@@ -68,10 +68,7 @@ impl<
     }
 
     pub async fn exec<'exec>(&self, params: GetExpandedArticleParams<'exec>) -> Result<GetExpandedArticleResponse, Box<dyn DomainErrorTrait>> {
-        let items_per_page = match params.comments_per_page {
-            None => DEFAULT_PER_PAGE as u32,
-            Some(per_page) => per_page
-        };
+        let items_per_page = params.comments_per_page.unwrap_or_else(|| DEFAULT_PER_PAGE as u32);
 
         let article = self.article_repository.find_by_slug(&params.article_slug).await;
 
@@ -203,6 +200,8 @@ mod test {
             "Notícia 1".into(),
             "Conteúdo da notícia 1.".into(),
             "url_da_cover.com".into(),
+            1,
+            "MockedTag".into()
         );
 
         let mocked_article_id = mocked_article.id();
@@ -245,71 +244,71 @@ mod test {
 
         let articles_db_to_move = Arc::clone(&articles_db);
         mocked_article_repository
-        .expect_find_by_slug()
-        .returning(move |article_slug| {
-            let mut article: Option<Article> = None;
+            .expect_find_by_slug()
+            .returning(move |article_slug| {
+                let mut article: Option<Article> = None;
 
-            for item in articles_db_to_move.lock().unwrap().iter() {
-                if item.slug().eq(article_slug) {
-                    article = Some(item.clone());
-                    break;
+                for item in articles_db_to_move.lock().unwrap().iter() {
+                    if item.slug().eq(article_slug) {
+                        article = Some(item.clone());
+                        break;
+                    }
                 }
-            }
 
-            Ok(article)
-        });
+                Ok(article)
+            });
         
         let comments_db_to_move = Arc::clone(&comments_db);
         mock_comm_user_art_repo
-        .expect_find_many_comments()
-        .returning(move |_article_id, include_inactive, params| {
-            let PaginationParameters { page, items_per_page, query } = params;
+            .expect_find_many_comments()
+            .returning(move |_article_id, include_inactive, params| {
+                let PaginationParameters { page, items_per_page, query } = params;
 
-            let mut comments: Vec<CommentWithAuthor> = Vec::new();
+                let mut comments: Vec<CommentWithAuthor> = Vec::new();
 
-            if query.is_some() {
-                match query.unwrap() {
-                    CommentWithAuthorQueryType::Content(content) => {
-                        for item in comments_db_to_move.lock().unwrap().iter() {
-                            if
-                                item.content().to_lowercase().contains(&content.to_lowercase()[..])
-                                || include_inactive
-                                || (!include_inactive && item.is_active())
-                            {
-                                comments.push(item.clone());
+                if query.is_some() {
+                    match query.unwrap() {
+                        CommentWithAuthorQueryType::Content(content) => {
+                            for item in comments_db_to_move.lock().unwrap().iter() {
+                                if
+                                    item.content().to_lowercase().contains(&content.to_lowercase()[..])
+                                    || include_inactive
+                                    || (!include_inactive && item.is_active())
+                                {
+                                    comments.push(item.clone());
+                                }
                             }
-                        }
-                    },
-                    CommentWithAuthorQueryType::Author(content) => {
-                        for item in comments_db_to_move.lock().unwrap().iter() {
-                            if
-                                item.author().id().eq(&content)
-                                || include_inactive
-                                || (!include_inactive && item.is_active())
-                            {
-                                comments.push(item.clone());
+                        },
+                        CommentWithAuthorQueryType::Author(content) => {
+                            for item in comments_db_to_move.lock().unwrap().iter() {
+                                if
+                                    item.author().id().eq(&content)
+                                    || include_inactive
+                                    || (!include_inactive && item.is_active())
+                                {
+                                    comments.push(item.clone());
+                                }
                             }
                         }
                     }
+                } else {
+                    comments = comments_db_to_move.lock().unwrap().clone();
                 }
-            } else {
-                comments = comments_db_to_move.lock().unwrap().clone();
-            }
 
-            let total_of_items_before_paginating = comments.len();
+                let total_of_items_before_paginating = comments.len();
 
-            let leap = (page - 1) * items_per_page;
+                let leap = (page - 1) * items_per_page;
 
-            let mut res_comments = vec![];
+                let mut res_comments = vec![];
 
-            for (index, item) in comments.iter().enumerate() {
-                if index >= leap as usize {
-                    res_comments.push(item.to_owned());
+                for (index, item) in comments.iter().enumerate() {
+                    if index >= leap as usize {
+                        res_comments.push(item.to_owned());
+                    }
                 }
-            }
 
-            Ok(FindManyCommentsWithAuthorResponse (res_comments, total_of_items_before_paginating as u64))
-        });
+                Ok(FindManyCommentsWithAuthorResponse (res_comments, total_of_items_before_paginating as u64))
+            });
         
         let sut = GetExpandedArticleService {
             user_repository: Box::new(mocked_user_repo),
