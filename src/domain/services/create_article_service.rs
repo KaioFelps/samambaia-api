@@ -123,8 +123,8 @@ mod test {
         let mut mocked_tag_repo: MockArticleTagRepositoryTrait = MockArticleTagRepositoryTrait::new();
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
 
-        let mut article_db: Vec<Article> = vec![];
-        let mut tag_db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(vec![]));
+        let mut article_db: Arc<Mutex<Vec<Article>>> = Arc::new(Mutex::new(vec![]));
+        let tag_db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(vec![]));
         let user_db: Arc<Mutex<Vec<User>>> = Arc::new(Mutex::new(vec![]));
 
         let user = User::new("Kaio".into(), "123".into(), Some(Role::Writter));
@@ -148,12 +148,12 @@ mod test {
                 return Ok(found_tag);
             });
 
+        let db = Arc::clone(&mut article_db);
         mocked_article_repo
         .expect_create()
         .returning(move |article: Article| {
-            article_db.push(article);
-
-            Ok(article_db[0].clone())
+            db.lock().unwrap().push(article.clone());
+            Ok(article)
         })
         .times(1);
 
