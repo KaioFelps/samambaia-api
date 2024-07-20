@@ -9,7 +9,6 @@ use crate::errors::error::DomainErrorTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
 use crate::util::{generate_service_internal_error, RolePermissions, verify_role_has_permission};
-
 use crate::{LOG_SEP, R_EOL};
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
@@ -43,13 +42,11 @@ UpdateArticleService<ArticleRepository, ArticleTagRepository>
 
     pub async fn exec(&self, params: UpdateArticleParams) -> Result<Article, Box<dyn DomainErrorTrait>> {
         // checks if there is something to be updated
-
         if params.cover_url.is_none() && params.title.is_none() && params.cover_url.is_none() && params.approved.is_none() {
             return Err(Box::new(BadRequestError::new()));
         }
 
         // article verifications
-
         let article_on_db = self.article_repository.find_by_id(params.article_id).await;
 
         if article_on_db.is_err() {
@@ -122,13 +119,14 @@ UpdateArticleService<ArticleRepository, ArticleTagRepository>
         }
 
         if params.tag_id.is_some() {
-            let tag = match self.get_tag_by_id(params.tag_id.unwrap()).await {
+            let tag = self.get_tag_by_id(params.tag_id.unwrap()).await;
+            let tag = match tag {
                 Ok(tag) => tag,
                 Err(error) => return Err(error),
             };
 
             article.set_tag_id(tag.id());
-            article.set_tag_value(tag.value().into());
+            article.set_tag_value(tag.value().to_owned());
         }
 
         let response = self.article_repository.save(article).await;
@@ -139,16 +137,18 @@ UpdateArticleService<ArticleRepository, ArticleTagRepository>
                 &response.unwrap_err()
             ));
         }
+        let article = response.unwrap();
 
-        Ok(response.unwrap())
+        Ok(article)
     }
 
     async fn get_tag_by_id(&self, tag_id: i32) -> Result<ArticleTag, Box<dyn DomainErrorTrait>> {
         let tag = self.article_tag_repository.find_by_id(tag_id).await;
+
         if tag.is_err() {
             return Err(generate_service_internal_error(
                 "Error occurred in Update Article Service, while finding article tag by id".into(),
-                &tag.unwrap_err()
+                tag.as_ref().unwrap_err()
             ));
         }
 
@@ -160,7 +160,6 @@ UpdateArticleService<ArticleRepository, ArticleTagRepository>
         Ok(tag.unwrap())
     }
 }
-
 
 #[cfg(test)]
 mod test {
@@ -179,8 +178,8 @@ mod test {
         let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
         let mut mocked_article_tag_repo: MockArticleTagRepositoryTrait = MockArticleTagRepositoryTrait::new();
 
-        let mut article_db: Arc<Mutex<Vec<Article>>> = Arc::new(Mutex::new(vec![]));
-        let mut tag_db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(vec![]));
+        let article_db: Arc<Mutex<Vec<Article>>> = Arc::new(Mutex::new(Vec::new()));
+        let tag_db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(Vec::new()));
 
         let article = Article::new(
             Uuid::new_v4(),
@@ -188,13 +187,13 @@ mod test {
             "Conteúdo inicial".to_string(),
             "coverurl.inicial".to_string(),
             1,
-            "Foo".into()
+            "Foo".to_string()
         );
 
-        let article_tag = ArticleTag::new_from_existing(2, "Bar".into());
+        let article_tag = ArticleTag::new_from_existing(2, "Bar".to_string());
 
         tag_db.lock().unwrap().push(article_tag);
-        article_db.lock().push(article.clone());
+        article_db.lock().unwrap().push(article.clone());
 
         // mocking article repo
         let db = Arc::clone(&article_db);
@@ -203,8 +202,8 @@ mod test {
             .returning(move |id| {
                 let mut article: Option<Article> = None;
 
-                for item in db.iter() {
-                    if item.id() == id {
+                for item in db.lock().unwrap().iter() {
+                    if item.id().eq(&id) {
                         article = Some(item.clone());
                         break;
                     }
@@ -213,18 +212,25 @@ mod test {
                 Ok(article)
             });
 
-        let db = Arc::clone(&mut article_db);
+        let db = Arc::clone(&article_db);
         mocked_article_repo
             .expect_save()
             .returning(move |param_article: Article| {
-                for (i, item) in article_db.iter().enumerate() {
+                let mut index = None;
+                for (i, item) in db.lock().unwrap().iter().enumerate() {
                     if item.id() == param_article.id() {
-                        db.lock()[i] = param_article.clone();
-                        return Ok(param_article);
+                        index = Some(i);
+                        break;
                     }
                 }
 
-                return Err(Box::new(ResourceNotFoundError::new()));
+                match index {
+                    None => return Err(Box::new(ResourceNotFoundError::new())),
+                    Some(i) => {
+                        db.lock().unwrap()[i] = param_article.clone();
+                        return Ok(param_article);
+                    }
+                }
             });
 
         // mocking article tag repo
@@ -234,9 +240,9 @@ mod test {
             .returning(move |tag_id| {
                 let mut tag = None;
 
-                for _tag in db.lock().iter() {
-                    if _tag.id().eq(tag_id) {
-                        tag = Some(_tag.clone());
+                for item in db.lock().unwrap().iter() {
+                    if item.id().eq(&tag_id) {
+                        tag = Some(item.clone());
                     }
                 }
 
@@ -277,6 +283,6 @@ mod test {
         let result = result.unwrap();
 
         assert_eq!("Título atualizado", result.title());
-        assert_eq!("Bar", result.tag_value());
+        assert_eq!("Bar".to_string(), result.tag_value().unwrap());
     }
 }
