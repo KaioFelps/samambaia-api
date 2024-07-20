@@ -85,7 +85,7 @@ impl ArticlesController {
             cover_url,
             title,
             tag_id
-        } = body.into_inner();
+        } = body;
 
         let result = service.exec(CreateArticleParams {
             custom_author_id: author_id,
