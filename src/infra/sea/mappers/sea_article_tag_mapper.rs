@@ -21,6 +21,13 @@ impl SeaArticleTagMapper {
         };
     }
 
+    pub fn article_tag_to_sea_active_model(tag: ArticleTag) -> ArticleTagActiveModel {
+        return ArticleTagActiveModel {
+            id: tag.id().into_active_value(),
+            value: tag.value().to_owned().into_active_value(),
+        };
+    }
+
     pub fn active_model_to_article_tag(active_model_tag: ArticleTagActiveModel) -> ArticleTag {
         return ArticleTag::new_from_existing(
             active_model_tag.id.unwrap(),
