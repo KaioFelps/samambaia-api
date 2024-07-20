@@ -93,7 +93,7 @@ mod test {
         let mut db: Vec<CommentWithAuthor> = Vec::new();
 
         let user = User::new("Floricultor".to_string(), "password".to_string(), Some(Role::Principal));
-        let article = Article::new(user.id(), "Título da notícia".into(), "Conteúdo da notícia".into(), "url do cover".into());
+        let article = Article::new(user.id(), "Título da notícia".into(), "Conteúdo da notícia".into(), "url do cover".into(), 1, "Foo".into());
         let article_id = article.id();
 
         db.push(CommentWithAuthor::new(Some(article.id()), "Comment 1 content here".to_string(), user.clone()));

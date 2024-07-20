@@ -48,9 +48,9 @@ mod test {
         .expect_get_home_articles()
         .returning(|| {
             let articles = vec![
-                Article::new(Uuid::new_v4(), "Título da notícia 1".to_string(), "Conteúdo da primeira notícia".to_string(), "url".to_string()),
-                Article::new(Uuid::new_v4(), "Título da notícia 2".to_string(), "Conteúdo da segunda notícia".to_string(), "url".to_string()),
-                Article::new(Uuid::new_v4(), "Título da notícia 3".to_string(), "Conteúdo da terceira notícia".to_string(), "url".to_string()),
+                Article::new(Uuid::new_v4(), "Título da notícia 1".to_string(), "Conteúdo da primeira notícia".to_string(), "url".to_string(), 1, "Foo".into()),
+                Article::new(Uuid::new_v4(), "Título da notícia 2".to_string(), "Conteúdo da segunda notícia".to_string(), "url".to_string(), 1, "Foo".into()),
+                Article::new(Uuid::new_v4(), "Título da notícia 3".to_string(), "Conteúdo da terceira notícia".to_string(), "url".to_string(), 1, "Foo".into()),
             ];
 
             Ok(articles)
