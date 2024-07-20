@@ -8,6 +8,10 @@ impl DraftArticleTag {
             value
         }
     }
+
+    pub fn value(&self) -> &String {
+        &self.value
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -29,7 +33,7 @@ impl ArticleTag {
     }
 
     pub fn value(&self) -> &String {
-        self.value()
+        &self.value
     }
 
     pub fn set_value(&mut self, value: String) -> () {
