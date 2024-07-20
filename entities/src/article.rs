@@ -16,12 +16,21 @@ pub struct Model {
     pub cover_url: String,
     pub updated_at: Option<DateTime>,
     pub approved: bool,
-    #[sea_orm(unique)]
     pub slug: String,
+    pub tag_id: Option<i32>,
+    pub tag_value: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::article_tag::Entity",
+        from = "Column::TagId",
+        to = "super::article_tag::Column::Id",
+        on_update = "NoAction",
+        on_delete = "SetNull"
+    )]
+    ArticleTag,
     #[sea_orm(has_many = "super::comment::Entity")]
     Comment,
     #[sea_orm(
@@ -32,6 +41,12 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     User,
+}
+
+impl Related<super::article_tag::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ArticleTag.def()
+    }
 }
 
 impl Related<super::comment::Entity> for Entity {
