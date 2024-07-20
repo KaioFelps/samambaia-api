@@ -93,7 +93,7 @@ impl SessionsController {
         );
 
         if decoded_token.is_err() {
-            match decoded_token.unwrap_err().kind() {
+            return match decoded_token.unwrap_err().kind() {
                 ErrorKind::InvalidToken |
                 ErrorKind::InvalidSignature |
                 ErrorKind::MissingRequiredClaim(_) |
@@ -105,14 +105,12 @@ impl SessionsController {
                 ErrorKind::Json(_) |
                 ErrorKind::Utf8(_) => {
                     info!("Token decoding validation error; bad request.");
-                    return HttpResponse::BadRequest()
-                        .json(ErrorPresenter::to_http(Box::new(BadRequestError::new())));
+                    HttpResponse::BadRequest().json(ErrorPresenter::to_http(Box::new(BadRequestError::new())));
 
                 },
                 _ => {
                     info!("Token decoding configuration error; internal server error.");
-                    return HttpResponse::InternalServerError()
-                        .json(ErrorPresenter::to_http(Box::new(InternalError::new())));
+                    HttpResponse::InternalServerError().json(ErrorPresenter::to_http(Box::new(InternalError::new())));
                 },
             }
         }

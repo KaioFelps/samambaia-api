@@ -58,11 +58,9 @@ impl<UserRepositoryType: UserRepositoryTrait> ChangePasswordService<UserReposito
 
         let result = self.user_repository.save(user).await;
 
-        match result {
+        return match result {
             Ok(_) => return Ok(()),
-            Err(_err) => {
-                return Err(Box::new(InternalError::new()));
-            }
+            Err(_err) => Err(Box::new(InternalError::new())),
         }
     }
 }

@@ -63,12 +63,9 @@ impl<UserRepositoryType : UserRepositoryTrait> AuthenticateUserService<UserRepos
             EncodingKey::from_secret(&ENV_VARS.jwt_secret.as_ref())
         );
 
-        match jwt {
-            Ok(jwt) => return Ok(jwt),
-            Err(_err) => {
-                return Err(Box::new(InternalError::new()));
-            }
+        return match jwt {
+            Ok(jwt) => Ok(jwt),
+            Err(_err) => Err(Box::new(InternalError::new()))
         }
-
     }
 }
