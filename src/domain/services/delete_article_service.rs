@@ -126,7 +126,9 @@ mod test {
             Uuid::new_v4(),
             "Título inicial".to_string(),
             "Conteúdo inicial".to_string(),
-            "coverurl.inicial".to_string()
+            "coverurl.inicial".to_string(),
+            1,
+            "Foo".into(),
         );
 
         let article_db: Arc<Mutex<Vec<Article>>> = Arc::new(Mutex::new(vec![
@@ -135,48 +137,47 @@ mod test {
         
         // mocking user repo
         mocked_user_repo
-        .expect_find_by_id()
-        .returning(|id| {
-            let fake_user = User::new_from_existing(
-                id.clone().to_owned(),
-                "Fake name".to_string(),
-                "password".to_string(),
-                TimeHelper::now(),
-                None,
-                Some(Role::Principal)
-            );
+            .expect_find_by_id()
+            .returning(|id| {
+                let fake_user = User::new_from_existing(
+                    id.clone().to_owned(),
+                    "Fake name".to_string(),
+                    "password".to_string(),
+                    TimeHelper::now(),
+                    None,
+                    Some(Role::Principal)
+                );
 
-            Ok(Some(fake_user))
-        });
+                Ok(Some(fake_user))
+            });
 
         // mocking article repo
-    
         let mocked_article_repo_db_clone: Arc<Mutex<Vec<Article>>> = Arc::clone(&article_db);
         mocked_article_repo
-        .expect_find_by_id()
-        .returning(move |id| {
-            let article_db = mocked_article_repo_db_clone.lock().unwrap();
+            .expect_find_by_id()
+            .returning(move |id| {
+                let article_db = mocked_article_repo_db_clone.lock().unwrap();
 
-            for item in article_db.iter() {
-                if item.id() == id {
-                    return Ok(Some(item.clone()));
+                for item in article_db.iter() {
+                    if item.id() == id {
+                        return Ok(Some(item.clone()));
+                    }
                 }
-            }
 
-            Ok(None)
-        });
+                Ok(None)
+            });
 
         let mut mocked_article_comment_repo = MockArticleCommentRepositoryTrait::new();
 
         let mocked_article_repo_db_clone = Arc::clone(&article_db);
         mocked_article_comment_repo
-        .expect_delete_article_and_inactivate_comments()
-        .returning(move |_article| {
-            let mut article_db = mocked_article_repo_db_clone.lock().unwrap();
-            article_db.truncate(0);
+            .expect_delete_article_and_inactivate_comments()
+            .returning(move |_article| {
+                let mut article_db = mocked_article_repo_db_clone.lock().unwrap();
+                article_db.truncate(0);
 
-            Ok(())
-        });
+                Ok(())
+            });
         
         let service = DeleteArticleService {
             user_repository: Box::new(mocked_user_repo),
