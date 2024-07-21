@@ -1,6 +1,4 @@
-use log::{error, debug};
 use uuid::Uuid;
-
 use crate::core::pagination::PaginationResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::article::Article;
@@ -12,13 +10,10 @@ use crate::domain::repositories::comment_user_article_repository::FindManyCommen
 use crate::domain::repositories::comment_user_article_repository::CommentUserArticleRepositoryTrait;
 use crate::core::pagination::PaginationParameters;
 use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::util::{verify_role_has_permission, RolePermissions};
-
-use crate::{R_EOL, LOG_SEP};
+use crate::util::{verify_role_has_permission, RolePermissions, generate_service_internal_error};
 
 pub struct GetExpandedArticleParams<'exec> {
     pub article_slug: Slug,
@@ -73,22 +68,15 @@ impl<
         let article = self.article_repository.find_by_slug(&params.article_slug).await;
 
         if article.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Get Expanded Article Service, while finding article by Id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                article.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
+            return Err(generate_service_internal_error(
+                "Error occurred on Get Expanded Article Service, while finding article by Id".into(),
+                &article.unwrap_err(),
+            ));
         }
 
         let article = article.unwrap();
 
         if article.is_none() {
-            debug!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Article returned None on Get Expanded Article Service. Searched by slug {}{R_EOL}{LOG_SEP}{R_EOL}",
-                params.article_slug.to_string()
-            );
-
             return Err(Box::new(ResourceNotFoundError::new()));
         }
 
@@ -107,7 +95,6 @@ impl<
         };
 
         if !article.approved() && !user_can_see_article {
-            debug!("{R_EOL}{LOG_SEP}{R_EOL}Article returned None on Get Expanded Article Service because user are not allowed to see it.{R_EOL}{LOG_SEP}{R_EOL}");
             return Err(Box::new(ResourceNotFoundError::new()));
         }
 
@@ -122,12 +109,10 @@ impl<
         ).await;
 
         if comments.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Get Expanded Article Service, while fetching many comments by article id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                comments.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
+            return Err(generate_service_internal_error(
+                "Error occurred on Get Expanded Article Service, while fetching many comments by article id".into(),
+                &comments.unwrap_err(),
+            ));
         }
 
         let FindManyCommentsWithAuthorResponse (data, total_items) = comments.unwrap();
@@ -144,19 +129,16 @@ impl<
         let author = self.user_repository.find_by_id(&article.author_id()).await;
 
         if author.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Get Expanded Article Service, while finding User by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                author.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
+            return Err(generate_service_internal_error(
+                "Error occurred on Get Expanded Article Service, while finding User by id".into(),
+                &author.unwrap_err(),
+            ));
         }
 
         let author = author.unwrap();
 
         if author.is_none() {
-            error!("Author returned None on Get Expanded Article Service.");
-
+            log::error!("Author from article of id '{}' returned None on Get Expanded Article Service.", article.id().to_string());
             return Err(Box::new(ResourceNotFoundError::new()));
         }
 
@@ -178,22 +160,20 @@ mod test {
     use std::sync::{Arc, Mutex};
     use uuid::Uuid;
     
-    use crate::domain::domain_entities::{comment_with_author::CommentWithAuthor, role::Role}; 
-    use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
+    use crate::domain::domain_entities::{comment_with_author::CommentWithAuthor, role::Role};
     use crate::domain::repositories::comment_user_article_repository::{CommentWithAuthorQueryType, MockCommentUserArticleRepositoryTrait};
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
     use crate::libs::time::TimeHelper;
+    use crate::tests::repositories::article_repository::get_article_repository;
 
     #[tokio::test]
     async fn test() {
         let mut mocked_user_repo = MockUserRepositoryTrait::new();
         let mut mock_comm_user_art_repo = MockCommentUserArticleRepositoryTrait::new();
-        let mut mocked_article_repository = MockArticleRepositoryTrait::new();
+        let (articles_db, mocked_article_repository) = get_article_repository();
 
-        let articles_db: Arc<Mutex<Vec<Article>>> = Arc::new(Mutex::new(vec![]));
         let comments_db: Arc<Mutex<Vec<CommentWithAuthor>>> = Arc::new(Mutex::new(vec![]));
 
-        
         // POPULATING
         let mocked_article = Article::new(
             Uuid::new_v4(),
@@ -240,23 +220,6 @@ mod test {
         .returning(move |_id| {
             Ok(Some(user.clone()))
         });
-
-
-        let articles_db_to_move = Arc::clone(&articles_db);
-        mocked_article_repository
-            .expect_find_by_slug()
-            .returning(move |article_slug| {
-                let mut article: Option<Article> = None;
-
-                for item in articles_db_to_move.lock().unwrap().iter() {
-                    if item.slug().eq(article_slug) {
-                        article = Some(item.clone());
-                        break;
-                    }
-                }
-
-                Ok(article)
-            });
         
         let comments_db_to_move = Arc::clone(&comments_db);
         mock_comm_user_art_repo

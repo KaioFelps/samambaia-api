@@ -11,8 +11,8 @@ pub struct FetchManyArticleTagsParams {
 }
 
 pub struct FetchManyArticleTagsResponse {
-    data: Vec<ArticleTag>,
-    pagination: PaginationResponse
+    pub data: Vec<ArticleTag>,
+    pub pagination: PaginationResponse
 }
 
 pub struct FetchManyArticleTagsService<ArticleTagRepository: ArticleTagRepositoryTrait> {

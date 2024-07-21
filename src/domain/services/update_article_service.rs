@@ -166,20 +166,15 @@ mod test {
     use http::StatusCode;
     use uuid::Uuid;
     use crate::domain::domain_entities::article_tag::ArticleTag;
-    use crate::errors::resource_not_found::ResourceNotFoundError;
-    use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::domain_entities::role::Role;
-    use crate::domain::repositories::article_tag_repository::MockArticleTagRepositoryTrait;
     use super::{Article, UpdateArticleParams};
-    use std::sync::{Arc, Mutex};
+    use crate::tests::repositories::article_repository::get_article_repository;
+    use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
 
     #[tokio::test]
     async fn test() {
-        let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
-        let mut mocked_article_tag_repo: MockArticleTagRepositoryTrait = MockArticleTagRepositoryTrait::new();
-
-        let article_db: Arc<Mutex<Vec<Article>>> = Arc::new(Mutex::new(Vec::new()));
-        let tag_db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(Vec::new()));
+        let (article_db, article_repository) = get_article_repository();
+        let (tag_db, article_tag_repository) = get_article_tag_repository();
 
         let article = Article::new(
             Uuid::new_v4(),
@@ -195,63 +190,9 @@ mod test {
         tag_db.lock().unwrap().push(article_tag);
         article_db.lock().unwrap().push(article.clone());
 
-        // mocking article repo
-        let db = Arc::clone(&article_db);
-        mocked_article_repo
-            .expect_find_by_id()
-            .returning(move |id| {
-                let mut article: Option<Article> = None;
-
-                for item in db.lock().unwrap().iter() {
-                    if item.id().eq(&id) {
-                        article = Some(item.clone());
-                        break;
-                    }
-                }
-
-                Ok(article)
-            });
-
-        let db = Arc::clone(&article_db);
-        mocked_article_repo
-            .expect_save()
-            .returning(move |param_article: Article| {
-                let mut index = None;
-                for (i, item) in db.lock().unwrap().iter().enumerate() {
-                    if item.id() == param_article.id() {
-                        index = Some(i);
-                        break;
-                    }
-                }
-
-                match index {
-                    None => return Err(Box::new(ResourceNotFoundError::new())),
-                    Some(i) => {
-                        db.lock().unwrap()[i] = param_article.clone();
-                        return Ok(param_article);
-                    }
-                }
-            });
-
-        // mocking article tag repo
-        let db = Arc::clone(&tag_db);
-        mocked_article_tag_repo
-            .expect_find_by_id()
-            .returning(move |tag_id| {
-                let mut tag = None;
-
-                for item in db.lock().unwrap().iter() {
-                    if item.id().eq(&tag_id) {
-                        tag = Some(item.clone());
-                    }
-                }
-
-                return Ok(tag)
-            });
-
         let service = super::UpdateArticleService {
-            article_repository: Box::new(mocked_article_repo),
-            article_tag_repository: Box::new(mocked_article_tag_repo)
+            article_repository: Box::new(article_repository),
+            article_tag_repository: Box::new(article_tag_repository)
         };
 
         let result = service.exec(UpdateArticleParams {

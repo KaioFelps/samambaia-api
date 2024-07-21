@@ -83,9 +83,9 @@ DeleteArticleService<AR, ACR, UR>
         if !user_can_delete { return Err(Box::new(UnauthorizedError::new())); }
 
         let response = &self
-        .article_comment_repository
-        .delete_article_and_inactivate_comments(article)
-        .await;
+            .article_comment_repository
+            .delete_article_and_inactivate_comments(article)
+            .await;
 
         if response.as_ref().is_err() {
             error!(
@@ -100,27 +100,27 @@ DeleteArticleService<AR, ACR, UR>
     }
 }
 
-
 #[cfg(test)]
 mod test {
-    use std::sync::{Arc, Mutex};
+    use std::sync::Arc;
     use uuid::Uuid;
     use tokio;
 
     use super::{DeleteArticleParams, DeleteArticleService};
 
-    use crate::domain::repositories::article_comment_repository::MockArticleCommentRepositoryTrait;
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
-    use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::domain_entities::user::User;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::article::Article;
+    use crate::domain::repositories::article_comment_repository::MockArticleCommentRepositoryTrait;
     use crate::libs::time::TimeHelper;
+    use crate::tests::repositories::article_repository::get_article_repository;
 
     #[tokio::test]
     async fn test() {
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
-        let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
+        let (article_db, mocked_article_repo) = get_article_repository();
+        let mut mocked_article_comment_repo = MockArticleCommentRepositoryTrait::new();
 
         let article = Article::new(
             Uuid::new_v4(),
@@ -131,11 +131,24 @@ mod test {
             "Foo".into(),
         );
 
-        let article_db: Arc<Mutex<Vec<Article>>> = Arc::new(Mutex::new(vec![
-            article.clone()
-        ]));
-        
-        // mocking user repo
+        article_db.lock().unwrap().push(article.clone());
+
+        let db_clone = Arc::clone(&article_db);
+        mocked_article_comment_repo
+            .expect_delete_article_and_inactivate_comments()
+            .returning(move |param_article| {
+                let mut new_articles_db = vec![];
+
+                for article in db_clone.lock().unwrap().iter() {
+                    if article.id().ne(&param_article.id()) {
+                        new_articles_db.push(article.clone());
+                    }
+                }
+
+                *db_clone.lock().unwrap() = new_articles_db;
+                Ok(())
+            });
+
         mocked_user_repo
             .expect_find_by_id()
             .returning(|id| {
@@ -151,34 +164,6 @@ mod test {
                 Ok(Some(fake_user))
             });
 
-        // mocking article repo
-        let mocked_article_repo_db_clone: Arc<Mutex<Vec<Article>>> = Arc::clone(&article_db);
-        mocked_article_repo
-            .expect_find_by_id()
-            .returning(move |id| {
-                let article_db = mocked_article_repo_db_clone.lock().unwrap();
-
-                for item in article_db.iter() {
-                    if item.id() == id {
-                        return Ok(Some(item.clone()));
-                    }
-                }
-
-                Ok(None)
-            });
-
-        let mut mocked_article_comment_repo = MockArticleCommentRepositoryTrait::new();
-
-        let mocked_article_repo_db_clone = Arc::clone(&article_db);
-        mocked_article_comment_repo
-            .expect_delete_article_and_inactivate_comments()
-            .returning(move |_article| {
-                let mut article_db = mocked_article_repo_db_clone.lock().unwrap();
-                article_db.truncate(0);
-
-                Ok(())
-            });
-        
         let service = DeleteArticleService {
             user_repository: Box::new(mocked_user_repo),
             article_comment_repository: Box::new(mocked_article_comment_repo),
@@ -188,11 +173,9 @@ mod test {
         let result = service.exec(DeleteArticleParams {
             user_id: article.author_id(),
             article_id: article.id(),
-        });
+        }).await;
 
-        tokio::try_join!(result).unwrap();
-
-        let db = article_db.lock().unwrap();
-        assert_eq!(0, db.len());
+        assert!(result.is_ok());
+        assert_eq!(0, article_db.lock().unwrap().len());
     }
 }

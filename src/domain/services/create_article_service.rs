@@ -112,18 +112,18 @@ impl<
 #[cfg(test)]
 mod test {
     use std::sync::{Arc, Mutex};
-    use crate::domain::{domain_entities::{user::User, role::Role}, repositories::{article_repository::MockArticleRepositoryTrait, user_repository::MockUserRepositoryTrait}};
+    use crate::domain::{domain_entities::{user::User, role::Role}, repositories::user_repository::MockUserRepositoryTrait};
     use crate::domain::domain_entities::article_tag::ArticleTag;
     use crate::domain::repositories::article_tag_repository::MockArticleTagRepositoryTrait;
-    use super::{Article, CreateArticleParams};
+    use crate::tests::repositories::article_repository::get_article_repository;
+    use super::CreateArticleParams;
 
     #[tokio::test]
     async fn test() {
-        let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
+        let (_article_db, mocked_article_repo) = get_article_repository();
         let mut mocked_tag_repo: MockArticleTagRepositoryTrait = MockArticleTagRepositoryTrait::new();
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
 
-        let mut article_db: Arc<Mutex<Vec<Article>>> = Arc::new(Mutex::new(vec![]));
         let tag_db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(vec![]));
         let user_db: Arc<Mutex<Vec<User>>> = Arc::new(Mutex::new(vec![]));
 
@@ -147,15 +147,6 @@ mod test {
 
                 return Ok(found_tag);
             });
-
-        let db = Arc::clone(&mut article_db);
-        mocked_article_repo
-        .expect_create()
-        .returning(move |article: Article| {
-            db.lock().unwrap().push(article.clone());
-            Ok(article)
-        })
-        .times(1);
 
         let db_clone = Arc::clone(&user_db);
         mocked_user_repo
