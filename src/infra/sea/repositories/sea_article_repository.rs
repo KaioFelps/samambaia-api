@@ -7,7 +7,7 @@ use std::error::Error;
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::slug::Slug;
-use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyResponse};
+use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse};
 use crate::domain::domain_entities::article::Article;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
 use crate::infra::sea::sea_service::SeaService;
@@ -65,14 +65,14 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
         Ok(Some(mapped_article))
     }
 
-    async fn find_many(&self, params: PaginationParameters<ArticleQueryType>, show_only_approved_state: Option<bool>) -> Result<FindManyResponse, Box<dyn Error>> {
+    async fn find_many(&self, params: PaginationParameters<ArticleQueryType>, show_only_approved_state: Option<bool>) -> Result<FindManyArticlesResponse, Box<dyn Error>> {
         #[allow(unused_mut)]
         let mut articles_response;
 
         let current_page = params.page as u64;
         let items_per_page = params.items_per_page as u64;
 
-        let leap = ((&current_page - 1) * items_per_page) as u64;
+        let leap = (&current_page - 1) * items_per_page;
 
         articles_response = ArticleEntity::find()
         .order_by_desc(ArticleColumn::CreatedAt)
@@ -94,7 +94,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
             articles.push(SeaArticleMapper::model_to_article(article));
         }
 
-        Ok(FindManyResponse(articles, articles_count))
+        Ok(FindManyArticlesResponse(articles, articles_count))
     }
 
     async fn get_home_articles(&self) -> Result<Vec<Article>, Box<dyn Error>> {
@@ -134,12 +134,14 @@ impl SeaArticleRepository {
         match query {
             ArticleQueryType::Author(content) => {
                 let filter = ArticleColumn::AuthorId.eq(content);
-    
-                query_builder.filter(filter.clone())
+                query_builder.filter(filter)
             },
             ArticleQueryType::Title(content) => {
                 let filter = Expr::expr(Func::lower(Expr::col(ArticleColumn::Title))).like(format!("%{}%", content.to_lowercase()));
-                query_builder.filter(filter.clone())
+                query_builder.filter(filter)
+            },
+            ArticleQueryType::Tag(tag_id) => {
+                query_builder.filter(ArticleColumn::TagId.eq(tag_id))
             }
         }
     }
