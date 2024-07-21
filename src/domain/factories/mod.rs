@@ -33,3 +33,4 @@ pub mod delete_team_user_service_factory;
 pub mod fetch_many_team_users_service_factory;
 pub mod fetch_many_comments_with_author_service_factory;
 mod create_article_tag_service_factory;
+pub mod update_article_tag_service_factory;

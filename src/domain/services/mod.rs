@@ -33,3 +33,4 @@ pub mod fetch_many_users_service;
 pub mod get_user_service;
 pub mod fetch_many_comments_with_author_service;
 pub mod create_article_tag_service;
+pub mod update_article_tag_service;
