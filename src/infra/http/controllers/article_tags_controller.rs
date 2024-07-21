@@ -11,6 +11,7 @@ use crate::domain::factories::{
     create_article_tag_service_factory
 };
 use crate::domain::services::create_article_tag_service::CreateArticleTagParams;
+use crate::domain::services::delete_article_tag_service::DeleteArticleTagParams;
 use crate::domain::services::fetch_many_article_tags_service::FetchManyArticleTagsParams;
 use crate::domain::services::update_article_tag_service::UpdateArticleTagParams;
 use crate::infra::http::dtos::create_article_tag::CreateArticleTagDto;
@@ -144,7 +145,21 @@ impl ArticleTagsController {
         });
     }
 
-    async fn delete() -> impl Responder {
+    async fn delete(user: web::ReqData<ReqUser>, tag_id: web::Path<i32>) -> impl Responder {
+        let service = match delete_article_tag_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error,
+        };
+
+        let service_response = service.exec(DeleteArticleTagParams {
+            user_role: user.user_role.as_ref().unwrap(),
+            tag_id: tag_id.into_inner()
+        }).await;
+
+        if service_response.is_err() {
+            return generate_error_response(service_response.unwrap_err());
+        }
+
         return HttpResponse::NoContent().finish();
     }
 }

@@ -5,8 +5,8 @@ use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::util::{generate_service_internal_error, RolePermissions, verify_role_has_permission};
 
 pub struct DeleteArticleTagParams<'run> {
-    user_role: &'run Role,
-    tag_id: i32,
+    pub user_role: &'run Role,
+    pub tag_id: i32,
 }
 
 pub struct DeleteArticleTagService<ArticleTagRepository: ArticleTagRepositoryTrait> {
