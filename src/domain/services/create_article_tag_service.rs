@@ -6,8 +6,8 @@ use crate::util::{generate_service_internal_error, RolePermissions, verify_role_
 use crate::errors::error::DomainErrorTrait;
 
 pub struct CreateArticleTagParams {
-    value: String,
-    user_role: Role,
+    pub value: String,
+    pub user_role: Role,
 }
 
 pub struct CreateArticleTagService<ArticleTagRepository: ArticleTagRepositoryTrait> {

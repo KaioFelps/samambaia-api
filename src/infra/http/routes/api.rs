@@ -1,5 +1,5 @@
 use actix_web::web;
-
+use crate::infra::http::controllers::article_tags_controller::ArticleTagsController;
 use crate::infra::http::controllers::articles_controller::ArticlesController;
 use crate::infra::http::controllers::comment_reports_controller::CommentReportsController;
 use crate::infra::http::controllers::comments_controller::CommentsController;
@@ -25,6 +25,7 @@ impl RouteTrait for ApiRoutes {
             .configure(CommentReportsController::register)
             .configure(TeamRolesController::register)
             .configure(TeamUsersController::register)
+            .configure(ArticleTagsController::register)
         );
     }
 }

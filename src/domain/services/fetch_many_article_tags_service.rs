@@ -10,6 +10,7 @@ pub struct FetchManyArticleTagsParams {
     pub query: Option<String>,
 }
 
+#[derive(Debug)]
 pub struct FetchManyArticleTagsResponse {
     pub data: Vec<ArticleTag>,
     pub pagination: PaginationResponse
