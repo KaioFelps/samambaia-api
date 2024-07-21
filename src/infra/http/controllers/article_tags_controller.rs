@@ -2,6 +2,7 @@ use actix_web::{web, HttpResponse, Responder};
 use actix_web_lab::middleware::from_fn;
 use either::{Left, Right};
 use validator::Validate;
+use crate::core::pagination::DEFAULT_PER_PAGE;
 use super::controller::ControllerTrait;
 use crate::domain::factories::{
     delete_article_tag_service_factory,
@@ -10,11 +11,14 @@ use crate::domain::factories::{
     create_article_tag_service_factory
 };
 use crate::domain::services::create_article_tag_service::CreateArticleTagParams;
+use crate::domain::services::fetch_many_article_tags_service::FetchManyArticleTagsParams;
 use crate::infra::http::dtos::create_article_tag::CreateArticleTagDto;
+use crate::infra::http::dtos::list_article_tags::ListArticleTagsDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
-use crate::infra::http::presenters::article_tag::ArticleTagPresenter;
+use crate::infra::http::presenters::article_tag::{ArticleTagPresenter, MappedArticleTag};
 use crate::infra::http::presenters::error::ErrorPresenter;
+use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
 use crate::util::generate_error_response;
 
@@ -69,8 +73,38 @@ impl ArticleTagsController {
         });
     }
 
-    async fn list() -> impl Responder {
-        return HttpResponse::Ok().finish();
+    async fn list(query: web::Query<ListArticleTagsDto>) -> impl Responder {
+        match query.validate() {
+            Ok(()) => (),
+            Err(error) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(error.field_errors())),
+        };
+
+        let ListArticleTagsDto {
+            page,
+            per_page,
+            value
+        } = query.into_inner();
+
+        let service = match fetch_many_article_tags_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error,
+        };
+
+        let result = service.exec(FetchManyArticleTagsParams {
+            per_page: if per_page.is_none() { None } else { Some(per_page.unwrap() as u32) },
+            query: value,
+            page
+        }).await;
+
+        if result.is_err() {
+            return generate_error_response(result.unwrap_err());
+        }
+
+        let service_response = result.unwrap();
+        let mapped_article_tags = service_response.data.into_iter().map(ArticleTagPresenter::to_http).collect::<Vec<MappedArticleTag>>();
+        let mapped_pagination = PaginationPresenter::to_http(service_response.pagination, per_page.unwrap_or(DEFAULT_PER_PAGE));
+
+        return HttpResponse::Ok().json(ArticleTagPresenter::to_json_paginated_wrapper(mapped_article_tags, mapped_pagination));
     }
 
     async fn update() -> impl Responder {

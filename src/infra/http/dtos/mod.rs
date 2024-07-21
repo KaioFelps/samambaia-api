@@ -19,3 +19,4 @@ pub mod create_team_user;
 pub mod list_team_user;
 pub mod update_team_user;
 pub mod create_article_tag;
+pub mod list_article_tags;
