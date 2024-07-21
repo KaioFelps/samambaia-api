@@ -6,3 +6,4 @@ pub mod comments_controller;
 pub mod comment_reports_controller;
 pub mod team_roles_controller;
 pub mod team_users_controller;
+pub mod article_tags_controller;

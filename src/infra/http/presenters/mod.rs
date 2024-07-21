@@ -8,3 +8,4 @@ pub mod comment_report;
 pub mod presenter;
 pub mod team_role;
 pub mod team_user;
+pub mod article_tag;
