@@ -8,9 +8,9 @@ use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::util::{generate_service_internal_error, RolePermissions, verify_role_has_permission};
 
 pub struct UpdateArticleTagParams {
-    user_role: Role,
-    value: Option<String>,
-    tag_id: i32,
+    pub user_role: Role,
+    pub value: Option<String>,
+    pub tag_id: i32,
 }
 
 pub struct UpdateArticleTagService<ArticleTagRepository: ArticleTagRepositoryTrait> {

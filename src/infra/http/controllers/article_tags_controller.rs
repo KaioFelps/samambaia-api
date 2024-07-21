@@ -12,8 +12,10 @@ use crate::domain::factories::{
 };
 use crate::domain::services::create_article_tag_service::CreateArticleTagParams;
 use crate::domain::services::fetch_many_article_tags_service::FetchManyArticleTagsParams;
+use crate::domain::services::update_article_tag_service::UpdateArticleTagParams;
 use crate::infra::http::dtos::create_article_tag::CreateArticleTagDto;
 use crate::infra::http::dtos::list_article_tags::ListArticleTagsDto;
+use crate::infra::http::dtos::update_article_tag::UpdateArticleTagDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::article_tag::{ArticleTagPresenter, MappedArticleTag};
@@ -107,8 +109,39 @@ impl ArticleTagsController {
         return HttpResponse::Ok().json(ArticleTagPresenter::to_json_paginated_wrapper(mapped_article_tags, mapped_pagination));
     }
 
-    async fn update() -> impl Responder {
-        return HttpResponse::NoContent().finish();
+    async fn update(
+        body: web::Json<UpdateArticleTagDto>,
+        user: web::ReqData<ReqUser>,
+        tag_id: web::Path<i32>
+    ) -> impl Responder {
+        match body.validate() {
+            Ok(()) => (),
+            Err(error) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(error.field_errors())),
+        };
+
+        let body = body.into_inner();
+
+        let service = match update_article_tag_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error,
+        };
+
+        let service_response = service.exec(UpdateArticleTagParams {
+            value: body.value,
+            tag_id: tag_id.into_inner(),
+            user_role: user.into_inner().user_role.unwrap(),
+        }).await;
+
+        if service_response.is_err() {
+            return generate_error_response(service_response.unwrap_err());
+        }
+
+        let article_tag = service_response.unwrap();
+        let mapped_article_tag = ArticleTagPresenter::to_http(article_tag);
+
+        return HttpResponse::NoContent().json(JsonWrappedEntity {
+            data: mapped_article_tag
+        });
     }
 
     async fn delete() -> impl Responder {
