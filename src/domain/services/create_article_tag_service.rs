@@ -45,15 +45,13 @@ impl <ArticleTagRepository: ArticleTagRepositoryTrait>CreateArticleTagService<Ar
 
 #[cfg(test)]
 mod test {
-    use std::sync::{Arc, Mutex};
-    use crate::domain::domain_entities::article_tag::ArticleTag;
     use crate::domain::domain_entities::role::Role;
-    use crate::domain::repositories::article_tag_repository::MockArticleTagRepositoryTrait;
     use crate::domain::services::create_article_tag_service::CreateArticleTagParams;
+    use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
 
     #[tokio::test]
     async fn test_if_user_can_create_tag() {
-        let (tag_db, tag_repository) = get_repository();
+        let (tag_db, tag_repository) = get_article_tag_repository();
         let sut = super::CreateArticleTagService::new(tag_repository);
 
         let result = sut.exec(CreateArticleTagParams { value: "Foo".into(), user_role: Role::Principal }).await;
@@ -63,30 +61,11 @@ mod test {
 
     #[tokio::test]
     async fn test_if_unauthorized_user_cannot_create_tag() {
-        let (db, tag_repository) = get_repository();
+        let (db, tag_repository) = get_article_tag_repository();
         let sut = super::CreateArticleTagService::new(tag_repository);
 
         let result = sut.exec(CreateArticleTagParams { value: "Bar".into(), user_role: Role::Admin }).await;
         assert!(result.is_err());
         assert_eq!(db.lock().unwrap().len(), 0);
-    }
-
-    fn get_repository() -> (Arc<Mutex<Vec<ArticleTag>>>, MockArticleTagRepositoryTrait) {
-        let tag_db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(Vec::new()));
-        let mut mocked_article_tag_repository = MockArticleTagRepositoryTrait::new();
-
-        let db = Arc::clone(&tag_db);
-        mocked_article_tag_repository
-            .expect_create()
-            .returning(move |draft_tag| {
-                let id = db.lock().unwrap().len() + 1;
-
-                let tag = ArticleTag::new_from_existing(id as i32, draft_tag.value().into());
-                db.lock().unwrap().push(tag.clone());
-
-                Ok(tag)
-            });
-
-        return (tag_db, mocked_article_tag_repository)
     }
 }
