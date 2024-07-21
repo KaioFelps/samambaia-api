@@ -148,7 +148,6 @@ mod test {
     use tokio;
 
     use crate::domain::domain_entities::article::Article;
-    use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::repositories::article_comment_repository::MockArticleCommentRepositoryTrait;
     use crate::domain::domain_entities::user::User;
     use crate::domain::domain_entities::role::Role;
@@ -160,7 +159,7 @@ mod test {
         let mut db: Vec<Comment> = Vec::new();
 
         let user = User::new("Floricultor".to_string(), "password".to_string(), Some(Role::Principal));
-        let article = Article::new(user.id(), "Título da notícia".into(), "Conteúdo da notícia".into(), "url do cover".into());
+        let article = Article::new(user.id(), "Título da notícia".into(), "Conteúdo da notícia".into(), "url do cover".into(), 1, "Foo".into());
 
         db.push(Comment::new(user.id(), Some(article.id()), "Comment 1 content here".to_string()));
         db.push(Comment::new(user.id(), Some(article.id()), "Comment 2 content here".to_string()));
@@ -175,33 +174,20 @@ mod test {
 
         let mut mocked_comment_repo: MockArticleCommentRepositoryTrait = MockArticleCommentRepositoryTrait::new();
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
-        let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
 
         mocked_user_repo
-        .expect_find_by_nickname()
-        .returning(move |nickname| {
-            let user = user.clone();
+            .expect_find_by_nickname()
+            .returning(move |nickname| {
+                let user = user.clone();
 
-            let is_user = nickname == user.nickname();
+                let is_user = nickname == user.nickname();
 
-            if is_user {
-                return Ok(Some(user));
-            }
+                if is_user {
+                    return Ok(Some(user));
+                }
 
-            Ok(None)
-        });
-
-        mocked_article_repo
-        .expect_find_by_id()
-        .returning(move |article_id| {
-            let is_article = article.id().eq(&article_id);
-
-            if is_article {
-                return Ok(Some(article.clone()));
-            }
-            
-            Ok(None)
-        });
+                Ok(None)
+            });
 
         mocked_comment_repo
         .expect_find_many_comments()
@@ -244,13 +230,6 @@ mod test {
             let total_of_items_before_paginating = comments.len();
 
             let leap = (page - 1) * items_per_page;
-
-            /* SAMPLE
-            * page = 2
-            * items per page = 9
-            * leap = (2 - 1)*9 = 9
-            * comments from index 8 (leap - 1) on
-            */
 
             let mut res_comments = vec![];
 

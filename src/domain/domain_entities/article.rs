@@ -13,6 +13,8 @@ pub struct Article {
     title: String,
     content: String,
     approved: bool,
+    tag_id: Option<i32>,
+    tag_value: Option<String>,
     created_at: DateTime,
     updated_at: Option<DateTime>,
     slug: Slug,
@@ -25,7 +27,9 @@ impl Article {
         author_id: Uuid,
         title: String,
         content: String,
-        cover_url: String
+        cover_url: String,
+        tag_id: i32,
+        tag_value: String
     ) -> Self {
         let id = Uuid::new_v4();
 
@@ -40,6 +44,8 @@ impl Article {
             cover_url,
             title,
             content,
+            tag_id: Some(tag_id),
+            tag_value: Some(tag_value),
             approved: false,
             created_at,
             updated_at,
@@ -56,6 +62,8 @@ impl Article {
         approved: bool,
         created_at: DateTime,
         updated_at: Option<DateTime>,
+        tag_id: Option<i32>,
+        tag_value: Option<String>,
         slug: Slug,
     ) -> Self {
         Article {
@@ -65,6 +73,8 @@ impl Article {
             title,
             content,
             approved,
+            tag_value,
+            tag_id,
             created_at,
             updated_at,
             slug
@@ -115,6 +125,14 @@ impl Article {
         self.slug.clone()
     }
 
+    pub fn tag_id(&self) -> Option<i32> {
+        self.tag_id
+    }
+
+    pub fn tag_value(&self) -> Option<String> {
+        self.tag_value.clone()
+    }
+
     // SETTERS
 
     pub fn set_author_id(&mut self, author_id: Uuid) {
@@ -142,4 +160,8 @@ impl Article {
     pub fn set_approved(&mut self, approved: bool) {
         self.approved = approved;
     }
+
+    pub fn set_tag_id(&mut self, tag_id: i32) { self.tag_id = Some(tag_id) }
+
+    pub fn set_tag_value(&mut self, tag_value: String) { self.tag_value = Some(tag_value) }
 }

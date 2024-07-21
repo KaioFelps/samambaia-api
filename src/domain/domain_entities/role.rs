@@ -12,14 +12,16 @@ pub enum Role {
     Editor,
     Principal,
     User,
-    Writter,
+    Writer,
 }
 
 impl FromStr for Role {
+    type Err = EnumCoercionError;
+
     fn from_str(s: &str) -> Result<Self, EnumCoercionError> {
         let s = s.to_uppercase();
         let s = s.as_str();
-        
+
         match s {
             "ADMIN" => Ok(Self::Admin),
             "CEO" => Ok(Self::Ceo),
@@ -27,10 +29,8 @@ impl FromStr for Role {
             "EDITOR" => Ok(Self::Editor),
             "PRINCIPAL" => Ok(Self::Principal),
             "USER" => Ok(Self::User),
-            "WRITTER" => Ok(Self::Writter),
+            "WRITER" => Ok(Self::Writer),
             _ => Err(EnumCoercionError::new("Role"))
         }
     }
-    
-    type Err = EnumCoercionError;
 }

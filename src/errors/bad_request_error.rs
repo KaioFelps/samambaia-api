@@ -16,6 +16,13 @@ impl BadRequestError {
             message: "Bad request performed.".to_string()
         }
     }
+
+    pub fn new_with_message(message: String) -> Self {
+        BadRequestError {
+            code: StatusCode::BAD_REQUEST.as_u16(),
+            message,
+        }
+    }
 }
 
 impl DomainErrorTrait for BadRequestError {

@@ -14,7 +14,7 @@ impl InvalidCredentialsError {
     pub fn new() -> Self {
         InvalidCredentialsError {
             code: StatusCode::UNAUTHORIZED.as_u16(),
-            message: format!("Invalid credentials.")
+            message: "Invalid credentials.".into()
         }
     }
 }

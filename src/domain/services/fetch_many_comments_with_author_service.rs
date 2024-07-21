@@ -82,45 +82,35 @@ mod test {
     use tokio;
 
     use crate::domain::domain_entities::article::Article;
-    use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::repositories::comment_user_article_repository::MockCommentUserArticleRepositoryTrait;
     use crate::domain::domain_entities::user::User;
     use crate::domain::domain_entities::role::Role;
     use crate::libs::time::TimeHelper;
+    use crate::tests::repositories::article_repository::get_article_repository;
 
     #[tokio::test]
     async fn test() {
+        let mut mocked_comment_repo: MockCommentUserArticleRepositoryTrait = MockCommentUserArticleRepositoryTrait::new();
+        let (article_db, _) = get_article_repository();
+
         let mut db: Vec<CommentWithAuthor> = Vec::new();
 
         let user = User::new("Floricultor".to_string(), "password".to_string(), Some(Role::Principal));
-        let article = Article::new(user.id(), "Título da notícia".into(), "Conteúdo da notícia".into(), "url do cover".into());
+        let article = Article::new(user.id(), "Título da notícia".into(), "Conteúdo da notícia".into(), "url do cover".into(), 1, "Foo".into());
         let article_id = article.id();
+
+        article_db.lock().unwrap().push(article.clone());
 
         db.push(CommentWithAuthor::new(Some(article.id()), "Comment 1 content here".to_string(), user.clone()));
         db.push(CommentWithAuthor::new(Some(article.id()), "Comment 2 content here".to_string(), user.clone()));
         db.push(CommentWithAuthor::new_from_existing(
             Uuid::new_v4(),
             Some(article.id()),
-            "Coment 2 content here".into(),
+            "Comment 2 content here".into(),
             false,
             TimeHelper::now(),
             user.clone()
         ));
-
-        let mut mocked_comment_repo: MockCommentUserArticleRepositoryTrait = MockCommentUserArticleRepositoryTrait::new();
-        let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
-
-        mocked_article_repo
-            .expect_find_by_id()
-            .returning(move |article_id| {
-                let is_article = article.id().eq(&article_id);
-
-                if is_article {
-                    return Ok(Some(article.clone()));
-                }
-
-                Ok(None)
-            });
 
         mocked_comment_repo
             .expect_find_many_comments()
@@ -138,13 +128,6 @@ mod test {
                 let total_of_items_before_paginating = comments.len();
 
                 let leap = (page - 1) * items_per_page;
-
-                /* SAMPLE
-                * page = 2
-                * items per page = 9
-                * leap = (2 - 1)*9 = 9
-                * comments from index 8 (leap - 1) on
-                */
 
                 let mut res_comments = vec![];
 

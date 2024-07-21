@@ -2,7 +2,7 @@ use log::error;
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::article::Article;
-use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyResponse};
+use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
@@ -87,7 +87,7 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
         }
 
         let response = response.unwrap();
-        let FindManyResponse (articles, total_items) = response;
+        let FindManyArticlesResponse (articles, total_items) = response;
 
         Ok(FetchManyArticlesResponse {
             data: articles,
@@ -133,106 +133,58 @@ mod test {
     use http::StatusCode;
     use tokio;
 
-    use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::domain_entities::user::User;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
+    use crate::tests::repositories::article_repository::get_article_repository;
 
     #[tokio::test]
     async fn test() {
-        let mut db: Vec<Article> = Vec::new();
+        let (article_db, mocked_article_repo) = get_article_repository();
+        let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
 
         let user = User::new("Floricultor".to_string(), "password".to_string(), Some(Role::Principal));
 
-        let mut approved_article = Article::new(user.id(), "Article 1 title".to_string(), "Article 1 content here".to_string(), "url".to_string());
+        let mut approved_article = Article::new(
+            user.id(),
+            "Article 1 title".to_string(),
+            "Article 1 content here".to_string(),
+            "url".to_string(),
+            1,
+            "Foo".into()
+        );
         approved_article.set_approved(true);
-
-        db.push(approved_article);
-        db.push(Article::new(user.id(), "Article 2 title".to_string(), "Article 2 content here".to_string(), "url".to_string()));
-
-        let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
-        let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
+        article_db.lock().unwrap().push(approved_article.clone());
+        article_db.lock().unwrap().push(Article::new(
+            user.id(),
+            "Article 2 title".to_string(),
+            "Article 2 content here".to_string(),
+            "url".to_string(),
+            1,
+            "Foo".into()
+        ));
 
         mocked_user_repo
-        .expect_find_by_nickname()
-        .returning(move |nickname| {
-            let user = user.clone();
+            .expect_find_by_nickname()
+            .returning(move |nickname| {
+                let user = user.clone();
+                let is_user = nickname == user.nickname();
 
-            let is_user = nickname == user.nickname();
-
-            if is_user {
-                return Ok(Some(user));
-            }
-
-            Ok(None)
-        });
-
-        mocked_article_repo
-        .expect_find_many()
-        .returning(move |params, approved_status_filter| {
-            let PaginationParameters { page, items_per_page, query } = params;
-
-            let mut articles: Vec<Article> = Vec::new();
-
-            if query.is_some() {
-                let query = query.unwrap();
-                    match query {
-                        ArticleQueryType::Title(content) => {
-                            for item in db.iter() {
-                                if item.title().to_lowercase().contains(&content.clone().to_lowercase()[..]) {
-                                    articles.push(item.clone());
-                                }
-                            }
-                        },
-                        ArticleQueryType::Author(content) => {
-                            for item in db.iter() {
-                                if item.author_id().eq(&content) {
-                                    articles.push(item.clone());
-                                }
-                            }
-                        }
+                if is_user {
+                    return Ok(Some(user));
                 }
-            } else {
-                articles = db.clone();
-            }
 
-            if approved_status_filter.is_some() {
-                let approved_filter: bool = approved_status_filter.unwrap();
-                articles = articles.into_iter().filter(|article| article.approved().eq(&approved_filter)).collect::<Vec<Article>>();
-            }
-
-            let total_of_items_before_paginating = articles.len();
-
-            let leap = (page - 1) * items_per_page;
-
-            /* SAMPLE
-            * page = 2
-            * items per page = 9
-            * leap = (2 - 1)*9 = 9
-            * articles from index 8 (leap - 1) on
-            */
-
-            let mut res_articles = vec![];
-
-            for (index, item) in articles.iter().enumerate() {
-                if index >= leap as usize {
-                    res_articles.push(item.to_owned());
-                }
-            }
-
-            Ok(FindManyResponse (res_articles, total_of_items_before_paginating as u64))
-        });
+                Ok(None)
+            });
 
         let fetch_many_articles_service = FetchManyArticlesService::new(Box::new(mocked_article_repo), Box::new(mocked_user_repo));
 
-        let query_by_title_request = fetch_many_articles_service.exec(
-            FetchManyArticlesParams {
-                page: Some(2),
-                per_page: Some(1),
-                query: Some(ServiceArticleQueryType::Title("article".to_string())),
-                approved_state: None,
-            },
-        ).await.unwrap();
+        let query_by_title_request = fetch_many_articles_service.exec(FetchManyArticlesParams {
+            page: Some(2),
+            per_page: Some(1),
+            query: Some(ServiceArticleQueryType::Title("article".to_string())),
+            approved_state: None,
+        }).await.unwrap();
 
         assert_eq!(1, query_by_title_request.data.len(), "Expected exactly one article with the queried title.");
         assert_eq!(query_by_title_request.pagination, PaginationResponse { current_page: 2, total_pages: 2, total_items: 2 });
@@ -286,29 +238,5 @@ mod test {
 
         assert_eq!(1, query_approved_only_articles_request.data.len(), "Expected only-approved-articles request to be 1 item length.");
         assert_eq!(1, query_approved_only_articles_request.pagination.total_items, "Expected only-approved-articles request pagination total_items to be 1.")
-
-        /* RESPONSE SAMPLE
-
-        FetchManyArticlesResponse {
-            pagination: PaginationResponse {
-                current_page: 2,
-                total_pages: 2,
-                total_items: 2,
-            },
-            data: [
-                Article {
-                    id: 2f5627eb-fb84-4713-8ca7-6a46d48f17d9,
-                    author_id: 1329fda2-4c14-4fe6-b4dc-6f698ef24f7e,
-                    cover_url: \"url\",
-                    title: \"Article 2 title\",
-                    content: \"Article 2 content here\",
-                    approved: false,
-                    created_at: 2024-02-01T05:25:05.670068700,
-                    updated_at: None,
-                },
-            ],
-        }
-
-        */
     }
 }

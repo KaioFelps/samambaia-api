@@ -26,6 +26,10 @@ pub enum RolePermissions {
     CreateTeamUser,
     UpdateTeamUser,
     DeleteTeamUser,
+
+    CreateArticleTag,
+    UpdateArticleTag,
+    DeleteArticleTag,
 }
 
 impl RolePermissions {
@@ -33,16 +37,16 @@ impl RolePermissions {
         use RolePermissions::*;
     
         let perms_user = vec![];
-        let perms_writter = vec![CreateArticle];
-        let perms_editor = [&perms_writter[..], &[UpdateArticle, ApproveArticle, SeeUnapprovedArticle]].concat();
+        let perms_writer = vec![CreateArticle];
+        let perms_editor = [&perms_writer[..], &[UpdateArticle, ApproveArticle, SeeUnapprovedArticle]].concat();
         let perms_coord = [&perms_editor[..], &[DisapproveArticle, InactivateComment, SolveReport]].concat();
         let perms_admin = [&perms_coord[..], &[UpdateUser, DeleteComment, CreateTeamUser, UpdateTeamUser, DeleteTeamUser]].concat();
-        let perms_principal = [&perms_admin[..], &[ChangeUserPassword, DeleteArticle, DeleteReport, CreateNewTeamRole, UpdateTeamRole, ChangeArticleAuthor]].concat();
-        let perms_ceo = [&perms_principal[..], &[DeleteTeamRole]].concat();
+        let perms_principal = [&perms_admin[..], &[ChangeUserPassword, DeleteArticle, DeleteReport, CreateNewTeamRole, UpdateTeamRole, ChangeArticleAuthor, CreateArticleTag, UpdateArticleTag]].concat();
+        let perms_ceo = [&perms_principal[..], &[DeleteTeamRole, DeleteArticleTag]].concat();
     
         match role {
             Role::User => perms_user,
-            Role::Writter => perms_writter,
+            Role::Writer => perms_writer,
             Role::Editor => perms_editor,
             Role::Coord => perms_coord,
             Role::Admin => perms_admin,

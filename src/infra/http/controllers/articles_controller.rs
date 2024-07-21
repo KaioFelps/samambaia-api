@@ -66,6 +66,12 @@ impl ArticlesController {
         body: web::Json<CreateArticleDto>,
         user: web::ReqData<ReqUser>
     ) -> impl Responder {
+        match body.validate() {
+            Err(error) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(error.field_errors())),
+            Ok(()) => ()
+        };
+
+        let body = body.into_inner();
         let auth_user = user.into_inner();
 
         let service = match create_article_service_factory::exec().await {
@@ -73,14 +79,21 @@ impl ArticlesController {
             Right(error) => return error
         };
 
-        let CreateArticleDto {author_id, content, cover_url, title} = body.into_inner();
+        let CreateArticleDto {
+            author_id,
+            content,
+            cover_url,
+            title,
+            tag_id
+        } = body;
 
         let result = service.exec(CreateArticleParams {
             custom_author_id: author_id,
             staff_id: auth_user.user_id,
             content,
             cover_url,
-            title
+            title,
+            tag_id
         }).await;
                 
         if result.is_err() {
@@ -170,8 +183,19 @@ impl ArticlesController {
         ).await;
     }
 
-    async fn update(user: web::ReqData<ReqUser>, body: web::Json<UpdateArticleDto>, article_id: web::Path<Uuid>) -> impl Responder {
-        let UpdateArticleDto {title, approved, cover_url, content, author_id} = match body.validate() {
+    async fn update(
+        user: web::ReqData<ReqUser>,
+        body: web::Json<UpdateArticleDto>,
+        article_id: web::Path<Uuid>
+    ) -> impl Responder {
+        let UpdateArticleDto {
+            title,
+            approved,
+            cover_url,
+            content,
+            author_id,
+            tag_id
+        } = match body.validate() {
             Err(e) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(e.field_errors())),
             Ok(()) => body.into_inner()
         };
@@ -192,6 +216,7 @@ impl ArticlesController {
             article_id: article_id.into_inner(),
             title,
             author_id,
+            tag_id
         }).await;
 
         if result.is_err() {

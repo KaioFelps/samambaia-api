@@ -14,7 +14,7 @@ impl ResourceNotFoundError {
     pub fn new() -> Self {
         ResourceNotFoundError {
             code: StatusCode::NOT_FOUND.as_u16(),
-            message: format!("Resource not found.")
+            message: "Resource not found.".into()
         }
     }
 }

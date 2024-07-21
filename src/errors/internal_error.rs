@@ -14,7 +14,7 @@ impl InternalError {
     pub fn new() -> Self {
         InternalError {
             code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
-            message: format!("Internal server error.")
+            message: "Internal server error.".into()
         }
     }
 }

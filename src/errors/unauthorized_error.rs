@@ -15,7 +15,7 @@ impl UnauthorizedError {
     pub fn new() -> Self {
         UnauthorizedError {
             code: StatusCode::UNAUTHORIZED.as_u16(),
-            message: format!("Unauthorized.")
+            message: "Unauthorized.".into()
         }
     }
 }

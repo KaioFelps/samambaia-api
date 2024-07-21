@@ -8,9 +8,10 @@ use crate::errors::bad_request_error::BadRequestError;
 use crate::errors::error::DomainErrorTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
-use crate::util::{RolePermissions, verify_role_has_permission};
-
+use crate::util::{generate_service_internal_error, RolePermissions, verify_role_has_permission};
 use crate::{LOG_SEP, R_EOL};
+use crate::domain::domain_entities::article_tag::ArticleTag;
+use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 
 pub struct UpdateArticleParams {
     pub user_id: Uuid,
@@ -20,30 +21,32 @@ pub struct UpdateArticleParams {
     pub title: Option<String>,
     pub content: Option<String>,
     pub approved: Option<bool>,
-    pub author_id: Option<Uuid>
+    pub author_id: Option<Uuid>,
+    pub tag_id: Option<i32>
 }
-pub struct UpdateArticleService<ArticleRepository: ArticleRepositoryTrait> {
+pub struct UpdateArticleService<ArticleRepository: ArticleRepositoryTrait, ArticleTagRepository: ArticleTagRepositoryTrait> {
     article_repository: Box<ArticleRepository>,
+    article_tag_repository: Box<ArticleTagRepository>
 }
 
 impl
-<ArticleRepository: ArticleRepositoryTrait> UpdateArticleService<ArticleRepository>
+<ArticleRepository: ArticleRepositoryTrait, ArticleTagRepository: ArticleTagRepositoryTrait>
+UpdateArticleService<ArticleRepository, ArticleTagRepository>
 {
-    pub fn new(article_repository: Box<ArticleRepository>) -> Self {
+    pub fn new(article_repository: Box<ArticleRepository>, article_tag_repository: Box<ArticleTagRepository>) -> Self {
         UpdateArticleService {
             article_repository,
+            article_tag_repository
         }
     }
 
     pub async fn exec(&self, params: UpdateArticleParams) -> Result<Article, Box<dyn DomainErrorTrait>> {
         // checks if there is something to be updated
-
         if params.cover_url.is_none() && params.title.is_none() && params.cover_url.is_none() && params.approved.is_none() {
             return Err(Box::new(BadRequestError::new()));
         }
 
         // article verifications
-
         let article_on_db = self.article_repository.find_by_id(params.article_id).await;
 
         if article_on_db.is_err() {
@@ -94,7 +97,7 @@ impl
 
         if !user_can_change_article_author && params.author_id.is_some() { return Err(Box::new(UnauthorizedError::new())) }
 
-        // article modifying
+        // modifies the article where requested
         if params.author_id.is_some() {
             article.set_author_id(params.author_id.unwrap())
         }
@@ -115,127 +118,112 @@ impl
             article.set_approved(params.approved.unwrap());
         }
 
+        if params.tag_id.is_some() {
+            let tag = self.get_tag_by_id(params.tag_id.unwrap()).await;
+            let tag = match tag {
+                Ok(tag) => tag,
+                Err(error) => return Err(error),
+            };
+
+            article.set_tag_id(tag.id());
+            article.set_tag_value(tag.value().to_owned());
+        }
+
         let response = self.article_repository.save(article).await;
 
         if response.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update Article Service, while saving the article on the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                response.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
+            return Err(generate_service_internal_error(
+                "Error occurred in Update Article Service, while saving the article on the database".into(),
+                &response.unwrap_err()
+            ));
         }
-        
-        Ok(response.unwrap())
+        let article = response.unwrap();
+
+        Ok(article)
+    }
+
+    async fn get_tag_by_id(&self, tag_id: i32) -> Result<ArticleTag, Box<dyn DomainErrorTrait>> {
+        let tag = self.article_tag_repository.find_by_id(tag_id).await;
+
+        if tag.is_err() {
+            return Err(generate_service_internal_error(
+                "Error occurred in Update Article Service, while finding article tag by id".into(),
+                tag.as_ref().unwrap_err()
+            ));
+        }
+
+        let tag = tag.unwrap();
+        if tag.is_none() {
+            return Err(Box::new(BadRequestError::new_with_message(format!("Tag with id '{}' not found.", tag_id))))
+        }
+
+        Ok(tag.unwrap())
     }
 }
-
 
 #[cfg(test)]
 mod test {
     use http::StatusCode;
     use uuid::Uuid;
-
-    use crate::errors::resource_not_found::ResourceNotFoundError;
-    use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
+    use crate::domain::domain_entities::article_tag::ArticleTag;
     use crate::domain::domain_entities::role::Role;
     use super::{Article, UpdateArticleParams};
+    use crate::tests::repositories::article_repository::get_article_repository;
+    use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
 
     #[tokio::test]
     async fn test() {
-        let mut mocked_article_repo: MockArticleRepositoryTrait = MockArticleRepositoryTrait::new();
-
-        let mut article_db: Vec<Article> = vec![];
+        let (article_db, article_repository) = get_article_repository();
+        let (tag_db, article_tag_repository) = get_article_tag_repository();
 
         let article = Article::new(
             Uuid::new_v4(),
             "Título inicial".to_string(),
             "Conteúdo inicial".to_string(),
-            "coverurl.inicial".to_string()
+            "coverurl.inicial".to_string(),
+            1,
+            "Foo".to_string()
         );
 
-        article_db.push(article.clone());
+        let article_tag = ArticleTag::new_from_existing(2, "Bar".to_string());
 
-        // mocking article repo
-        let db = article_db.clone().to_owned();
-        mocked_article_repo
-        .expect_find_by_id()
-        .returning(move |id| {
-            let db = &db;
-
-            let mut index: Option<usize> = None;
-
-            for (i, item) in db.iter().enumerate() {
-                if item.id() == id {
-                    index = Some(i);
-                    break;
-                }
-            }
-
-            if index.is_none() {
-                return Ok(None);
-            }
-
-            let index = index.unwrap();
-
-            Ok(Some(db[index].clone()))
-        });
-
-        mocked_article_repo
-        .expect_save()
-        .returning(move |param_article: Article| {
-            let article_id = param_article.id().clone();
-
-            article_db.push(param_article.clone());
-
-            let mut index: Option<usize> = None;
-
-            for (i, item) in article_db.iter().enumerate() {
-                if item.id() == article_id {
-                    index = Some(i);
-                    break;
-                }
-            }
-
-            if index.is_none() {
-                return Err(Box::new(ResourceNotFoundError::new()));
-            }
-
-            let index = index.unwrap();
-
-            article_db[index] = param_article;
-
-            Ok(article_db[0].clone())
-        });
+        tag_db.lock().unwrap().push(article_tag);
+        article_db.lock().unwrap().push(article.clone());
 
         let service = super::UpdateArticleService {
-            article_repository: Box::new(mocked_article_repo)
+            article_repository: Box::new(article_repository),
+            article_tag_repository: Box::new(article_tag_repository)
         };
 
         let result = service.exec(UpdateArticleParams {
             user_id: article.author_id(),
-            user_role: Role::Writter,
+            user_role: Role::Writer,
             article_id: article.id(),
             approved: Some(true),
             title: None,
             content: None,
             cover_url: None,
             author_id: None,
+            tag_id: None
         }).await;
 
-        assert_eq!(result.unwrap_err().code(), &StatusCode::UNAUTHORIZED); // writter can't approve any article
+        assert_eq!(result.unwrap_err().code(), &StatusCode::UNAUTHORIZED); // writer can't approve any article
 
         let result = service.exec(UpdateArticleParams {
             user_id: article.author_id(),
-            user_role: Role::Writter,
+            user_role: Role::Writer,
             article_id: article.id(),
             approved: None,
             title: Some("Título atualizado".to_string()),
             content: Some("Conteúdo atualizado".to_string()),
             cover_url: None,
             author_id: None,
+            tag_id: Some(2)
         }).await;
 
-        assert_eq!("Título atualizado", result.unwrap().title());
+        let result = result.unwrap();
+
+        assert_eq!("Título atualizado", result.title());
+        assert_eq!("Bar".to_string(), result.tag_value().unwrap());
     }
 }

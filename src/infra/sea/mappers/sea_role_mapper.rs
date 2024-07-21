@@ -5,6 +5,7 @@ use crate::domain::domain_entities::role::Role;
 pub struct SeaRoleMapper {}
 
 impl SeaRoleMapper {
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_sea(role: Role) -> RoleModel {
         match role {
             Role::Ceo => RoleModel::Ceo,
@@ -12,11 +13,12 @@ impl SeaRoleMapper {
             Role::Admin => RoleModel::Admin,
             Role::Coord => RoleModel::Coord,
             Role::Editor => RoleModel::Editor,
-            Role::Writter => RoleModel::Writter,
+            Role::Writer => RoleModel::Writer,
             Role::User => RoleModel::User,
         }
     }
 
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_domain(role: RoleModel) -> Role {
         match role {
             RoleModel::Ceo => Role::Ceo,
@@ -24,7 +26,7 @@ impl SeaRoleMapper {
             RoleModel::Admin => Role::Admin,
             RoleModel::Coord => Role::Coord,
             RoleModel::Editor => Role::Editor,
-            RoleModel::Writter => Role::Writter,
+            RoleModel::Writer => Role::Writer,
             RoleModel::User => Role::User,
         }
     }

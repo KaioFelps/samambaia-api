@@ -19,6 +19,8 @@ impl SeaArticleMapper {
             created_at: article.created_at(),
             updated_at: article.updated_at(),
             slug: article.slug().to_string(),
+            tag_id: article.tag_id(),
+            tag_value: article.tag_value()
         };
 
         sea_model
@@ -34,7 +36,9 @@ impl SeaArticleMapper {
             approved: article.approved().into_active_value(),
             created_at: article.created_at().into_active_value(),
             updated_at: article.updated_at().into_active_value(),
-            slug: article.slug().to_string().into_active_value()
+            slug: article.slug().to_string().into_active_value(),
+            tag_value: article.tag_value().into_active_value(),
+            tag_id: article.tag_id().into_active_value()
         };
 
         sea_active_model
@@ -50,7 +54,9 @@ impl SeaArticleMapper {
             active_model_article.approved.unwrap(),
             active_model_article.created_at.unwrap(),
             active_model_article.updated_at.unwrap(),
-            Slug::new_from_existing(active_model_article.slug.unwrap())
+            active_model_article.tag_id.unwrap(),
+            active_model_article.tag_value.unwrap(),
+            Slug::new_from_existing(active_model_article.slug.unwrap()),
         );
 
         article
@@ -66,6 +72,8 @@ impl SeaArticleMapper {
             model_article.approved,
             model_article.created_at,
             model_article.updated_at,
+            model_article.tag_id,
+            model_article.tag_value,
             Slug::new_from_existing(model_article.slug)
         );
 

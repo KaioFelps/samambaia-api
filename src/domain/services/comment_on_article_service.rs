@@ -76,9 +76,9 @@ mod test {
     
     use crate::domain::domain_entities::article::Article;
     use crate::domain::domain_entities::slug::Slug;
-    use crate::domain::repositories::article_repository::MockArticleRepositoryTrait;
     use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
     use crate::libs::time::TimeHelper;
+    use crate::tests::repositories::article_repository::get_article_repository;
 
     #[allow(dead_code)]
     #[derive(Clone, Copy)]
@@ -90,17 +90,15 @@ mod test {
 
     #[tokio::test]
     async fn test() {
-        let mut mocked_article_repo = MockArticleRepositoryTrait::new();
+        let (article_db, mocked_article_repo) = get_article_repository();
         let mut mocked_comment_repo = MockCommentRepositoryTrait::new();
 
         let user_id = Uuid::new_v4();
         let article_id = Uuid::new_v4();
 
-        mocked_article_repo
-        .expect_find_by_id()
-        .returning(move |id| {
-            let article = Article::new_from_existing(
-                id.clone(),
+        article_db.lock().unwrap().push(
+            Article::new_from_existing(
+                article_id.clone(),
                 user_id.clone(),
                 "cover_url".into(),
                 "title".into(),
@@ -108,11 +106,11 @@ mod test {
                 false,
                 TimeHelper::now(),
                 None,
-                Slug::new(id, "title".into())
-            );
-
-            Ok(Some(article))
-        });
+                Some(1),
+                Some("Foo".to_string()),
+                Slug::new(article_id, "title".into())
+            )
+        );
 
         let comment_article_db: Arc<Mutex<Vec<CommentArticle>>> = Arc::new(Mutex::new(vec![]));
         let comment_db: Arc<Mutex<Vec<Comment>>> = Arc::new(Mutex::new(vec![]));

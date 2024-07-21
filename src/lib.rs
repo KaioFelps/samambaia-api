@@ -9,6 +9,7 @@ pub mod domain;
 pub mod core;
 pub mod libs;
 pub mod server;
+mod tests;
 
 pub static ENV_VARS: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::from_env());
 
