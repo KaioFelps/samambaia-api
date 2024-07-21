@@ -38,7 +38,7 @@ pub fn get_article_tag_repository() -> (Arc<Mutex<Vec<ArticleTag>>>, MockArticle
             let mut new_db: Vec<ArticleTag> = vec![];
 
             for item in db_clone.lock().unwrap().iter() {
-                if item.id().eq(&tag.id()) {
+                if item.id().ne(&tag.id()) {
                     new_db.push(item.clone());
                 }
             }
