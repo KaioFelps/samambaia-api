@@ -77,7 +77,7 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository {
         let leap = (&current_page - 1) * items_per_page;
         
         let filter = |query_builder: Select<ArticleTagEntity>, query: ArticleTagQueryType| {
-            let ArticleTagQueryType::Title(query) = query;
+            let ArticleTagQueryType::Value(query) = query;
             let filter = Expr::expr(Func::lower(Expr::col(ArticleTagColumn::Value))).like(format!("%{}%", query.to_lowercase()));
             query_builder.filter(filter)
         };

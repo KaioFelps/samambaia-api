@@ -15,7 +15,7 @@ pub struct FindManyArticleTagsResponse (
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ArticleTagQueryType {
-    Title(String),
+    Value(String),
 }
 
 #[cfg_attr(test, automock)]
