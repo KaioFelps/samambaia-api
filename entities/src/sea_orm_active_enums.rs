@@ -18,6 +18,6 @@ pub enum Role {
     Principal,
     #[sea_orm(string_value = "User")]
     User,
-    #[sea_orm(string_value = "Writer")]
-    Writer,
+    #[sea_orm(string_value = "Writter")]
+    Writter,
 }
