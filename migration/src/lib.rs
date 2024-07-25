@@ -22,6 +22,7 @@ mod m20240316_042712_alter_team_user_table;
 mod m20240604_054455_make_article_slug_a_unique_key;
 mod m20240719_034959_create_article_tag_table_and_add_tag_to_article;
 mod m20240722_224100_remove_unique_constraint_from_team_user_field;
+mod m20240725_022019_create_free_badges_table;
 
 pub struct Migrator;
 
@@ -51,6 +52,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20240604_054455_make_article_slug_a_unique_key::Migration),
             Box::new(m20240719_034959_create_article_tag_table_and_add_tag_to_article::Migration),
             Box::new(m20240722_224100_remove_unique_constraint_from_team_user_field::Migration),
+            Box::new(m20240725_022019_create_free_badges_table::Migration),
         ]
     }
 }
