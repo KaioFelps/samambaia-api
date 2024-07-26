@@ -1,6 +1,7 @@
 use std::error::Error;
 use async_trait::async_trait;
 use sea_orm::{ActiveModelTrait, EntityTrait, PaginatorTrait,QueryOrder, QuerySelect};
+use uuid::Uuid;
 use crate::core::pagination::PaginationParameters;
 use crate::infra::sea::sea_service::SeaService;
 use entities::free_badge::Column as FreeBadgeColumn;
@@ -67,5 +68,18 @@ impl FreeBadgeRepositoryTrait for SeaFreeBadgeRepository {
         let mapped_badges: Vec<FreeBadge> = badges.into_iter().map(SeaFreeBadgeMapper::model_to_free_badge).collect();
 
         Ok(FindManyFreeBadgesResponse (mapped_badges, badges_count))
+    }
+
+    async fn find_by_id(&self, id: Uuid) -> Result<Option<FreeBadge>, Box<dyn Error>> {
+        let result = FreeBadgeEntity::find_by_id(id).one(&self.sea_service.db).await?;
+
+        if result.is_none() {
+            return Ok(None);
+        }
+
+        let free_badge_model = result.unwrap();
+        let free_badge = SeaFreeBadgeMapper::model_to_free_badge(free_badge_model);
+
+        Ok(Some(free_badge))
     }
 }
