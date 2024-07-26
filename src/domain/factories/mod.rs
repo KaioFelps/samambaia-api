@@ -32,7 +32,10 @@ pub mod update_team_user_service_factory;
 pub mod delete_team_user_service_factory;
 pub mod fetch_many_team_users_service_factory;
 pub mod fetch_many_comments_with_author_service_factory;
+
 pub mod create_article_tag_service_factory;
 pub mod update_article_tag_service_factory;
 pub mod fetch_many_article_tags_service_factory;
 pub mod delete_article_tag_service_factory;
+
+pub mod create_free_badge_service_factory;
