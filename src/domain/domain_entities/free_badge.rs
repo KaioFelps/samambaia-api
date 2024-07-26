@@ -1,5 +1,6 @@
 use chrono::NaiveDateTime;
 use uuid::Uuid;
+
 use crate::libs::time::TimeHelper;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -82,5 +83,25 @@ impl FreeBadge {
 
     pub fn created_at(&self) -> NaiveDateTime {
         self.created_at
+    }
+
+    pub fn set_code(&mut self, value: String) -> () {
+        self.code = value;
+    }
+
+    pub fn set_image(&mut self, value: String) -> () {
+        self.image = value;
+    }
+
+    pub fn set_link(&mut self, value: String) -> () {
+        self.link = value;
+    }
+
+    pub fn set_link_is_external(&mut self, value: bool) -> () {
+        self.link_is_external = value;
+    }
+
+    pub fn set_available_until(&mut self, value: Option<NaiveDateTime>) -> () {
+        self.available_until = value;
     }
 }
