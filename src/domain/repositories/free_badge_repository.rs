@@ -1,10 +1,10 @@
 use async_trait::async_trait;
 use std::error::Error;
 use crate::domain::domain_entities::free_badge::FreeBadge;
+use crate::core::pagination::PaginationParameters;
 
 #[cfg(test)]
 use mockall::automock;
-use crate::core::pagination::PaginationParameters;
 
 #[derive(Debug)]
 pub struct FindManyFreeBadgesResponse (
@@ -18,5 +18,5 @@ pub trait FreeBadgeRepositoryTrait {
     async fn create(&self, free_badge: FreeBadge) -> Result<FreeBadge, Box<dyn Error>>;
     async fn save(&self, free_badge: FreeBadge) -> Result<FreeBadge, Box<dyn Error>>;
     async fn delete(&self, free_badge: FreeBadge) -> Result<(), Box<dyn Error>>;
-    async fn find_many(&self, PaginationParameters<()>) -> Result<FindManyFreeBadgesResponse, Box<dyn Error>>;
+    async fn find_many(&self, parrams: PaginationParameters<()>) -> Result<FindManyFreeBadgesResponse, Box<dyn Error>>;
 }
