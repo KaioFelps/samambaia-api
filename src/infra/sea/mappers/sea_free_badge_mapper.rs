@@ -22,9 +22,9 @@ impl SeaFreeBadgeMapper {
     pub fn free_badge_to_sea_active_model(free_badge: FreeBadge) -> FreeBadgeActiveModel {
         FreeBadgeActiveModel {
             id: free_badge.id().into_active_value(),
-            image: free_badge.image().into(),
-            code: free_badge.code().into(),
-            link: free_badge.link().into(),
+            image: free_badge.image().to_owned().into_active_value(),
+            code: free_badge.code().to_owned().into_active_value(),
+            link: free_badge.link().to_owned().into_active_value(),
             link_is_external: free_badge.link_is_external().into_active_value(),
             created_at: free_badge.created_at().into_active_value(),
             available_until: free_badge.available_until().into_active_value(),
