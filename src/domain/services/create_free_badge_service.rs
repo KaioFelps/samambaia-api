@@ -1,10 +1,13 @@
 use chrono::NaiveDateTime;
 use crate::domain::domain_entities::free_badge::FreeBadge;
+use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::free_badge_repository::FreeBadgeRepositoryTrait;
 use crate::errors::error::DomainErrorTrait;
-use crate::util::generate_service_internal_error;
+use crate::errors::unauthorized_error::UnauthorizedError;
+use crate::util::{generate_service_internal_error, RolePermissions, verify_role_has_permission};
 
 pub struct CreateFreeBadgeParams {
+    pub user_role: Role,
     pub code: String,
     pub link: String,
     pub link_is_external: bool,
@@ -24,6 +27,12 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> CreateFreeBadgeService<FreeB
     }
 
     pub async fn exec(&self, params: CreateFreeBadgeParams) -> Result<FreeBadge, Box<dyn DomainErrorTrait>> {
+        let user_can_create_free_badge = verify_role_has_permission(&params.user_role, RolePermissions::CreateFreeBadge);
+
+        if !user_can_create_free_badge {
+            return Err(Box::new(UnauthorizedError::new()));
+        }
+
         let free_badge = FreeBadge::new(
             params.code,
             params.image,
@@ -47,6 +56,7 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> CreateFreeBadgeService<FreeB
 
 #[cfg(test)]
 mod test {
+    use crate::domain::domain_entities::role::Role;
     use crate::domain::services::create_free_badge_service::CreateFreeBadgeParams;
     use crate::libs::time::TimeHelper;
     use crate::tests::repositories::free_badge_repository::get_free_badge_repository;
@@ -58,6 +68,7 @@ mod test {
         let sut = super::CreateFreeBadgeService::new(free_badge_repository);
 
         let result = sut.exec(CreateFreeBadgeParams {
+            user_role: Role::Writer,
             image: "i.imgur.com/".into(),
             code: "KF001".into(),
             link: "www.cosmic.com/news/x".into(),
