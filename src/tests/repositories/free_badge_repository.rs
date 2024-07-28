@@ -44,12 +44,15 @@ pub fn get_free_badge_repository() -> (Arc<Mutex<Vec<FreeBadge>>>, MockFreeBadge
     let db_clone = Arc::clone(&db);
     repository.expect_find_many().returning(move |params| {
         let badges: Vec<FreeBadge> = db_clone.lock().unwrap().clone();
+
         let total_of_items_before_paginating = badges.len();
+
         let leap = (params.page - 1) * params.items_per_page;
+
         let mut res_badges = vec![];
 
         for (index, item) in badges.into_iter().enumerate() {
-            if index >= leap as usize {
+            if index.ge(&(leap as usize)) && res_badges.len().lt(&(params.items_per_page as usize)) {
                 res_badges.push(item);
             }
         }
