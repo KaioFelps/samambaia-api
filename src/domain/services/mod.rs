@@ -29,12 +29,17 @@ pub mod create_team_user_service;
 pub mod update_team_user_service;
 pub mod delete_team_user_service;
 pub mod fetch_many_team_users_service;
+
 pub mod fetch_many_users_service;
 pub mod get_user_service;
+
 pub mod fetch_many_comments_with_author_service;
+
 pub mod create_article_tag_service;
 pub mod update_article_tag_service;
 pub mod fetch_many_article_tags_service;
 pub mod delete_article_tag_service;
+
 pub mod create_free_badge_service;
 pub mod update_free_badge_service;
+pub mod fetch_many_free_badges_service;
