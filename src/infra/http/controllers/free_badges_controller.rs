@@ -12,6 +12,7 @@ use crate::domain::factories::{
     delete_free_badge_service_factory
 };
 use crate::domain::services::create_free_badge_service::CreateFreeBadgeParams;
+use crate::domain::services::delete_free_badge_service::DeleteFreeBadgeParams;
 use crate::domain::services::fetch_many_free_badges_service::FetchManyFreeBadgesParams;
 use crate::domain::services::update_free_badge_service::UpdateFreeBadgeParams;
 use crate::infra::http::dtos::create_free_badge::CreateFreeBadgeDto;
@@ -140,7 +141,21 @@ impl FreeBadgesController {
         });
     }
 
-    async fn delete() -> impl Responder {
+    async fn delete(user: web::ReqData<ReqUser>, free_badge_id: web::Path<Uuid>) -> impl Responder {
+        let service = match delete_free_badge_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error,
+        };
+
+        let result = service.exec(DeleteFreeBadgeParams {
+            free_badge_id: free_badge_id.into_inner(),
+            user_role: user.into_inner().user_role.unwrap()
+        }).await;
+
+        if result.is_err() {
+            return generate_error_response(result.unwrap_err());
+        }
+
         return HttpResponse::NoContent().finish();
     }
 }
