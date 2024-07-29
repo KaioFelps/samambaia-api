@@ -4,6 +4,7 @@ pub use super::article::Entity as Article;
 pub use super::article_tag::Entity as ArticleTag;
 pub use super::comment::Entity as Comment;
 pub use super::comment_report::Entity as CommentReport;
+pub use super::free_badge::Entity as FreeBadge;
 pub use super::team_role::Entity as TeamRole;
 pub use super::team_user::Entity as TeamUser;
 pub use super::user::Entity as User;

@@ -30,6 +30,10 @@ pub enum RolePermissions {
     CreateArticleTag,
     UpdateArticleTag,
     DeleteArticleTag,
+
+    CreateFreeBadge,
+    UpdateFreeBadge,
+    DeleteFreeBadge,
 }
 
 impl RolePermissions {
@@ -37,7 +41,7 @@ impl RolePermissions {
         use RolePermissions::*;
     
         let perms_user = vec![];
-        let perms_writer = vec![CreateArticle];
+        let perms_writer = vec![CreateArticle, CreateFreeBadge, UpdateFreeBadge, DeleteFreeBadge];
         let perms_editor = [&perms_writer[..], &[UpdateArticle, ApproveArticle, SeeUnapprovedArticle]].concat();
         let perms_coord = [&perms_editor[..], &[DisapproveArticle, InactivateComment, SolveReport]].concat();
         let perms_admin = [&perms_coord[..], &[UpdateUser, DeleteComment, CreateTeamUser, UpdateTeamUser, DeleteTeamUser]].concat();

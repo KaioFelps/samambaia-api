@@ -21,3 +21,5 @@ pub mod update_team_user;
 pub mod create_article_tag;
 pub mod list_article_tags;
 pub mod update_article_tag;
+pub mod create_free_badge;
+pub mod update_free_badge;
