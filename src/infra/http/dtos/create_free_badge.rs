@@ -10,6 +10,6 @@ pub struct CreateFreeBadgeDto {
     pub link_is_external: bool,
     #[serde(rename="availableUntil")]
     pub available_until: Option<NaiveDateTime>,
-    #[validate(url(message = "Twitter/X field must be a valid url."))]
+    #[validate(url(message = "Free badge image field's value must be a valid URL."))]
     pub image: String
 }
