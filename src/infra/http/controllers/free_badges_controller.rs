@@ -1,6 +1,7 @@
 use actix_web::{web, HttpResponse, Responder};
 use either::{Left, Right};
 use validator::Validate;
+use crate::core::pagination::DEFAULT_PER_PAGE;
 use super::controller::ControllerTrait;
 use crate::domain::factories::{
     create_free_badge_service_factory,
@@ -9,10 +10,13 @@ use crate::domain::factories::{
     delete_free_badge_service_factory
 };
 use crate::domain::services::create_free_badge_service::CreateFreeBadgeParams;
+use crate::domain::services::fetch_many_free_badges_service::FetchManyFreeBadgesParams;
 use crate::infra::http::dtos::create_free_badge::CreateFreeBadgeDto;
+use crate::infra::http::dtos::simple_pagination_query::SimplePaginationQueryDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::presenters::error::ErrorPresenter;
-use crate::infra::http::presenters::free_badge::FreeBadgePresenter;
+use crate::infra::http::presenters::free_badge::{FreeBadgePresenter, MappedFreeBadge};
+use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
 use crate::util::generate_error_response;
 
@@ -70,12 +74,27 @@ impl FreeBadgesController {
         });
     }
 
-    async fn get() -> impl Responder {
-        return HttpResponse::Ok().finish();
-    }
+    async fn list(query: web::Query<SimplePaginationQueryDto>) -> impl Responder {
+        let service = match fetch_many_free_badges_service_factory::exec().await {
+            Left(service) => service,
+            Right(error) => return error
+        };
 
-    async fn list() -> impl Responder {
-        return HttpResponse::Ok().finish();
+        let result = service.exec(FetchManyFreeBadgesParams {
+            page: query.page,
+            per_page: if query.per_page.is_some() { Some(query.page.unwrap() as u32) } else { None }
+        }).await;
+
+        if result.is_err() {
+            return generate_error_response(result.unwrap_err());
+        }
+
+        let service_response = result.unwrap();
+
+        let mapped_free_badges = service_response.data.into_iter().map(FreeBadgePresenter::to_http).collect::<Vec<MappedFreeBadge>>();
+        let mapped_pagination = PaginationPresenter::to_http(service_response.pagination, query.per_page.unwrap_or(DEFAULT_PER_PAGE));
+
+        return HttpResponse::Ok().json(FreeBadgePresenter::to_json_paginated_wrapper(mapped_free_badges, mapped_pagination));
     }
 
     async fn update() -> impl Responder {
