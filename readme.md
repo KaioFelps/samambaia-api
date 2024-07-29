@@ -4,12 +4,14 @@ Hubbitos é um fã-site de Habbo com as seguintes funcionalidades:
 - Controle de usuários de equipe (criação, apagamento, edição, busca);
 - Notícias (publicar notícias, se autorizado, visualizar notícias, alterar e apagar);
 - Comentários em notícias (escrever, inativar se autorizado);
-- Denúncia dos comentários (criação de uma denúncia, resolução e/ou apagamento se autorizado).
+- Denúncia dos comentários (criação de uma denúncia, resolução e/ou apagamento se autorizado);
+- Tags de notícias (criar uma nova tag, editar uma tag, apagar uma tag, exibir várias tags);
+- Emblemas grátis (criar, editar, apagar uma tag, listar várias tags).
 
 O fã-site implementa um sistema de autorizações por cargos (roles) e permissões para cada cargo através de heranças.
 
-# hubbitos-backennd
-Backend de fã-site feito para o Hubbitos, mas não exclusivo deste. É o projeto responsável por implementar todas as funcionalidades e assegurar as autorizações e permissões.
+# Hubbitos API
+Backend de fã-site feito para o Hubbitos, mas não exclusivo deste. É o projeto responsável por implementar todas as funcionalidades e assegurar as autorizações e permissões performadas no fã-site.
 
 ## Instalando a aplicação
 Para rodar o hubbitos-backend, será necessário:
