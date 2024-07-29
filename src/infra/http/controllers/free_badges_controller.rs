@@ -116,8 +116,8 @@ impl FreeBadgesController {
         let body = body.into_inner();
 
         let service = match update_free_badge_service_factory::exec().await {
-            Ok(service) => service,
-            Err(error) => return error,
+            Left(service) => service,
+            Right(error) => return error,
         };
 
         let result = service.exec(UpdateFreeBadgeParams {
