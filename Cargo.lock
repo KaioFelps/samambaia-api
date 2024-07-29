@@ -2041,7 +2041,7 @@ version = "0.1.0"
 
 [[package]]
 name = "hubbitos_backend"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "actix-web",
  "actix-web-lab",
@@ -4358,7 +4358,7 @@ checksum = "3369f5ac52d5eb6ab48c6b4ffdc8efbcad6b89c765749064ba298f2c68a16a76"
 
 [[package]]
 name = "tests"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "actix-web",
  "dotenvy",
