@@ -1,0 +1,26 @@
+name: "hubbitos-api"
+
+services:
+  postgres:
+    container_name: rust-clean-postgres
+    mem_reservation: "512mb"
+    image: postgres
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: rust-clean
+    profiles:
+        - dev
+    
+  pgadmin:
+    container_name: postgres-admin
+    image: dpage/pgadmin4
+    ports:
+      - 82:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: tempemail@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    profiles:
+      - analytic
