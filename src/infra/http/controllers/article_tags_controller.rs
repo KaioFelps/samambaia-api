@@ -1,5 +1,4 @@
-use actix_web::{web, HttpResponse, Responder};
-use actix_web_lab::middleware::from_fn;
+use actix_web::{web, HttpResponse, Responder, middleware::from_fn};
 use either::{Left, Right};
 use validator::Validate;
 use crate::core::pagination::DEFAULT_PER_PAGE;

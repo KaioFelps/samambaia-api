@@ -9,5 +9,5 @@ name = "entities"
 path = "src/mod.rs"
 
 [dependencies]
-sea-orm = "0.12"
-serde = "1.0.195"
+sea-orm.workspace = true
+serde.workspace = true

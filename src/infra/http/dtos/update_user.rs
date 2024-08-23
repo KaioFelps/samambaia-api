@@ -6,7 +6,7 @@ use crate::libs::custom_validators::validate_user_role;
 #[derive(Serialize, Deserialize, Validate)]
 pub struct UpdateUserDto {
     #[validate(
-        regex(path= "NICKNAME_REGX", message = "Your nickname might contain only letters, numbers, and the symbols: .,_-=?!@:;."),
+        regex(path= *NICKNAME_REGX, message = "Your nickname might contain only letters, numbers, and the symbols: .,_-=?!@:;."),
         length(min = 3, max = 22, message = "Your nickname must be between 3 and 22 chars.")
     )]
     pub nickname: Option<String>,

@@ -1,5 +1,4 @@
-use actix_web::{web, HttpResponse, Responder};
-use actix_web_lab::middleware::from_fn;
+use actix_web::{web, HttpResponse, Responder, middleware::from_fn};
 use serde_json::json;
 use either::Either::*;
 use uuid::Uuid;
