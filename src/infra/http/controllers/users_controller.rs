@@ -1,8 +1,5 @@
 use std::str::FromStr;
-
-use actix_web::http::StatusCode;
-use actix_web::{web, HttpResponse, HttpResponseBuilder, Responder};
-use actix_web_lab::middleware::from_fn;
+use actix_web::{http::StatusCode, web, HttpResponse, HttpResponseBuilder, Responder};
 use serde_json::json;
 use uuid::Uuid;
 use validator::Validate;
@@ -22,7 +19,7 @@ use crate::infra::http::dtos::create_user::CreateUserDto;
 use crate::infra::http::dtos::list_users::ListUsersDto;
 use crate::infra::http::dtos::update_user::UpdateUserDto;
 use crate::infra::http::extractors::req_user::ReqUser;
-use crate::infra::http::middlewares::authentication_middleware;
+use crate::infra::http::middlewares::AuthenticationMiddleware;
 use crate::infra::http::presenters::error::ErrorPresenter;
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
@@ -43,7 +40,7 @@ impl ControllerTrait for UsersController {
                 "/{id}/update",
                 web::put()
                 .to(Self::update)
-                .wrap(from_fn(authentication_middleware))
+                .wrap(AuthenticationMiddleware)
             )
 
             // CHANGE USER'S PASSWORD
@@ -51,7 +48,7 @@ impl ControllerTrait for UsersController {
                 "/password",
                 web::put()
                 .to(Self::edit_password)
-                .wrap(from_fn(authentication_middleware))
+                .wrap(AuthenticationMiddleware)
             )
 
             // LIST USERS WITH PAGINATION
@@ -59,7 +56,7 @@ impl ControllerTrait for UsersController {
                 "/list",
                 web::get()
                 .to(Self::list)
-                .wrap(from_fn(authentication_middleware))
+                .wrap(AuthenticationMiddleware)
             )
 
             // GET SINGLE USER BY ID
@@ -67,7 +64,7 @@ impl ControllerTrait for UsersController {
                 "/{id}",
                 web::get()
                 .to(Self::get)
-                .wrap(from_fn(authentication_middleware))
+                .wrap(AuthenticationMiddleware)
             )
         );
     }
