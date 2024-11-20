@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
-use crate::errors::enum_coercion_error::EnumCoercionError;
+use crate::error::DomainError;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Role {
@@ -16,9 +16,9 @@ pub enum Role {
 }
 
 impl FromStr for Role {
-    type Err = EnumCoercionError;
+    type Err = DomainError;
 
-    fn from_str(s: &str) -> Result<Self, EnumCoercionError> {
+    fn from_str(s: &str) -> Result<Self, DomainError> {
         let s = s.to_uppercase();
         let s = s.as_str();
 
@@ -30,7 +30,7 @@ impl FromStr for Role {
             "PRINCIPAL" => Ok(Self::Principal),
             "USER" => Ok(Self::User),
             "WRITER" => Ok(Self::Writer),
-            _ => Err(EnumCoercionError::new("Role")),
+            _ => Err(DomainError::enum_coercion_err("Role")),
         }
     }
 }
