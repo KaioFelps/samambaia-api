@@ -1,4 +1,5 @@
 use super::controller::ControllerTrait;
+use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::{
     create_comment_report_service_factory, delete_comment_report_service_factory,
@@ -10,17 +11,15 @@ use crate::domain::services::fetch_many_comment_reports_service::{
     CommentReportServiceQuery, FetchManyCommentReportsParams,
 };
 use crate::domain::services::solve_comment_report_service::SolveCommentReportParams;
+use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::create_comment_report::CreateCommentReportDto;
 use crate::infra::http::dtos::list_comment_reports::ListCommentReportsDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::comment_report::{CommentReportPresenter, MappedCommentReport};
-use crate::infra::http::presenters::error::ErrorPresenter;
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
-use crate::util::generate_error_response;
-use actix_web::{middleware::from_fn, web, HttpResponse, Responder};
-use either::{Left, Right};
+use actix_web::{middleware::from_fn, web, HttpResponse};
 use serde_json::json;
 use uuid::Uuid;
 use validator::Validate;
@@ -68,41 +67,29 @@ impl CommentReportsController {
         user: web::ReqData<ReqUser>,
         comment_id: web::Path<Uuid>,
         body: web::Json<CreateCommentReportDto>,
-    ) -> impl Responder {
-        if let Err(err) = body.validate() {
-            return HttpResponse::BadRequest()
-                .json(ErrorPresenter::to_http_from_validator(err.field_errors()));
-        };
+    ) -> AppResponse {
+        let body = body
+            .validate()
+            .map(|_| body.into_inner())
+            .map_err(IntoDomainError::into_domain_err)?;
 
-        let body = body.into_inner();
+        let service = create_comment_report_service_factory::exec().await?;
 
-        let service = match create_comment_report_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
-
-        let comment_report = match service
+        let comment_report = service
             .exec(CreateCommentReportParams {
                 user_id: user.user_id,
                 content: body.content,
                 comment_id: comment_id.into_inner(),
             })
-            .await
-        {
-            Err(err) => return generate_error_response(err),
-            Ok(comment_report) => comment_report,
-        };
+            .await?;
 
         let mapped_comment_report = CommentReportPresenter::to_http(comment_report);
 
-        HttpResponse::Created().json(json!({"data": mapped_comment_report}))
+        Ok(HttpResponse::Created().json(json!({"data": mapped_comment_report})))
     }
 
-    async fn list(query: web::Query<ListCommentReportsDto>) -> impl Responder {
-        let service = match fetch_many_comment_reports_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    async fn list(query: web::Query<ListCommentReportsDto>) -> AppResponse {
+        let service = fetch_many_comment_reports_service_factory::exec().await?;
 
         let ListCommentReportsDto {
             per_page,
@@ -122,17 +109,13 @@ impl CommentReportsController {
             }
         };
 
-        let comment_reports_paginated_data = match service
+        let comment_reports_paginated_data = service
             .exec(FetchManyCommentReportsParams {
                 query,
                 per_page: per_page.map(|pp| pp as u32),
                 page,
             })
-            .await
-        {
-            Err(err) => return generate_error_response(err),
-            Ok(comment_reports_paginated_data) => comment_reports_paginated_data,
-        };
+            .await?;
 
         let mapped_reports = comment_reports_paginated_data
             .data
@@ -140,51 +123,42 @@ impl CommentReportsController {
             .map(CommentReportPresenter::to_http)
             .collect::<Vec<MappedCommentReport>>();
 
-        HttpResponse::Ok().json(CommentReportPresenter::to_json_paginated_wrapper(
-            mapped_reports,
-            PaginationPresenter::to_http(
-                comment_reports_paginated_data.pagination,
-                per_page.unwrap_or(DEFAULT_PER_PAGE),
-            ),
-        ))
+        Ok(
+            HttpResponse::Ok().json(CommentReportPresenter::to_json_paginated_wrapper(
+                mapped_reports,
+                PaginationPresenter::to_http(
+                    comment_reports_paginated_data.pagination,
+                    per_page.unwrap_or(DEFAULT_PER_PAGE),
+                ),
+            )),
+        )
     }
 
-    async fn update(user: web::ReqData<ReqUser>, report_id: web::Path<i32>) -> impl Responder {
-        let service = match solve_comment_report_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    async fn update(user: web::ReqData<ReqUser>, report_id: web::Path<i32>) -> AppResponse {
+        let service = solve_comment_report_service_factory::exec().await?;
 
         let user = user.into_inner();
 
-        match service
+        service
             .exec(SolveCommentReportParams {
                 staff_role: user.user_role.unwrap(),
                 com_report_id: report_id.into_inner(),
                 staff_id: user.user_id,
             })
-            .await
-        {
-            Err(err) => generate_error_response(err),
-            Ok(_) => HttpResponse::NoContent().finish(),
-        }
+            .await?;
+
+        Ok(HttpResponse::NoContent().finish())
     }
 
-    async fn delete(user: web::ReqData<ReqUser>, report_id: web::Path<i32>) -> impl Responder {
-        let service = match delete_comment_report_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    async fn delete(user: web::ReqData<ReqUser>, report_id: web::Path<i32>) -> AppResponse {
+        let service = delete_comment_report_service_factory::exec().await?;
 
-        match service
+        service
             .exec(DeleteCommentReportParams {
                 com_report_id: report_id.into_inner(),
                 staff_role: user.into_inner().user_role.unwrap(),
             })
-            .await
-        {
-            Err(err) => generate_error_response(err),
-            Ok(_) => HttpResponse::NoContent().finish(),
-        }
+            .await?;
+        Ok(HttpResponse::NoContent().finish())
     }
 }

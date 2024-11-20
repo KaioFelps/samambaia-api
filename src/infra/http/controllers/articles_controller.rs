@@ -1,5 +1,4 @@
-use actix_web::{middleware::from_fn, web, HttpResponse, Responder};
-use either::Either::*;
+use actix_web::{middleware::from_fn, web, HttpResponse};
 use serde_json::json;
 use uuid::Uuid;
 use validator::Validate;
@@ -20,6 +19,7 @@ use crate::domain::services::get_expanded_article_service::{
     FetchManyCommentsWithAuthorResponse, GetExpandedArticleParams, GetExpandedArticleResponse,
 };
 use crate::domain::services::update_article_service::UpdateArticleParams;
+use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
 use crate::infra::http::dtos::list_articles::ListArticlesDto;
@@ -27,15 +27,14 @@ use crate::infra::http::dtos::update_article::UpdateArticleDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::article::MappedArticle;
-use crate::infra::http::presenters::error::ErrorPresenter;
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::http::presenters::{
     article::ArticlePresenter, expanded_article::ExpandedArticlePresenter,
 };
-use crate::util::generate_error_response;
 
 use super::controller::ControllerTrait;
+use super::AppResponse;
 
 pub struct ArticlesController;
 
@@ -78,22 +77,13 @@ impl ControllerTrait for ArticlesController {
 }
 
 impl ArticlesController {
-    async fn create(
-        body: web::Json<CreateArticleDto>,
-        user: web::ReqData<ReqUser>,
-    ) -> impl Responder {
-        if let Err(error) = body.validate() {
-            return HttpResponse::BadRequest()
-                .json(ErrorPresenter::to_http_from_validator(error.field_errors()));
-        };
+    async fn create(body: web::Json<CreateArticleDto>, user: web::ReqData<ReqUser>) -> AppResponse {
+        let _ = body.validate().map_err(|err| err.into_domain_err())?;
 
         let body = body.into_inner();
         let auth_user = user.into_inner();
 
-        let service = match create_article_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+        let service = create_article_service_factory::exec().await?;
 
         let CreateArticleDto {
             author_id,
@@ -103,7 +93,7 @@ impl ArticlesController {
             tag_id,
         } = body;
 
-        let result = service
+        let article = service
             .exec(CreateArticleParams {
                 custom_author_id: author_id,
                 staff_id: auth_user.user_id,
@@ -112,52 +102,37 @@ impl ArticlesController {
                 title,
                 tag_id,
             })
-            .await;
+            .await?;
 
-        if result.is_err() {
-            let err = result.unwrap_err();
-            return generate_error_response(err);
-        }
-
-        let article = result.unwrap();
         let mapped_article = ArticlePresenter::to_http(article);
 
-        HttpResponse::Created().json(json!({"data": mapped_article}))
+        Ok(HttpResponse::Created().json(json!({"data": mapped_article})))
     }
 
     async fn get(
         article_slug: web::Path<String>,
         user: Option<web::ReqData<ReqUser>>,
-    ) -> impl Responder {
-        let service = match get_expanded_article_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    ) -> AppResponse {
+        let service = get_expanded_article_service_factory::exec().await?;
 
         let (user_id, user_role) = match &user {
             None => (None, None),
             Some(user) => (Some(&user.user_id), Some(user.user_role.as_ref().unwrap())),
         };
 
-        let result = service
+        let GetExpandedArticleResponse {
+            article,
+            article_author,
+            comments: comment_response,
+        } = service
             .exec(GetExpandedArticleParams {
                 article_slug: Slug::new_from_existing(article_slug.into_inner()),
                 comments_per_page: Some(DEFAULT_PER_PAGE as u32),
                 user_id,
                 user_role,
             })
-            .await;
+            .await?;
 
-        if result.is_err() {
-            let err = result.unwrap_err();
-            return generate_error_response(err);
-        }
-
-        let GetExpandedArticleResponse {
-            article,
-            article_author,
-            comments: comment_response,
-        } = result.unwrap();
         let FetchManyCommentsWithAuthorResponse {
             data: comments,
             pagination: comments_pagination,
@@ -170,19 +145,16 @@ impl ArticlesController {
             (comments_pagination, DEFAULT_PER_PAGE),
         );
 
-        HttpResponse::Ok().json(json!({
+        Ok(HttpResponse::Ok().json(json!({
             "data": mapped_article,
-        }))
+        })))
     }
 
-    async fn list(query: web::Query<ListArticlesDto>) -> impl Responder {
-        let query_body: ListArticlesDto = match query.validate() {
-            Ok(()) => query.into_inner(),
-            Err(err) => {
-                return HttpResponse::BadRequest()
-                    .json(ErrorPresenter::to_http_from_validator(err.field_errors()))
-            }
-        };
+    async fn list(query: web::Query<ListArticlesDto>) -> AppResponse {
+        let query_body = query
+            .validate()
+            .map_err(|err| err.into_domain_err())
+            .map(|_| query.into_inner())?;
 
         Self::get_list_of_articles(
             query_body.title,
@@ -194,14 +166,11 @@ impl ArticlesController {
         .await
     }
 
-    async fn admin_list(query: web::Query<AdminListArticlesDto>) -> impl Responder {
-        let query_body: AdminListArticlesDto = match query.validate() {
-            Ok(()) => query.into_inner(),
-            Err(err) => {
-                return HttpResponse::BadRequest()
-                    .json(ErrorPresenter::to_http_from_validator(err.field_errors()))
-            }
-        };
+    async fn admin_list(query: web::Query<AdminListArticlesDto>) -> AppResponse {
+        let query_body = query
+            .validate()
+            .map(|_| query.into_inner())
+            .map_err(|err| err.into_domain_err())?;
 
         Self::get_list_of_articles(
             query_body.title,
@@ -217,7 +186,7 @@ impl ArticlesController {
         user: web::ReqData<ReqUser>,
         body: web::Json<UpdateArticleDto>,
         article_id: web::Path<Uuid>,
-    ) -> impl Responder {
+    ) -> AppResponse {
         let UpdateArticleDto {
             title,
             approved,
@@ -225,24 +194,18 @@ impl ArticlesController {
             content,
             author_id,
             tag_id,
-        } = match body.validate() {
-            Err(e) => {
-                return HttpResponse::BadRequest()
-                    .json(ErrorPresenter::to_http_from_validator(e.field_errors()))
-            }
-            Ok(()) => body.into_inner(),
-        };
+        } = body
+            .validate()
+            .map(|_| body.into_inner())
+            .map_err(|err| err.into_domain_err())?;
 
-        let service = match update_article_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+        let service = update_article_service_factory::exec().await?;
 
         let ReqUser {
             user_role, user_id, ..
         } = user.into_inner();
 
-        let article = match service
+        let article = service
             .exec(UpdateArticleParams {
                 user_id,
                 user_role: user_role.unwrap(),
@@ -254,39 +217,23 @@ impl ArticlesController {
                 author_id,
                 tag_id,
             })
-            .await
-        {
-            Err(err) => return generate_error_response(err),
-            Ok(article) => article,
-        };
+            .await?;
 
         let mapped_article = ArticlePresenter::to_http(article);
 
-        HttpResponse::Ok().json(json!({"data": mapped_article}))
+        Ok(HttpResponse::Ok().json(json!({"data": mapped_article})))
     }
 
-    async fn delete(
-        req_user: web::ReqData<ReqUser>,
-        article_id: web::Path<Uuid>,
-    ) -> impl Responder {
-        let service = match delete_article_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    async fn delete(req_user: web::ReqData<ReqUser>, article_id: web::Path<Uuid>) -> AppResponse {
+        let service = delete_article_service_factory::exec().await?;
 
-        let response = service
+        service
             .exec(DeleteArticleParams {
                 user_id: req_user.user_id,
                 article_id: article_id.into_inner(),
             })
-            .await;
-
-        if response.is_err() {
-            let error = response.unwrap_err();
-            return generate_error_response(error);
-        }
-
-        HttpResponse::NoContent().finish()
+            .await
+            .map(|_| HttpResponse::NoContent().finish())
     }
 
     async fn get_list_of_articles(
@@ -295,11 +242,8 @@ impl ArticlesController {
         page: Option<u32>,
         per_page: Option<u8>,
         approved_state: Option<bool>,
-    ) -> HttpResponse {
-        let service = match fetch_many_articles_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    ) -> AppResponse {
+        let service = fetch_many_articles_service_factory::exec().await?;
 
         let query = {
             if let Some(title) = title {
@@ -309,7 +253,7 @@ impl ArticlesController {
             }
         };
 
-        let articles = match service
+        service
             .exec(FetchManyArticlesParams {
                 page,
                 per_page: per_page.map(|pp| pp as u32),
@@ -317,20 +261,17 @@ impl ArticlesController {
                 approved_state,
             })
             .await
-        {
-            Err(err) => return generate_error_response(err),
-            Ok(articles) => articles,
-        };
+            .map(|articles| {
+                let mapped_articles = articles
+                .data
+                .into_iter()
+                .map(ArticlePresenter::to_http)
+                .collect::<Vec<MappedArticle>>();
 
-        let mapped_articles = articles
-            .data
-            .into_iter()
-            .map(ArticlePresenter::to_http)
-            .collect::<Vec<MappedArticle>>();
-
-        HttpResponse::Ok().json(json!({
-            "pagination": PaginationPresenter::to_http(articles.pagination, per_page.unwrap_or(DEFAULT_PER_PAGE)),
-            "data": mapped_articles
-        }))
+                HttpResponse::Ok().json(json!({
+                    "pagination": PaginationPresenter::to_http(articles.pagination, per_page.unwrap_or(DEFAULT_PER_PAGE)),
+                    "data": mapped_articles
+                }))
+            })
     }
 }

@@ -1,13 +1,12 @@
 use actix_web::body::EitherBody;
 use actix_web::dev::{self, Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::middleware::Next;
-use actix_web::Error;
 use actix_web::HttpMessage;
-use actix_web::HttpResponse;
+use actix_web::{Error, ResponseError};
 use actix_web_lab::__reexports::futures_util::future::LocalBoxFuture;
 use std::future::{ready, Ready};
 
-use crate::errors::unauthorized_error::UnauthorizedError;
+use crate::error::DomainError;
 use crate::infra::http::extractors::req_user::ReqUser;
 
 /**
@@ -52,7 +51,7 @@ pub async fn authentication_middleware<B>(
     if !has_user {
         log::info!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
 
-        let http_res = HttpResponse::Unauthorized().json(UnauthorizedError::new());
+        let http_res = DomainError::unauthorized_err().error_response();
         let (http_req, _) = req.into_parts();
         let res = ServiceResponse::new(http_req, http_res);
 
@@ -135,8 +134,8 @@ where
         if !has_user {
             log::info!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
 
-            let http_res = HttpResponse::Unauthorized()
-                .json(UnauthorizedError::new())
+            let http_res = DomainError::unauthorized_err()
+                .error_response()
                 .map_into_right_body();
             let (http_req, _) = request.into_parts();
             let res = ServiceResponse::new(http_req, http_res);

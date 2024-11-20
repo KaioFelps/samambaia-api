@@ -1,4 +1,5 @@
 use super::controller::ControllerTrait;
+use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::fetch_many_comments_service_factory;
 use crate::domain::factories::toggle_comment_visibility_service_factory;
@@ -21,9 +22,7 @@ use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::comment::{CommentPresenter, MappedComment, MappedRawComment};
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
-use crate::util::generate_error_response;
-use actix_web::{middleware::from_fn, web, HttpResponse, Responder};
-use either::{Left, Right};
+use actix_web::{middleware::from_fn, web, HttpResponse};
 use serde_json::json;
 use uuid::Uuid;
 
@@ -72,40 +71,29 @@ impl CommentsController {
         article_id: web::Path<Uuid>,
         user: web::ReqData<ReqUser>,
         body: web::Json<CommentOnArticleDto>,
-    ) -> impl Responder {
-        let service = match comment_on_article_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    ) -> AppResponse {
+        let service = comment_on_article_service_factory::exec().await?;
 
-        let result = service
+        let _comment = service
             .exec(CommentOnArticleParams {
                 author_id: user.user_id,
                 content: body.into_inner().content,
                 article_id: article_id.into_inner(),
             })
-            .await;
+            .await?;
 
-        if result.is_err() {
-            let error = result.unwrap_err();
-            return generate_error_response(error);
-        }
-
-        HttpResponse::Created().finish()
+        Ok(HttpResponse::Created().finish())
     }
 
     async fn list(
         article_id: web::Path<Uuid>,
         query: web::Query<SimplePaginationQueryDto>,
-    ) -> impl Responder {
-        let service = match fetch_many_comments_with_author_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    ) -> AppResponse {
+        let service = fetch_many_comments_with_author_service_factory::exec().await?;
 
         let SimplePaginationQueryDto { per_page, page } = query.into_inner();
 
-        let comments = match service
+        let comments = service
             .exec(
                 article_id.into_inner(),
                 FetchManyArticleCommentsWithAuthorParams {
@@ -113,11 +101,7 @@ impl CommentsController {
                     per_page: per_page.map(|pp| pp as u32),
                 },
             )
-            .await
-        {
-            Err(err) => return generate_error_response(err),
-            Ok(comments) => comments,
-        };
+            .await?;
 
         let mapped_comments: Vec<MappedComment> = comments
             .data
@@ -125,17 +109,14 @@ impl CommentsController {
             .map(CommentPresenter::to_http)
             .collect();
 
-        HttpResponse::Ok().json(json!({
-            "pagination": PaginationPresenter::to_http(comments.pagination, per_page.unwrap_or(DEFAULT_PER_PAGE)),
-            "data": mapped_comments
-        }))
+        Ok(HttpResponse::Ok().json(json!({
+                    "pagination": PaginationPresenter::to_http(comments.pagination, per_page.unwrap_or(DEFAULT_PER_PAGE)),
+                    "data": mapped_comments
+                })))
     }
 
-    async fn admin_list(query: web::Query<ListCommentsDto>) -> impl Responder {
-        let service = match fetch_many_comments_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    async fn admin_list(query: web::Query<ListCommentsDto>) -> AppResponse {
+        let service = fetch_many_comments_service_factory::exec().await?;
 
         let ListCommentsDto {
             page,
@@ -155,7 +136,7 @@ impl CommentsController {
             }
         };
 
-        let comments = match service
+        let comments = service
             .exec(
                 include_inactive,
                 FetchManyCommentsParams {
@@ -164,11 +145,7 @@ impl CommentsController {
                     page,
                 },
             )
-            .await
-        {
-            Err(err) => return generate_error_response(err),
-            Ok(comments) => comments,
-        };
+            .await?;
 
         let mapped_comments: Vec<MappedRawComment> = comments
             .data
@@ -176,40 +153,31 @@ impl CommentsController {
             .map(CommentPresenter::to_http_raw)
             .collect();
 
-        HttpResponse::Ok().json(json!({
-            "pagination": PaginationPresenter::to_http(comments.pagination, per_page.unwrap_or(DEFAULT_PER_PAGE)),
-            "data": mapped_comments
-        }))
+        Ok(HttpResponse::Ok().json(json!({
+                    "pagination": PaginationPresenter::to_http(comments.pagination, per_page.unwrap_or(DEFAULT_PER_PAGE)),
+                    "data": mapped_comments
+                })))
     }
 
     async fn disable_visibility(
         user: web::ReqData<ReqUser>,
         comment_id: web::Path<Uuid>,
-    ) -> impl Responder {
-        let service = match toggle_comment_visibility_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    ) -> AppResponse {
+        let service = toggle_comment_visibility_service_factory::exec().await?;
 
         let user_role = &user.user_role;
 
-        match service
+        service
             .exec(ToggleCommentVisibilityParams {
                 user_role: user_role.as_ref().unwrap(),
                 comment_id: comment_id.into_inner(),
             })
-            .await
-        {
-            Err(err) => generate_error_response(err),
-            Ok(_) => HttpResponse::NoContent().finish(),
-        }
+            .await?;
+        Ok(HttpResponse::NoContent().finish())
     }
 
-    async fn delete(comment_id: web::Path<Uuid>, user: web::ReqData<ReqUser>) -> impl Responder {
-        let service = match delete_comment_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    async fn delete(comment_id: web::Path<Uuid>, user: web::ReqData<ReqUser>) -> AppResponse {
+        let service = delete_comment_service_factory::exec().await?;
 
         let ReqUser {
             user_role,
@@ -217,16 +185,14 @@ impl CommentsController {
             exp: _,
         } = user.into_inner();
 
-        match service
+        service
             .exec(DeleteCommentParams {
                 comment_id: comment_id.into_inner(),
                 user_id,
                 staff_role: user_role.unwrap(),
             })
-            .await
-        {
-            Err(err) => generate_error_response(err),
-            Ok(_) => HttpResponse::NoContent().finish(),
-        }
+            .await?;
+
+        Ok(HttpResponse::NoContent().finish())
     }
 }

@@ -1,4 +1,5 @@
 use super::controller::ControllerTrait;
+use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::{
     create_free_badge_service_factory, delete_free_badge_service_factory,
@@ -8,18 +9,16 @@ use crate::domain::services::create_free_badge_service::CreateFreeBadgeParams;
 use crate::domain::services::delete_free_badge_service::DeleteFreeBadgeParams;
 use crate::domain::services::fetch_many_free_badges_service::FetchManyFreeBadgesParams;
 use crate::domain::services::update_free_badge_service::UpdateFreeBadgeParams;
+use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::create_free_badge::CreateFreeBadgeDto;
 use crate::infra::http::dtos::simple_pagination_query::SimplePaginationQueryDto;
 use crate::infra::http::dtos::update_free_badge::UpdateFreeBadgeDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
-use crate::infra::http::presenters::error::ErrorPresenter;
 use crate::infra::http::presenters::free_badge::{FreeBadgePresenter, MappedFreeBadge};
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
-use crate::util::generate_error_response;
-use actix_web::{middleware::from_fn, web, HttpResponse, Responder};
-use either::{Left, Right};
+use actix_web::{middleware::from_fn, web, HttpResponse};
 use uuid::Uuid;
 use validator::Validate;
 
@@ -60,23 +59,15 @@ impl FreeBadgesController {
     async fn create(
         user: web::ReqData<ReqUser>,
         body: web::Json<CreateFreeBadgeDto>,
-    ) -> impl Responder {
-        match body.validate() {
-            Ok(()) => (),
-            Err(error) => {
-                return HttpResponse::BadRequest()
-                    .json(ErrorPresenter::to_http_from_validator(error.field_errors()))
-            }
-        };
+    ) -> AppResponse {
+        let body = body
+            .validate()
+            .map(|_| body.into_inner())
+            .map_err(IntoDomainError::into_domain_err)?;
 
-        let body = body.into_inner();
+        let service = create_free_badge_service_factory::exec().await?;
 
-        let service = match create_free_badge_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
-
-        match service
+        let free_badge = service
             .exec(CreateFreeBadgeParams {
                 user_role: user.into_inner().user_role.unwrap(),
                 code: body.code,
@@ -85,22 +76,17 @@ impl FreeBadgesController {
                 link_is_external: body.link_is_external,
                 available_until: body.available_until,
             })
-            .await
-        {
-            Err(err) => generate_error_response(err),
-            Ok(free_badge) => HttpResponse::Created().json(JsonWrappedEntity {
-                data: FreeBadgePresenter::to_http(free_badge),
-            }),
-        }
+            .await?;
+
+        Ok(HttpResponse::Created().json(JsonWrappedEntity {
+            data: FreeBadgePresenter::to_http(free_badge),
+        }))
     }
 
-    async fn list(query: web::Query<SimplePaginationQueryDto>) -> impl Responder {
-        let service = match fetch_many_free_badges_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    async fn list(query: web::Query<SimplePaginationQueryDto>) -> AppResponse {
+        let service = fetch_many_free_badges_service_factory::exec().await?;
 
-        let free_badges = match service
+        let free_badges = service
             .exec(FetchManyFreeBadgesParams {
                 page: query.page,
                 per_page: if query.per_page.is_some() {
@@ -109,11 +95,7 @@ impl FreeBadgesController {
                     None
                 },
             })
-            .await
-        {
-            Err(err) => return generate_error_response(err),
-            Ok(free_badges) => free_badges,
-        };
+            .await?;
 
         let mapped_free_badges = free_badges
             .data
@@ -126,30 +108,27 @@ impl FreeBadgesController {
             query.per_page.unwrap_or(DEFAULT_PER_PAGE),
         );
 
-        HttpResponse::Ok().json(FreeBadgePresenter::to_json_paginated_wrapper(
-            mapped_free_badges,
-            mapped_pagination,
-        ))
+        Ok(
+            HttpResponse::Ok().json(FreeBadgePresenter::to_json_paginated_wrapper(
+                mapped_free_badges,
+                mapped_pagination,
+            )),
+        )
     }
 
     async fn update(
         user: web::ReqData<ReqUser>,
         body: web::Json<UpdateFreeBadgeDto>,
         free_badge_id: web::Path<Uuid>,
-    ) -> impl Responder {
-        if let Err(error) = body.validate() {
-            return HttpResponse::BadRequest()
-                .json(ErrorPresenter::to_http_from_validator(error.field_errors()));
-        }
+    ) -> AppResponse {
+        let body = body
+            .validate()
+            .map(|_| body.into_inner())
+            .map_err(IntoDomainError::into_domain_err)?;
 
-        let body = body.into_inner();
+        let service = update_free_badge_service_factory::exec().await?;
 
-        let service = match update_free_badge_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
-
-        let free_badge = match service
+        let free_badge = service
             .exec(UpdateFreeBadgeParams {
                 user_role: user.into_inner().user_role.unwrap(),
                 code: body.code,
@@ -159,34 +138,25 @@ impl FreeBadgesController {
                 available_until: body.available_until,
                 free_badge_id: free_badge_id.into_inner(),
             })
-            .await
-        {
-            Err(err) => return generate_error_response(err),
-            Ok(free_badge) => free_badge,
-        };
+            .await?;
 
         let mapped_free_badge = FreeBadgePresenter::to_http(free_badge);
 
-        HttpResponse::Ok().json(JsonWrappedEntity {
+        Ok(HttpResponse::Ok().json(JsonWrappedEntity {
             data: mapped_free_badge,
-        })
+        }))
     }
 
-    async fn delete(user: web::ReqData<ReqUser>, free_badge_id: web::Path<Uuid>) -> impl Responder {
-        let service = match delete_free_badge_service_factory::exec().await {
-            Left(service) => service,
-            Right(error) => return error,
-        };
+    async fn delete(user: web::ReqData<ReqUser>, free_badge_id: web::Path<Uuid>) -> AppResponse {
+        let service = delete_free_badge_service_factory::exec().await?;
 
-        match service
+        service
             .exec(DeleteFreeBadgeParams {
                 free_badge_id: free_badge_id.into_inner(),
                 user_role: user.into_inner().user_role.unwrap(),
             })
-            .await
-        {
-            Err(err) => generate_error_response(err),
-            Ok(_) => HttpResponse::NoContent().finish(),
-        }
+            .await?;
+
+        Ok(HttpResponse::NoContent().finish())
     }
 }
