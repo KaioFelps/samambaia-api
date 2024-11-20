@@ -1,10 +1,8 @@
-mod error_response_factory;
 mod get_user_role_permissions;
 mod service_internal_error_factory;
 mod verify_user_role_has_permission;
 mod verify_user_role_hierarchy;
 
-pub use error_response_factory::generate_error_response;
 pub use get_user_role_permissions::RolePermissions;
 pub use service_internal_error_factory::generate_service_internal_error;
 pub use verify_user_role_has_permission::exec as verify_role_has_permission;
