@@ -1,14 +1,8 @@
-use actix_web::{web, HttpResponse, Responder, middleware::from_fn};
-use either::{Left, Right};
-use uuid::Uuid;
-use validator::Validate;
-use crate::core::pagination::DEFAULT_PER_PAGE;
 use super::controller::ControllerTrait;
+use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::{
-    create_team_role_service_factory,
-    delete_team_role_service_factory,
-    update_team_role_service_factory,
-    fetch_many_team_roles_service_factory
+    create_team_role_service_factory, delete_team_role_service_factory,
+    fetch_many_team_roles_service_factory, update_team_role_service_factory,
 };
 use crate::domain::repositories::team_role_repository::TeamRoleQueryType;
 use crate::domain::services::create_team_role_service::CreateTeamRoleParams;
@@ -22,35 +16,55 @@ use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::error::ErrorPresenter;
 use crate::infra::http::presenters::pagination::PaginationPresenter;
-use crate::infra::http::presenters::team_role::{MappedTeamRole, TeamRolePresenter};
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
+use crate::infra::http::presenters::team_role::{MappedTeamRole, TeamRolePresenter};
 use crate::util::generate_error_response;
+use actix_web::{middleware::from_fn, web, HttpResponse, Responder};
+use either::{Left, Right};
+use uuid::Uuid;
+use validator::Validate;
 
 pub struct TeamRolesController;
 
 impl ControllerTrait for TeamRolesController {
     fn register(cfg: &mut web::ServiceConfig) {
-        cfg.service(web::scope("/team_roles")
-            // CREATE
-            .route("/new", web::post().to(Self::create).wrap(from_fn(authentication_middleware)))
-
-            // READ
-            .route("/list", web::get().to(Self::list))
-            
-            // UPDATE
-            .route("/{id}/update", web::put().to(Self::update).wrap(from_fn(authentication_middleware)))
-
-            // DELETE
-            .route("/{id}/delete", web::delete().to(Self::delete).wrap(from_fn(authentication_middleware)))
+        cfg.service(
+            web::scope("/team_roles")
+                // CREATE
+                .route(
+                    "/new",
+                    web::post()
+                        .to(Self::create)
+                        .wrap(from_fn(authentication_middleware)),
+                )
+                // READ
+                .route("/list", web::get().to(Self::list))
+                // UPDATE
+                .route(
+                    "/{id}/update",
+                    web::put()
+                        .to(Self::update)
+                        .wrap(from_fn(authentication_middleware)),
+                )
+                // DELETE
+                .route(
+                    "/{id}/delete",
+                    web::delete()
+                        .to(Self::delete)
+                        .wrap(from_fn(authentication_middleware)),
+                ),
         );
     }
 }
 
 impl TeamRolesController {
-    async fn create(user: web::ReqData<ReqUser>, body: web::Json<CreateTeamRoleDto>) -> impl Responder {
-        match body.validate() {
-            Err(e) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(e.field_errors())),
-            Ok(_) => ()
+    async fn create(
+        user: web::ReqData<ReqUser>,
+        body: web::Json<CreateTeamRoleDto>,
+    ) -> impl Responder {
+        if let Err(e) = body.validate() {
+            return HttpResponse::BadRequest()
+                .json(ErrorPresenter::to_http_from_validator(e.field_errors()));
         };
 
         let body = body.into_inner();
@@ -60,22 +74,23 @@ impl TeamRolesController {
             Right(error) => return error,
         };
 
-        let result = service.exec(CreateTeamRoleParams {
-            staff_role: user.into_inner().user_role.unwrap(),
-            title: body.title,
-            description: body.description
-        }).await;
+        let team_role = match service
+            .exec(CreateTeamRoleParams {
+                staff_role: user.into_inner().user_role.unwrap(),
+                title: body.title,
+                description: body.description,
+            })
+            .await
+        {
+            Err(err) => return generate_error_response(err),
+            Ok(team_role) => team_role,
+        };
 
-        if result.is_err() {
-            return generate_error_response(result.unwrap_err());
-        }
-
-        let team_role = result.unwrap();
         let mapped_team_role = TeamRolePresenter::to_http(team_role);
 
-        return HttpResponse::Created().json(JsonWrappedEntity {
-            data: mapped_team_role
-        });
+        HttpResponse::Created().json(JsonWrappedEntity {
+            data: mapped_team_role,
+        })
     }
 
     async fn list(query: web::Query<ListTeamRoleDto>) -> impl Responder {
@@ -84,38 +99,53 @@ impl TeamRolesController {
             Right(error) => return error,
         };
 
-        match query.validate() {
-            Err(e) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(e.field_errors())),
-            Ok(_) => ()
+        if let Err(e) = query.validate() {
+            return HttpResponse::BadRequest()
+                .json(ErrorPresenter::to_http_from_validator(e.field_errors()));
         }
 
         let query = query.into_inner();
 
-        let result = service.exec(FetchManyTeamRolesParams {
-            per_page: if query.per_page.is_some() { Some(query.per_page.unwrap() as u32) } else { None },
-            page: query.page,
-            query: if query.title.is_some() { Some(TeamRoleQueryType::Title(query.title.unwrap())) } else { None },
-        }).await;
+        let team_roles = match service
+            .exec(FetchManyTeamRolesParams {
+                per_page: if query.per_page.is_some() {
+                    Some(query.per_page.unwrap() as u32)
+                } else {
+                    None
+                },
+                page: query.page,
+                query: query.title.map(TeamRoleQueryType::Title),
+            })
+            .await
+        {
+            Err(err) => return generate_error_response(err),
+            Ok(team_roles) => team_roles,
+        };
 
-        if result.is_err() {
-            return generate_error_response(result.unwrap_err());
-        }
+        let mapped_team_roles = team_roles
+            .data
+            .into_iter()
+            .map(TeamRolePresenter::to_http)
+            .collect::<Vec<MappedTeamRole>>();
+        let mapped_pagination = PaginationPresenter::to_http(
+            team_roles.pagination,
+            query.per_page.unwrap_or(DEFAULT_PER_PAGE),
+        );
 
-        let result = result.unwrap();
-        let mapped_team_roles = result.data.into_iter().map(TeamRolePresenter::to_http).collect::<Vec<MappedTeamRole>>();
-        let mapped_pagination = PaginationPresenter::to_http(result.pagination, query.per_page.unwrap_or(DEFAULT_PER_PAGE));
-
-        return HttpResponse::Ok().json(TeamRolePresenter::to_json_paginated_wrapper(mapped_team_roles, mapped_pagination));
+        HttpResponse::Ok().json(TeamRolePresenter::to_json_paginated_wrapper(
+            mapped_team_roles,
+            mapped_pagination,
+        ))
     }
 
     async fn update(
         user: web::ReqData<ReqUser>,
         team_role_id: web::Path<Uuid>,
-        body: web::Json<UpdateTeamRoleDto>
+        body: web::Json<UpdateTeamRoleDto>,
     ) -> impl Responder {
-        match body.validate() {
-            Err(e) => return HttpResponse::BadRequest().json(ErrorPresenter::to_http_from_validator(e.field_errors())),
-            Ok(_) => (),
+        if let Err(e) = body.validate() {
+            return HttpResponse::BadRequest()
+                .json(ErrorPresenter::to_http_from_validator(e.field_errors()));
         };
 
         let service = match update_team_role_service_factory::exec().await {
@@ -124,25 +154,26 @@ impl TeamRolesController {
         };
 
         let user = user.into_inner();
-        let UpdateTeamRoleDto {title, description} = body.into_inner();
+        let UpdateTeamRoleDto { title, description } = body.into_inner();
 
-        let result = service.exec(UpdateTeamRoleParams {
-            title,
-            staff_role: user.user_role.unwrap(),
-            description,
-            team_role_id: team_role_id.into_inner()
-        }).await;
+        let team_role = match service
+            .exec(UpdateTeamRoleParams {
+                title,
+                staff_role: user.user_role.unwrap(),
+                description,
+                team_role_id: team_role_id.into_inner(),
+            })
+            .await
+        {
+            Err(err) => return generate_error_response(err),
+            Ok(team_role) => team_role,
+        };
 
-        if result.is_err() {
-            return generate_error_response(result.unwrap_err());
-        }
-
-        let team_role = result.unwrap();
         let mapped_team_role = TeamRolePresenter::to_http(team_role);
 
-        return HttpResponse::Ok().json(JsonWrappedEntity {
-            data: mapped_team_role
-        });
+        HttpResponse::Ok().json(JsonWrappedEntity {
+            data: mapped_team_role,
+        })
     }
 
     async fn delete(user: web::ReqData<ReqUser>, team_role_id: web::Path<Uuid>) -> impl Responder {
@@ -151,15 +182,15 @@ impl TeamRolesController {
             Right(error) => return error,
         };
 
-        let result = service.exec(DeleteTeamRoleParams {
-            team_role_id: team_role_id.into_inner(),
-            staff_role: user.into_inner().user_role.unwrap()
-        }).await;
-
-        if result.is_err() {
-            return generate_error_response(result.unwrap_err());
+        match service
+            .exec(DeleteTeamRoleParams {
+                team_role_id: team_role_id.into_inner(),
+                staff_role: user.into_inner().user_role.unwrap(),
+            })
+            .await
+        {
+            Err(err) => generate_error_response(err),
+            Ok(_) => HttpResponse::NoContent().finish(),
         }
-
-        return HttpResponse::NoContent().finish();
     }
 }

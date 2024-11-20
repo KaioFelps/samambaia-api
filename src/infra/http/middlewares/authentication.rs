@@ -1,47 +1,47 @@
-use std::future::{Ready, ready};
 use actix_web::body::EitherBody;
-use actix_web::middleware::Next;
 use actix_web::dev::{self, Service, ServiceRequest, ServiceResponse, Transform};
+use actix_web::middleware::Next;
 use actix_web::Error;
 use actix_web::HttpMessage;
 use actix_web::HttpResponse;
 use actix_web_lab::__reexports::futures_util::future::LocalBoxFuture;
+use std::future::{ready, Ready};
 
 use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::infra::http::extractors::req_user::ReqUser;
 
 /**
- # Authentication Middleware
- Apply this middleware to the routes that must be available only for logged-in users.
- If applied and there is no ReqUser on the request object, it will return a 401 code response.
- 
- ## Errors
- - Will return 401 error if there is no ReqUser on the request Extension object.
- 
- ## Usage
- This middleware must be called from the `from_fn`.
+# Authentication Middleware
+Apply this middleware to the routes that must be available only for logged-in users.
+If applied and there is no ReqUser on the request object, it will return a 401 code response.
 
- ```rs
- // users_controller.rs
- use actix_web_lab::middleware::from_fn;
+## Errors
+- Will return 401 error if there is no ReqUser on the request Extension object.
 
- pub struct UsersController {};
+## Usage
+This middleware must be called from the `from_fn`.
 
- impl UsersController {
-    pub fn register(cfg: &mut web::ServiceConfig) {
-        cfg.service(web::scope("/users")
-            // this route now is only available for logged in user
-            // the route's method can access the payload
-            .route("/new", web::post().to(Self::new).wrap(from_fn(authentication_middleware)))
-        );
-    }
+```rs
+// users_controller.rs
+use actix_web_lab::middleware::from_fn;
 
-    fn new(..., user: web::ReqData<ReqUser>) {
-        // ...
-    }
- }
- ```
- */
+pub struct UsersController {};
+
+impl UsersController {
+   pub fn register(cfg: &mut web::ServiceConfig) {
+       cfg.service(web::scope("/users")
+           // this route now is only available for logged in user
+           // the route's method can access the payload
+           .route("/new", web::post().to(Self::new).wrap(from_fn(authentication_middleware)))
+       );
+   }
+
+   fn new(..., user: web::ReqData<ReqUser>) {
+       // ...
+   }
+}
+```
+*/
 pub async fn authentication_middleware<B>(
     req: ServiceRequest,
     next: Next<B>,
@@ -56,12 +56,14 @@ pub async fn authentication_middleware<B>(
         let (http_req, _) = req.into_parts();
         let res = ServiceResponse::new(http_req, http_res);
 
-        return Ok(res.map_into_right_body())
+        return Ok(res.map_into_right_body());
     }
 
     log::info!("Request passing successfully through Authentication Middleware.");
-    
-    next.call(req).await.map(ServiceResponse::map_into_left_body)
+
+    next.call(req)
+        .await
+        .map(ServiceResponse::map_into_left_body)
 }
 
 /**
@@ -133,20 +135,18 @@ where
         if !has_user {
             log::info!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
 
-            let http_res = HttpResponse::Unauthorized().json(UnauthorizedError::new()).map_into_right_body();
+            let http_res = HttpResponse::Unauthorized()
+                .json(UnauthorizedError::new())
+                .map_into_right_body();
             let (http_req, _) = request.into_parts();
             let res = ServiceResponse::new(http_req, http_res);
 
-            return Box::pin(async {
-                Ok(res)
-            })
+            return Box::pin(async { Ok(res) });
         }
 
         log::info!("Request passing successfully through Authentication Middleware.");
 
         let res = self.service.call(request);
-        Box::pin(async move {
-            res.await.map(ServiceResponse::map_into_left_body)
-        })
+        Box::pin(async move { res.await.map(ServiceResponse::map_into_left_body) })
     }
 }

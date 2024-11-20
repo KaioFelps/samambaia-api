@@ -1,10 +1,10 @@
 use log::error;
 use uuid::Uuid;
 
-use crate::domain::domain_entities::comment_report::DraftCommentReport;
 use crate::domain::domain_entities::comment_report::CommentReport;
-use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
+use crate::domain::domain_entities::comment_report::DraftCommentReport;
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
+use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
 use crate::errors::bad_request_error::BadRequestError;
 use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
@@ -16,59 +16,47 @@ pub struct CreateCommentReportParams {
     pub comment_id: Uuid,
     pub content: String,
 }
-pub struct CreateCommentReportService<
-CR: CommentRepositoryTrait,
-CRR: CommentReportRepositoryTrait,
-> {
+pub struct CreateCommentReportService<CR: CommentRepositoryTrait, CRR: CommentReportRepositoryTrait>
+{
     comment_repository: Box<CR>,
-    comment_report_repository: Box<CRR>
+    comment_report_repository: Box<CRR>,
 }
 
-impl<
-CR: CommentRepositoryTrait,
-CRR: CommentReportRepositoryTrait
->
-CreateCommentReportService<CR, CRR> {
-    pub fn new(
-        comment_repository: Box<CR>,
-        comment_report_repository: Box<CRR>
-    ) -> Self {
+impl<CR: CommentRepositoryTrait, CRR: CommentReportRepositoryTrait>
+    CreateCommentReportService<CR, CRR>
+{
+    pub fn new(comment_repository: Box<CR>, comment_report_repository: Box<CRR>) -> Self {
         CreateCommentReportService {
             comment_repository,
-            comment_report_repository
+            comment_report_repository,
         }
     }
 
-    pub async fn exec(&self, params: CreateCommentReportParams) -> Result<CommentReport, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(
+        &self,
+        params: CreateCommentReportParams,
+    ) -> Result<CommentReport, Box<dyn DomainErrorTrait>> {
         let comment_on_db = self.comment_repository.find_by_id(params.comment_id).await;
-        
+
         if comment_on_db.is_err() {
             error!(
                 "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create Comment Report Service, while fetching comment from database:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
                 comment_on_db.as_ref().unwrap_err()
             );
 
-            return Err(
-                Box::new(InternalError::new())
-            );
+            return Err(Box::new(InternalError::new()));
         }
 
         let comment_on_db = comment_on_db.unwrap();
 
         if comment_on_db.is_none() {
-            return Err(
-                Box::new(BadRequestError::new())
-            )
+            return Err(Box::new(BadRequestError::new()));
         }
 
         let comment_on_db = comment_on_db.unwrap();
         let comment_id = comment_on_db.id();
 
-        let comment_report = DraftCommentReport::new(
-            comment_id,
-            params.user_id,
-            params.content,
-        );
+        let comment_report = DraftCommentReport::new(comment_id, params.user_id, params.content);
 
         let response = self.comment_report_repository.create(comment_report).await;
 
@@ -79,46 +67,44 @@ CreateCommentReportService<CR, CRR> {
             );
             return Err(Box::new(InternalError::new()));
         }
-        
-        return Ok(response.unwrap());
+
+        Ok(response.unwrap())
     }
 }
 
-
 #[cfg(test)]
 mod test {
-    use std::sync::Mutex;
     use std::sync::Arc;
+    use std::sync::Mutex;
 
     use uuid::Uuid;
 
+    use super::{CommentReport, CreateCommentReportParams};
     use crate::domain::domain_entities::comment::Comment;
     use crate::domain::domain_entities::comment_report::CommentReportTrait;
     use crate::domain::domain_entities::comment_report::DraftCommentReport;
-    use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
     use crate::domain::repositories::comment_report_repository::MockCommentReportRepositoryTrait;
+    use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
     use crate::libs::time::TimeHelper;
-    use super::{CommentReport, CreateCommentReportParams};
 
     #[tokio::test]
     async fn test() {
         let mut mocked_comment_repo: MockCommentRepositoryTrait = MockCommentRepositoryTrait::new();
-        let mut mocked_comment_report_repo: MockCommentReportRepositoryTrait = MockCommentReportRepositoryTrait::new();
+        let mut mocked_comment_report_repo: MockCommentReportRepositoryTrait =
+            MockCommentReportRepositoryTrait::new();
 
         type DB = Arc<Mutex<Vec<CommentReport>>>;
 
         let db: DB = Arc::new(Mutex::new(vec![]));
 
-        mocked_comment_repo
-        .expect_find_by_id()
-        .returning(|id| {
+        mocked_comment_repo.expect_find_by_id().returning(|id| {
             let fake_comm = Comment::new_from_existing(
                 id,
                 Some(Uuid::new_v4()),
                 Uuid::new_v4(),
                 "notíca de um autor de merda fodido".into(),
                 true,
-                TimeHelper::now()
+                TimeHelper::now(),
             );
 
             Ok(Some(fake_comm))
@@ -126,25 +112,27 @@ mod test {
 
         let db_clone = Arc::clone(&db);
         mocked_comment_report_repo
-        .expect_create()
-        .returning(move |comment_report: DraftCommentReport| {
-            let comment = comment_report.to_comment_report(1);
-            db_clone.lock().unwrap().push(comment.clone());
+            .expect_create()
+            .returning(move |comment_report: DraftCommentReport| {
+                let comment = comment_report.to_comment_report(1);
+                db_clone.lock().unwrap().push(comment.clone());
 
-            Ok(comment)
-        })
-        .times(1);
+                Ok(comment)
+            })
+            .times(1);
 
         let service = super::CreateCommentReportService {
             comment_repository: Box::new(mocked_comment_repo),
-            comment_report_repository: Box::new(mocked_comment_report_repo)
+            comment_report_repository: Box::new(mocked_comment_report_repo),
         };
 
-        let result = service.exec(CreateCommentReportParams {
-            comment_id: Uuid::new_v4(),
-            user_id: Uuid::new_v4(),
-            content: "Esse comentário é tóxico e ofensivo.".into()
-        }).await;
+        let result = service
+            .exec(CreateCommentReportParams {
+                comment_id: Uuid::new_v4(),
+                user_id: Uuid::new_v4(),
+                content: "Esse comentário é tóxico e ofensivo.".into(),
+            })
+            .await;
 
         let result = result.unwrap();
 

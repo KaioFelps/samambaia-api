@@ -12,7 +12,7 @@ impl EnumCoercionError {
     pub fn new(enum_name: &str) -> Self {
         EnumCoercionError {
             code: StatusCode::BAD_REQUEST.as_u16(),
-            message: format!("{enum_name} enum coercion error.")
+            message: format!("{enum_name} enum coercion error."),
         }
     }
 

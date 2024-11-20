@@ -11,11 +11,17 @@ pub struct UnauthorizedError {
     message: String,
 }
 
+impl Default for UnauthorizedError {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl UnauthorizedError {
     pub fn new() -> Self {
         UnauthorizedError {
             code: StatusCode::UNAUTHORIZED.as_u16(),
-            message: "Unauthorized.".into()
+            message: "Unauthorized.".into(),
         }
     }
 }

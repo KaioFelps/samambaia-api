@@ -5,6 +5,6 @@ use validator::Validate;
 pub struct SimplePaginationQueryDto {
     pub page: Option<u32>,
 
-    #[serde(rename="perPage")]
+    #[serde(rename = "perPage")]
     pub per_page: Option<u8>,
 }

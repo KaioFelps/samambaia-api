@@ -1,6 +1,6 @@
 use async_trait::async_trait;
-use uuid::Uuid;
 use std::error::Error;
+use uuid::Uuid;
 
 #[cfg(test)]
 use mockall::automock;
@@ -8,10 +8,7 @@ use mockall::automock;
 use crate::{core::pagination::PaginationParameters, domain::domain_entities::team_role::TeamRole};
 
 #[derive(Debug)]
-pub struct FindManyTeamRolesResponse (
-    pub Vec<TeamRole>,
-    pub u64,
-);
+pub struct FindManyTeamRolesResponse(pub Vec<TeamRole>, pub u64);
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TeamRoleQueryType {
@@ -29,5 +26,8 @@ pub trait TeamRoleRepositoryTrait {
 
     async fn delete(&self, team_role: TeamRole) -> Result<(), Box<dyn Error>>;
 
-    async fn find_many(&self, params: PaginationParameters<TeamRoleQueryType>) -> Result<FindManyTeamRolesResponse, Box<dyn Error>>;
+    async fn find_many(
+        &self,
+        params: PaginationParameters<TeamRoleQueryType>,
+    ) -> Result<FindManyTeamRolesResponse, Box<dyn Error>>;
 }

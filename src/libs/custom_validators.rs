@@ -8,6 +8,6 @@ pub fn validate_user_role(role: &str) -> Result<(), ValidationError> {
 
     match role_is_valid {
         true => Ok(()),
-        false => Err(ValidationError::new("Invalid user role."))
+        false => Err(ValidationError::new("Invalid user role.")),
     }
 }

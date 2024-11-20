@@ -1,40 +1,47 @@
-use log::error;
 use crate::domain::domain_entities::role::Role;
 use crate::errors::error::DomainErrorTrait;
 use crate::{LOG_SEP, R_EOL};
+use log::error;
 
-use crate::errors::internal_error::InternalError;
-use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
+use crate::errors::internal_error::InternalError;
+use crate::errors::unauthorized_error::UnauthorizedError;
 use crate::util::{verify_role_has_permission, RolePermissions};
 
 pub struct CreateTeamRoleParams {
     pub title: String,
     pub description: String,
-    pub staff_role: Role
+    pub staff_role: Role,
 }
 
 pub struct CreateTeamRoleService<TeamRoleRepository: TeamRoleRepositoryTrait> {
     team_role_repository: Box<TeamRoleRepository>,
 }
 
-impl<TeamRoleRepository: TeamRoleRepositoryTrait>
-CreateTeamRoleService<TeamRoleRepository> {
-    pub fn new(
-        team_role_repository: Box<TeamRoleRepository>,
-    ) -> Self {
+impl<TeamRoleRepository: TeamRoleRepositoryTrait> CreateTeamRoleService<TeamRoleRepository> {
+    pub fn new(team_role_repository: Box<TeamRoleRepository>) -> Self {
         CreateTeamRoleService {
             team_role_repository,
         }
     }
 
-    pub async fn exec(&self, params: CreateTeamRoleParams) -> Result<TeamRole, Box<dyn DomainErrorTrait>> {
-        let CreateTeamRoleParams { title, description, staff_role } = params;
+    pub async fn exec(
+        &self,
+        params: CreateTeamRoleParams,
+    ) -> Result<TeamRole, Box<dyn DomainErrorTrait>> {
+        let CreateTeamRoleParams {
+            title,
+            description,
+            staff_role,
+        } = params;
 
-        let user_can_create_team_role = verify_role_has_permission(&staff_role, RolePermissions::CreateNewTeamRole);
+        let user_can_create_team_role =
+            verify_role_has_permission(&staff_role, RolePermissions::CreateNewTeamRole);
 
-        if !user_can_create_team_role { return Err(Box::new(UnauthorizedError::new())) }
+        if !user_can_create_team_role {
+            return Err(Box::new(UnauthorizedError::new()));
+        }
 
         let team_role = TeamRole::new(title, description);
 
@@ -48,10 +55,8 @@ CreateTeamRoleService<TeamRoleRepository> {
                 );
 
                 Err(Box::new(InternalError::new()))
-            },
-            Ok(team_role) => {
-                Ok(team_role)
             }
+            Ok(team_role) => Ok(team_role),
         }
     }
 }
@@ -62,8 +67,8 @@ mod test {
     use crate::domain::repositories::team_role_repository::MockTeamRoleRepositoryTrait;
 
     use super::*;
-    use tokio;
     use std::sync::{Arc, Mutex};
+    use tokio;
 
     #[tokio::test]
     async fn test() {
@@ -75,30 +80,37 @@ mod test {
 
         let arc_team_role_db = Arc::clone(&team_role_db);
         mocked_team_role_repo
-        .expect_create()
-        .returning(move |team_role| {
-            arc_team_role_db.lock().unwrap().push(team_role.clone());
+            .expect_create()
+            .returning(move |team_role| {
+                arc_team_role_db.lock().unwrap().push(team_role.clone());
 
-            Ok(team_role)
-        });
+                Ok(team_role)
+            });
 
         // testing
         let sut = CreateTeamRoleService::new(Box::new(mocked_team_role_repo));
 
-        let response = sut.exec(CreateTeamRoleParams {
-            title: "Editor-chefe".into(),
-            description: "Responsável por supervisionar a edição e aprovar as notícias.".into(),
-            staff_role: Role::Admin
-        }).await;
+        let response = sut
+            .exec(CreateTeamRoleParams {
+                title: "Editor-chefe".into(),
+                description: "Responsável por supervisionar a edição e aprovar as notícias.".into(),
+                staff_role: Role::Admin,
+            })
+            .await;
 
         assert!(response.is_err());
-        assert_eq!(response.unwrap_err().to_string(), UnauthorizedError::new().to_string());
+        assert_eq!(
+            response.unwrap_err().to_string(),
+            UnauthorizedError::new().to_string()
+        );
 
-        let response = sut.exec(CreateTeamRoleParams {
-            title: "Editor-chefe".into(),
-            description: "Responsável por supervisionar a edição e aprovar as notícias.".into(),
-            staff_role: Role::Principal
-        }).await;
+        let response = sut
+            .exec(CreateTeamRoleParams {
+                title: "Editor-chefe".into(),
+                description: "Responsável por supervisionar a edição e aprovar as notícias.".into(),
+                staff_role: Role::Principal,
+            })
+            .await;
 
         assert!(response.is_ok());
         assert_eq!(response.unwrap(), team_role_db.lock().unwrap()[0]);

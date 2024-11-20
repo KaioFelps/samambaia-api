@@ -5,7 +5,7 @@ use crate::errors::bad_request_error::BadRequestError;
 use crate::errors::error::DomainErrorTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::util::{generate_service_internal_error, RolePermissions, verify_role_has_permission};
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct UpdateArticleTagParams {
     pub user_role: Role,
@@ -14,18 +14,24 @@ pub struct UpdateArticleTagParams {
 }
 
 pub struct UpdateArticleTagService<ArticleTagRepository: ArticleTagRepositoryTrait> {
-    article_tag_repository: ArticleTagRepository
+    article_tag_repository: ArticleTagRepository,
 }
 
-impl<ArticleTagRepository: ArticleTagRepositoryTrait> UpdateArticleTagService<ArticleTagRepository> {
+impl<ArticleTagRepository: ArticleTagRepositoryTrait>
+    UpdateArticleTagService<ArticleTagRepository>
+{
     pub fn new(article_tag_repository: ArticleTagRepository) -> Self {
         UpdateArticleTagService {
-            article_tag_repository
+            article_tag_repository,
         }
     }
 
-    pub async fn exec(&self, params: UpdateArticleTagParams) -> Result<ArticleTag, Box<dyn DomainErrorTrait>> {
-        let user_can_update_tag = verify_role_has_permission(&params.user_role, RolePermissions::UpdateArticleTag);
+    pub async fn exec(
+        &self,
+        params: UpdateArticleTagParams,
+    ) -> Result<ArticleTag, Box<dyn DomainErrorTrait>> {
+        let user_can_update_tag =
+            verify_role_has_permission(&params.user_role, RolePermissions::UpdateArticleTag);
 
         if !user_can_update_tag {
             return Err(Box::new(UnauthorizedError::new()));
@@ -33,40 +39,33 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait> UpdateArticleTagService<Ar
 
         if params.value.is_none() {
             return Err(Box::new(BadRequestError::new_with_message(
-                "Cannot perform an update if there is nothing to be updated.".into()
-            )))
+                "Cannot perform an update if there is nothing to be updated.".into(),
+            )));
         }
 
+        let mut tag = match self
+            .article_tag_repository
+            .find_by_id(params.tag_id)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred in Update Article Service, while finding tag by id from database.",
+                    err,
+                )
+            })?
+            {
+                None => return Err(Box::new(ResourceNotFoundError::new())),
+                Some(tag) => tag,
+            };
 
-        let tag_from_db = self.article_tag_repository.find_by_id(params.tag_id).await;
-
-        if tag_from_db.is_err() {
-            return Err(generate_service_internal_error(
-                "Error occurred in Update Article Service, while finding tag by id from database.".into(),
-                &tag_from_db.unwrap_err()
-            ));
-        }
-
-        let tag = tag_from_db.unwrap();
-
-        if tag.is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
-        }
-
-        let mut tag = tag.unwrap();
         tag.set_value(params.value.unwrap());
 
-        let result = self.article_tag_repository.save(tag).await;
-
-        if result.is_err() {
-            return Err(generate_service_internal_error(
-                "Error occurred in Update Article Service, while saving the updated tag.".into(),
-                &result.unwrap_err()
-            ));
-        }
-
-        let tag = result.unwrap();
-        Ok(tag)
+        self.article_tag_repository.save(tag).await.map_err(|err| {
+            generate_service_internal_error(
+                "Error occurred in Update Article Service, while saving the updated tag.",
+                err,
+            )
+        })
     }
 }
 
@@ -85,14 +84,20 @@ mod test {
         let tag = ArticleTag::new_from_existing(1, "Foo".into());
         tag_db.lock().unwrap().push(tag);
 
-        let result = sut.exec(UpdateArticleTagParams {
-            value: Some("Bar".to_string()),
-            user_role: Role::Principal,
-            tag_id: 1,
-        }).await;
+        let result = sut
+            .exec(UpdateArticleTagParams {
+                value: Some("Bar".to_string()),
+                user_role: Role::Principal,
+                tag_id: 1,
+            })
+            .await;
 
         assert!(result.is_ok());
-        assert_eq!(&"Bar".to_string(), tag_db.lock().unwrap()[0].value(), "Principal-role user should be able to update an article tag.");
+        assert_eq!(
+            &"Bar".to_string(),
+            tag_db.lock().unwrap()[0].value(),
+            "Principal-role user should be able to update an article tag."
+        );
     }
 
     #[tokio::test]
@@ -103,12 +108,17 @@ mod test {
         let tag = ArticleTag::new_from_existing(1, "Foo".into());
         tag_db.lock().unwrap().push(tag);
 
-        let result = sut.exec(UpdateArticleTagParams {
-            value: Some("Bar".into()),
-            user_role: Role::Admin,
-            tag_id: 1,
-        }).await;
+        let result = sut
+            .exec(UpdateArticleTagParams {
+                value: Some("Bar".into()),
+                user_role: Role::Admin,
+                tag_id: 1,
+            })
+            .await;
 
-        assert!(result.is_err(), "Only Principal-role or above users should be able to update an article tag.");
+        assert!(
+            result.is_err(),
+            "Only Principal-role or above users should be able to update an article tag."
+        );
     }
 }

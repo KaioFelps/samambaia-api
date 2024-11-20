@@ -8,7 +8,7 @@ use crate::{LOG_SEP, R_EOL};
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
-use crate::util::{RolePermissions, verify_role_has_permission};
+use crate::util::{verify_role_has_permission, RolePermissions};
 
 pub struct DeleteCommentParams {
     pub staff_role: Role,
@@ -19,13 +19,9 @@ pub struct DeleteCommentService<CommentRepository: CommentRepositoryTrait> {
     comment_repository: Box<CommentRepository>,
 }
 
-impl<CommentRepository: CommentRepositoryTrait>
-DeleteCommentService<CommentRepository>
-{
+impl<CommentRepository: CommentRepositoryTrait> DeleteCommentService<CommentRepository> {
     pub fn new(comment_repository: Box<CommentRepository>) -> Self {
-        DeleteCommentService {
-            comment_repository,
-        }
+        DeleteCommentService { comment_repository }
     }
 
     pub async fn exec(&self, params: DeleteCommentParams) -> Result<(), Box<dyn DomainErrorTrait>> {
@@ -39,20 +35,22 @@ DeleteCommentService<CommentRepository>
 
             return Err(Box::new(InternalError::new()));
         }
-        
+
         let comment_on_db = comment_on_db.unwrap();
 
-        if comment_on_db.is_none() { return Err(Box::new(ResourceNotFoundError::new())) }
+        if comment_on_db.is_none() {
+            return Err(Box::new(ResourceNotFoundError::new()));
+        }
 
         let comment = comment_on_db.unwrap();
 
         // checks user is allowed to perform the update
-        let user_can_delete = verify_role_has_permission(
-            &params.staff_role,
-            RolePermissions::DeleteComment
-        );
+        let user_can_delete =
+            verify_role_has_permission(&params.staff_role, RolePermissions::DeleteComment);
 
-        if !user_can_delete && comment.author_id() != params.user_id { return Err(Box::new(UnauthorizedError::new())); }
+        if !user_can_delete && comment.author_id() != params.user_id {
+            return Err(Box::new(UnauthorizedError::new()));
+        }
 
         let response = self.comment_repository.delete(comment).await;
 
@@ -64,23 +62,22 @@ DeleteCommentService<CommentRepository>
 
             return Err(Box::new(InternalError::new()));
         }
-        
+
         Ok(())
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use std::sync::{Arc, Mutex};
-    use uuid::Uuid;
     use tokio;
+    use uuid::Uuid;
 
     use super::{DeleteCommentParams, DeleteCommentService};
 
-    use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
-    use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::comment::Comment;
+    use crate::domain::domain_entities::role::Role;
+    use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
 
     #[tokio::test]
     async fn test() {
@@ -92,38 +89,36 @@ mod test {
             "Conteúdo inicial".to_string(),
         );
 
-        let comment_db: Arc<Mutex<Vec<Comment>>> = Arc::new(Mutex::new(vec![
-            comment.clone()
-        ]));
-        
+        let comment_db: Arc<Mutex<Vec<Comment>>> = Arc::new(Mutex::new(vec![comment.clone()]));
+
         // mocking comment repo
         let mocked_comment_repo_db_clone = Arc::clone(&comment_db);
         mocked_comment_repo
-        .expect_find_by_id()
-        .returning(move |id| {
-            let comment_db = mocked_comment_repo_db_clone.lock().unwrap();
+            .expect_find_by_id()
+            .returning(move |id| {
+                let comment_db = mocked_comment_repo_db_clone.lock().unwrap();
 
-            for item in comment_db.iter() {
-                if item.id() == id {
-                    return Ok(Some(item.clone()));
+                for item in comment_db.iter() {
+                    if item.id() == id {
+                        return Ok(Some(item.clone()));
+                    }
                 }
-            }
 
-            Ok(None)
-        });
+                Ok(None)
+            });
 
         let mocked_comment_repo_db_clone = Arc::clone(&comment_db);
         mocked_comment_repo
-        .expect_delete()
-        .returning(move |_comment| {
-            let mut comment_db = mocked_comment_repo_db_clone.lock().unwrap();
-            comment_db.truncate(0);
+            .expect_delete()
+            .returning(move |_comment| {
+                let mut comment_db = mocked_comment_repo_db_clone.lock().unwrap();
+                comment_db.truncate(0);
 
-            Ok(())
-        });
+                Ok(())
+            });
 
         let service = DeleteCommentService {
-            comment_repository: Box::new(mocked_comment_repo)
+            comment_repository: Box::new(mocked_comment_repo),
         };
 
         let result = service.exec(DeleteCommentParams {

@@ -1,5 +1,5 @@
-use std::fmt;
 use http::StatusCode;
+use std::fmt;
 
 use super::error::DomainErrorTrait;
 
@@ -9,11 +9,17 @@ pub struct BadRequestError {
     message: String,
 }
 
+impl Default for BadRequestError {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BadRequestError {
     pub fn new() -> Self {
         BadRequestError {
             code: StatusCode::BAD_REQUEST.as_u16(),
-            message: "Bad request performed.".to_string()
+            message: "Bad request performed.".to_string(),
         }
     }
 

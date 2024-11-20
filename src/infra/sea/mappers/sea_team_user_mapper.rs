@@ -1,5 +1,5 @@
-use entities::team_user::Model as TeamUserModel;
 use entities::team_user::ActiveModel as TeamUserActiveModel;
+use entities::team_user::Model as TeamUserModel;
 use sea_orm::IntoActiveValue;
 
 use crate::domain::domain_entities::team_user::TeamUser;
@@ -35,8 +35,8 @@ impl SeaTeamUserMapper {
         sea_active_model
     }
 
-    pub fn active_model_to_team_user(active_model_team_user: TeamUserActiveModel) -> TeamUser {        
-        let team_user = TeamUser::new_from_existing(
+    pub fn active_model_to_team_user(active_model_team_user: TeamUserActiveModel) -> TeamUser {
+        TeamUser::new_from_existing(
             active_model_team_user.id.unwrap(),
             active_model_team_user.team_role_id.unwrap(),
             active_model_team_user.nickname.unwrap(),
@@ -44,22 +44,18 @@ impl SeaTeamUserMapper {
             active_model_team_user.twitter.unwrap(),
             active_model_team_user.discord.unwrap(),
             active_model_team_user.created_at.unwrap(),
-        );
-
-        team_user
+        )
     }
 
     pub fn model_to_team_user(model_team_user: TeamUserModel) -> TeamUser {
-        let team_user = TeamUser::new_from_existing(
-            model_team_user.id.into(),
-            model_team_user.team_role_id.into(),
-            model_team_user.nickname.into(),
-            model_team_user.user_function.into(),
-            model_team_user.twitter.into(),
-            model_team_user.discord.into(),
-            model_team_user.created_at.into(),
-        );
-
-        team_user
+        TeamUser::new_from_existing(
+            model_team_user.id,
+            model_team_user.team_role_id,
+            model_team_user.nickname,
+            model_team_user.user_function,
+            model_team_user.twitter,
+            model_team_user.discord,
+            model_team_user.created_at,
+        )
     }
 }

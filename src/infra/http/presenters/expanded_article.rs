@@ -1,9 +1,18 @@
-use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime as DateTime;
-use uuid::Uuid;
-use crate::{core::pagination::PaginationResponse, domain::domain_entities::{article::Article, comment_with_author::CommentWithAuthor, user::User}};
+use super::{
+    comment::{CommentPresenter, MappedComment},
+    pagination::{MappedPagination, PaginationPresenter},
+    user::{MappedUser, UserPresenter},
+};
 use crate::infra::http::presenters::presenter::PresenterTrait;
-use super::{comment::{CommentPresenter, MappedComment}, pagination::{MappedPagination, PaginationPresenter}, user::{MappedUser, UserPresenter}};
+use crate::{
+    core::pagination::PaginationResponse,
+    domain::domain_entities::{
+        article::Article, comment_with_author::CommentWithAuthor, user::User,
+    },
+};
+use chrono::NaiveDateTime as DateTime;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct MappedExpandedArticle {
@@ -21,20 +30,25 @@ pub struct MappedExpandedArticle {
 
     author: MappedUser,
 
-    comments: MappedExpandedArticleComments
+    comments: MappedExpandedArticleComments,
 }
 
 #[derive(Serialize, Deserialize)]
 struct MappedExpandedArticleComments {
     data: Vec<MappedComment>,
-    pagination: MappedPagination
+    pagination: MappedPagination,
 }
 
 pub struct ExpandedArticlePresenter;
 
 impl ExpandedArticlePresenter {
     #[allow(clippy::wrong_self_convention)]
-    pub fn to_http(article: Article, author: User, comments: Vec<CommentWithAuthor>, pagination: (PaginationResponse, u8)) -> MappedExpandedArticle {
+    pub fn to_http(
+        article: Article,
+        author: User,
+        comments: Vec<CommentWithAuthor>,
+        pagination: (PaginationResponse, u8),
+    ) -> MappedExpandedArticle {
         MappedExpandedArticle {
             id: article.id(),
             title: article.title().into(),
@@ -48,9 +62,12 @@ impl ExpandedArticlePresenter {
             author: UserPresenter::to_http(author),
 
             comments: MappedExpandedArticleComments {
-                data: comments.into_iter().map(CommentPresenter::to_http).collect(),
-                pagination: PaginationPresenter::to_http(pagination.0, pagination.1)
-            }
+                data: comments
+                    .into_iter()
+                    .map(CommentPresenter::to_http)
+                    .collect(),
+                pagination: PaginationPresenter::to_http(pagination.0, pagination.1),
+            },
         }
     }
 }

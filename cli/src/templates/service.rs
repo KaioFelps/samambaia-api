@@ -1,7 +1,5 @@
-pub fn get_service_template(
-    service_capitalized_name: &String,
-) -> String {
-    return format!(
+pub fn get_service_template(service_capitalized_name: &String) -> String {
+    format!(
 "use std::error::Error;
 
 pub struct {service_capitalized_name}Params {{}}
@@ -21,5 +19,5 @@ impl {service_capitalized_name}Service {{
 #[cfg(test)]
 mod test {{}}
 "
-    );
+    )
 }

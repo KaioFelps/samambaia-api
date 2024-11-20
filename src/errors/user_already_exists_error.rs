@@ -1,5 +1,5 @@
-use std::fmt;
 use http::StatusCode;
+use std::fmt;
 
 use super::error::DomainErrorTrait;
 
@@ -13,7 +13,7 @@ impl UserAlreadyExistsError {
     pub fn new(nickname: String) -> Self {
         UserAlreadyExistsError {
             code: StatusCode::CONFLICT.as_u16(),
-            message: format!("User with nickname {} already exist.", nickname)
+            message: format!("User with nickname {} already exist.", nickname),
         }
     }
 }

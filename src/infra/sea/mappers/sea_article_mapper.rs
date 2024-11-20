@@ -1,5 +1,5 @@
-use entities::article::Model as ArticleModel;
 use entities::article::ActiveModel as ArticleActiveModel;
+use entities::article::Model as ArticleModel;
 use sea_orm::IntoActiveValue;
 
 use crate::domain::domain_entities::article::Article;
@@ -20,7 +20,7 @@ impl SeaArticleMapper {
             updated_at: article.updated_at(),
             slug: article.slug().to_string(),
             tag_id: article.tag_id(),
-            tag_value: article.tag_value()
+            tag_value: article.tag_value(),
         };
 
         sea_model
@@ -38,14 +38,14 @@ impl SeaArticleMapper {
             updated_at: article.updated_at().into_active_value(),
             slug: article.slug().to_string().into_active_value(),
             tag_value: article.tag_value().into_active_value(),
-            tag_id: article.tag_id().into_active_value()
+            tag_id: article.tag_id().into_active_value(),
         };
 
         sea_active_model
     }
 
-    pub fn active_model_to_article(active_model_article: ArticleActiveModel) -> Article {        
-        let article = Article::new_from_existing(
+    pub fn active_model_to_article(active_model_article: ArticleActiveModel) -> Article {
+        Article::new_from_existing(
             active_model_article.id.unwrap(),
             active_model_article.author_id.unwrap(),
             active_model_article.cover_url.unwrap(),
@@ -57,13 +57,11 @@ impl SeaArticleMapper {
             active_model_article.tag_id.unwrap(),
             active_model_article.tag_value.unwrap(),
             Slug::new_from_existing(active_model_article.slug.unwrap()),
-        );
-
-        article
+        )
     }
 
     pub fn model_to_article(model_article: ArticleModel) -> Article {
-        let article = Article::new_from_existing(
+        Article::new_from_existing(
             model_article.id,
             model_article.author_id,
             model_article.cover_url,
@@ -74,9 +72,7 @@ impl SeaArticleMapper {
             model_article.updated_at,
             model_article.tag_id,
             model_article.tag_value,
-            Slug::new_from_existing(model_article.slug)
-        );
-
-        article
+            Slug::new_from_existing(model_article.slug),
+        )
     }
 }

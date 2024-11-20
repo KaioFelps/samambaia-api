@@ -18,5 +18,5 @@ pub struct UpdateArticleDto {
     pub approved: Option<bool>,
 
     #[serde(rename = "tagId")]
-    pub tag_id: Option<i32>
+    pub tag_id: Option<i32>,
 }

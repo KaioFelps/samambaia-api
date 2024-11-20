@@ -1,10 +1,8 @@
-pub fn get_controller_template(
-    capitalized_entity: &String,
-) -> String {
+pub fn get_controller_template(capitalized_entity: &String) -> String {
     let lower_case_entity = capitalized_entity.clone().to_lowercase();
 
-    return format!(
-r#"use actix_web::{{web, HttpResponse, Responder}};
+    format!(
+        r#"use actix_web::{{web, HttpResponse, Responder}};
 
 use super::controller::ControllerTrait;
 
@@ -62,5 +60,5 @@ impl {capitalized_entity}sController {{
     }}
 }}
 "#
-    );
+    )
 }

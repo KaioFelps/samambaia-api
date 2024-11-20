@@ -11,7 +11,7 @@ pub struct FreeBadge {
     link: String,
     link_is_external: bool,
     created_at: NaiveDateTime,
-    available_until: Option<NaiveDateTime>
+    available_until: Option<NaiveDateTime>,
 }
 
 impl FreeBadge {
@@ -20,10 +20,10 @@ impl FreeBadge {
         image: String,
         link: String,
         link_is_external: bool,
-        available_until: Option<NaiveDateTime>
+        available_until: Option<NaiveDateTime>,
     ) -> FreeBadge {
         let id = Uuid::new_v4();
-        let created_at  = TimeHelper::now();
+        let created_at = TimeHelper::now();
 
         FreeBadge {
             id,
@@ -32,7 +32,7 @@ impl FreeBadge {
             link,
             link_is_external,
             available_until,
-            created_at
+            created_at,
         }
     }
 
@@ -43,7 +43,7 @@ impl FreeBadge {
         link: String,
         link_is_external: bool,
         created_at: NaiveDateTime,
-        available_until: Option<NaiveDateTime>
+        available_until: Option<NaiveDateTime>,
     ) -> FreeBadge {
         FreeBadge {
             id,
@@ -52,10 +52,9 @@ impl FreeBadge {
             link,
             link_is_external,
             available_until,
-            created_at
+            created_at,
         }
     }
-
 
     pub fn id(&self) -> Uuid {
         self.id
@@ -85,23 +84,23 @@ impl FreeBadge {
         self.created_at
     }
 
-    pub fn set_code(&mut self, value: String) -> () {
+    pub fn set_code(&mut self, value: String) {
         self.code = value;
     }
 
-    pub fn set_image(&mut self, value: String) -> () {
+    pub fn set_image(&mut self, value: String) {
         self.image = value;
     }
 
-    pub fn set_link(&mut self, value: String) -> () {
+    pub fn set_link(&mut self, value: String) {
         self.link = value;
     }
 
-    pub fn set_link_is_external(&mut self, value: bool) -> () {
+    pub fn set_link_is_external(&mut self, value: bool) {
         self.link_is_external = value;
     }
 
-    pub fn set_available_until(&mut self, value: Option<NaiveDateTime>) -> () {
+    pub fn set_available_until(&mut self, value: Option<NaiveDateTime>) {
         self.available_until = value;
     }
 }

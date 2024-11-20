@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::errors::enum_coercion_error::EnumCoercionError;
 
@@ -30,7 +30,7 @@ impl FromStr for Role {
             "PRINCIPAL" => Ok(Self::Principal),
             "USER" => Ok(Self::User),
             "WRITER" => Ok(Self::Writer),
-            _ => Err(EnumCoercionError::new("Role"))
+            _ => Err(EnumCoercionError::new("Role")),
         }
     }
 }

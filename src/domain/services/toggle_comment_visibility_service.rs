@@ -13,25 +13,24 @@ use crate::{LOG_SEP, R_EOL};
 
 pub struct ToggleCommentVisibilityParams<'exec> {
     pub user_role: &'exec Role,
-    pub comment_id: Uuid
+    pub comment_id: Uuid,
 }
 
-pub struct ToggleCommentVisibilityService <CommentRepository: CommentRepositoryTrait> {
-    comment_repository: Box<CommentRepository>
+pub struct ToggleCommentVisibilityService<CommentRepository: CommentRepositoryTrait> {
+    comment_repository: Box<CommentRepository>,
 }
 
-impl<CommentRepository: CommentRepositoryTrait>
-ToggleCommentVisibilityService<CommentRepository> {
-    pub fn new(
-        comment_repository: Box<CommentRepository>
-    ) -> Self {
-        ToggleCommentVisibilityService {
-            comment_repository
-        }
+impl<CommentRepository: CommentRepositoryTrait> ToggleCommentVisibilityService<CommentRepository> {
+    pub fn new(comment_repository: Box<CommentRepository>) -> Self {
+        ToggleCommentVisibilityService { comment_repository }
     }
 
-    pub async fn exec<'exec>(&self, params: ToggleCommentVisibilityParams<'exec>) -> Result<Comment, Box<dyn DomainErrorTrait>> {
-        let user_can_toggle_visibility = verify_role_has_permission(&params.user_role, RolePermissions::InactivateComment);
+    pub async fn exec<'exec>(
+        &self,
+        params: ToggleCommentVisibilityParams<'exec>,
+    ) -> Result<Comment, Box<dyn DomainErrorTrait>> {
+        let user_can_toggle_visibility =
+            verify_role_has_permission(params.user_role, RolePermissions::InactivateComment);
 
         if !user_can_toggle_visibility {
             return Err(Box::new(UnauthorizedError::new()));
@@ -50,7 +49,9 @@ ToggleCommentVisibilityService<CommentRepository> {
 
         let comment = comment.unwrap();
 
-        if comment.is_none() { return Err(Box::new(UnauthorizedError::new())) }
+        if comment.is_none() {
+            return Err(Box::new(UnauthorizedError::new()));
+        }
 
         let mut comment = comment.unwrap();
 
@@ -70,7 +71,7 @@ ToggleCommentVisibilityService<CommentRepository> {
                     err
                 );
 
-                return Err(Box::new(InternalError::new()));
+                Err(Box::new(InternalError::new()))
             }
         }
     }
@@ -83,15 +84,19 @@ mod test {
     use crate::domain::domain_entities::role::Role;
     use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
 
-    use tokio;
     use std::sync::{Arc, Mutex};
+    use tokio;
 
     #[tokio::test]
     async fn test() {
         // POPULATING THE DATABASE
         let comment_db: Arc<Mutex<Vec<Comment>>> = Arc::new(Mutex::new(vec![]));
 
-        let comment = Comment::new(Uuid::new_v4(), Some(Uuid::new_v4()), "Comment content haha".into());
+        let comment = Comment::new(
+            Uuid::new_v4(),
+            Some(Uuid::new_v4()),
+            "Comment content haha".into(),
+        );
 
         comment_db.lock().unwrap().push(comment.clone());
 
@@ -100,24 +105,22 @@ mod test {
 
         let comment_db_clone = Arc::clone(&comment_db);
         mocked_comment_repo
-        .expect_find_by_id()
-        .returning(move |id| {
-            let mut comment = None;
-            
-            for item in comment_db_clone.lock().unwrap().iter() {
-                if item.id().eq(&id) {
-                    comment = Some(item.clone());
-                    break;
+            .expect_find_by_id()
+            .returning(move |id| {
+                let mut comment = None;
+
+                for item in comment_db_clone.lock().unwrap().iter() {
+                    if item.id().eq(&id) {
+                        comment = Some(item.clone());
+                        break;
+                    }
                 }
-            }
-            
-            Ok(comment)
-        });
-        
+
+                Ok(comment)
+            });
+
         let comment_db_clone = Arc::clone(&comment_db);
-        mocked_comment_repo
-        .expect_save()
-        .returning(move |comment| {    
+        mocked_comment_repo.expect_save().returning(move |comment| {
             comment_db_clone.lock().unwrap()[0] = comment.clone();
 
             Ok(comment)
@@ -125,22 +128,26 @@ mod test {
 
         // SERVICE INSTANTIATING
         let sut = ToggleCommentVisibilityService {
-            comment_repository: Box::new(mocked_comment_repo)
+            comment_repository: Box::new(mocked_comment_repo),
         };
 
-        let res = sut.exec(ToggleCommentVisibilityParams {
-            user_role: &Role::Editor,
-            comment_id: comment.id(),
-        }).await;
+        let res = sut
+            .exec(ToggleCommentVisibilityParams {
+                user_role: &Role::Editor,
+                comment_id: comment.id(),
+            })
+            .await;
 
-        assert_eq!(true, res.is_err());
-        assert_eq!(true, comment_db.lock().unwrap()[0].is_active());
+        assert!(res.is_err());
+        assert!(comment_db.lock().unwrap()[0].is_active());
 
-        let res = sut.exec(ToggleCommentVisibilityParams {
-            user_role: &Role::Coord,
-            comment_id: comment.id(),
-        }).await;
+        let res = sut
+            .exec(ToggleCommentVisibilityParams {
+                user_role: &Role::Coord,
+                comment_id: comment.id(),
+            })
+            .await;
 
-        assert_eq!(false, res.unwrap().is_active());
+        assert!(!res.unwrap().is_active());
     }
 }

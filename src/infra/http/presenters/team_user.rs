@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime as DateTime;
+use serde::{Deserialize, Serialize};
 
 use crate::domain::domain_entities::team_user::TeamUser;
 use crate::infra::http::presenters::presenter::PresenterTrait;
@@ -12,7 +12,7 @@ pub struct MappedTeamUser {
     twitter: Option<String>,
     discord: Option<String>,
     #[serde(rename = "hiredAt")]
-    created_at: DateTime
+    created_at: DateTime,
 }
 
 pub struct TeamUserPresenter;

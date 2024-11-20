@@ -5,7 +5,7 @@ use crate::domain::domain_entities::role::Role;
 use crate::errors::error::DomainErrorTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
 use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::{R_EOL, LOG_SEP};
+use crate::{LOG_SEP, R_EOL};
 
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
 use crate::errors::internal_error::InternalError;
@@ -19,25 +19,33 @@ pub struct SolveCommentReportParams {
 }
 
 pub struct SolveCommentReportService<CommentReportRepository: CommentReportRepositoryTrait> {
-    comment_report_repository: Box<CommentReportRepository>
+    comment_report_repository: Box<CommentReportRepository>,
 }
 
 impl<CommentReportRepository: CommentReportRepositoryTrait>
-SolveCommentReportService<CommentReportRepository> {
+    SolveCommentReportService<CommentReportRepository>
+{
     pub fn new(comment_report_repository: Box<CommentReportRepository>) -> Self {
         SolveCommentReportService {
-            comment_report_repository
+            comment_report_repository,
         }
     }
 
-    pub async fn exec(&self, params: SolveCommentReportParams) -> Result<(), Box<dyn DomainErrorTrait>> {
-        let staff_can_solve = verify_role_has_permission(&params.staff_role, RolePermissions::SolveReport);
+    pub async fn exec(
+        &self,
+        params: SolveCommentReportParams,
+    ) -> Result<(), Box<dyn DomainErrorTrait>> {
+        let staff_can_solve =
+            verify_role_has_permission(&params.staff_role, RolePermissions::SolveReport);
 
         if !staff_can_solve {
-            return Err( Box::new( UnauthorizedError::new() ) );
+            return Err(Box::new(UnauthorizedError::new()));
         }
 
-        let comm_report = self.comment_report_repository.find_by_id(params.com_report_id).await;
+        let comm_report = self
+            .comment_report_repository
+            .find_by_id(params.com_report_id)
+            .await;
 
         if comm_report.is_err() {
             error!(
@@ -45,13 +53,13 @@ SolveCommentReportService<CommentReportRepository> {
                 comm_report.unwrap_err()
             );
 
-            return Err( Box::new( InternalError::new() ) )
+            return Err(Box::new(InternalError::new()));
         }
 
         let comm_report = comm_report.unwrap();
 
         if comm_report.is_none() {
-            return Err( Box::new( ResourceNotFoundError::new() ) );
+            return Err(Box::new(ResourceNotFoundError::new()));
         }
 
         let mut comm_report = comm_report.unwrap();
@@ -66,7 +74,7 @@ SolveCommentReportService<CommentReportRepository> {
                 result.unwrap_err()
             );
 
-            return Err( Box::new( InternalError::new() ) )
+            return Err(Box::new(InternalError::new()));
         }
 
         Ok(())
@@ -78,11 +86,13 @@ mod test {
     use super::*;
     use std::sync::{Arc, Mutex};
 
-    use crate::domain::domain_entities::comment_report::{CommentReport, CommentReportIdTrait, CommentReportTrait};
+    use crate::domain::domain_entities::comment_report::{
+        CommentReport, CommentReportIdTrait, CommentReportTrait,
+    };
     use crate::domain::domain_entities::role::Role;
     use crate::domain::repositories::comment_report_repository::MockCommentReportRepositoryTrait;
     use crate::libs::time::TimeHelper;
-    
+
     use tokio;
 
     #[tokio::test]
@@ -99,7 +109,7 @@ mod test {
             Uuid::new_v4(),
             "Esse comentário é tóxico.".into(),
             None,
-            TimeHelper::now()
+            TimeHelper::now(),
         );
 
         let comment_report_id_1 = comment_report_1.id();
@@ -110,7 +120,7 @@ mod test {
             Uuid::new_v4(),
             "Estão me ofendendo neste comentário!".into(),
             None,
-            TimeHelper::now()
+            TimeHelper::now(),
         );
 
         let comment_report_id_2 = comment_report_2.id();
@@ -120,59 +130,66 @@ mod test {
 
         let comm_report_db_clone = Arc::clone(&comm_report_db);
         mocked_comment_report_repo
-        .expect_find_by_id()
-        .returning(move |id| {
-            let mut _comm_report: Option<CommentReport> = None;
+            .expect_find_by_id()
+            .returning(move |id| {
+                let mut _comm_report: Option<CommentReport> = None;
 
-            for comm_rep in comm_report_db_clone.lock().unwrap().iter() {
-                if comm_rep.id().eq(&id) {
-                    _comm_report = Some(comm_rep.clone());
-                    break;
+                for comm_rep in comm_report_db_clone.lock().unwrap().iter() {
+                    if comm_rep.id().eq(&id) {
+                        _comm_report = Some(comm_rep.clone());
+                        break;
+                    }
                 }
-            }
 
-            Ok(_comm_report)
-        });
+                Ok(_comm_report)
+            });
 
         let comm_report_db_clone = Arc::clone(&comm_report_db);
         mocked_comment_report_repo
-        .expect_save()
-        .returning(move |comm_report| {
-            let mut index = None;
+            .expect_save()
+            .returning(move |comm_report| {
+                let mut index = None;
 
-            for (i, comm_rep) in comm_report_db_clone.lock().unwrap().iter().enumerate() {
-                if comm_rep.id().eq(&comm_report.id()) {
-                    index = Some(i);
+                for (i, comm_rep) in comm_report_db_clone.lock().unwrap().iter().enumerate() {
+                    if comm_rep.id().eq(&comm_report.id()) {
+                        index = Some(i);
+                    }
                 }
-            }
 
-            if index.is_some() {
-                comm_report_db_clone.lock().unwrap()[index.unwrap()] = comm_report.clone();
-            }
+                if index.is_some() {
+                    comm_report_db_clone.lock().unwrap()[index.unwrap()] = comm_report.clone();
+                }
 
-            Ok(comm_report)
-        });
+                Ok(comm_report)
+            });
 
         let sut = SolveCommentReportService {
-            comment_report_repository: Box::new(mocked_comment_report_repo)
+            comment_report_repository: Box::new(mocked_comment_report_repo),
         };
 
         let fake_staff_id = Uuid::new_v4();
 
-        let result = sut.exec(SolveCommentReportParams {
-            staff_id: fake_staff_id.clone(),
-            staff_role: Role::Coord,
-            com_report_id: comment_report_id_1
-        }).await;
+        let result = sut
+            .exec(SolveCommentReportParams {
+                staff_id: fake_staff_id,
+                staff_role: Role::Coord,
+                com_report_id: comment_report_id_1,
+            })
+            .await;
 
         assert!(result.is_ok());
-        assert_eq!(Some(fake_staff_id.clone()), comm_report_db.lock().unwrap()[0].solved_by());
+        assert_eq!(
+            Some(fake_staff_id),
+            comm_report_db.lock().unwrap()[0].solved_by()
+        );
 
-        let result_2 = sut.exec(SolveCommentReportParams {
-            staff_id: fake_staff_id,
-            staff_role: Role::User,
-            com_report_id: comment_report_id_2
-        }).await;
+        let result_2 = sut
+            .exec(SolveCommentReportParams {
+                staff_id: fake_staff_id,
+                staff_role: Role::User,
+                com_report_id: comment_report_id_2,
+            })
+            .await;
 
         assert!(result_2.is_err());
         assert_eq!(None, comm_report_db.lock().unwrap()[1].solved_by());

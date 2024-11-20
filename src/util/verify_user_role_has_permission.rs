@@ -1,5 +1,5 @@
-use crate::domain::domain_entities::role::Role;
 use super::RolePermissions;
+use crate::domain::domain_entities::role::Role;
 
 pub fn exec(role: &Role, expec_perm: RolePermissions) -> bool {
     let permissions_for_role = RolePermissions::get_from_role(role);
@@ -10,6 +10,5 @@ pub fn exec(role: &Role, expec_perm: RolePermissions) -> bool {
         }
     }
 
-    return false;
-
+    false
 }

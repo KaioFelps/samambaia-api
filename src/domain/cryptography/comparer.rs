@@ -1,3 +1,3 @@
 pub trait ComparerTrait {
-    fn compare(&self, password: &String, hashed_password: &String) -> bool;
+    fn compare(&self, password: &str, hashed_password: &str) -> bool;
 }

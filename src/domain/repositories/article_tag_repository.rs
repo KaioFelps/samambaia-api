@@ -1,17 +1,14 @@
 use std::error::Error;
 
-use async_trait::async_trait;
-use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
 use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
+use async_trait::async_trait;
 
 #[cfg(test)]
 use mockall::automock;
 
 #[derive(Debug)]
-pub struct FindManyArticleTagsResponse (
-    pub Vec<ArticleTag>,
-    pub u64,
-);
+pub struct FindManyArticleTagsResponse(pub Vec<ArticleTag>, pub u64);
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ArticleTagQueryType {
@@ -27,7 +24,10 @@ pub trait ArticleTagRepositoryTrait {
 
     async fn find_by_value(&self, tag_value: String) -> Result<Option<ArticleTag>, Box<dyn Error>>;
 
-    async fn find_many(&self, params: PaginationParameters<ArticleTagQueryType>) -> Result<FindManyArticleTagsResponse, Box<dyn Error>>;
+    async fn find_many(
+        &self,
+        params: PaginationParameters<ArticleTagQueryType>,
+    ) -> Result<FindManyArticleTagsResponse, Box<dyn Error>>;
 
     async fn save(&self, article_tag: ArticleTag) -> Result<ArticleTag, Box<dyn Error>>;
 

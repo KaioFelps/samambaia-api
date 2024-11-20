@@ -1,5 +1,5 @@
-use entities::free_badge::Model as FreeBadgeModel;
 use entities::free_badge::ActiveModel as FreeBadgeActiveModel;
+use entities::free_badge::Model as FreeBadgeModel;
 use sea_orm::IntoActiveValue;
 
 use crate::domain::domain_entities::free_badge::FreeBadge;
@@ -45,13 +45,13 @@ impl SeaFreeBadgeMapper {
 
     pub fn model_to_free_badge(model_free_badge: FreeBadgeModel) -> FreeBadge {
         FreeBadge::new_from_existing(
-            model_free_badge.id.into(),
-            model_free_badge.code.into(),
-            model_free_badge.image.into(),
-            model_free_badge.link.into(),
-            model_free_badge.link_is_external.into(),
-            model_free_badge.created_at.into(),
-            model_free_badge.available_until.into()
+            model_free_badge.id,
+            model_free_badge.code,
+            model_free_badge.image,
+            model_free_badge.link,
+            model_free_badge.link_is_external,
+            model_free_badge.created_at,
+            model_free_badge.available_until,
         )
     }
 }

@@ -18,7 +18,7 @@ impl PresenterTrait<TeamRole, MappedTeamRole> for TeamRolePresenter {
         MappedTeamRole {
             id: role.id(),
             title: role.title().to_owned(),
-            description: role.description().to_owned()
+            description: role.description().to_owned(),
         }
     }
 }

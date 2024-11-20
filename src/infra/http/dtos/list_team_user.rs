@@ -11,5 +11,5 @@ pub struct ListTeamUsersDto {
     pub team_role_id: Option<Uuid>,
 
     #[validate(length(min = 1))]
-    pub nickname: Option<String>
+    pub nickname: Option<String>,
 }

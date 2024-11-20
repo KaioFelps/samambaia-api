@@ -1,6 +1,8 @@
-use std::sync::{Arc, Mutex};
 use crate::domain::domain_entities::free_badge::FreeBadge;
-use crate::domain::repositories::free_badge_repository::{FindManyFreeBadgesResponse, MockFreeBadgeRepositoryTrait};
+use crate::domain::repositories::free_badge_repository::{
+    FindManyFreeBadgesResponse, MockFreeBadgeRepositoryTrait,
+};
+use std::sync::{Arc, Mutex};
 
 pub fn get_free_badge_repository() -> (Arc<Mutex<Vec<FreeBadge>>>, MockFreeBadgeRepositoryTrait) {
     let db: Arc<Mutex<Vec<FreeBadge>>> = Arc::new(Mutex::new(Vec::new()));
@@ -15,13 +17,18 @@ pub fn get_free_badge_repository() -> (Arc<Mutex<Vec<FreeBadge>>>, MockFreeBadge
 
     let db_clone = Arc::clone(&db);
     repository.expect_save().returning(move |badge| {
-       let new_db = db_clone.lock().unwrap().iter().map(|item| {
-           if item.id().eq(&badge.id()) {
-               badge.clone()
-           } else {
-               item.clone()
-           }
-       }).collect::<Vec<FreeBadge>>();
+        let new_db = db_clone
+            .lock()
+            .unwrap()
+            .iter()
+            .map(|item| {
+                if item.id().eq(&badge.id()) {
+                    badge.clone()
+                } else {
+                    item.clone()
+                }
+            })
+            .collect::<Vec<FreeBadge>>();
 
         *db_clone.lock().unwrap() = new_db;
         Ok(badge)
@@ -29,13 +36,13 @@ pub fn get_free_badge_repository() -> (Arc<Mutex<Vec<FreeBadge>>>, MockFreeBadge
 
     let db_clone = Arc::clone(&db);
     repository.expect_delete().returning(move |badge| {
-       let mut new_db = vec![];
+        let mut new_db = vec![];
 
         for item in db_clone.lock().unwrap().iter() {
-           if item.ne(&badge) {
-               new_db.push(item.clone());
-           }
-       }
+            if item.ne(&badge) {
+                new_db.push(item.clone());
+            }
+        }
 
         *db_clone.lock().unwrap() = new_db;
         Ok(())
@@ -52,27 +59,33 @@ pub fn get_free_badge_repository() -> (Arc<Mutex<Vec<FreeBadge>>>, MockFreeBadge
         let mut res_badges = vec![];
 
         for (index, item) in badges.into_iter().enumerate() {
-            if index.ge(&(leap as usize)) && res_badges.len().lt(&(params.items_per_page as usize)) {
+            if index.ge(&(leap as usize)) && res_badges.len().lt(&(params.items_per_page as usize))
+            {
                 res_badges.push(item);
             }
         }
 
-        Ok(FindManyFreeBadgesResponse (res_badges, total_of_items_before_paginating as u64))
+        Ok(FindManyFreeBadgesResponse(
+            res_badges,
+            total_of_items_before_paginating as u64,
+        ))
     });
 
     let db_clone = Arc::clone(&db);
-    repository.expect_find_by_id().returning(move |free_badge_id| {
-       let mut free_badge = None;
+    repository
+        .expect_find_by_id()
+        .returning(move |free_badge_id| {
+            let mut free_badge = None;
 
-        for badge in db_clone.lock().unwrap().iter() {
-            if badge.id().eq(&free_badge_id) {
-                free_badge = Some(badge.clone());
-                break;
+            for badge in db_clone.lock().unwrap().iter() {
+                if badge.id().eq(&free_badge_id) {
+                    free_badge = Some(badge.clone());
+                    break;
+                }
             }
-        }
 
-        Ok(free_badge)
-    });
+            Ok(free_badge)
+        });
 
     (db, repository)
 }

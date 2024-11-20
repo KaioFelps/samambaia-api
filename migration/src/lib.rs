@@ -43,11 +43,15 @@ impl MigratorTrait for Migrator {
             Box::new(m20240213_214959_create_comment_report_table::Migration),
             Box::new(m20240214_030642_fix_comment_report_foreign_key::Migration),
             Box::new(m20240216_194500_add_is_active_to_comments::Migration),
-            Box::new(m20240216_200245_remove_cascade_action_from_comment_article_foreign_key::Migration),
+            Box::new(
+                m20240216_200245_remove_cascade_action_from_comment_article_foreign_key::Migration,
+            ),
             Box::new(m20240216_204934_make_comment_article_id_field_nullable::Migration),
             Box::new(m20240217_210055_setup_teams_tables::Migration),
             Box::new(m20240217_212548_add_timestamp_to_team_tables::Migration),
-            Box::new(m20240307_142155_change_comment_report_solved_field_to_be_solved_by::Migration),
+            Box::new(
+                m20240307_142155_change_comment_report_solved_field_to_be_solved_by::Migration,
+            ),
             Box::new(m20240316_042435_drop_team_role_team_user_relation_table::Migration),
             Box::new(m20240316_042712_alter_team_user_table::Migration),
             Box::new(m20240604_054455_make_article_slug_a_unique_key::Migration),

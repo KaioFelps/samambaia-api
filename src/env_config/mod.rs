@@ -11,7 +11,7 @@ pub struct EnvConfig {
     pub jwt_secret: String,
     pub host: String,
     pub port: u16,
-    pub workers: usize
+    pub workers: usize,
 }
 
 impl EnvConfig {
@@ -22,7 +22,7 @@ impl EnvConfig {
 
         match env {
             Err(error) => panic!("Invalid environment variables: {:#?}", error),
-            Ok(value) => return value
+            Ok(value) => value,
         }
     }
 }

@@ -1,5 +1,5 @@
-use entities::team_role::Model as TeamRoleModel;
 use entities::team_role::ActiveModel as TeamRoleActiveModel;
+use entities::team_role::Model as TeamRoleModel;
 use sea_orm::IntoActiveValue;
 
 use crate::domain::domain_entities::team_role::TeamRole;
@@ -29,25 +29,21 @@ impl SeaTeamRoleMapper {
         sea_active_model
     }
 
-    pub fn active_model_to_team_role(active_model_team_role: TeamRoleActiveModel) -> TeamRole {        
-        let team_role = TeamRole::new_from_existing(
+    pub fn active_model_to_team_role(active_model_team_role: TeamRoleActiveModel) -> TeamRole {
+        TeamRole::new_from_existing(
             active_model_team_role.id.unwrap(),
             active_model_team_role.title.unwrap(),
             active_model_team_role.description.unwrap(),
             active_model_team_role.created_at.unwrap(),
-        );
-
-        team_role
+        )
     }
 
     pub fn model_to_team_role(model_team_role: TeamRoleModel) -> TeamRole {
-        let team_role = TeamRole::new_from_existing(
-            model_team_role.id.into(),
-            model_team_role.title.into(),
-            model_team_role.description.into(),
-            model_team_role.created_at.into(),
-        );
-
-        team_role
+        TeamRole::new_from_existing(
+            model_team_role.id,
+            model_team_role.title,
+            model_team_role.description,
+            model_team_role.created_at,
+        )
     }
 }

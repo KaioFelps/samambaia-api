@@ -12,16 +12,14 @@ impl SeaCommentWithAuthorMapper {
         let (model_comment, model_user) = models;
 
         let domain_author = SeaUserMapper::model_to_user(model_user);
-        
-        let comment_with_author = CommentWithAuthor::new_from_existing(
-            model_comment.id.into(),
-            model_comment.article_id.into(),
-            model_comment.content.into(),
+
+        CommentWithAuthor::new_from_existing(
+            model_comment.id,
+            model_comment.article_id,
+            model_comment.content,
             model_comment.is_active,
             model_comment.created_at,
             domain_author,
-        );
-
-        comment_with_author
+        )
     }
 }

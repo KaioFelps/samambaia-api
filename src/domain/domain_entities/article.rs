@@ -21,7 +21,6 @@ pub struct Article {
 }
 
 impl Article {
-
     // CONSTRUCTORS
     pub fn new(
         author_id: Uuid,
@@ -29,11 +28,11 @@ impl Article {
         content: String,
         cover_url: String,
         tag_id: i32,
-        tag_value: String
+        tag_value: String,
     ) -> Self {
         let id = Uuid::new_v4();
 
-        let created_at  = TimeHelper::now();
+        let created_at = TimeHelper::now();
         let updated_at = None;
 
         let slug = Slug::new(id, title.clone());
@@ -49,10 +48,11 @@ impl Article {
             approved: false,
             created_at,
             updated_at,
-            slug
+            slug,
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn new_from_existing(
         id: Uuid,
         author_id: Uuid,
@@ -77,7 +77,7 @@ impl Article {
             tag_id,
             created_at,
             updated_at,
-            slug
+            slug,
         }
     }
 
@@ -147,7 +147,7 @@ impl Article {
 
     pub fn set_title(&mut self, title: String) {
         self.title = title.clone();
-        self.slug = Slug::new(self.id.clone(), title);
+        self.slug = Slug::new(self.id, title);
 
         self.touch();
     }
@@ -161,7 +161,11 @@ impl Article {
         self.approved = approved;
     }
 
-    pub fn set_tag_id(&mut self, tag_id: i32) { self.tag_id = Some(tag_id) }
+    pub fn set_tag_id(&mut self, tag_id: i32) {
+        self.tag_id = Some(tag_id)
+    }
 
-    pub fn set_tag_value(&mut self, tag_value: String) { self.tag_value = Some(tag_value) }
+    pub fn set_tag_value(&mut self, tag_value: String) {
+        self.tag_value = Some(tag_value)
+    }
 }

@@ -1,10 +1,10 @@
-use chrono::NaiveDateTime;
 use crate::domain::domain_entities::free_badge::FreeBadge;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::free_badge_repository::FreeBadgeRepositoryTrait;
 use crate::errors::error::DomainErrorTrait;
 use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::util::{generate_service_internal_error, RolePermissions, verify_role_has_permission};
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use chrono::NaiveDateTime;
 
 pub struct CreateFreeBadgeParams {
     pub user_role: Role,
@@ -12,22 +12,26 @@ pub struct CreateFreeBadgeParams {
     pub link: String,
     pub link_is_external: bool,
     pub available_until: Option<NaiveDateTime>,
-    pub image: String
+    pub image: String,
 }
 
 pub struct CreateFreeBadgeService<FreeBadgeRepository: FreeBadgeRepositoryTrait> {
-    free_badge_repository: FreeBadgeRepository
+    free_badge_repository: FreeBadgeRepository,
 }
 
 impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> CreateFreeBadgeService<FreeBadgeRepository> {
     pub fn new(free_badge_repository: FreeBadgeRepository) -> Self {
         CreateFreeBadgeService {
-            free_badge_repository
+            free_badge_repository,
         }
     }
 
-    pub async fn exec(&self, params: CreateFreeBadgeParams) -> Result<FreeBadge, Box<dyn DomainErrorTrait>> {
-        let user_can_create_free_badge = verify_role_has_permission(&params.user_role, RolePermissions::CreateFreeBadge);
+    pub async fn exec(
+        &self,
+        params: CreateFreeBadgeParams,
+    ) -> Result<FreeBadge, Box<dyn DomainErrorTrait>> {
+        let user_can_create_free_badge =
+            verify_role_has_permission(&params.user_role, RolePermissions::CreateFreeBadge);
 
         if !user_can_create_free_badge {
             return Err(Box::new(UnauthorizedError::new()));
@@ -41,16 +45,15 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> CreateFreeBadgeService<FreeB
             params.available_until,
         );
 
-        let free_badge = self.free_badge_repository.create(free_badge).await;
-
-        if free_badge.is_err() {
-            return Err(generate_service_internal_error(
-                "Error occurred inside Create Free Badge service on creating the item in the database".into(),
-                &free_badge.unwrap_err()
-            ));
-        }
-
-        Ok(free_badge.unwrap())
+        self.free_badge_repository
+            .create(free_badge)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred inside Create Free Badge service on creating the item in the database",
+                    err
+                )
+            })
     }
 }
 
@@ -67,14 +70,16 @@ mod test {
 
         let sut = super::CreateFreeBadgeService::new(free_badge_repository);
 
-        let result = sut.exec(CreateFreeBadgeParams {
-            user_role: Role::Writer,
-            image: "i.imgur.com/".into(),
-            code: "KF001".into(),
-            link: "www.cosmic.com/news/x".into(),
-            link_is_external: false,
-            available_until: Some(TimeHelper::now() + chrono::Days::new(3))
-        }).await;
+        let result = sut
+            .exec(CreateFreeBadgeParams {
+                user_role: Role::Writer,
+                image: "i.imgur.com/".into(),
+                code: "KF001".into(),
+                link: "www.cosmic.com/news/x".into(),
+                link_is_external: false,
+                available_until: Some(TimeHelper::now() + chrono::Days::new(3)),
+            })
+            .await;
 
         assert!(result.is_ok());
         assert_eq!(1, badges_db.lock().unwrap().len());

@@ -2,7 +2,9 @@ use log::error;
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::article::Article;
-use crate::domain::repositories::article_repository::{ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse};
+use crate::domain::repositories::article_repository::{
+    ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse,
+};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::errors::error::DomainErrorTrait;
 use crate::errors::internal_error::InternalError;
@@ -22,11 +24,13 @@ pub struct FetchManyArticlesParams {
     pub page: Option<u32>,
     pub per_page: Option<u32>,
     pub query: Option<ServiceArticleQueryType>,
-    pub approved_state: Option<bool>
+    pub approved_state: Option<bool>,
 }
 
 pub struct FetchManyArticlesService<ArticleRepository, UserRepository>
-where ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTrait
+where
+    ArticleRepository: ArticleRepositoryTrait,
+    UserRepository: UserRepositoryTrait,
 {
     article_repository: Box<ArticleRepository>,
     user_repository: Box<UserRepository>,
@@ -35,30 +39,47 @@ where ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryT
 #[derive(Debug)]
 pub struct FetchManyArticlesResponse {
     pub pagination: PaginationResponse,
-    pub data: Vec<Article>
+    pub data: Vec<Article>,
 }
 
 impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTrait>
-FetchManyArticlesService<ArticleRepository, UserRepository> {
+    FetchManyArticlesService<ArticleRepository, UserRepository>
+{
     // CONSTRUCTOR
-    pub fn new(article_repository: Box<ArticleRepository>, user_repository: Box<UserRepository>) -> Self {
+    pub fn new(
+        article_repository: Box<ArticleRepository>,
+        user_repository: Box<UserRepository>,
+    ) -> Self {
         FetchManyArticlesService {
             article_repository,
-            user_repository
+            user_repository,
         }
     }
 
-    pub async fn exec(&self, params: FetchManyArticlesParams) -> Result<FetchManyArticlesResponse, Error> {
+    pub async fn exec(
+        &self,
+        params: FetchManyArticlesParams,
+    ) -> Result<FetchManyArticlesResponse, Error> {
         let default_items_per_page = 9;
         let default_page = 1;
 
-        let items_per_page = if params.per_page.is_some() { params.per_page.unwrap() } else { default_items_per_page };
-        
+        let items_per_page = if params.per_page.is_some() {
+            params.per_page.unwrap()
+        } else {
+            default_items_per_page
+        };
+
         let page = if params.page.is_some() {
             let params_page = params.page.unwrap();
-            if params_page <= 0 { default_page } else { params_page }
-        } else { default_page };
-        
+            if params_page == 0 {
+                default_page
+            } else {
+                params_page
+            }
+        } else {
+            default_page
+        };
+
         let query = self.parse_query(params.query).await;
 
         if let Err(err) = query {
@@ -66,16 +87,23 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
                 "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Articles Service, while parsing the query: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
                 err.as_ref()
             );
-            
-            return Err(err)
+
+            return Err(err);
         }
 
         let query = query.unwrap();
 
-        let response = self.article_repository.find_many(
-            PaginationParameters { items_per_page, page, query },
-            params.approved_state
-        ).await;
+        let response = self
+            .article_repository
+            .find_many(
+                PaginationParameters {
+                    items_per_page,
+                    page,
+                    query,
+                },
+                params.approved_state,
+            )
+            .await;
 
         if response.is_err() {
             error!(
@@ -87,19 +115,22 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
         }
 
         let response = response.unwrap();
-        let FindManyArticlesResponse (articles, total_items) = response;
+        let FindManyArticlesResponse(articles, total_items) = response;
 
         Ok(FetchManyArticlesResponse {
             data: articles,
             pagination: PaginationResponse {
                 current_page: page,
                 total_items,
-                total_pages: (total_items as f64 / items_per_page as f64).ceil() as u32
-            }
+                total_pages: (total_items as f64 / items_per_page as f64).ceil() as u32,
+            },
         })
     }
-    
-    async fn parse_query(&self, query: Option<ServiceArticleQueryType>) -> Result<Option<ArticleQueryType>, Error> {
+
+    async fn parse_query(
+        &self,
+        query: Option<ServiceArticleQueryType>,
+    ) -> Result<Option<ArticleQueryType>, Error> {
         if query.is_none() {
             return Ok(None);
         }
@@ -119,10 +150,8 @@ FetchManyArticlesService<ArticleRepository, UserRepository> {
                 }
 
                 Ok(Some(ArticleQueryType::Author(user.unwrap().id())))
-            },
-            ServiceArticleQueryType::Title(content) => {
-                Ok(Some(ArticleQueryType::Title(content)))
             }
+            ServiceArticleQueryType::Title(content) => Ok(Some(ArticleQueryType::Title(content))),
         }
     }
 }
@@ -133,8 +162,8 @@ mod test {
     use http::StatusCode;
     use tokio;
 
-    use crate::domain::domain_entities::user::User;
     use crate::domain::domain_entities::role::Role;
+    use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
     use crate::tests::repositories::article_repository::get_article_repository;
 
@@ -143,7 +172,11 @@ mod test {
         let (article_db, mocked_article_repo) = get_article_repository();
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
 
-        let user = User::new("Floricultor".to_string(), "password".to_string(), Some(Role::Principal));
+        let user = User::new(
+            "Floricultor".to_string(),
+            "password".to_string(),
+            Some(Role::Principal),
+        );
 
         let mut approved_article = Article::new(
             user.id(),
@@ -151,7 +184,7 @@ mod test {
             "Article 1 content here".to_string(),
             "url".to_string(),
             1,
-            "Foo".into()
+            "Foo".into(),
         );
         approved_article.set_approved(true);
         article_db.lock().unwrap().push(approved_article.clone());
@@ -161,7 +194,7 @@ mod test {
             "Article 2 content here".to_string(),
             "url".to_string(),
             1,
-            "Foo".into()
+            "Foo".into(),
         ));
 
         mocked_user_repo
@@ -177,66 +210,121 @@ mod test {
                 Ok(None)
             });
 
-        let fetch_many_articles_service = FetchManyArticlesService::new(Box::new(mocked_article_repo), Box::new(mocked_user_repo));
+        let fetch_many_articles_service = FetchManyArticlesService::new(
+            Box::new(mocked_article_repo),
+            Box::new(mocked_user_repo),
+        );
 
-        let query_by_title_request = fetch_many_articles_service.exec(FetchManyArticlesParams {
-            page: Some(2),
-            per_page: Some(1),
-            query: Some(ServiceArticleQueryType::Title("article".to_string())),
-            approved_state: None,
-        }).await.unwrap();
+        let query_by_title_request = fetch_many_articles_service
+            .exec(FetchManyArticlesParams {
+                page: Some(2),
+                per_page: Some(1),
+                query: Some(ServiceArticleQueryType::Title("article".to_string())),
+                approved_state: None,
+            })
+            .await
+            .unwrap();
 
-        assert_eq!(1, query_by_title_request.data.len(), "Expected exactly one article with the queried title.");
-        assert_eq!(query_by_title_request.pagination, PaginationResponse { current_page: 2, total_pages: 2, total_items: 2 });
-        assert_eq!(query_by_title_request.data[0].title(), "Article 2 title", "Expected queried article to have title \"Article 2 title\".");
+        assert_eq!(
+            1,
+            query_by_title_request.data.len(),
+            "Expected exactly one article with the queried title."
+        );
+        assert_eq!(
+            query_by_title_request.pagination,
+            PaginationResponse {
+                current_page: 2,
+                total_pages: 2,
+                total_items: 2
+            }
+        );
+        assert_eq!(
+            query_by_title_request.data[0].title(),
+            "Article 2 title",
+            "Expected queried article to have title \"Article 2 title\"."
+        );
 
-        let no_query_request = fetch_many_articles_service.exec(FetchManyArticlesParams {
-            page: None,
-            per_page: None,
-            query: None,
-            approved_state: None,
-        }).await.unwrap();
+        let no_query_request = fetch_many_articles_service
+            .exec(FetchManyArticlesParams {
+                page: None,
+                per_page: None,
+                query: None,
+                approved_state: None,
+            })
+            .await
+            .unwrap();
 
-        assert_eq!(2, no_query_request.data.len(), "Expected to get all the 2 existing articles.");
-        assert_eq!(no_query_request.pagination, PaginationResponse { current_page: 1, total_pages: 1, total_items: 2 });
+        assert_eq!(
+            2,
+            no_query_request.data.len(),
+            "Expected to get all the 2 existing articles."
+        );
+        assert_eq!(
+            no_query_request.pagination,
+            PaginationResponse {
+                current_page: 1,
+                total_pages: 1,
+                total_items: 2
+            }
+        );
         assert_eq!(no_query_request.data[0].title(), "Article 1 title");
         assert_eq!(no_query_request.data[1].title(), "Article 2 title");
 
         // make a request querying by nickname that does not exist
-        let failing_query_by_unexisting_nickname_request = fetch_many_articles_service.exec(
-            FetchManyArticlesParams {
+        let failing_query_by_unexisting_nickname_request = fetch_many_articles_service
+            .exec(FetchManyArticlesParams {
                 page: None,
                 per_page: None,
                 query: Some(ServiceArticleQueryType::Author("Vamp".to_string())),
-                approved_state: None
-            },
-        ).await.unwrap_err();
+                approved_state: None,
+            })
+            .await
+            .unwrap_err();
 
-        assert_eq!(failing_query_by_unexisting_nickname_request.code(), &StatusCode::NOT_FOUND);
+        assert_eq!(
+            failing_query_by_unexisting_nickname_request.code(),
+            &StatusCode::NOT_FOUND
+        );
 
         // make a request querying by nickname that exists
-        let query_by_nickname_request = fetch_many_articles_service.exec(
-            FetchManyArticlesParams {
+        let query_by_nickname_request = fetch_many_articles_service
+            .exec(FetchManyArticlesParams {
                 page: None,
                 per_page: None,
                 query: Some(ServiceArticleQueryType::Author("Floricultor".to_string())),
-                approved_state: None
-            },
-        ).await.unwrap();
+                approved_state: None,
+            })
+            .await
+            .unwrap();
 
         assert_eq!(2, query_by_nickname_request.data.len());
-        assert_eq!(query_by_nickname_request.pagination, PaginationResponse { current_page: 1, total_pages: 1, total_items: 2 });
+        assert_eq!(
+            query_by_nickname_request.pagination,
+            PaginationResponse {
+                current_page: 1,
+                total_pages: 1,
+                total_items: 2
+            }
+        );
 
-        let query_approved_only_articles_request = fetch_many_articles_service.exec(
-            FetchManyArticlesParams {
+        let query_approved_only_articles_request = fetch_many_articles_service
+            .exec(FetchManyArticlesParams {
                 page: None,
                 per_page: None,
                 query: None,
-                approved_state: Some(true)
-            }
-        ).await.unwrap();
+                approved_state: Some(true),
+            })
+            .await
+            .unwrap();
 
-        assert_eq!(1, query_approved_only_articles_request.data.len(), "Expected only-approved-articles request to be 1 item length.");
-        assert_eq!(1, query_approved_only_articles_request.pagination.total_items, "Expected only-approved-articles request pagination total_items to be 1.")
+        assert_eq!(
+            1,
+            query_approved_only_articles_request.data.len(),
+            "Expected only-approved-articles request to be 1 item length."
+        );
+        assert_eq!(
+            1, query_approved_only_articles_request.pagination.total_items,
+            "Expected only-approved-articles request pagination total_items to be 1."
+        )
     }
 }

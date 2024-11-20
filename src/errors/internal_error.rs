@@ -10,11 +10,17 @@ pub struct InternalError {
     message: String,
 }
 
+impl Default for InternalError {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl InternalError {
     pub fn new() -> Self {
         InternalError {
             code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
-            message: "Internal server error.".into()
+            message: "Internal server error.".into(),
         }
     }
 }

@@ -10,7 +10,12 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Article::Table)
-                    .add_column_if_not_exists(ColumnDef::new(Article::Approved).boolean().not_null().default(false))
+                    .add_column_if_not_exists(
+                        ColumnDef::new(Article::Approved)
+                            .boolean()
+                            .not_null()
+                            .default(false),
+                    )
                     .to_owned(),
             )
             .await
@@ -20,9 +25,9 @@ impl MigrationTrait for Migration {
         manager
             .alter_table(
                 Table::alter()
-                .table(Article::Table)
-                .drop_column(Article::Approved)
-                .to_owned()
+                    .table(Article::Table)
+                    .drop_column(Article::Approved)
+                    .to_owned(),
             )
             .await
     }
@@ -31,5 +36,5 @@ impl MigrationTrait for Migration {
 #[derive(DeriveIden)]
 enum Article {
     Table,
-    Approved
+    Approved,
 }

@@ -1,14 +1,16 @@
-use std::error::Error;
-use async_trait::async_trait;
-use sea_orm::{ActiveModelTrait, EntityTrait, PaginatorTrait,QueryOrder, QuerySelect};
-use uuid::Uuid;
 use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::free_badge::FreeBadge;
+use crate::domain::repositories::free_badge_repository::{
+    FindManyFreeBadgesResponse, FreeBadgeRepositoryTrait,
+};
+use crate::infra::sea::mappers::sea_free_badge_mapper::SeaFreeBadgeMapper;
 use crate::infra::sea::sea_service::SeaService;
+use async_trait::async_trait;
 use entities::free_badge::Column as FreeBadgeColumn;
 use entities::free_badge::Entity as FreeBadgeEntity;
-use crate::domain::domain_entities::free_badge::FreeBadge;
-use crate::domain::repositories::free_badge_repository::{FindManyFreeBadgesResponse, FreeBadgeRepositoryTrait};
-use crate::infra::sea::mappers::sea_free_badge_mapper::SeaFreeBadgeMapper;
+use sea_orm::{ActiveModelTrait, EntityTrait, PaginatorTrait, QueryOrder, QuerySelect};
+use std::error::Error;
+use uuid::Uuid;
 
 pub struct SeaFreeBadgeRepository {
     sea_service: SeaService,
@@ -47,7 +49,10 @@ impl FreeBadgeRepositoryTrait for SeaFreeBadgeRepository {
         Ok(())
     }
 
-    async fn find_many(&self, params: PaginationParameters<()>) -> Result<FindManyFreeBadgesResponse, Box<dyn Error>> {
+    async fn find_many(
+        &self,
+        params: PaginationParameters<()>,
+    ) -> Result<FindManyFreeBadgesResponse, Box<dyn Error>> {
         let current_page = params.page as u64;
         let items_per_page = params.items_per_page as u64;
 
@@ -65,13 +70,18 @@ impl FreeBadgeRepositoryTrait for SeaFreeBadgeRepository {
             .count(&self.sea_service.db)
             .await?;
 
-        let mapped_badges: Vec<FreeBadge> = badges.into_iter().map(SeaFreeBadgeMapper::model_to_free_badge).collect();
+        let mapped_badges: Vec<FreeBadge> = badges
+            .into_iter()
+            .map(SeaFreeBadgeMapper::model_to_free_badge)
+            .collect();
 
-        Ok(FindManyFreeBadgesResponse (mapped_badges, badges_count))
+        Ok(FindManyFreeBadgesResponse(mapped_badges, badges_count))
     }
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<FreeBadge>, Box<dyn Error>> {
-        let result = FreeBadgeEntity::find_by_id(id).one(&self.sea_service.db).await?;
+        let result = FreeBadgeEntity::find_by_id(id)
+            .one(&self.sea_service.db)
+            .await?;
 
         if result.is_none() {
             return Ok(None);

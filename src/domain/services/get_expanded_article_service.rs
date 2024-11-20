@@ -1,4 +1,4 @@
-use uuid::Uuid;
+use crate::core::pagination::PaginationParameters;
 use crate::core::pagination::PaginationResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::article::Article;
@@ -6,14 +6,14 @@ use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::slug::Slug;
 use crate::domain::domain_entities::user::User;
-use crate::domain::repositories::comment_user_article_repository::FindManyCommentsWithAuthorResponse;
+use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::comment_user_article_repository::CommentUserArticleRepositoryTrait;
-use crate::core::pagination::PaginationParameters;
+use crate::domain::repositories::comment_user_article_repository::FindManyCommentsWithAuthorResponse;
+use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::errors::error::DomainErrorTrait;
 use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
-use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::util::{verify_role_has_permission, RolePermissions, generate_service_internal_error};
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use uuid::Uuid;
 
 pub struct GetExpandedArticleParams<'exec> {
     pub article_slug: Slug,
@@ -25,7 +25,7 @@ pub struct GetExpandedArticleParams<'exec> {
 #[derive(Debug)]
 pub struct FetchManyCommentsWithAuthorResponse {
     pub pagination: PaginationResponse,
-    pub data: Vec<CommentWithAuthor>
+    pub data: Vec<CommentWithAuthor>,
 }
 
 #[derive(Debug)]
@@ -36,61 +36,64 @@ pub struct GetExpandedArticleResponse {
 }
 
 pub struct GetExpandedArticleService<UR, AR, CUAR>
-where   UR: UserRepositoryTrait,
-        AR: ArticleRepositoryTrait,
-        CUAR: CommentUserArticleRepositoryTrait
-        {
+where
+    UR: UserRepositoryTrait,
+    AR: ArticleRepositoryTrait,
+    CUAR: CommentUserArticleRepositoryTrait,
+{
     user_repository: Box<UR>,
     article_repository: Box<AR>,
-    comment_user_article_repository: Box<CUAR>
+    comment_user_article_repository: Box<CUAR>,
 }
 
 impl<
-    UR: UserRepositoryTrait,
-    AR: ArticleRepositoryTrait,
-    CUAR: CommentUserArticleRepositoryTrait
-> GetExpandedArticleService<UR, AR, CUAR> {
+        UR: UserRepositoryTrait,
+        AR: ArticleRepositoryTrait,
+        CUAR: CommentUserArticleRepositoryTrait,
+    > GetExpandedArticleService<UR, AR, CUAR>
+{
     pub fn new(
         user_repository: Box<UR>,
         article_repository: Box<AR>,
-        comment_user_article_repository: Box<CUAR>
+        comment_user_article_repository: Box<CUAR>,
     ) -> Self {
         GetExpandedArticleService {
             user_repository,
             article_repository,
-            comment_user_article_repository
+            comment_user_article_repository,
         }
     }
 
-    pub async fn exec<'exec>(&self, params: GetExpandedArticleParams<'exec>) -> Result<GetExpandedArticleResponse, Box<dyn DomainErrorTrait>> {
-        let items_per_page = params.comments_per_page.unwrap_or_else(|| DEFAULT_PER_PAGE as u32);
+    pub async fn exec<'exec>(
+        &self,
+        params: GetExpandedArticleParams<'exec>,
+    ) -> Result<GetExpandedArticleResponse, Box<dyn DomainErrorTrait>> {
+        let items_per_page = params.comments_per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
 
-        let article = self.article_repository.find_by_slug(&params.article_slug).await;
-
-        if article.is_err() {
-            return Err(generate_service_internal_error(
-                "Error occurred on Get Expanded Article Service, while finding article by Id".into(),
-                &article.unwrap_err(),
-            ));
-        }
-
-        let article = article.unwrap();
-
-        if article.is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
-        }
-
-        let article = article.unwrap();
+        let article = match self
+            .article_repository
+            .find_by_slug(&params.article_slug)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Get Expanded Article Service, while finding article by Id",
+                    err,
+                )
+            })? {
+            None => return Err(Box::new(ResourceNotFoundError::new())),
+            Some(article) => article,
+        };
 
         let user_can_see_article = {
             if params.user_id.is_none() || params.user_role.is_none() {
                 false
             } else if article.author_id().eq(params.user_id.unwrap()) {
                 true
-            } else if verify_role_has_permission(params.user_role.unwrap(), RolePermissions::SeeUnapprovedArticle) {
-                true
             } else {
-                false
+                verify_role_has_permission(
+                    params.user_role.unwrap(),
+                    RolePermissions::SeeUnapprovedArticle,
+                )
             }
         };
 
@@ -98,47 +101,50 @@ impl<
             return Err(Box::new(ResourceNotFoundError::new()));
         }
 
-        let comments = self.comment_user_article_repository.find_many_comments(
-            article.id(),
-            false,
-            PaginationParameters {
-                items_per_page,
-                page: 1,
-                query: None,
-            }
-        ).await;
-
-        if comments.is_err() {
-            return Err(generate_service_internal_error(
-                "Error occurred on Get Expanded Article Service, while fetching many comments by article id".into(),
-                &comments.unwrap_err(),
-            ));
-        }
-
-        let FindManyCommentsWithAuthorResponse (data, total_items) = comments.unwrap();
+        let FindManyCommentsWithAuthorResponse(data, total_items) = self
+            .comment_user_article_repository
+            .find_many_comments(
+                article.id(),
+                false,
+                PaginationParameters {
+                    items_per_page,
+                    page: 1,
+                    query: None,
+                },
+            )
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Get Expanded Article Service, while fetching many comments by article id",
+                   err,
+                )
+            })?;
 
         let comments = FetchManyCommentsWithAuthorResponse {
             data,
             pagination: PaginationResponse {
                 current_page: 1,
                 total_items,
-                total_pages: (total_items as f64 / items_per_page as f64).ceil() as u32
-            }
+                total_pages: (total_items as f64 / items_per_page as f64).ceil() as u32,
+            },
         };
 
-        let author = self.user_repository.find_by_id(&article.author_id()).await;
-
-        if author.is_err() {
-            return Err(generate_service_internal_error(
-                "Error occurred on Get Expanded Article Service, while finding User by id".into(),
-                &author.unwrap_err(),
-            ));
-        }
-
-        let author = author.unwrap();
+        let author = self
+            .user_repository
+            .find_by_id(&article.author_id())
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Get Expanded Article Service, while finding User by id",
+                    err,
+                )
+            })?;
 
         if author.is_none() {
-            log::error!("Author from article of id '{}' returned None on Get Expanded Article Service.", article.id().to_string());
+            log::error!(
+                "Author from article of id '{}' returned None on Get Expanded Article Service.",
+                article.id().to_string()
+            );
             return Err(Box::new(ResourceNotFoundError::new()));
         }
 
@@ -147,7 +153,7 @@ impl<
         Ok(GetExpandedArticleResponse {
             article,
             article_author: author,
-            comments
+            comments,
         })
     }
 }
@@ -156,12 +162,14 @@ impl<
 mod test {
     use super::*;
 
-    use tokio;
     use std::sync::{Arc, Mutex};
+    use tokio;
     use uuid::Uuid;
-    
+
     use crate::domain::domain_entities::{comment_with_author::CommentWithAuthor, role::Role};
-    use crate::domain::repositories::comment_user_article_repository::{CommentWithAuthorQueryType, MockCommentUserArticleRepositoryTrait};
+    use crate::domain::repositories::comment_user_article_repository::{
+        CommentWithAuthorQueryType, MockCommentUserArticleRepositoryTrait,
+    };
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
     use crate::libs::time::TimeHelper;
     use crate::tests::repositories::article_repository::get_article_repository;
@@ -181,7 +189,7 @@ mod test {
             "Conteúdo da notícia 1.".into(),
             "url_da_cover.com".into(),
             1,
-            "MockedTag".into()
+            "MockedTag".into(),
         );
 
         let mocked_article_id = mocked_article.id();
@@ -189,15 +197,15 @@ mod test {
         articles_db.lock().unwrap().push(mocked_article);
 
         let mocked_comm_1 = CommentWithAuthor::new(
-            Some(mocked_article_id.clone()),
+            Some(mocked_article_id),
             "comentario 1 conteudo".into(),
-            User::new("Salem".into(), "123".into(), Some(Role::User))
+            User::new("Salem".into(), "123".into(), Some(Role::User)),
         );
 
         let mocked_comm_2 = CommentWithAuthor::new(
-            Some(mocked_article_id.clone()),
+            Some(mocked_article_id),
             "comentario 2 conteudo".into(),
-            User::new("Elffi".into(), "123".into(), Some(Role::User))
+            User::new("Elffi".into(), "123".into(), Some(Role::User)),
         );
 
         comments_db.lock().unwrap().push(mocked_comm_1.clone());
@@ -209,23 +217,25 @@ mod test {
             "123".into(),
             TimeHelper::now(),
             None,
-            Some(Role::Ceo)
+            Some(Role::Ceo),
         );
 
         let user_id = user.id();
 
         // MOCKING REPOSITORIES
         mocked_user_repo
-        .expect_find_by_id()
-        .returning(move |_id| {
-            Ok(Some(user.clone()))
-        });
-        
+            .expect_find_by_id()
+            .returning(move |_id| Ok(Some(user.clone())));
+
         let comments_db_to_move = Arc::clone(&comments_db);
         mock_comm_user_art_repo
             .expect_find_many_comments()
             .returning(move |_article_id, include_inactive, params| {
-                let PaginationParameters { page, items_per_page, query } = params;
+                let PaginationParameters {
+                    page,
+                    items_per_page,
+                    query,
+                } = params;
 
                 let mut comments: Vec<CommentWithAuthor> = Vec::new();
 
@@ -233,21 +243,22 @@ mod test {
                     match query.unwrap() {
                         CommentWithAuthorQueryType::Content(content) => {
                             for item in comments_db_to_move.lock().unwrap().iter() {
-                                if
-                                    item.content().to_lowercase().contains(&content.to_lowercase()[..])
+                                if item
+                                    .content()
+                                    .to_lowercase()
+                                    .contains(&content.to_lowercase()[..])
                                     || include_inactive
-                                    || (!include_inactive && item.is_active())
+                                    || item.is_active()
                                 {
                                     comments.push(item.clone());
                                 }
                             }
-                        },
+                        }
                         CommentWithAuthorQueryType::Author(content) => {
                             for item in comments_db_to_move.lock().unwrap().iter() {
-                                if
-                                    item.author().id().eq(&content)
+                                if item.author().id().eq(&content)
                                     || include_inactive
-                                    || (!include_inactive && item.is_active())
+                                    || item.is_active()
                                 {
                                     comments.push(item.clone());
                                 }
@@ -270,32 +281,35 @@ mod test {
                     }
                 }
 
-                Ok(FindManyCommentsWithAuthorResponse (res_comments, total_of_items_before_paginating as u64))
+                Ok(FindManyCommentsWithAuthorResponse(
+                    res_comments,
+                    total_of_items_before_paginating as u64,
+                ))
             });
-        
+
         let sut = GetExpandedArticleService {
             user_repository: Box::new(mocked_user_repo),
             comment_user_article_repository: Box::new(mock_comm_user_art_repo),
             article_repository: Box::new(mocked_article_repository),
         };
 
-        let allowed_result = sut.exec(GetExpandedArticleParams {
-            article_slug: mocked_article_slug.clone(),
-            comments_per_page: None,
-            user_id: Some(&user_id),
-            user_role: Some(&Role::Editor),
-        }).await.unwrap();
+        let allowed_result = sut
+            .exec(GetExpandedArticleParams {
+                article_slug: mocked_article_slug.clone(),
+                comments_per_page: None,
+                user_id: Some(&user_id),
+                user_role: Some(&Role::Editor),
+            })
+            .await
+            .unwrap();
 
         let GetExpandedArticleResponse {
-        article,
-        article_author,
-        comments
+            article,
+            article_author,
+            comments,
         } = allowed_result;
 
-        let FetchManyCommentsWithAuthorResponse {
-            data,
-            pagination
-        } = comments;
+        let FetchManyCommentsWithAuthorResponse { data, pagination } = comments;
 
         assert_eq!(mocked_comm_1, data[0].clone());
         assert_eq!(mocked_comm_2, data[1].clone());
@@ -303,12 +317,14 @@ mod test {
         assert_eq!(mocked_article_id, article.id());
         assert_eq!(user_id, article_author.id());
 
-        let unauthorized_result = sut.exec(GetExpandedArticleParams {
-            article_slug: mocked_article_slug,
-            comments_per_page: None,
-            user_id: None,
-            user_role: None,
-        }).await;
+        let unauthorized_result = sut
+            .exec(GetExpandedArticleParams {
+                article_slug: mocked_article_slug,
+                comments_per_page: None,
+                user_id: None,
+                user_role: None,
+            })
+            .await;
 
         assert!(
             unauthorized_result.is_err(),

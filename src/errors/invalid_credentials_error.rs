@@ -10,16 +10,22 @@ pub struct InvalidCredentialsError {
     message: String,
 }
 
+impl Default for InvalidCredentialsError {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl InvalidCredentialsError {
     pub fn new() -> Self {
         InvalidCredentialsError {
             code: StatusCode::UNAUTHORIZED.as_u16(),
-            message: "Invalid credentials.".into()
+            message: "Invalid credentials.".into(),
         }
     }
 }
 
-impl DomainErrorTrait for InvalidCredentialsError{
+impl DomainErrorTrait for InvalidCredentialsError {
     fn code(&self) -> &u16 {
         &self.code
     }

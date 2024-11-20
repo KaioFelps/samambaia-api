@@ -1,6 +1,6 @@
-mod request_user;
 mod authentication;
+mod request_user;
 
-pub use request_user::RequestUserMiddleware;
 pub use authentication::authentication_middleware;
 pub use authentication::AuthenticationMiddleware;
+pub use request_user::RequestUserMiddleware;

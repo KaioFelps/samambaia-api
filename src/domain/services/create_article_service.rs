@@ -21,23 +21,23 @@ pub struct CreateArticleParams {
 pub struct CreateArticleService<
     ArticleRepository: ArticleRepositoryTrait,
     ArticleTagRepository: ArticleTagRepositoryTrait,
-    UserRepository: UserRepositoryTrait
+    UserRepository: UserRepositoryTrait,
 > {
     article_repository: Box<ArticleRepository>,
     article_tag_repository: Box<ArticleTagRepository>,
-    user_repository: Box<UserRepository>
+    user_repository: Box<UserRepository>,
 }
 
 impl<
-    ArticleRepository: ArticleRepositoryTrait,
-    ArticleTagRepository: ArticleTagRepositoryTrait,
-    UserRepository: UserRepositoryTrait,
-> CreateArticleService<ArticleRepository, ArticleTagRepository, UserRepository>
+        ArticleRepository: ArticleRepositoryTrait,
+        ArticleTagRepository: ArticleTagRepositoryTrait,
+        UserRepository: UserRepositoryTrait,
+    > CreateArticleService<ArticleRepository, ArticleTagRepository, UserRepository>
 {
     pub fn new(
         article_repository: Box<ArticleRepository>,
         article_tag_repository: Box<ArticleTagRepository>,
-        user_repository: Box<UserRepository>
+        user_repository: Box<UserRepository>,
     ) -> Self {
         CreateArticleService {
             article_repository,
@@ -46,41 +46,52 @@ impl<
         }
     }
 
-    pub async fn exec(&self, params: CreateArticleParams) -> Result<Article, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(
+        &self,
+        params: CreateArticleParams,
+    ) -> Result<Article, Box<dyn DomainErrorTrait>> {
         let staff_on_db = self.user_repository.find_by_id(&params.staff_id).await;
 
-        if staff_on_db.is_err() {
+        if let Err(err) = staff_on_db {
             return Err(generate_service_internal_error(
-            "Error ocurred at create article service, while finding staff user on the database",
-            staff_on_db.as_ref().unwrap_err()
-            ))
+                "Error ocurred at create article service, while finding staff user on the database",
+                err,
+            ));
         }
 
         let staff_on_db = staff_on_db.unwrap();
 
-        if (staff_on_db.is_none()) || !verify_role_has_permission(&staff_on_db.unwrap().role().unwrap(), RolePermissions::CreateArticle) {
+        if (staff_on_db.is_none())
+            || !verify_role_has_permission(
+                &staff_on_db.unwrap().role().unwrap(),
+                RolePermissions::CreateArticle,
+            )
+        {
             return Err(Box::new(UnauthorizedError::new()));
         }
 
         let author_id = {
             match params.custom_author_id {
                 Some(author_id) => author_id,
-                _ => params.staff_id
+                _ => params.staff_id,
             }
         };
 
         let tag = self.article_tag_repository.find_by_id(params.tag_id).await;
 
-        if tag.is_err() {
+        if let Err(err) = tag {
             return Err(generate_service_internal_error(
                 "Error occurred at create article service, while finding tag by id",
-                &tag.unwrap_err()
+                err,
             ));
         }
         let tag = tag.unwrap();
 
         if tag.is_none() {
-            return Err(Box::new(BadRequestError::new_with_message(format!("Tag with id '{}' not found.", params.tag_id))));
+            return Err(Box::new(BadRequestError::new_with_message(format!(
+                "Tag with id '{}' not found.",
+                params.tag_id
+            ))));
         }
 
         let tag = tag.unwrap();
@@ -91,7 +102,7 @@ impl<
             params.content,
             params.cover_url,
             tag.id(),
-            tag.value().to_owned()
+            tag.value().to_owned(),
         );
 
         let response = self.article_repository.create(article).await;
@@ -100,28 +111,31 @@ impl<
             let err = response.unwrap_err();
             return Err(generate_service_internal_error(
                 "Error ocurred at create article service, while persisting the article",
-                &err
-            ))
+                err,
+            ));
         }
-        
-        return Ok(response.unwrap());
+
+        Ok(response.unwrap())
     }
 }
 
-
 #[cfg(test)]
 mod test {
-    use std::sync::{Arc, Mutex};
-    use crate::domain::{domain_entities::{user::User, role::Role}, repositories::user_repository::MockUserRepositoryTrait};
+    use super::CreateArticleParams;
     use crate::domain::domain_entities::article_tag::ArticleTag;
     use crate::domain::repositories::article_tag_repository::MockArticleTagRepositoryTrait;
+    use crate::domain::{
+        domain_entities::{role::Role, user::User},
+        repositories::user_repository::MockUserRepositoryTrait,
+    };
     use crate::tests::repositories::article_repository::get_article_repository;
-    use super::CreateArticleParams;
+    use std::sync::{Arc, Mutex};
 
     #[tokio::test]
     async fn test() {
         let (_article_db, mocked_article_repo) = get_article_repository();
-        let mut mocked_tag_repo: MockArticleTagRepositoryTrait = MockArticleTagRepositoryTrait::new();
+        let mut mocked_tag_repo: MockArticleTagRepositoryTrait =
+            MockArticleTagRepositoryTrait::new();
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
 
         let tag_db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(vec![]));
@@ -134,47 +148,45 @@ mod test {
         tag_db.lock().unwrap().push(tag.clone());
 
         let db = Arc::clone(&tag_db);
-        mocked_tag_repo
-            .expect_find_by_id()
-            .returning(move |id| {
-                let mut found_tag = None;
+        mocked_tag_repo.expect_find_by_id().returning(move |id| {
+            let mut found_tag = None;
 
-                for tag in db.lock().unwrap().iter() {
-                    if tag.id().eq(&id) {
-                        found_tag = Some(tag.clone());
-                    }
+            for tag in db.lock().unwrap().iter() {
+                if tag.id().eq(&id) {
+                    found_tag = Some(tag.clone());
                 }
+            }
 
-                return Ok(found_tag);
-            });
+            Ok(found_tag)
+        });
 
         let db_clone = Arc::clone(&user_db);
-        mocked_user_repo
-        .expect_find_by_id()
-        .returning(move |id| {
+        mocked_user_repo.expect_find_by_id().returning(move |id| {
             for user in db_clone.lock().unwrap().iter() {
                 if user.id().eq(id) {
                     return Ok(Some(user.clone()));
                 }
             }
 
-            return Ok(None);
+            Ok(None)
         });
 
         let service = super::CreateArticleService {
             article_repository: Box::new(mocked_article_repo),
             article_tag_repository: Box::new(mocked_tag_repo),
-            user_repository: Box::new(mocked_user_repo)
+            user_repository: Box::new(mocked_user_repo),
         };
 
-        let result = service.exec(CreateArticleParams {
-            custom_author_id: None,
-            staff_id: user.id(),
-            content: "Conteúdo do artigo aqui".to_string(),
-            cover_url: "https://i.imgur.com/fodase".to_string(),
-            title: "Fake title".to_string(),
-            tag_id: tag.id(),
-        }).await;
+        let result = service
+            .exec(CreateArticleParams {
+                custom_author_id: None,
+                staff_id: user.id(),
+                content: "Conteúdo do artigo aqui".to_string(),
+                cover_url: "https://i.imgur.com/fodase".to_string(),
+                title: "Fake title".to_string(),
+                tag_id: tag.id(),
+            })
+            .await;
 
         assert_eq!("Conteúdo do artigo aqui", result.unwrap().content());
     }

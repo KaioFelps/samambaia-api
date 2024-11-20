@@ -10,11 +10,17 @@ pub struct ResourceNotFoundError {
     message: String,
 }
 
+impl Default for ResourceNotFoundError {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ResourceNotFoundError {
     pub fn new() -> Self {
         ResourceNotFoundError {
             code: StatusCode::NOT_FOUND.as_u16(),
-            message: "Resource not found.".into()
+            message: "Resource not found.".into(),
         }
     }
 }

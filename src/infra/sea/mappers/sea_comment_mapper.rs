@@ -1,5 +1,5 @@
-use entities::comment::Model as CommentModel;
 use entities::comment::ActiveModel as CommentActiveModel;
+use entities::comment::Model as CommentModel;
 use sea_orm::IntoActiveValue;
 
 use crate::domain::domain_entities::comment::Comment;
@@ -33,29 +33,25 @@ impl SeaCommentMapper {
         sea_active_model
     }
 
-    pub fn active_model_to_comment(active_model_comment: CommentActiveModel) -> Comment {        
-        let comment = Comment::new_from_existing(
+    pub fn active_model_to_comment(active_model_comment: CommentActiveModel) -> Comment {
+        Comment::new_from_existing(
             active_model_comment.id.unwrap(),
             active_model_comment.article_id.unwrap(),
             active_model_comment.author_id.unwrap(),
             active_model_comment.content.unwrap(),
             active_model_comment.is_active.unwrap(),
             active_model_comment.created_at.unwrap(),
-        );
-
-        comment
+        )
     }
 
     pub fn model_to_comment(model_comment: CommentModel) -> Comment {
-        let comment = Comment::new_from_existing(
-            model_comment.id.into(),
-            model_comment.article_id.into(),
-            model_comment.author_id.into(),
-            model_comment.content.into(),
-            model_comment.is_active.into(),
-            model_comment.created_at.into(),
-        );
-
-        comment
+        Comment::new_from_existing(
+            model_comment.id,
+            model_comment.article_id,
+            model_comment.author_id,
+            model_comment.content,
+            model_comment.is_active,
+            model_comment.created_at,
+        )
     }
 }

@@ -1,6 +1,6 @@
-use serde::{Serialize, Deserialize};
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::infra::http::presenters::presenter::PresenterTrait;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct MappedArticleTag {
@@ -14,7 +14,7 @@ impl PresenterTrait<ArticleTag, MappedArticleTag> for ArticleTagPresenter {
     fn to_http(tag: ArticleTag) -> MappedArticleTag {
         MappedArticleTag {
             id: tag.id(),
-            value: tag.value().into()
+            value: tag.value().into(),
         }
     }
 }

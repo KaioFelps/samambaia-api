@@ -4,7 +4,7 @@ use crate::domain::domain_entities::role::Role;
 use crate::errors::bad_request_error::BadRequestError;
 use crate::errors::error::DomainErrorTrait;
 use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::{R_EOL, LOG_SEP};
+use crate::{LOG_SEP, R_EOL};
 
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
 use crate::errors::internal_error::InternalError;
@@ -16,25 +16,34 @@ pub struct DeleteCommentReportParams {
     pub com_report_id: i32,
 }
 
-pub struct DeleteCommentReportService<CommentReportRepository: CommentReportRepositoryTrait>
-{ comment_report_repository: Box<CommentReportRepository> }
+pub struct DeleteCommentReportService<CommentReportRepository: CommentReportRepositoryTrait> {
+    comment_report_repository: Box<CommentReportRepository>,
+}
 
 impl<CommentReportRepository: CommentReportRepositoryTrait>
-DeleteCommentReportService<CommentReportRepository> {
+    DeleteCommentReportService<CommentReportRepository>
+{
     pub fn new(comment_report_repository: Box<CommentReportRepository>) -> Self {
         DeleteCommentReportService {
-            comment_report_repository
+            comment_report_repository,
         }
     }
 
-    pub async fn exec(&self, params: DeleteCommentReportParams) -> Result<(), Box<dyn DomainErrorTrait>> {
-        let staff_can_delete = verify_role_has_permission(&params.staff_role, RolePermissions::DeleteReport);
+    pub async fn exec(
+        &self,
+        params: DeleteCommentReportParams,
+    ) -> Result<(), Box<dyn DomainErrorTrait>> {
+        let staff_can_delete =
+            verify_role_has_permission(&params.staff_role, RolePermissions::DeleteReport);
 
         if !staff_can_delete {
-            return Err( Box::new( UnauthorizedError::new() ) );
+            return Err(Box::new(UnauthorizedError::new()));
         }
 
-        let comm_report = self.comment_report_repository.find_by_id(params.com_report_id).await;
+        let comm_report = self
+            .comment_report_repository
+            .find_by_id(params.com_report_id)
+            .await;
 
         if comm_report.is_err() {
             error!(
@@ -42,13 +51,13 @@ DeleteCommentReportService<CommentReportRepository> {
                 comm_report.unwrap_err()
             );
 
-            return Err( Box::new( InternalError::new() ) )
+            return Err(Box::new(InternalError::new()));
         }
 
         let comm_report = comm_report.unwrap();
 
         if comm_report.is_none() {
-            return Err( Box::new( BadRequestError::new() ) );
+            return Err(Box::new(BadRequestError::new()));
         }
 
         let comm_report = comm_report.unwrap();
@@ -61,7 +70,7 @@ DeleteCommentReportService<CommentReportRepository> {
                 result.unwrap_err()
             );
 
-            return Err( Box::new( InternalError::new() ) )
+            return Err(Box::new(InternalError::new()));
         }
 
         Ok(())
@@ -94,7 +103,7 @@ mod test {
             Uuid::new_v4(),
             "Esse comentário é tóxico.".into(),
             None,
-            TimeHelper::now()
+            TimeHelper::now(),
         );
 
         let comment_report_id_1 = comment_report_1.id();
@@ -105,7 +114,7 @@ mod test {
             Uuid::new_v4(),
             "Estão me ofendendo neste comentário!".into(),
             None,
-            TimeHelper::now()
+            TimeHelper::now(),
         );
 
         let comment_report_id_2 = comment_report_2.id();
@@ -115,53 +124,57 @@ mod test {
 
         let comm_report_db_clone = Arc::clone(&comm_report_db);
         mocked_comment_report_repo
-        .expect_find_by_id()
-        .returning(move |id| {
-            let mut _comm_report: Option<CommentReport> = None;
+            .expect_find_by_id()
+            .returning(move |id| {
+                let mut _comm_report: Option<CommentReport> = None;
 
-            for comm_rep in comm_report_db_clone.lock().unwrap().iter() {
-                if comm_rep.id().eq(&id) {
-                    _comm_report = Some(comm_rep.clone());
-                    break;
+                for comm_rep in comm_report_db_clone.lock().unwrap().iter() {
+                    if comm_rep.id().eq(&id) {
+                        _comm_report = Some(comm_rep.clone());
+                        break;
+                    }
                 }
-            }
 
-            Ok(_comm_report)
-        });
+                Ok(_comm_report)
+            });
 
         let comm_report_db_clone = Arc::clone(&comm_report_db);
         mocked_comment_report_repo
-        .expect_delete()
-        .returning(move |comm_report| {
-            let mut new_db = vec![];
+            .expect_delete()
+            .returning(move |comm_report| {
+                let mut new_db = vec![];
 
-            for comm_rep in comm_report_db_clone.lock().unwrap().iter() {
-                if !comm_rep.id().eq(&comm_report.id()) {
-                    new_db.push(comm_rep.clone())
+                for comm_rep in comm_report_db_clone.lock().unwrap().iter() {
+                    if !comm_rep.id().eq(&comm_report.id()) {
+                        new_db.push(comm_rep.clone())
+                    }
                 }
-            }
 
-            *comm_report_db_clone.lock().unwrap() = new_db;
+                *comm_report_db_clone.lock().unwrap() = new_db;
 
-            Ok(())
-        });
+                Ok(())
+            });
 
         let sut = DeleteCommentReportService {
-            comment_report_repository: Box::new(mocked_comment_report_repo)
+            comment_report_repository: Box::new(mocked_comment_report_repo),
         };
 
-        let result = sut.exec(DeleteCommentReportParams {
-            staff_role: Role::Principal,
-            com_report_id: comment_report_id_1
-        }).await;
+        let result = sut
+            .exec(DeleteCommentReportParams {
+                staff_role: Role::Principal,
+                com_report_id: comment_report_id_1,
+            })
+            .await;
 
         assert!(result.is_ok());
         assert_ne!(comment_report_id_1, comm_report_db.lock().unwrap()[0].id());
 
-        let result_2 = sut.exec(DeleteCommentReportParams {
-            staff_role: Role::User,
-            com_report_id: comment_report_id_2
-        }).await;
+        let result_2 = sut
+            .exec(DeleteCommentReportParams {
+                staff_role: Role::User,
+                com_report_id: comment_report_id_2,
+            })
+            .await;
 
         assert!(result_2.is_err());
         assert_eq!(comment_report_id_2, comm_report_db.lock().unwrap()[0].id());

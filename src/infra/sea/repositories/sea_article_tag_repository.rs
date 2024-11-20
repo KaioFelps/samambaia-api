@@ -1,18 +1,22 @@
 use async_trait::async_trait;
 use migration::{Expr, Func};
-use sea_orm::{ColumnTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait, Select};
 use sea_orm::{ActiveModelTrait, EntityTrait};
+use sea_orm::{
+    ColumnTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait, Select,
+};
 use std::error::Error;
 
 use crate::core::pagination::PaginationParameters;
-use crate::domain::domain_entities::article_tag::DraftArticleTag;
 use crate::domain::domain_entities::article_tag::ArticleTag;
+use crate::domain::domain_entities::article_tag::DraftArticleTag;
 use crate::infra::sea::mappers::sea_article_tag_mapper::SeaArticleTagMapper;
 use crate::infra::sea::sea_service::SeaService;
 
-use entities::article_tag::Entity as ArticleTagEntity;
+use crate::domain::repositories::article_tag_repository::{
+    ArticleTagQueryType, ArticleTagRepositoryTrait, FindManyArticleTagsResponse,
+};
 use entities::article_tag::Column as ArticleTagColumn;
-use crate::domain::repositories::article_tag_repository::{ArticleTagQueryType, ArticleTagRepositoryTrait, FindManyArticleTagsResponse};
+use entities::article_tag::Entity as ArticleTagEntity;
 
 pub struct SeaArticleTagRepository {
     sea_service: SeaService,
@@ -30,7 +34,8 @@ impl SeaArticleTagRepository {
 #[async_trait]
 impl ArticleTagRepositoryTrait for SeaArticleTagRepository {
     async fn create(&self, article_tag: DraftArticleTag) -> Result<ArticleTag, Box<dyn Error>> {
-        let new_article_tag = SeaArticleTagMapper::draft_article_tag_to_sea_active_model(article_tag);
+        let new_article_tag =
+            SeaArticleTagMapper::draft_article_tag_to_sea_active_model(article_tag);
 
         let db = &self.sea_service.db;
 
@@ -41,20 +46,20 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository {
     }
 
     async fn find_by_id(&self, article_tag_id: i32) -> Result<Option<ArticleTag>, Box<dyn Error>> {
-        let article_tag = ArticleTagEntity::
-        find_by_id(article_tag_id)
+        let article_tag = ArticleTagEntity::find_by_id(article_tag_id)
             .one(&self.sea_service.db)
             .await?;
 
         match article_tag {
             None => Ok(None),
-            Some(article_tag) => {
-                Ok( Some( SeaArticleTagMapper::model_to_article_tag(article_tag) ) )
-            }
+            Some(article_tag) => Ok(Some(SeaArticleTagMapper::model_to_article_tag(article_tag))),
         }
     }
 
-    async fn find_by_value(&self, article_tag_value: String) -> Result<Option<ArticleTag>, Box<dyn Error>> {
+    async fn find_by_value(
+        &self,
+        article_tag_value: String,
+    ) -> Result<Option<ArticleTag>, Box<dyn Error>> {
         let article_tag = ArticleTagEntity::find()
             .filter(ArticleTagColumn::Value.eq(article_tag_value))
             .one(&self.sea_service.db)
@@ -62,37 +67,39 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository {
 
         match article_tag {
             None => Ok(None),
-            Some(article_tag) => {
-                Ok( Some( SeaArticleTagMapper::model_to_article_tag(article_tag) ) )
-            }
+            Some(article_tag) => Ok(Some(SeaArticleTagMapper::model_to_article_tag(article_tag))),
         }
     }
 
-    async fn find_many(&self, params: PaginationParameters<ArticleTagQueryType>) -> Result<FindManyArticleTagsResponse, Box<dyn Error>> {
-        let article_tags_response;
-
+    async fn find_many(
+        &self,
+        params: PaginationParameters<ArticleTagQueryType>,
+    ) -> Result<FindManyArticleTagsResponse, Box<dyn Error>> {
         let current_page = params.page as u64;
         let items_per_page = params.items_per_page as u64;
 
         let leap = (&current_page - 1) * items_per_page;
-        
+
         let filter = |query_builder: Select<ArticleTagEntity>, query: ArticleTagQueryType| {
             let ArticleTagQueryType::Value(query) = query;
-            let filter = Expr::expr(Func::lower(Expr::col(ArticleTagColumn::Value))).like(format!("%{}%", query.to_lowercase()));
+            let filter = Expr::expr(Func::lower(Expr::col(ArticleTagColumn::Value)))
+                .like(format!("%{}%", query.to_lowercase()));
             query_builder.filter(filter)
         };
 
-        article_tags_response = ArticleTagEntity::find()
+        let article_tags_response = ArticleTagEntity::find()
             .order_by_desc(ArticleTagColumn::Id)
-            .apply_if(params.clone().query, filter.clone())
+            .apply_if(params.clone().query, filter)
             .limit(items_per_page)
             .offset(leap)
-            .all(&self.sea_service.db).await?;
+            .all(&self.sea_service.db)
+            .await?;
 
         let article_tags_count = ArticleTagEntity::find()
             .apply_if(params.query, filter)
             .offset(leap)
-            .count(&self.sea_service.db).await?;
+            .count(&self.sea_service.db)
+            .await?;
 
         let mut article_tags: Vec<ArticleTag> = vec![];
 
@@ -100,7 +107,10 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository {
             article_tags.push(SeaArticleTagMapper::model_to_article_tag(article_tag));
         }
 
-        Ok(FindManyArticleTagsResponse(article_tags, article_tags_count))
+        Ok(FindManyArticleTagsResponse(
+            article_tags,
+            article_tags_count,
+        ))
     }
 
     async fn save(&self, article_tag: ArticleTag) -> Result<ArticleTag, Box<dyn Error>> {
@@ -108,8 +118,7 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository {
 
         let article_tag = SeaArticleTagMapper::article_tag_to_sea_active_model(article_tag);
 
-        let article_tag = ArticleTagEntity
-        ::update(article_tag)
+        let article_tag = ArticleTagEntity::update(article_tag)
             .filter(ArticleTagColumn::Id.eq(comm_rep_id))
             .exec(&self.sea_service.db)
             .await?;
@@ -122,9 +131,9 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository {
     async fn delete(&self, article_tag: ArticleTag) -> Result<(), Box<dyn Error>> {
         let article_tag = SeaArticleTagMapper::article_tag_to_sea_active_model(article_tag);
 
-        ArticleTagEntity
-        ::delete(article_tag)
-            .exec(&self.sea_service.db).await?;
+        ArticleTagEntity::delete(article_tag)
+            .exec(&self.sea_service.db)
+            .await?;
 
         Ok(())
     }

@@ -9,25 +9,21 @@ pub struct DraftCommentReport {
     user_id: Uuid,
     message: String,
     solved_by: Option<Uuid>,
-    created_at: DateTime
+    created_at: DateTime,
 }
 
 impl DraftCommentReport {
     // CONSTRUCTOR
-    pub fn new(
-        comment_id: Uuid,
-        user_id: Uuid,
-        message: String,
-    ) -> Self {
+    pub fn new(comment_id: Uuid, user_id: Uuid, message: String) -> Self {
         let solved_by = None;
-        let created_at  = TimeHelper::now();
+        let created_at = TimeHelper::now();
 
         DraftCommentReport {
             comment_id,
             user_id,
             message,
             solved_by,
-            created_at
+            created_at,
         }
     }
 
@@ -51,7 +47,7 @@ pub struct CommentReport {
     user_id: Uuid,
     message: String,
     solved_by: Option<Uuid>,
-    created_at: DateTime
+    created_at: DateTime,
 }
 
 impl CommentReportIdTrait for CommentReport {
@@ -67,7 +63,7 @@ impl CommentReport {
         user_id: Uuid,
         message: String,
         solved_by: Option<Uuid>,
-        created_at: DateTime
+        created_at: DateTime,
     ) -> Self {
         CommentReport {
             id,
@@ -81,22 +77,32 @@ impl CommentReport {
 
     // SETTERS
 
-    pub fn set_solved_by(&mut self, value: Option<Uuid>) -> () {
+    pub fn set_solved_by(&mut self, value: Option<Uuid>) {
         self.solved_by = value;
     }
 }
 
 #[duplicate::duplicate_item(comment_report; [DraftCommentReport]; [CommentReport])]
 impl CommentReportTrait for comment_report {
-    fn comment_id(&self) -> Uuid { self.comment_id }    
+    fn comment_id(&self) -> Uuid {
+        self.comment_id
+    }
 
-    fn user_id(&self) -> Uuid { self.user_id }
+    fn user_id(&self) -> Uuid {
+        self.user_id
+    }
 
-    fn message(&self) -> String { self.message.clone() }
+    fn message(&self) -> String {
+        self.message.clone()
+    }
 
-    fn solved_by(&self) -> Option<Uuid> { self.solved_by }
+    fn solved_by(&self) -> Option<Uuid> {
+        self.solved_by
+    }
 
-    fn created_at(&self) -> DateTime { self.created_at }
+    fn created_at(&self) -> DateTime {
+        self.created_at
+    }
 }
 
 pub trait CommentReportTrait {

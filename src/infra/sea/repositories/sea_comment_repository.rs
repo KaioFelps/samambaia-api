@@ -37,7 +37,9 @@ impl CommentRepositoryTrait for SeaCommentRepository {
     }
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Comment>, Box<dyn Error>> {
-        let comment = CommentEntity::find_by_id(id).one(&self.sea_service.db).await?;
+        let comment = CommentEntity::find_by_id(id)
+            .one(&self.sea_service.db)
+            .await?;
 
         match comment {
             None => Ok(None),
@@ -52,7 +54,7 @@ impl CommentRepositoryTrait for SeaCommentRepository {
         let comment = SeaCommentMapper::comment_to_sea_model(comment);
 
         comment.delete(&self.sea_service.db).await?;
-        
+
         Ok(())
     }
 

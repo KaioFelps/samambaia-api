@@ -1,12 +1,10 @@
 pub struct DraftArticleTag {
-    value: String
+    value: String,
 }
 
 impl DraftArticleTag {
     pub fn new(value: String) -> Self {
-        Self {
-            value
-        }
+        Self { value }
     }
 
     pub fn value(&self) -> &String {
@@ -17,15 +15,12 @@ impl DraftArticleTag {
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ArticleTag {
     id: i32,
-    value: String
+    value: String,
 }
 
 impl ArticleTag {
     pub fn new_from_existing(id: i32, value: String) -> Self {
-        Self {
-            id,
-            value,
-        }
+        Self { id, value }
     }
 
     pub fn id(&self) -> i32 {
@@ -36,7 +31,7 @@ impl ArticleTag {
         &self.value
     }
 
-    pub fn set_value(&mut self, value: String) -> () {
+    pub fn set_value(&mut self, value: String) {
         self.value = value;
     }
 }
