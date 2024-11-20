@@ -1,23 +1,15 @@
 use crate::domain::services::fetch_many_comments_service::FetchManyCommentsService;
-use crate::errors::internal_error::InternalError;
+use crate::error::DomainError;
 use crate::infra::sea::repositories::sea_article_comment_repository::SeaArticleCommentRepository;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;
-use actix_web::HttpResponse;
-use either::Either::{self, *};
 
 pub async fn exec(
-) -> Either<FetchManyCommentsService<SeaArticleCommentRepository, SeaUserRepository>, HttpResponse>
+) -> Result<FetchManyCommentsService<SeaArticleCommentRepository, SeaUserRepository>, DomainError>
 {
-    let sea_service = SeaService::new().await;
-
-    if sea_service.is_err() {
-        return Right(crate::util::generate_error_response(Box::new(
-            InternalError::new(),
-        )));
-    }
-
-    let sea_service = sea_service.unwrap();
+    let sea_service = SeaService::new()
+        .await
+        .map_err(|_| DomainError::internal_err())?;
 
     let user_repository: Box<SeaUserRepository> =
         Box::new(SeaUserRepository::new(sea_service.clone()).await);
@@ -27,5 +19,5 @@ pub async fn exec(
     let fetch_many_comments_service =
         FetchManyCommentsService::new(article_comment_repository, user_repository);
 
-    Left(fetch_many_comments_service)
+    Ok(fetch_many_comments_service)
 }
