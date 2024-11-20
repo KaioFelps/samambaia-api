@@ -4,7 +4,7 @@ use once_cell::sync::Lazy;
 pub mod core;
 pub mod domain;
 pub mod env_config;
-pub mod errors;
+pub mod error;
 pub mod infra;
 pub mod libs;
 pub mod server;
