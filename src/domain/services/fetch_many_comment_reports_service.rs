@@ -1,18 +1,15 @@
 use crate::domain::domain_entities::comment_report::CommentReport;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::{LOG_SEP, R_EOL};
-use log::error;
+use crate::error::DomainError;
+use crate::util::generate_service_internal_error;
 use uuid::Uuid;
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::repositories::comment_report_repository::{
     CommentReportQueryType, CommentReportRepositoryTrait, FindManyCommentReportsResponse,
 };
-use crate::errors::internal_error::InternalError;
 
-type Error = Box<dyn DomainErrorTrait>;
+type Error = DomainError;
 
 pub enum CommentReportServiceQuery {
     /*
@@ -85,26 +82,18 @@ impl<
 
         let parsed_query = self.parse_query(params.query).await?;
 
-        let response = self
+        let FindManyCommentReportsResponse(data, total_items)  = self
             .comment_report_repository
             .find_many(PaginationParameters {
                 items_per_page,
                 page,
                 query: parsed_query,
             })
-            .await;
-
-        if response.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Articles Service, while finding many articles from database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                response.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let response = response.unwrap();
-        let FindManyCommentReportsResponse(data, total_items) = response;
+            .await.map_err(|err|
+                generate_service_internal_error(
+                    "Error occurred on Fetch Many Articles Service, while finding many articles from database",
+    err,            )
+            )?;
 
         Ok(FetchManyCommentReportsResponse {
             pagination: PaginationResponse {
@@ -120,39 +109,29 @@ impl<
         &self,
         service_query: Option<CommentReportServiceQuery>,
     ) -> Result<Option<CommentReportQueryType>, Error> {
-        if service_query.is_none() {
-            return Ok(None);
-        }
-
-        match service_query.unwrap() {
-            CommentReportServiceQuery::Content(content) => {
-                Ok(Some(CommentReportQueryType::Content(content)))
-            }
-            CommentReportServiceQuery::Solved(value) => {
-                Ok(Some(CommentReportQueryType::Solved(value)))
-            }
-            CommentReportServiceQuery::SolvedBy(nickname) => {
-                let user = self.get_id_from_nickname(nickname).await;
-
-                if user.is_err() {
-                    error!(
-                        "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Articles Service, while parsing the query: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                        user.unwrap_err()
-                    );
-
-                    return Err(Box::new(InternalError::new()));
+        match service_query {
+            None => Ok(None),
+            Some(service_query) => match service_query {
+                CommentReportServiceQuery::Content(content) => {
+                    Ok(Some(CommentReportQueryType::Content(content)))
                 }
-
-                let user_id = user.unwrap();
-
-                if user_id.is_none() {
-                    return Err(Box::new(ResourceNotFoundError::new()));
+                CommentReportServiceQuery::Solved(value) => {
+                    Ok(Some(CommentReportQueryType::Solved(value)))
                 }
+                CommentReportServiceQuery::SolvedBy(nickname) => {
+                    let user_id = self.get_id_from_nickname(nickname).await.map_err(|err| {
+                        generate_service_internal_error(
+                        "Error occurred on Fetch Many Articles Service, while parsing the query",
+                        err,
+                    )
+                    })?;
 
-                let user_id = user_id.unwrap();
-
-                Ok(Some(CommentReportQueryType::SolvedBy(user_id)))
-            }
+                    match user_id {
+                        None => Err(DomainError::resource_not_found_err()),
+                        Some(id) => Ok(Some(CommentReportQueryType::SolvedBy(id))),
+                    }
+                }
+            },
         }
     }
 

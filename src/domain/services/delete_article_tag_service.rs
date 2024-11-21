@@ -1,7 +1,6 @@
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::unauthorized_error::UnauthorizedError;
+use crate::error::DomainError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct DeleteArticleTagParams<'run> {
@@ -25,12 +24,12 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
     pub async fn exec<'run>(
         &self,
         params: DeleteArticleTagParams<'run>,
-    ) -> Result<(), Box<dyn DomainErrorTrait>> {
+    ) -> Result<(), DomainError> {
         let user_can_delete_article_tag =
             verify_role_has_permission(params.user_role, RolePermissions::DeleteArticleTag);
 
         if !user_can_delete_article_tag {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let tag = self

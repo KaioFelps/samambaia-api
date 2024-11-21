@@ -1,6 +1,6 @@
 use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
+use crate::error::DomainError;
 use crate::util::generate_service_internal_error;
 
 pub struct FetchHomePageArticlesService<ArticleRepository: ArticleRepositoryTrait> {
@@ -12,7 +12,7 @@ impl<ArticleRepository: ArticleRepositoryTrait> FetchHomePageArticlesService<Art
         FetchHomePageArticlesService { article_repository }
     }
 
-    pub async fn exec(&self) -> Result<Vec<Article>, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self) -> Result<Vec<Article>, DomainError> {
         self.article_repository
             .get_home_articles()
             .await

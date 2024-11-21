@@ -1,15 +1,10 @@
-use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::comment::Comment;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::util::{verify_role_has_permission, RolePermissions};
-
-use crate::{LOG_SEP, R_EOL};
+use crate::error::DomainError;
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct ToggleCommentVisibilityParams<'exec> {
     pub user_role: &'exec Role,
@@ -28,29 +23,27 @@ impl<CommentRepository: CommentRepositoryTrait> ToggleCommentVisibilityService<C
     pub async fn exec<'exec>(
         &self,
         params: ToggleCommentVisibilityParams<'exec>,
-    ) -> Result<Comment, Box<dyn DomainErrorTrait>> {
+    ) -> Result<Comment, DomainError> {
         let user_can_toggle_visibility =
             verify_role_has_permission(params.user_role, RolePermissions::InactivateComment);
 
         if !user_can_toggle_visibility {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
-        let comment = self.comment_repository.find_by_id(params.comment_id).await;
-
-        if comment.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Toggle Comment Visibility Service, while finding comment by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                comment.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let comment = comment.unwrap();
+        let comment = self
+            .comment_repository
+            .find_by_id(params.comment_id)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+            "Error occurred on Toggle Comment Visibility Service, while finding comment by id",
+            err,
+        )
+            })?;
 
         if comment.is_none() {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let mut comment = comment.unwrap();
@@ -61,19 +54,13 @@ impl<CommentRepository: CommentRepositoryTrait> ToggleCommentVisibilityService<C
             comment.set_is_active(true);
         }
 
-        let result = self.comment_repository.save(comment).await;
-
-        match result {
-            Ok(comment) => Ok(comment),
-            Err(err) => {
-                error!(
-                    "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Toggle Comment Visibility Service, while saving the comment on the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                    err
-                );
-
-                Err(Box::new(InternalError::new()))
-            }
-        }
+        self.comment_repository
+            .save(comment)
+            .await
+            .map_err(|err| generate_service_internal_error(
+                "Error occurred on Toggle Comment Visibility Service, while saving the comment on the database",
+                err,
+            ))
     }
 }
 

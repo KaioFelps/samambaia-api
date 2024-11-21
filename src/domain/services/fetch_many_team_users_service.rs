@@ -1,13 +1,10 @@
+use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
+use crate::domain::domain_entities::team_user::TeamUser;
 use crate::domain::repositories::team_user_repository::{
     FindManyTeamUsersResponse, TeamUserQueryType, TeamUserRepositoryTrait,
 };
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::{LOG_SEP, R_EOL};
-use log::error;
-
-use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
-use crate::domain::domain_entities::team_user::TeamUser;
+use crate::error::DomainError;
+use crate::util::generate_service_internal_error;
 
 #[derive(Debug)]
 pub struct FetchManyTeamUsersResponse {
@@ -35,7 +32,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> FetchManyTeamUsersService<Team
     pub async fn exec(
         &self,
         params: FetchManyTeamUsersParams,
-    ) -> Result<FetchManyTeamUsersResponse, Box<dyn DomainErrorTrait>> {
+    ) -> Result<FetchManyTeamUsersResponse, DomainError> {
         let items_per_page = if params.per_page.is_some() {
             params.per_page.unwrap()
         } else {
@@ -53,26 +50,18 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> FetchManyTeamUsersService<Team
             1
         };
 
-        let response = self
+        let FindManyTeamUsersResponse(team_users, total_items) = self
             .team_user_repository
             .find_many(PaginationParameters {
                 items_per_page,
                 page,
                 query: params.query,
             })
-            .await;
-
-        if response.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Team Users Service, while selecting many team users from the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                response.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let response = response.unwrap();
-        let FindManyTeamUsersResponse(team_users, total_items) = response;
+            .await
+            .map_err(|err| generate_service_internal_error(
+                "Error occurred on Fetch Many Team Users Service, while selecting many team users from the database",
+                err,
+            ))?;
 
         Ok(FetchManyTeamUsersResponse {
             data: team_users,

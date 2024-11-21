@@ -1,8 +1,7 @@
 use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::unauthorized_error::UnauthorizedError;
+use crate::error::DomainError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct CreateArticleTagParams {
@@ -23,15 +22,12 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: CreateArticleTagParams,
-    ) -> Result<ArticleTag, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: CreateArticleTagParams) -> Result<ArticleTag, DomainError> {
         let user_can_create_tag =
             verify_role_has_permission(&params.user_role, RolePermissions::CreateArticleTag);
 
         if !user_can_create_tag {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let draft_tag = DraftArticleTag::new(params.value);

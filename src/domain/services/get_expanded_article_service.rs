@@ -10,8 +10,7 @@ use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::comment_user_article_repository::CommentUserArticleRepositoryTrait;
 use crate::domain::repositories::comment_user_article_repository::FindManyCommentsWithAuthorResponse;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::resource_not_found::ResourceNotFoundError;
+use crate::error::DomainError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 use uuid::Uuid;
 
@@ -67,7 +66,7 @@ impl<
     pub async fn exec<'exec>(
         &self,
         params: GetExpandedArticleParams<'exec>,
-    ) -> Result<GetExpandedArticleResponse, Box<dyn DomainErrorTrait>> {
+    ) -> Result<GetExpandedArticleResponse, DomainError> {
         let items_per_page = params.comments_per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
 
         let article = match self
@@ -80,7 +79,7 @@ impl<
                     err,
                 )
             })? {
-            None => return Err(Box::new(ResourceNotFoundError::new())),
+            None => return Err(DomainError::resource_not_found_err()),
             Some(article) => article,
         };
 
@@ -98,7 +97,7 @@ impl<
         };
 
         if !article.approved() && !user_can_see_article {
-            return Err(Box::new(ResourceNotFoundError::new()));
+            return Err(DomainError::resource_not_found_err());
         }
 
         let FindManyCommentsWithAuthorResponse(data, total_items) = self
@@ -145,7 +144,7 @@ impl<
                 "Author from article of id '{}' returned None on Get Expanded Article Service.",
                 article.id().to_string()
             );
-            return Err(Box::new(ResourceNotFoundError::new()));
+            return Err(DomainError::resource_not_found_err());
         }
 
         let author = author.unwrap();

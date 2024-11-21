@@ -4,9 +4,7 @@ use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::errors::bad_request_error::BadRequestError;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::unauthorized_error::UnauthorizedError;
+use crate::error::DomainError;
 use crate::util::generate_service_internal_error;
 use crate::util::{verify_role_has_permission, RolePermissions};
 
@@ -46,20 +44,17 @@ impl<
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: CreateArticleParams,
-    ) -> Result<Article, Box<dyn DomainErrorTrait>> {
-        let staff_on_db = self.user_repository.find_by_id(&params.staff_id).await;
-
-        if let Err(err) = staff_on_db {
-            return Err(generate_service_internal_error(
-                "Error ocurred at create article service, while finding staff user on the database",
-                err,
-            ));
-        }
-
-        let staff_on_db = staff_on_db.unwrap();
+    pub async fn exec(&self, params: CreateArticleParams) -> Result<Article, DomainError> {
+        let staff_on_db = self
+            .user_repository
+            .find_by_id(&params.staff_id)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error ocurred at create article service, while finding staff user on the database",
+                    err,
+                )
+            })?;
 
         if (staff_on_db.is_none())
             || !verify_role_has_permission(
@@ -67,7 +62,7 @@ impl<
                 RolePermissions::CreateArticle,
             )
         {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let author_id = {
@@ -88,10 +83,8 @@ impl<
         let tag = tag.unwrap();
 
         if tag.is_none() {
-            return Err(Box::new(BadRequestError::new_with_message(format!(
-                "Tag with id '{}' not found.",
-                params.tag_id
-            ))));
+            return Err(DomainError::bad_request_err()
+                .with_message(format!("Tag with id '{}' not found.", params.tag_id)));
         }
 
         let tag = tag.unwrap();

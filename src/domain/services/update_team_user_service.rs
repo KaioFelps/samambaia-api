@@ -1,15 +1,9 @@
-use crate::domain::domain_entities::team_user::TeamUser;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::{LOG_SEP, R_EOL};
-use log::error;
-use uuid::Uuid;
-
 use crate::domain::domain_entities::role::Role;
+use crate::domain::domain_entities::team_user::TeamUser;
 use crate::domain::repositories::team_user_repository::TeamUserRepositoryTrait;
-use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::util::verify_role_has_permission;
+use crate::error::DomainError;
+use crate::util::{generate_service_internal_error, verify_role_has_permission};
+use uuid::Uuid;
 
 pub struct UpdateTeamUserParams {
     pub staff_role: Role,
@@ -32,10 +26,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> UpdateTeamUserService<TeamUser
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: UpdateTeamUserParams,
-    ) -> Result<TeamUser, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: UpdateTeamUserParams) -> Result<TeamUser, DomainError> {
         // verifying staff/user can perform this action
         let user_can_update_team_user = verify_role_has_permission(
             &params.staff_role,
@@ -43,31 +34,23 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> UpdateTeamUserService<TeamUser
         );
 
         if !user_can_update_team_user {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         // fetching team user from database
-        let team_user_on_db = self
+        let mut team_user = match self
             .team_user_repository
             .find_by_id(params.team_user_id)
-            .await;
-
-        if team_user_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update Article Service, while finding article by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                team_user_on_db.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let team_user_on_db = team_user_on_db.unwrap();
-
-        if team_user_on_db.is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
-        }
-
-        let mut team_user = team_user_on_db.unwrap();
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Update Article Service, while finding article by id",
+                    err,
+                )
+            })? {
+            None => return Err(DomainError::resource_not_found_err()),
+            Some(user) => user,
+        };
 
         // updating the team user properties
         if params.team_role_id.is_some() {
@@ -91,18 +74,15 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> UpdateTeamUserService<TeamUser
         }
 
         // saving the changes
-        let result = self.team_user_repository.save(team_user).await;
-
-        if result.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update Article Service, while finding article by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                result.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        Ok(result.unwrap())
+        self.team_user_repository
+            .save(team_user)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Update Article Service, while finding article by id",
+                    err,
+                )
+            })
     }
 }
 

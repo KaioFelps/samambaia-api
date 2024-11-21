@@ -1,8 +1,7 @@
 use crate::domain::domain_entities::free_badge::FreeBadge;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::free_badge_repository::FreeBadgeRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::unauthorized_error::UnauthorizedError;
+use crate::error::DomainError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 use chrono::NaiveDateTime;
 
@@ -26,15 +25,12 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> CreateFreeBadgeService<FreeB
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: CreateFreeBadgeParams,
-    ) -> Result<FreeBadge, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: CreateFreeBadgeParams) -> Result<FreeBadge, DomainError> {
         let user_can_create_free_badge =
             verify_role_has_permission(&params.user_role, RolePermissions::CreateFreeBadge);
 
         if !user_can_create_free_badge {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let free_badge = FreeBadge::new(

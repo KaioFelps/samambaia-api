@@ -1,15 +1,10 @@
-use log::error;
 use uuid::Uuid;
 
 use crate::domain::repositories::article_comment_repository::ArticleCommentRepositoryTrait;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
-use crate::util::{verify_role_has_permission, RolePermissions};
-
-use crate::{LOG_SEP, R_EOL};
+use crate::error::DomainError;
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct DeleteArticleParams {
     pub user_id: Uuid,
@@ -40,41 +35,37 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRep
         }
     }
 
-    pub async fn exec(&self, params: DeleteArticleParams) -> Result<(), Box<dyn DomainErrorTrait>> {
-        let user_on_db = &self.user_repository.find_by_id(&params.user_id).await;
-
-        if user_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Article Service, while finding user by Id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                user_on_db.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let user_on_db = user_on_db.as_ref().unwrap().to_owned();
+    pub async fn exec(&self, params: DeleteArticleParams) -> Result<(), DomainError> {
+        let user_on_db = self
+            .user_repository
+            .find_by_id(&params.user_id)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Delete Article Service, while finding user by Id",
+                    err,
+                )
+            })?;
 
         if user_on_db.is_none() {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         // article verifications
 
-        let article_on_db = &self.article_repository.find_by_id(params.article_id).await;
-
-        if article_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Article Service, while finding article by Id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                article_on_db.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let article_on_db = article_on_db.as_ref().unwrap();
+        let article_on_db = self
+            .article_repository
+            .find_by_id(params.article_id)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Delete Article Service, while finding article by Id",
+                    err,
+                )
+            })?;
 
         if article_on_db.is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
+            return Err(DomainError::resource_not_found_err());
         }
 
         let article = article_on_db.clone().unwrap();
@@ -92,24 +83,18 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRep
         );
 
         if !user_can_delete {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
-        let response = &self
-            .article_comment_repository
+        self.article_comment_repository
             .delete_article_and_inactivate_comments(article)
-            .await;
-
-        if response.as_ref().is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Article Service, while deleting the article: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                response.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        Ok(())
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Delete Article Service, while deleting the article",
+                    err,
+                )
+            })
     }
 }
 

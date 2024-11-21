@@ -1,18 +1,13 @@
-use log::error;
-
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse,
 };
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::resource_not_found::ResourceNotFoundError;
+use crate::error::DomainError;
+use crate::util::generate_service_internal_error;
 
-use crate::{LOG_SEP, R_EOL};
-
-type Error = Box<dyn DomainErrorTrait>;
+type Error = DomainError;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ServiceArticleQueryType {
@@ -80,20 +75,9 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
             default_page
         };
 
-        let query = self.parse_query(params.query).await;
+        let query = self.parse_query(params.query).await?;
 
-        if let Err(err) = query {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Articles Service, while parsing the query: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                err.as_ref()
-            );
-
-            return Err(err);
-        }
-
-        let query = query.unwrap();
-
-        let response = self
+        let FindManyArticlesResponse(articles, total_items) = self
             .article_repository
             .find_many(
                 PaginationParameters {
@@ -103,19 +87,13 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
                 },
                 params.approved_state,
             )
-            .await;
-
-        if response.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Articles Service, while finding many articles from database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                response.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let response = response.unwrap();
-        let FindManyArticlesResponse(articles, total_items) = response;
+            .await
+            .map_err(|err|
+                generate_service_internal_error(
+                    "Error occurred on Fetch Many Articles Service, while finding many articles from database",
+                    err,
+                )
+            )?;
 
         Ok(FetchManyArticlesResponse {
             data: articles,
@@ -140,13 +118,13 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
                 let user = self.user_repository.find_by_nickname(&content).await;
 
                 if user.is_err() {
-                    return Err(Box::new(InternalError::new()));
+                    return Err(DomainError::internal_err());
                 }
 
                 let user = user.unwrap();
 
                 if user.is_none() {
-                    return Err(Box::new(ResourceNotFoundError::new()));
+                    return Err(DomainError::resource_not_found_err());
                 }
 
                 Ok(Some(ArticleQueryType::Author(user.unwrap().id())))
@@ -282,8 +260,8 @@ mod test {
             .unwrap_err();
 
         assert_eq!(
-            failing_query_by_unexisting_nickname_request.code(),
-            &StatusCode::NOT_FOUND
+            failing_query_by_unexisting_nickname_request.get_code(),
+            StatusCode::NOT_FOUND
         );
 
         // make a request querying by nickname that exists

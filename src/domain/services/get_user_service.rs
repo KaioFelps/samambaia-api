@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
+use crate::error::DomainError;
 use crate::util::generate_service_internal_error;
 
 pub struct GetUserServiceParams {
@@ -18,10 +18,7 @@ impl<UserRepository: UserRepositoryTrait> GetUserService<UserRepository> {
         GetUserService { user_repository }
     }
 
-    pub async fn exec(
-        &self,
-        params: GetUserServiceParams,
-    ) -> Result<Option<User>, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: GetUserServiceParams) -> Result<Option<User>, DomainError> {
         self.user_repository
             .find_by_id(&params.user_id)
             .await

@@ -1,16 +1,9 @@
-use log::error;
-use uuid::Uuid;
-
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::util::verify_role_has_permission;
-
-use crate::{LOG_SEP, R_EOL};
+use crate::error::DomainError;
+use crate::util::{generate_service_internal_error, verify_role_has_permission};
+use uuid::Uuid;
 
 pub struct UpdateTeamRoleParams {
     pub staff_role: Role,
@@ -30,37 +23,29 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> UpdateTeamRoleService<TeamRole
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: UpdateTeamRoleParams,
-    ) -> Result<TeamRole, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: UpdateTeamRoleParams) -> Result<TeamRole, DomainError> {
         let user_can_update_team_role = verify_role_has_permission(
             &params.staff_role,
             crate::util::RolePermissions::UpdateTeamRole,
         );
 
         if !user_can_update_team_role {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let team_role_on_db = self
             .team_role_repository
             .find_by_id(params.team_role_id)
-            .await;
-
-        if team_role_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update Article Service, while finding article by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                team_role_on_db.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let team_role_on_db = team_role_on_db.unwrap();
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Update Article Service, while finding article by id",
+                    err,
+                )
+            })?;
 
         if team_role_on_db.is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
+            return Err(DomainError::resource_not_found_err());
         }
 
         let mut team_role = team_role_on_db.unwrap();
@@ -73,18 +58,15 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> UpdateTeamRoleService<TeamRole
             team_role.set_description(params.description.unwrap());
         }
 
-        let result = self.team_role_repository.save(team_role).await;
-
-        if result.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update Article Service, while finding article by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                result.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        Ok(result.unwrap())
+        self.team_role_repository
+            .save(team_role)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Update Article Service, while finding article by id",
+                    err,
+                )
+            })
     }
 }
 

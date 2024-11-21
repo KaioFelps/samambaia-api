@@ -1,16 +1,10 @@
-use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::team_user_repository::TeamUserRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::util::verify_role_has_permission;
+use crate::error::DomainError;
 use crate::util::RolePermissions::DeleteTeamUser;
-
-use crate::{LOG_SEP, R_EOL};
+use crate::util::{generate_service_internal_error, verify_role_has_permission};
 
 pub struct DeleteTeamUserParams {
     pub staff_role: Role,
@@ -28,51 +22,33 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> DeleteTeamUserService<TeamUser
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: DeleteTeamUserParams,
-    ) -> Result<(), Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: DeleteTeamUserParams) -> Result<(), DomainError> {
         let staff_can_delete = verify_role_has_permission(&params.staff_role, DeleteTeamUser);
 
         if !staff_can_delete {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let team_user_on_db = self
             .team_user_repository
             .find_by_id(params.team_user_id)
-            .await;
-
-        if team_user_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Team User Service, while fetching the team user from the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                team_user_on_db.unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let team_user_on_db = team_user_on_db.unwrap();
+            .await
+            .map_err(|err| generate_service_internal_error(
+                "Error occurred on Delete Team User Service, while fetching the team user from the database",
+                err
+            ))?;
 
         if team_user_on_db.is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
+            return Err(DomainError::resource_not_found_err());
         }
 
         let team_user = team_user_on_db.unwrap();
 
-        let result = self.team_user_repository.delete(team_user).await;
-
-        match result {
-            Err(err) => {
-                error!(
-                    "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Team User Service, while deleting the team user from the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                    err
-                );
-
-                Err(Box::new(InternalError::new()))
-            }
-            Ok(_) => Ok(()),
-        }
+        self.team_user_repository.delete(team_user).await
+        .map_err(|err| generate_service_internal_error(
+            "Error occurred on Delete Team User Service, while deleting the team user from the database",
+            err
+        ))
     }
 }
 

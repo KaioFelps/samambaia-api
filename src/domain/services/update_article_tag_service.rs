@@ -1,10 +1,7 @@
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
-use crate::errors::bad_request_error::BadRequestError;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::errors::unauthorized_error::UnauthorizedError;
+use crate::error::DomainError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct UpdateArticleTagParams {
@@ -26,21 +23,17 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: UpdateArticleTagParams,
-    ) -> Result<ArticleTag, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: UpdateArticleTagParams) -> Result<ArticleTag, DomainError> {
         let user_can_update_tag =
             verify_role_has_permission(&params.user_role, RolePermissions::UpdateArticleTag);
 
         if !user_can_update_tag {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         if params.value.is_none() {
-            return Err(Box::new(BadRequestError::new_with_message(
-                "Cannot perform an update if there is nothing to be updated.".into(),
-            )));
+            return Err(DomainError::bad_request_err()
+                .with_message("Cannot perform an update if there is nothing to be updated."));
         }
 
         let mut tag = match self
@@ -54,7 +47,7 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
                 )
             })?
             {
-                None => return Err(Box::new(ResourceNotFoundError::new())),
+                None => return Err(DomainError::resource_not_found_err()),
                 Some(tag) => tag,
             };
 

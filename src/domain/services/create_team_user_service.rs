@@ -1,16 +1,10 @@
-use log::error;
 use uuid::Uuid;
 
-use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
-use crate::errors::bad_request_error::BadRequestError;
-use crate::errors::error::DomainErrorTrait;
-use crate::{LOG_SEP, R_EOL};
-
 use crate::domain::domain_entities::{role::Role, team_user::TeamUser};
+use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
 use crate::domain::repositories::team_user_repository::TeamUserRepositoryTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::util::{verify_role_has_permission, RolePermissions};
+use crate::error::DomainError;
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct CreateTeamUserParams {
     pub nickname: String,
@@ -43,10 +37,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait, TeamRoleRepository: TeamRoleRe
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: CreateTeamUserParams,
-    ) -> Result<TeamUser, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: CreateTeamUserParams) -> Result<TeamUser, DomainError> {
         let team_user = TeamUser::new(
             params.nickname,
             params.user_function,
@@ -59,43 +50,29 @@ impl<TeamUserRepository: TeamUserRepositoryTrait, TeamRoleRepository: TeamRoleRe
             verify_role_has_permission(&params.staff_role, RolePermissions::CreateTeamUser);
 
         if !staff_can_add_team_user {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let role_on_db = self
             .team_role_repository
             .find_by_id(params.team_role_id)
-            .await;
-
-        if role_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create Team User Service, while finding team role by Id on the database:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                role_on_db.unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let role_on_db = role_on_db.unwrap();
+            .await.map_err(|err| {
+                generate_service_internal_error("Error occurred on Create Team User Service, while finding team role by Id on the database", err)
+            })?;
 
         if role_on_db.is_none() {
-            return Err(Box::new(BadRequestError::new()));
+            return Err(DomainError::bad_request_err());
         }
 
-        let result = self.team_user_repository.create(team_user).await;
-
-        match result {
-            Err(err) => {
-                error!(
-                    "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create Team User Service, while persisting on the database:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                    err
-                );
-
-                Err(Box::new(InternalError::new()))
-            }
-
-            Ok(team_user) => Ok(team_user),
-        }
+        self.team_user_repository
+            .create(team_user)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Create Team User Service, while persisting on the database",
+                    err,
+                )
+            })
     }
 }
 
@@ -169,7 +146,7 @@ mod test {
             .await;
 
         // Coords are not allowed to manage team users, only admin above.
-        assert_eq!(result.unwrap_err().code(), &StatusCode::UNAUTHORIZED);
+        assert_eq!(result.unwrap_err().get_code(), StatusCode::UNAUTHORIZED);
 
         let result = sut
             .exec(CreateTeamUserParams {
@@ -183,7 +160,7 @@ mod test {
             .await;
 
         // If team role id points to a non-existing team role, it throws a bad request error.
-        assert_eq!(result.unwrap_err().code(), &StatusCode::BAD_REQUEST);
+        assert_eq!(result.unwrap_err().get_code(), StatusCode::BAD_REQUEST);
 
         let result = sut
             .exec(CreateTeamUserParams {

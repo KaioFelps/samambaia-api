@@ -1,4 +1,3 @@
-use log::error;
 use uuid::Uuid;
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
@@ -7,11 +6,8 @@ use crate::domain::repositories::article_comment_repository::{
     ArticleCommentRepositoryTrait, CommentQueryType, FindManyCommentsResponse,
 };
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-
-use crate::{LOG_SEP, R_EOL};
+use crate::error::DomainError;
+use crate::util::generate_service_internal_error;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ServiceCommentQueryType {
@@ -40,7 +36,7 @@ pub struct FetchManyCommentsResponse {
     pub data: Vec<Comment>,
 }
 
-type ExecFuncReturn = Result<FetchManyCommentsResponse, Box<dyn DomainErrorTrait>>;
+type ExecFuncReturn = Result<FetchManyCommentsResponse, DomainError>;
 
 impl<
         ArticleCommentRepository: ArticleCommentRepositoryTrait,
@@ -101,18 +97,7 @@ impl<
             default_page
         };
 
-        let query = self.parse_query(params.query).await;
-
-        if let Err(err) = query {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Comments Service, while parsing the query: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                err.as_ref()
-            );
-
-            return Err(err);
-        }
-
-        let query = query.unwrap();
+        let query = self.parse_query(params.query).await?;
 
         let response = self
             .article_comment_repository
@@ -125,18 +110,12 @@ impl<
                     query,
                 },
             )
-            .await;
+            .await
+            .map_err(|err| generate_service_internal_error(
+                "Error occurred on Fetch Many Comments Service, while fetching many comments from database",
+                err,
+            ))?;
 
-        if response.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Comments Service, while fetching many comments from database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                response.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let response = response.unwrap();
         let FindManyCommentsResponse(comments, total_items) = response;
 
         Ok(FetchManyCommentsResponse {
@@ -152,7 +131,7 @@ impl<
     async fn parse_query(
         &self,
         query: Option<ServiceCommentQueryType>,
-    ) -> Result<Option<CommentQueryType>, Box<dyn DomainErrorTrait>> {
+    ) -> Result<Option<CommentQueryType>, DomainError> {
         if query.is_none() {
             return Ok(None);
         }
@@ -164,13 +143,13 @@ impl<
                 let user = self.user_repository.find_by_nickname(&content).await;
 
                 if user.is_err() {
-                    return Err(Box::new(InternalError::new()));
+                    return Err(DomainError::internal_err());
                 }
 
                 let user = user.unwrap();
 
                 if user.is_none() {
-                    return Err(Box::new(ResourceNotFoundError::new()));
+                    return Err(DomainError::resource_not_found_err());
                 }
 
                 let content = user.unwrap().id();
@@ -380,7 +359,7 @@ mod test {
             .await
             .unwrap_err();
 
-        assert_eq!(res_3.code(), &StatusCode::NOT_FOUND);
+        assert_eq!(res_3.get_code(), StatusCode::NOT_FOUND);
 
         // make a request querying by nickname that exists and include inactive comments
         let res_4 = fetch_many_comments_service

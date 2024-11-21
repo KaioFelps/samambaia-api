@@ -1,13 +1,8 @@
-use log::error;
-
 use crate::domain::domain_entities::role::Role;
-use crate::errors::bad_request_error::BadRequestError;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::{LOG_SEP, R_EOL};
+use crate::error::DomainError;
 
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
-use crate::errors::internal_error::InternalError;
+use crate::util::generate_service_internal_error;
 use crate::util::verify_role_has_permission;
 use crate::util::RolePermissions;
 
@@ -29,51 +24,35 @@ impl<CommentReportRepository: CommentReportRepositoryTrait>
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: DeleteCommentReportParams,
-    ) -> Result<(), Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: DeleteCommentReportParams) -> Result<(), DomainError> {
         let staff_can_delete =
             verify_role_has_permission(&params.staff_role, RolePermissions::DeleteReport);
 
         if !staff_can_delete {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let comm_report = self
             .comment_report_repository
             .find_by_id(params.com_report_id)
-            .await;
-
-        if comm_report.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Comment Report Service, while fetching the comment report from database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                comm_report.unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let comm_report = comm_report.unwrap();
+            .await.map_err(|err| generate_service_internal_error(
+                "Error occurred on Delete Comment Report Service, while fetching the comment report from database",
+                err
+            ))?;
 
         if comm_report.is_none() {
-            return Err(Box::new(BadRequestError::new()));
+            return Err(DomainError::bad_request_err());
         }
 
         let comm_report = comm_report.unwrap();
 
-        let result = self.comment_report_repository.delete(comm_report).await;
-
-        if result.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Comment Report Service, while updating the comment report at database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                result.unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        Ok(())
+        self
+            .comment_report_repository
+            .delete(comm_report).await
+            .map_err(|err| generate_service_internal_error(
+                "Error occurred on Delete Comment Report Service, while updating the comment report at database",
+                err,
+            ))
     }
 }
 

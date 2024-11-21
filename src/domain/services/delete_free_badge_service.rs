@@ -1,8 +1,6 @@
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::free_badge_repository::FreeBadgeRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::errors::unauthorized_error::UnauthorizedError;
+use crate::error::DomainError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 use uuid::Uuid;
 
@@ -22,15 +20,12 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> DeleteFreeBadgeService<FreeB
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: DeleteFreeBadgeParams,
-    ) -> Result<(), Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: DeleteFreeBadgeParams) -> Result<(), DomainError> {
         let user_can_delete_free_badge =
             verify_role_has_permission(&params.user_role, RolePermissions::DeleteFreeBadge);
 
         if !user_can_delete_free_badge {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let free_badge = self
@@ -43,7 +38,7 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> DeleteFreeBadgeService<FreeB
             ))?;
 
         if free_badge.is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
+            return Err(DomainError::resource_not_found_err());
         }
 
         let free_badge = free_badge.unwrap();

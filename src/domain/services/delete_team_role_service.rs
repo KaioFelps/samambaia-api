@@ -1,16 +1,10 @@
-use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::util::verify_role_has_permission;
+use crate::error::DomainError;
 use crate::util::RolePermissions::DeleteTeamRole;
-
-use crate::{LOG_SEP, R_EOL};
+use crate::util::{generate_service_internal_error, verify_role_has_permission};
 
 pub struct DeleteTeamRoleParams {
     pub staff_role: Role,
@@ -28,51 +22,33 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> DeleteTeamRoleService<TeamRole
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: DeleteTeamRoleParams,
-    ) -> Result<(), Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: DeleteTeamRoleParams) -> Result<(), DomainError> {
         let staff_can_delete = verify_role_has_permission(&params.staff_role, DeleteTeamRole);
 
         if !staff_can_delete {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let team_role_on_db = self
             .team_role_repository
             .find_by_id(params.team_role_id)
-            .await;
-
-        if team_role_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Team Role Service, while fetching the team role from the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                team_role_on_db.unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let team_role_on_db = team_role_on_db.unwrap();
+            .await.map_err(|err| generate_service_internal_error(
+                "Error occurred on Delete Team Role Service, while fetching the team role from the database",
+                err,
+            ))?;
 
         if team_role_on_db.is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
+            return Err(DomainError::resource_not_found_err());
         }
 
         let team_role = team_role_on_db.unwrap();
 
-        let result = self.team_role_repository.delete(team_role).await;
-
-        match result {
-            Err(err) => {
-                error!(
-                    "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Team Role Service, while deleting the team role from the database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                    err
-                );
-
-                Err(Box::new(InternalError::new()))
-            }
-            Ok(_) => Ok(()),
-        }
+        self.team_role_repository.delete(team_role)
+            .await
+            .map_err(|err| generate_service_internal_error(
+                "Error occurred on Delete Team Role Service, while deleting the team role from the database",
+                err,
+            ))
     }
 }
 

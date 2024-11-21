@@ -1,4 +1,3 @@
-use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::article::Article;
@@ -6,12 +5,8 @@ use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
-use crate::errors::bad_request_error::BadRequestError;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
+use crate::error::DomainError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
-use crate::{LOG_SEP, R_EOL};
 
 pub struct UpdateArticleParams {
     pub user_id: Uuid,
@@ -47,38 +42,33 @@ impl<
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: UpdateArticleParams,
-    ) -> Result<Article, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: UpdateArticleParams) -> Result<Article, DomainError> {
         // checks if there is something to be updated
         if params.cover_url.is_none()
             && params.title.is_none()
             && params.cover_url.is_none()
             && params.approved.is_none()
         {
-            return Err(Box::new(BadRequestError::new()));
+            return Err(DomainError::bad_request_err());
         }
 
         // article verifications
-        let article_on_db = self.article_repository.find_by_id(params.article_id).await;
+        let article = self
+            .article_repository
+            .find_by_id(params.article_id)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Update Article Service, while finding article by id",
+                    err,
+                )
+            })?;
 
-        if article_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Update Article Service, while finding article by id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                article_on_db.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
+        if article.is_none() {
+            return Err(DomainError::resource_not_found_err());
         }
 
-        let article_on_db = article_on_db.as_ref().unwrap();
-
-        if article_on_db.is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
-        }
-
-        let mut article = article_on_db.clone().unwrap();
+        let mut article = article.unwrap();
 
         // checks user is allowed to perform the update
         let user_can_update =
@@ -91,28 +81,28 @@ impl<
             verify_role_has_permission(&params.user_role, RolePermissions::DisapproveArticle);
 
         if !user_can_approve && params.approved.is_some() {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
         if !user_can_disapprove && params.approved.is_some() && !params.approved.unwrap() {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let user_is_author = article.author_id() == params.user_id;
 
         if !user_can_update && !user_is_author {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         // if user is author but does no longer belong to the team, he can't delete his own article either.
         if user_is_author && params.user_role == Role::User {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let user_can_change_article_author =
             verify_role_has_permission(&params.user_role, RolePermissions::ChangeArticleAuthor);
 
         if !user_can_change_article_author && params.author_id.is_some() {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         // modifies the article where requested
@@ -160,7 +150,7 @@ impl<
         Ok(article)
     }
 
-    async fn get_tag_by_id(&self, tag_id: i32) -> Result<ArticleTag, Box<dyn DomainErrorTrait>> {
+    async fn get_tag_by_id(&self, tag_id: i32) -> Result<ArticleTag, DomainError> {
         let tag = self
             .article_tag_repository
             .find_by_id(tag_id)
@@ -173,10 +163,8 @@ impl<
             })?;
 
         if tag.is_none() {
-            return Err(Box::new(BadRequestError::new_with_message(format!(
-                "Tag with id '{}' not found.",
-                tag_id
-            ))));
+            return Err(DomainError::bad_request_err()
+                .with_message(format!("Tag with id '{}' not found.", tag_id)));
         }
 
         Ok(tag.unwrap())
@@ -231,7 +219,7 @@ mod test {
             })
             .await;
 
-        assert_eq!(result.unwrap_err().code(), &StatusCode::UNAUTHORIZED); // writer can't approve any article
+        assert_eq!(result.unwrap_err().get_code(), StatusCode::UNAUTHORIZED); // writer can't approve any article
 
         let result = service
             .exec(UpdateArticleParams {

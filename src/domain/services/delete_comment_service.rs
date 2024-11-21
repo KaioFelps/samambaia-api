@@ -1,14 +1,9 @@
-use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
-use crate::errors::error::DomainErrorTrait;
-use crate::{LOG_SEP, R_EOL};
-
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
-use crate::errors::resource_not_found::ResourceNotFoundError;
-use crate::errors::{internal_error::InternalError, unauthorized_error::UnauthorizedError};
-use crate::util::{verify_role_has_permission, RolePermissions};
+use crate::error::DomainError;
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct DeleteCommentParams {
     pub staff_role: Role,
@@ -24,22 +19,20 @@ impl<CommentRepository: CommentRepositoryTrait> DeleteCommentService<CommentRepo
         DeleteCommentService { comment_repository }
     }
 
-    pub async fn exec(&self, params: DeleteCommentParams) -> Result<(), Box<dyn DomainErrorTrait>> {
-        let comment_on_db = self.comment_repository.find_by_id(params.comment_id).await;
-
-        if comment_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Comment Service, while finding comment by Id: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                comment_on_db.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let comment_on_db = comment_on_db.unwrap();
+    pub async fn exec(&self, params: DeleteCommentParams) -> Result<(), DomainError> {
+        let comment_on_db = self
+            .comment_repository
+            .find_by_id(params.comment_id)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Delete Comment Service, while finding comment by Id",
+                    err,
+                )
+            })?;
 
         if comment_on_db.is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
+            return Err(DomainError::resource_not_found_err());
         }
 
         let comment = comment_on_db.unwrap();
@@ -49,21 +42,18 @@ impl<CommentRepository: CommentRepositoryTrait> DeleteCommentService<CommentRepo
             verify_role_has_permission(&params.staff_role, RolePermissions::DeleteComment);
 
         if !user_can_delete && comment.author_id() != params.user_id {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
-        let response = self.comment_repository.delete(comment).await;
-
-        if response.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Delete Comment Service, while deleting the comment: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                response.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        Ok(())
+        self.comment_repository
+            .delete(comment)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Delete Comment Service, while deleting the comment",
+                    err,
+                )
+            })
     }
 }
 

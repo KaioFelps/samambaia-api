@@ -1,14 +1,9 @@
-use log::error;
-
 use crate::domain::cryptography::hasher::HasherTrait;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::user_already_exists_error::UserAlreadyExistsError;
-
-use crate::{LOG_SEP, R_EOL};
+use crate::error::DomainError;
+use crate::util::generate_service_internal_error;
 
 pub struct CreateUserParams {
     pub nickname: String,
@@ -27,7 +22,7 @@ impl<UserRepositoryType: UserRepositoryTrait> CreateUserService<UserRepositoryTy
         }
     }
 
-    pub async fn exec(&self, params: CreateUserParams) -> Result<User, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: CreateUserParams) -> Result<User, DomainError> {
         self.create(params, Role::User).await
     }
 
@@ -35,52 +30,37 @@ impl<UserRepositoryType: UserRepositoryTrait> CreateUserService<UserRepositoryTy
         &self,
         params: CreateUserParams,
         role: Role,
-    ) -> Result<User, Box<dyn DomainErrorTrait>> {
+    ) -> Result<User, DomainError> {
         self.create(params, role).await
     }
 
     #[inline]
-    async fn create(
-        &self,
-        params: CreateUserParams,
-        role: Role,
-    ) -> Result<User, Box<dyn DomainErrorTrait>> {
+    async fn create(&self, params: CreateUserParams, role: Role) -> Result<User, DomainError> {
         let user_on_db = self
             .user_repository
             .find_by_nickname(&params.nickname)
-            .await;
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Create User Service, while finding user by nickname",
+                    err,
+                )
+            })?;
 
-        if user_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create User Service, while finding user by nickname:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                user_on_db.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        if let Some(_user) = user_on_db.as_ref().unwrap() {
-            return Err(Box::new(UserAlreadyExistsError::new(params.nickname)));
+        if let Some(_user) = user_on_db {
+            return Err(DomainError::user_already_exists_err(&params.nickname));
         }
 
         let hashed_password = self.hasher.hash(params.password);
 
         let user = User::new(params.nickname, hashed_password, Some(role));
 
-        let created_user = self.user_repository.create(user).await;
-
-        if created_user.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create User Service, while creating user on database:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                created_user.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
-        }
-
-        let created_user = created_user.unwrap();
-
-        Ok(created_user)
+        self.user_repository.create(user).await.map_err(|err| {
+            generate_service_internal_error(
+                "Error occurred on Create User Service, while creating user on database",
+                err,
+            )
+        })
     }
 }
 

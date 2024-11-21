@@ -1,14 +1,10 @@
-use log::error;
 use uuid::Uuid;
 
 use crate::domain::cryptography::both::HasherAndComparerTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::invalid_credentials_error::InvalidCredentialsError;
-use crate::errors::resource_not_found::ResourceNotFoundError;
+use crate::error::DomainError;
 
-use crate::{LOG_SEP, R_EOL};
+use crate::util::generate_service_internal_error;
 
 pub struct ChangePasswordParams {
     pub user_id: Uuid,
@@ -31,33 +27,30 @@ impl<UserRepositoryType: UserRepositoryTrait> ChangePasswordService<UserReposito
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: ChangePasswordParams,
-    ) -> Result<(), Box<dyn DomainErrorTrait>> {
-        let user_on_db = self.user_repository.find_by_id(&params.user_id).await;
+    pub async fn exec(&self, params: ChangePasswordParams) -> Result<(), DomainError> {
+        let user_on_db = self
+            .user_repository
+            .find_by_id(&params.user_id)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Change Password Service, while fetching user from database",
+                    err,
+                )
+            })?;
 
-        if user_on_db.is_err() {
-            error!(
-                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Change Password Service, while fetching user from database:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                user_on_db.as_ref().unwrap_err()
-            );
-
-            return Err(Box::new(InternalError::new()));
+        if user_on_db.is_none() {
+            return Err(DomainError::resource_not_found_err());
         }
 
-        if user_on_db.as_ref().unwrap().is_none() {
-            return Err(Box::new(ResourceNotFoundError::new()));
-        }
-
-        let mut user = user_on_db.unwrap().unwrap();
+        let mut user = user_on_db.unwrap();
 
         let password_matches = self
             .hasher_and_comparer
             .compare(&params.current_password, user.password());
 
         if !password_matches {
-            return Err(Box::new(InvalidCredentialsError::new()));
+            return Err(DomainError::invalid_credentials_err());
         }
 
         let new_password = self.hasher_and_comparer.hash(params.new_password);
@@ -68,7 +61,7 @@ impl<UserRepositoryType: UserRepositoryTrait> ChangePasswordService<UserReposito
 
         match result {
             Ok(_) => Ok(()),
-            Err(_err) => Err(Box::new(InternalError::new())),
+            Err(_err) => Err(DomainError::internal_err()),
         }
     }
 }

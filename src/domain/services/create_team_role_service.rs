@@ -1,13 +1,9 @@
 use crate::domain::domain_entities::role::Role;
-use crate::errors::error::DomainErrorTrait;
-use crate::{LOG_SEP, R_EOL};
-use log::error;
+use crate::error::DomainError;
 
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
-use crate::errors::internal_error::InternalError;
-use crate::errors::unauthorized_error::UnauthorizedError;
-use crate::util::{verify_role_has_permission, RolePermissions};
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct CreateTeamRoleParams {
     pub title: String,
@@ -26,10 +22,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> CreateTeamRoleService<TeamRole
         }
     }
 
-    pub async fn exec(
-        &self,
-        params: CreateTeamRoleParams,
-    ) -> Result<TeamRole, Box<dyn DomainErrorTrait>> {
+    pub async fn exec(&self, params: CreateTeamRoleParams) -> Result<TeamRole, DomainError> {
         let CreateTeamRoleParams {
             title,
             description,
@@ -40,24 +33,20 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> CreateTeamRoleService<TeamRole
             verify_role_has_permission(&staff_role, RolePermissions::CreateNewTeamRole);
 
         if !user_can_create_team_role {
-            return Err(Box::new(UnauthorizedError::new()));
+            return Err(DomainError::unauthorized_err());
         }
 
         let team_role = TeamRole::new(title, description);
 
-        let result = self.team_role_repository.create(team_role).await;
-
-        match result {
-            Err(err) => {
-                error!(
-                    "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create Team Role Service, while persisting on the database:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                    err
-                );
-
-                Err(Box::new(InternalError::new()))
-            }
-            Ok(team_role) => Ok(team_role),
-        }
+        self.team_role_repository
+            .create(team_role)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred on Create Team Role Service, while persisting on the database",
+                    err,
+                )
+            })
     }
 }
 
@@ -101,7 +90,7 @@ mod test {
         assert!(response.is_err());
         assert_eq!(
             response.unwrap_err().to_string(),
-            UnauthorizedError::new().to_string()
+            DomainError::unauthorized_err().to_string()
         );
 
         let response = sut

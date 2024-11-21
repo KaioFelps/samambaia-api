@@ -5,8 +5,7 @@ use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_
 use crate::domain::repositories::comment_user_article_repository::{
     CommentUserArticleRepositoryTrait, FindManyCommentsWithAuthorResponse,
 };
-use crate::errors::error::DomainErrorTrait;
-use crate::errors::internal_error::InternalError;
+use crate::error::DomainError;
 
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::{LOG_SEP, R_EOL};
@@ -29,7 +28,7 @@ pub struct FetchManyCommentsWithAuthorResponse {
     pub data: Vec<CommentWithAuthor>,
 }
 
-type ExecFuncReturn = Result<FetchManyCommentsWithAuthorResponse, Box<dyn DomainErrorTrait>>;
+type ExecFuncReturn = Result<FetchManyCommentsWithAuthorResponse, DomainError>;
 
 impl<CommentUserArticleRepository: CommentUserArticleRepositoryTrait>
     FetchManyArticleCommentsWithAuthorService<CommentUserArticleRepository>
@@ -84,7 +83,7 @@ impl<CommentUserArticleRepository: CommentUserArticleRepositoryTrait>
                 response.as_ref().unwrap_err()
             );
 
-            return Err(Box::new(InternalError::new()));
+            return Err(DomainError::internal_err());
         }
 
         let response = response.unwrap();
