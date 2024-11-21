@@ -49,7 +49,7 @@ impl DomainError {
             | DomainError::ResourceNotFound(msg)
             | DomainError::Unauthorized(msg)
             | DomainError::UserAlreadyExists(msg)
-            | DomainError::Validation(msg, _) => &msg,
+            | DomainError::Validation(msg, _) => msg,
         }
     }
 
@@ -98,22 +98,16 @@ impl DomainError {
     pub fn validation_err<'b>(
         errors_map: &'b HashMap<&'b str, &Vec<validator::ValidationError>>,
     ) -> Self {
-        let mut _errors_map = HashMap::new();
-
-        errors_map.iter().map(|(k, v)| {
-            let mut vec = Vec::new();
-            v.iter().map(|v| {
-                vec.push(v.clone());
-            });
-
-            _errors_map.insert(k.to_string(), vec);
-        });
+        let mut _errors_map = errors_map
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_vec()))
+            .collect();
 
         Self::Validation("Validation errors.".into(), _errors_map)
     }
 
     pub fn enum_coercion_err(enum_name: &str) -> Self {
-        Self::EnumCoercion(format!("{enum_name} enum coercion error.").into())
+        Self::EnumCoercion(format!("{enum_name} enum coercion error."))
     }
 }
 
