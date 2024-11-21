@@ -77,9 +77,9 @@ hubbitos-cli generate controller "user"
 
 This command would generate a following `src/infra/http/controllers/users_controller.rs` file:
 ```rust
-use actix_web::{web, HttpResponse, Responder};
-
+use actix_web::{web, HttpResponse};
 use super::controller::ControllerTrait;
+use super::AppResponse;
 
 pub struct UsersController;
 
@@ -103,33 +103,27 @@ impl ControllerTrait for UsersController {
 }
 
 impl UsersController {
-    async fn create() -> impl Responder {
-        // let service = service_factory::exec().unwrap();
-        //
-        // let result = service.exec();
-        //
-        // if result.is_err() {
-        //     return HttpResponseBuilder::new(StatusCode::from_u16(err.code().to_owned()).unwrap())
-        //     .json(ErrorPresenter::to_http(result.unwrap_err()));
-        // }
+    async fn create() -> AppResponse {
+        // let service = service_factory::exec()?;
+        // service.exec()?;
 
-        return HttpResponse::Created().finish();
+        Ok(HttpResponse::Created().finish())
     }
 
-    async fn get() -> impl Responder {
-        return HttpResponse::Ok().finish();
+    async fn get() -> AppResponse {
+        Ok(HttpResponse::Ok().finish())
     }
 
-    async fn list() -> impl Responder {
-        return HttpResponse::Ok().finish();
+    async fn list() -> AppResponse {
+        Ok(HttpResponse::Ok().finish())
     }
 
-    async fn update() -> impl Responder {
-        return HttpResponse::NoContent().finish();
+    async fn update() -> AppResponse {
+        Ok(HttpResponse::NoContent().finish())
     }
 
-    async fn delete() -> impl Responder {
-        return HttpResponse::NoContent().finish();
+    async fn delete() -> AppResponse {
+        Ok(HttpResponse::NoContent().finish())
     }
 }
 
