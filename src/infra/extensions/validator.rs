@@ -2,10 +2,10 @@ use validator::ValidationErrors;
 
 use crate::error::DomainError;
 
-impl Into<DomainError> for ValidationErrors {
-    fn into(self) -> DomainError {
-        let errors_map = self.field_errors().to_owned();
-        return DomainError::validation_err(&errors_map);
+impl From<ValidationErrors> for DomainError {
+    fn from(value: ValidationErrors) -> Self {
+        let errors_map = value.field_errors().to_owned();
+        DomainError::validation_err(&errors_map)
     }
 }
 
