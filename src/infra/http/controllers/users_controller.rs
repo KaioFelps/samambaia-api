@@ -160,7 +160,7 @@ impl UsersController {
                 user_id: user_id.into_inner(),
             })
             .await?
-            .map(|user| UserPresenter::to_http(user));
+            .map(UserPresenter::to_http);
 
         Ok(HttpResponse::Ok().json(json!({"user": user})))
     }
@@ -178,8 +178,8 @@ impl UsersController {
 
         let fetch_many_users_service = fetch_many_users_service_factory::exec().await?;
 
-        let query: Option<UserQueryType> = if nickname.is_some() {
-            Some(UserQueryType::Nickname(nickname.unwrap()))
+        let query: Option<UserQueryType> = if let Some(nickname) = nickname {
+            Some(UserQueryType::Nickname(nickname))
         } else {
             match role.map(|role| Role::from_str(&role)) {
                 Some(role) => match role {

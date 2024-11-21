@@ -5,8 +5,7 @@ use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 
 pub async fn exec(
-) -> Result<FetchManyCommentsService<SeaArticleCommentRepository, SeaUserRepository>, DomainError>
-{
+) -> Result<FetchManyCommentsService<SeaArticleCommentRepository, SeaUserRepository>, DomainError> {
     let sea_service = SeaService::new()
         .await
         .map_err(|_| DomainError::internal_err())?;

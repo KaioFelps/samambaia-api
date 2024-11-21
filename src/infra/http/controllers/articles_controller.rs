@@ -78,7 +78,7 @@ impl ControllerTrait for ArticlesController {
 
 impl ArticlesController {
     async fn create(body: web::Json<CreateArticleDto>, user: web::ReqData<ReqUser>) -> AppResponse {
-        let _ = body.validate().map_err(|err| err.into_domain_err())?;
+        body.validate().map_err(|err| err.into_domain_err())?;
 
         let body = body.into_inner();
         let auth_user = user.into_inner();
