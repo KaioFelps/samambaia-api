@@ -3,7 +3,7 @@ use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType, FindManyArticlesResponse, MockArticleRepositoryTrait,
 };
-use crate::errors::resource_not_found::ResourceNotFoundError;
+use crate::error::DomainError;
 use std::sync::{Arc, Mutex};
 
 pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleRepositoryTrait) {
@@ -113,7 +113,7 @@ pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleReposit
             }
 
             return match index {
-                None => Err(Box::new(ResourceNotFoundError::new())),
+                None => Err(Box::new(DomainError::resource_not_found_err())),
                 Some(i) => {
                     db_clone.lock().unwrap()[i] = param_article.clone();
                     Ok(param_article)
