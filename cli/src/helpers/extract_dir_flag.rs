@@ -1,29 +1,17 @@
-#[derive(Debug)]
-pub struct ExtractDirDlagError {
-    message: String,
-}
+use crate::error::HubbitosCliError;
 
-impl ExtractDirDlagError {
-    pub fn new() -> Self {
-        Self {
-            message: "'--dir' flag requires to be followed by the new output directory."
-                .to_string(),
-        }
-    }
-
-    pub fn message(&self) -> String {
-        self.message.clone()
-    }
-}
-
-pub fn exec(args: &[String]) -> Result<Option<String>, ExtractDirDlagError> {
-    if args.contains(&"--dir".to_string()) {
+pub fn exec(args: &[String]) -> Result<Option<String>, HubbitosCliError> {
+    if args.contains(&"-o".to_string()) {
         let mut arg_index = None;
+        let output_flag_aliases = ["-o", "--output", "--output-dir", "--dir", "-d"];
 
         for (i, arg) in args.iter().enumerate() {
-            if arg == "--dir" {
+            if output_flag_aliases.contains(&arg.as_str()) {
                 if args.len() < i + 1 {
-                    return Err(ExtractDirDlagError::new());
+                    return Err(HubbitosCliError::ArgumentError(format!(
+                        "'{}' flag requires to be followed by the new output directory.",
+                        arg
+                    )));
                 }
 
                 arg_index = Some(i + 1);
