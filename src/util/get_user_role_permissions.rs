@@ -34,6 +34,10 @@ pub enum RolePermissions {
     CreateFreeBadge,
     UpdateFreeBadge,
     DeleteFreeBadge,
+
+    CreateAnnouncement,
+    UpdateAnnouncement,
+    DeleteAnnouncement,
 }
 
 impl RolePermissions {
@@ -43,6 +47,7 @@ impl RolePermissions {
         let perms_user = vec![];
         let perms_writer = vec![
             CreateArticle,
+            //
             CreateFreeBadge,
             UpdateFreeBadge,
             DeleteFreeBadge,
@@ -61,7 +66,9 @@ impl RolePermissions {
             &perms_coord[..],
             &[
                 UpdateUser,
+                //
                 DeleteComment,
+                //
                 CreateTeamUser,
                 UpdateTeamUser,
                 DeleteTeamUser,
@@ -72,13 +79,20 @@ impl RolePermissions {
             &perms_admin[..],
             &[
                 ChangeUserPassword,
+                //
                 DeleteArticle,
                 DeleteReport,
+                //
                 CreateNewTeamRole,
                 UpdateTeamRole,
+                //
                 ChangeArticleAuthor,
                 CreateArticleTag,
                 UpdateArticleTag,
+                //
+                CreateAnnouncement,
+                UpdateAnnouncement,
+                DeleteAnnouncement,
             ],
         ]
         .concat();
