@@ -11,7 +11,7 @@ use crate::{
 };
 
 pub fn generate_service(args: &[String], current_dir: &Path) -> Result<(), HubbitosCliError> {
-    let service_name = extract_formatted_names(args, "service")?;
+    let service_name = extract_formatted_names(args, "service", false)?;
 
     let output_dir = resolve_dir_path(args, DEFAULT_SERVICES_DIR)?;
     let output_dir_path = current_dir.join(Path::new(&output_dir));

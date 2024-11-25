@@ -11,7 +11,7 @@ use crate::{
 };
 
 pub fn generate_repository(args: &[String], current_dir: &Path) -> Result<(), HubbitosCliError> {
-    let repository_name = extract_formatted_names(args, "repository")?;
+    let repository_name = extract_formatted_names(args, "repository", true)?;
 
     let output_dir = resolve_dir_path(args, DEFAULT_REPOSITORIES_DIR)?;
     let output_dir_path = current_dir.join(Path::new(&output_dir));

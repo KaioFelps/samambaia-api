@@ -9,6 +9,7 @@ pub struct FormattedNames {
 pub fn extract_formatted_names(
     args: &[String],
     artifact: &str,
+    use_plural: bool,
 ) -> Result<FormattedNames, HubbitosCliError> {
     let name_argument = match args.get(3) {
         None => {
@@ -26,8 +27,16 @@ pub fn extract_formatted_names(
     let artifact_snake_cased_name = artifact_name_partials.join("_");
 
     // e.g.: "user", "controller" => "users_controller.rs"
-    let artifact_module_name = format!("{}s_{}", artifact_snake_cased_name, artifact);
-    let artifact_file_name = format!("{}s_{}.rs", artifact_snake_cased_name, artifact);
+    let (artifact_module_name, artifact_file_name) = match use_plural {
+        true => (
+            format!("{}s_{}", artifact_snake_cased_name, artifact),
+            format!("{}s_{}.rs", artifact_snake_cased_name, artifact),
+        ),
+        false => (
+            format!("{}_{}", artifact_snake_cased_name, artifact),
+            format!("{}_{}.rs", artifact_snake_cased_name, artifact),
+        ),
+    };
 
     Ok(FormattedNames {
         capitalized: artifact_capitalized_name,

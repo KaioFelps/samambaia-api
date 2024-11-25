@@ -11,7 +11,7 @@ use crate::{
 };
 
 pub fn generate_controller(args: &[String], current_dir: &Path) -> Result<(), HubbitosCliError> {
-    let controller_name = extract_formatted_names(args, "controller")?;
+    let controller_name = extract_formatted_names(args, "controller", true)?;
 
     let output_dir = resolve_dir_path(args, DEFAULT_CONTROLLERS_DIR)?;
     let output_dir_path = current_dir.join(Path::new(&output_dir));
