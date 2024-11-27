@@ -99,35 +99,28 @@ impl Announcement {
 
     // setters
 
-    pub fn set_id(&mut self, id: Uuid) {
-        self.id = id;
-    }
-
     pub fn set_url(&mut self, url: String) {
         self.url = url;
+        self.touch();
     }
 
     pub fn set_image(&mut self, image: String) {
         self.image = image;
+        self.touch();
     }
 
     pub fn set_external(&mut self, external: bool) {
         self.external = external;
+        self.touch();
     }
 
     pub fn set_description(&mut self, description: String) {
         self.description = description;
+        self.touch();
     }
 
-    pub fn set_created_at(&mut self, created_at: NaiveDateTime) {
-        self.created_at = created_at;
-    }
-
-    pub fn set_updated_at(&mut self, updated_at: Option<NaiveDateTime>) {
-        self.updated_at = updated_at;
-    }
-
-    pub fn set_author_id(&mut self, author_id: Uuid) {
-        self.author_id = author_id;
+    // helpers
+    fn touch(&mut self) {
+        self.updated_at = Some(TimeHelper::now());
     }
 }
