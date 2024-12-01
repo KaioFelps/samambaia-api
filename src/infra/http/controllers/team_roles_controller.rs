@@ -1,10 +1,10 @@
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
-use crate::domain::factories::{
-    create_team_role_service_factory, delete_team_role_service_factory,
-    fetch_many_team_roles_service_factory, update_team_role_service_factory,
-};
+use crate::domain::factories::create_team_role_service_factory;
+use crate::domain::factories::delete_team_role_service_factory;
+use crate::domain::factories::fetch_many_team_roles_service_factory;
+use crate::domain::factories::update_team_role_service_factory;
 use crate::domain::repositories::team_role_repository::TeamRoleQueryType;
 use crate::domain::services::create_team_role_service::CreateTeamRoleParams;
 use crate::domain::services::delete_team_role_service::DeleteTeamRoleParams;
@@ -19,6 +19,7 @@ use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
 use crate::infra::http::presenters::team_role::{MappedTeamRole, TeamRolePresenter};
+use crate::infra::sea::sea_service::SeaService;
 use actix_web::{middleware::from_fn, web, HttpResponse};
 use uuid::Uuid;
 use validator::Validate;
@@ -58,6 +59,7 @@ impl ControllerTrait for TeamRolesController {
 
 impl TeamRolesController {
     async fn create(
+        db_conn: web::Data<SeaService>,
         user: web::ReqData<ReqUser>,
         body: web::Json<CreateTeamRoleDto>,
     ) -> AppResponse {
@@ -66,7 +68,7 @@ impl TeamRolesController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = create_team_role_service_factory::exec().await?;
+        let service = create_team_role_service_factory::exec(&db_conn).await;
 
         let team_role = service
             .exec(CreateTeamRoleParams {
@@ -83,8 +85,11 @@ impl TeamRolesController {
         }))
     }
 
-    async fn list(query: web::Query<ListTeamRoleDto>) -> AppResponse {
-        let service = fetch_many_team_roles_service_factory::exec().await?;
+    async fn list(
+        db_conn: web::Data<SeaService>,
+        query: web::Query<ListTeamRoleDto>,
+    ) -> AppResponse {
+        let service = fetch_many_team_roles_service_factory::exec(&db_conn).await;
 
         let query = query
             .validate()
@@ -122,6 +127,7 @@ impl TeamRolesController {
     }
 
     async fn update(
+        db_conn: web::Data<SeaService>,
         user: web::ReqData<ReqUser>,
         team_role_id: web::Path<Uuid>,
         body: web::Json<UpdateTeamRoleDto>,
@@ -131,7 +137,7 @@ impl TeamRolesController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = update_team_role_service_factory::exec().await?;
+        let service = update_team_role_service_factory::exec(&db_conn).await;
 
         let user = user.into_inner();
 
@@ -151,8 +157,12 @@ impl TeamRolesController {
         }))
     }
 
-    async fn delete(user: web::ReqData<ReqUser>, team_role_id: web::Path<Uuid>) -> AppResponse {
-        let service = delete_team_role_service_factory::exec().await?;
+    async fn delete(
+        db_conn: web::Data<SeaService>,
+        user: web::ReqData<ReqUser>,
+        team_role_id: web::Path<Uuid>,
+    ) -> AppResponse {
+        let service = delete_team_role_service_factory::exec(&db_conn).await;
 
         service
             .exec(DeleteTeamRoleParams {

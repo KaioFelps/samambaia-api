@@ -32,6 +32,7 @@ use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::http::presenters::{
     article::ArticlePresenter, expanded_article::ExpandedArticlePresenter,
 };
+use crate::infra::sea::sea_service::SeaService;
 
 use super::controller::ControllerTrait;
 use super::AppResponse;
@@ -77,13 +78,17 @@ impl ControllerTrait for ArticlesController {
 }
 
 impl ArticlesController {
-    async fn create(body: web::Json<CreateArticleDto>, user: web::ReqData<ReqUser>) -> AppResponse {
+    async fn create(
+        db_conn: web::Data<SeaService>,
+        body: web::Json<CreateArticleDto>,
+        user: web::ReqData<ReqUser>,
+    ) -> AppResponse {
         body.validate().map_err(|err| err.into_domain_err())?;
 
         let body = body.into_inner();
         let auth_user = user.into_inner();
 
-        let service = create_article_service_factory::exec().await?;
+        let service = create_article_service_factory::exec(&db_conn).await;
 
         let CreateArticleDto {
             author_id,
@@ -110,10 +115,12 @@ impl ArticlesController {
     }
 
     async fn get(
+        db_conn: web::Data<SeaService>,
+
         article_slug: web::Path<String>,
         user: Option<web::ReqData<ReqUser>>,
     ) -> AppResponse {
-        let service = get_expanded_article_service_factory::exec().await?;
+        let service = get_expanded_article_service_factory::exec(&db_conn).await;
 
         let (user_id, user_role) = match &user {
             None => (None, None),
@@ -150,13 +157,17 @@ impl ArticlesController {
         })))
     }
 
-    async fn list(query: web::Query<ListArticlesDto>) -> AppResponse {
+    async fn list(
+        db_conn: web::Data<SeaService>,
+        query: web::Query<ListArticlesDto>,
+    ) -> AppResponse {
         let query_body = query
             .validate()
             .map_err(|err| err.into_domain_err())
             .map(|_| query.into_inner())?;
 
         Self::get_list_of_articles(
+            &db_conn,
             query_body.title,
             query_body.author,
             query_body.page,
@@ -166,13 +177,17 @@ impl ArticlesController {
         .await
     }
 
-    async fn admin_list(query: web::Query<AdminListArticlesDto>) -> AppResponse {
+    async fn admin_list(
+        db_conn: web::Data<SeaService>,
+        query: web::Query<AdminListArticlesDto>,
+    ) -> AppResponse {
         let query_body = query
             .validate()
             .map(|_| query.into_inner())
             .map_err(|err| err.into_domain_err())?;
 
         Self::get_list_of_articles(
+            &db_conn,
             query_body.title,
             query_body.author,
             query_body.page,
@@ -183,6 +198,7 @@ impl ArticlesController {
     }
 
     async fn update(
+        db_conn: web::Data<SeaService>,
         user: web::ReqData<ReqUser>,
         body: web::Json<UpdateArticleDto>,
         article_id: web::Path<Uuid>,
@@ -199,7 +215,7 @@ impl ArticlesController {
             .map(|_| body.into_inner())
             .map_err(|err| err.into_domain_err())?;
 
-        let service = update_article_service_factory::exec().await?;
+        let service = update_article_service_factory::exec(&db_conn).await;
 
         let ReqUser {
             user_role, user_id, ..
@@ -224,8 +240,12 @@ impl ArticlesController {
         Ok(HttpResponse::Ok().json(json!({"data": mapped_article})))
     }
 
-    async fn delete(req_user: web::ReqData<ReqUser>, article_id: web::Path<Uuid>) -> AppResponse {
-        let service = delete_article_service_factory::exec().await?;
+    async fn delete(
+        db_conn: web::Data<SeaService>,
+        req_user: web::ReqData<ReqUser>,
+        article_id: web::Path<Uuid>,
+    ) -> AppResponse {
+        let service = delete_article_service_factory::exec(&db_conn).await;
 
         service
             .exec(DeleteArticleParams {
@@ -237,13 +257,14 @@ impl ArticlesController {
     }
 
     async fn get_list_of_articles(
+        db_conn: &SeaService,
         title: Option<String>,
         author: Option<String>,
         page: Option<u32>,
         per_page: Option<u8>,
         approved_state: Option<bool>,
     ) -> AppResponse {
-        let service = fetch_many_articles_service_factory::exec().await?;
+        let service = fetch_many_articles_service_factory::exec(db_conn).await;
 
         let query = {
             if let Some(title) = title {
