@@ -18,19 +18,19 @@ use crate::infra::sea::sea_service::SeaService;
 use entities::team_role::Column as TeamRoleColumn;
 use entities::team_role::Entity as TeamRoleEntity;
 
-pub struct SeaTeamRoleRepository {
-    sea_service: SeaService,
+pub struct SeaTeamRoleRepository<'a> {
+    sea_service: &'a SeaService,
 }
 
-impl SeaTeamRoleRepository {
+impl<'a> SeaTeamRoleRepository<'a> {
     // constructor
-    pub async fn new(sea_service: SeaService) -> Self {
+    pub async fn new(sea_service: &'a SeaService) -> Self {
         SeaTeamRoleRepository { sea_service }
     }
 }
 
 #[async_trait]
-impl TeamRoleRepositoryTrait for SeaTeamRoleRepository {
+impl TeamRoleRepositoryTrait for SeaTeamRoleRepository<'_> {
     async fn create(&self, team_role: TeamRole) -> Result<TeamRole, Box<dyn Error>> {
         let team_role = SeaTeamRoleMapper::team_role_to_sea_active_model(team_role);
         let team_role = team_role.insert(&self.sea_service.db).await?;
@@ -106,7 +106,7 @@ impl TeamRoleRepositoryTrait for SeaTeamRoleRepository {
     }
 }
 
-impl SeaTeamRoleRepository {
+impl SeaTeamRoleRepository<'_> {
     fn find_many_get_filters(
         &self,
         #[allow(unused_mut)] mut query_builder: sea_orm::Select<TeamRoleEntity>,

@@ -23,12 +23,12 @@ use entities::comment::Entity as CommentEntity;
 
 use entities::article::Entity as ArticleEntity;
 
-pub struct SeaArticleCommentRepository {
-    sea_service: SeaService,
+pub struct SeaArticleCommentRepository<'a> {
+    sea_service: &'a SeaService,
 }
 
-impl SeaArticleCommentRepository {
-    pub async fn new(service: SeaService) -> Self {
+impl<'a> SeaArticleCommentRepository<'a> {
+    pub async fn new(service: &'a SeaService) -> Self {
         SeaArticleCommentRepository {
             sea_service: service,
         }
@@ -36,7 +36,7 @@ impl SeaArticleCommentRepository {
 }
 
 #[async_trait]
-impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository {
+impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository<'_> {
     async fn find_many_comments(
         &self,
         article_id: Option<Uuid>,
@@ -155,7 +155,7 @@ impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository {
     }
 }
 
-impl SeaArticleCommentRepository {
+impl SeaArticleCommentRepository<'_> {
     fn delete_all_articles_comments<'lf, C: ConnectionTrait>(
         &self,
         conn: &'lf C,

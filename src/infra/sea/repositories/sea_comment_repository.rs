@@ -12,13 +12,13 @@ use crate::infra::sea::sea_service::SeaService;
 
 use entities::comment::Entity as CommentEntity;
 
-pub struct SeaCommentRepository {
-    sea_service: SeaService,
+pub struct SeaCommentRepository<'a> {
+    sea_service: &'a SeaService,
 }
 
-impl SeaCommentRepository {
+impl<'a> SeaCommentRepository<'a> {
     // constructor
-    pub async fn new(service: SeaService) -> Self {
+    pub async fn new(service: &'a SeaService) -> Self {
         SeaCommentRepository {
             sea_service: service,
         }
@@ -26,7 +26,7 @@ impl SeaCommentRepository {
 }
 
 #[async_trait]
-impl CommentRepositoryTrait for SeaCommentRepository {
+impl CommentRepositoryTrait for SeaCommentRepository<'_> {
     async fn create(&self, comment: Comment) -> Result<Comment, Box<dyn Error>> {
         let active_comment = SeaCommentMapper::comment_to_sea_active_model(comment);
         let model_comment = active_comment.insert(&self.sea_service.db).await?;

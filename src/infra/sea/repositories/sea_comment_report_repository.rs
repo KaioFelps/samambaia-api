@@ -17,13 +17,13 @@ use crate::infra::sea::sea_service::SeaService;
 use entities::comment_report::Column as CommentReportColumn;
 use entities::comment_report::Entity as CommentReportEntity;
 
-pub struct SeaCommentReportRepository {
-    sea_service: SeaService,
+pub struct SeaCommentReportRepository<'a> {
+    sea_service: &'a SeaService,
 }
 
-impl SeaCommentReportRepository {
+impl<'a> SeaCommentReportRepository<'a> {
     // constructor
-    pub async fn new(service: SeaService) -> Self {
+    pub async fn new(service: &'a SeaService) -> Self {
         SeaCommentReportRepository {
             sea_service: service,
         }
@@ -31,7 +31,7 @@ impl SeaCommentReportRepository {
 }
 
 #[async_trait]
-impl CommentReportRepositoryTrait for SeaCommentReportRepository {
+impl CommentReportRepositoryTrait for SeaCommentReportRepository<'_> {
     async fn create(
         &self,
         comment_report: DraftCommentReport,
@@ -137,7 +137,7 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository {
     }
 }
 
-impl SeaCommentReportRepository {
+impl SeaCommentReportRepository<'_> {
     fn find_many_get_filters(
         &self,
         query_builder: sea_orm::Select<CommentReportEntity>,

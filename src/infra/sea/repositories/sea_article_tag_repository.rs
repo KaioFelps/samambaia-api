@@ -18,13 +18,13 @@ use crate::domain::repositories::article_tag_repository::{
 use entities::article_tag::Column as ArticleTagColumn;
 use entities::article_tag::Entity as ArticleTagEntity;
 
-pub struct SeaArticleTagRepository {
-    sea_service: SeaService,
+pub struct SeaArticleTagRepository<'a> {
+    sea_service: &'a SeaService,
 }
 
-impl SeaArticleTagRepository {
+impl<'a> SeaArticleTagRepository<'a> {
     // constructor
-    pub async fn new(service: SeaService) -> Self {
+    pub async fn new(service: &'a SeaService) -> Self {
         SeaArticleTagRepository {
             sea_service: service,
         }
@@ -32,7 +32,7 @@ impl SeaArticleTagRepository {
 }
 
 #[async_trait]
-impl ArticleTagRepositoryTrait for SeaArticleTagRepository {
+impl ArticleTagRepositoryTrait for SeaArticleTagRepository<'_> {
     async fn create(&self, article_tag: DraftArticleTag) -> Result<ArticleTag, Box<dyn Error>> {
         let new_article_tag =
             SeaArticleTagMapper::draft_article_tag_to_sea_active_model(article_tag);
