@@ -12,6 +12,7 @@ use crate::error::DomainError;
 use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::login::LoginDto;
 use crate::infra::jwt::jwt_service::{DecodedToken, JwtService, MakeJwtResult};
+use crate::infra::sea::sea_service::SeaService;
 use crate::ENV_VARS;
 
 use super::controller::ControllerTrait;
@@ -31,13 +32,13 @@ impl ControllerTrait for SessionsController {
 }
 
 impl SessionsController {
-    async fn login(body: web::Json<LoginDto>) -> AppResponse {
+    async fn login(db_conn: web::Data<SeaService>, body: web::Json<LoginDto>) -> AppResponse {
         let LoginDto { nickname, password } = body
             .validate()
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let authenticate_service = authenticate_user_service_factory::exec().await?;
+        let authenticate_service = authenticate_user_service_factory::exec(&db_conn).await;
 
         let MakeJwtResult {
             access_token,

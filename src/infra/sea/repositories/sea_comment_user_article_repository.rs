@@ -21,13 +21,13 @@ use entities::comment::Entity as CommentEntity;
 
 use entities::user::Entity as UserEntity;
 
-pub struct SeaCommentUserArticleRepository {
-    sea_service: SeaService,
+pub struct SeaCommentUserArticleRepository<'a> {
+    sea_service: &'a SeaService,
 }
 
-impl SeaCommentUserArticleRepository {
+impl<'a> SeaCommentUserArticleRepository<'a> {
     // constructor
-    pub async fn new(service: SeaService) -> Self {
+    pub async fn new(service: &'a SeaService) -> Self {
         SeaCommentUserArticleRepository {
             sea_service: service,
         }
@@ -35,7 +35,7 @@ impl SeaCommentUserArticleRepository {
 }
 
 #[async_trait]
-impl CommentUserArticleRepositoryTrait for SeaCommentUserArticleRepository {
+impl CommentUserArticleRepositoryTrait for SeaCommentUserArticleRepository<'_> {
     async fn find_many_comments(
         &self,
         article_id: Uuid,
@@ -93,7 +93,7 @@ impl CommentUserArticleRepositoryTrait for SeaCommentUserArticleRepository {
     }
 }
 
-impl SeaCommentUserArticleRepository {
+impl SeaCommentUserArticleRepository<'_> {
     fn find_many_get_filters(
         &self,
         query_builder: sea_orm::Select<CommentEntity>,

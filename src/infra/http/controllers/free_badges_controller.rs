@@ -1,10 +1,10 @@
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
-use crate::domain::factories::{
-    create_free_badge_service_factory, delete_free_badge_service_factory,
-    fetch_many_free_badges_service_factory, update_free_badge_service_factory,
-};
+use crate::domain::factories::create_free_badge_service_factory;
+use crate::domain::factories::delete_free_badge_service_factory;
+use crate::domain::factories::fetch_many_free_badges_service_factory;
+use crate::domain::factories::update_free_badge_service_factory;
 use crate::domain::services::create_free_badge_service::CreateFreeBadgeParams;
 use crate::domain::services::delete_free_badge_service::DeleteFreeBadgeParams;
 use crate::domain::services::fetch_many_free_badges_service::FetchManyFreeBadgesParams;
@@ -18,6 +18,7 @@ use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::free_badge::{FreeBadgePresenter, MappedFreeBadge};
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
+use crate::infra::sea::sea_service::SeaService;
 use actix_web::{middleware::from_fn, web, HttpResponse};
 use uuid::Uuid;
 use validator::Validate;
@@ -57,6 +58,7 @@ impl ControllerTrait for FreeBadgesController {
 
 impl FreeBadgesController {
     async fn create(
+        db_conn: web::Data<SeaService>,
         user: web::ReqData<ReqUser>,
         body: web::Json<CreateFreeBadgeDto>,
     ) -> AppResponse {
@@ -65,7 +67,7 @@ impl FreeBadgesController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = create_free_badge_service_factory::exec().await?;
+        let service = create_free_badge_service_factory::exec(&db_conn).await;
 
         let free_badge = service
             .exec(CreateFreeBadgeParams {
@@ -83,8 +85,11 @@ impl FreeBadgesController {
         }))
     }
 
-    async fn list(query: web::Query<SimplePaginationQueryDto>) -> AppResponse {
-        let service = fetch_many_free_badges_service_factory::exec().await?;
+    async fn list(
+        db_conn: web::Data<SeaService>,
+        query: web::Query<SimplePaginationQueryDto>,
+    ) -> AppResponse {
+        let service = fetch_many_free_badges_service_factory::exec(&db_conn).await;
 
         let free_badges = service
             .exec(FetchManyFreeBadgesParams {
@@ -117,6 +122,7 @@ impl FreeBadgesController {
     }
 
     async fn update(
+        db_conn: web::Data<SeaService>,
         user: web::ReqData<ReqUser>,
         body: web::Json<UpdateFreeBadgeDto>,
         free_badge_id: web::Path<Uuid>,
@@ -126,7 +132,7 @@ impl FreeBadgesController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = update_free_badge_service_factory::exec().await?;
+        let service = update_free_badge_service_factory::exec(&db_conn).await;
 
         let free_badge = service
             .exec(UpdateFreeBadgeParams {
@@ -147,8 +153,12 @@ impl FreeBadgesController {
         }))
     }
 
-    async fn delete(user: web::ReqData<ReqUser>, free_badge_id: web::Path<Uuid>) -> AppResponse {
-        let service = delete_free_badge_service_factory::exec().await?;
+    async fn delete(
+        db_conn: web::Data<SeaService>,
+        user: web::ReqData<ReqUser>,
+        free_badge_id: web::Path<Uuid>,
+    ) -> AppResponse {
+        let service = delete_free_badge_service_factory::exec(&db_conn).await;
 
         service
             .exec(DeleteFreeBadgeParams {

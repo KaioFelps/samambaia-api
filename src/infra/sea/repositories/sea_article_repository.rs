@@ -17,21 +17,19 @@ use crate::infra::sea::sea_service::SeaService;
 use entities::article::Column as ArticleColumn;
 use entities::article::Entity as ArticleEntity;
 
-pub struct SeaArticleRepository {
-    sea_service: SeaService,
+pub struct SeaArticleRepository<'a> {
+    sea_service: &'a SeaService,
 }
 
-impl SeaArticleRepository {
+impl SeaArticleRepository<'_> {
     // constructor
-    pub async fn new(service: SeaService) -> Self {
-        SeaArticleRepository {
-            sea_service: service,
-        }
+    pub async fn new(sea_service: &SeaService) -> SeaArticleRepository<'_> {
+        SeaArticleRepository { sea_service }
     }
 }
 
 #[async_trait]
-impl ArticleRepositoryTrait for SeaArticleRepository {
+impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
     async fn create(&self, article: Article) -> Result<Article, Box<dyn Error>> {
         let new_article = SeaArticleMapper::article_to_sea_active_model(article);
 
@@ -154,7 +152,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository {
     }
 }
 
-impl SeaArticleRepository {
+impl SeaArticleRepository<'_> {
     fn find_many_get_filters(
         &self,
         #[allow(unused_mut)] mut query_builder: sea_orm::Select<ArticleEntity>,

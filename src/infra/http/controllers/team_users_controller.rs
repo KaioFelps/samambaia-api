@@ -1,10 +1,10 @@
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
-use crate::domain::factories::{
-    create_team_user_service_factory, delete_team_user_service_factory,
-    fetch_many_team_users_service_factory, update_team_user_service_factory,
-};
+use crate::domain::factories::create_team_user_service_factory;
+use crate::domain::factories::delete_team_user_service_factory;
+use crate::domain::factories::fetch_many_team_users_service_factory;
+use crate::domain::factories::update_team_user_service_factory;
 use crate::domain::repositories::team_user_repository::TeamUserQueryType;
 use crate::domain::services::create_team_user_service::CreateTeamUserParams;
 use crate::domain::services::delete_team_user_service::DeleteTeamUserParams;
@@ -19,6 +19,7 @@ use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
 use crate::infra::http::presenters::team_user::{MappedTeamUser, TeamUserPresenter};
+use crate::infra::sea::sea_service::SeaService;
 use actix_web::{middleware::from_fn, web, HttpResponse};
 use uuid::Uuid;
 use validator::Validate;
@@ -58,6 +59,7 @@ impl ControllerTrait for TeamUsersController {
 
 impl TeamUsersController {
     async fn create(
+        db_conn: web::Data<SeaService>,
         body: web::Json<CreateTeamUserDto>,
         user: web::ReqData<ReqUser>,
     ) -> AppResponse {
@@ -66,7 +68,7 @@ impl TeamUsersController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = create_team_user_service_factory::exec().await?;
+        let service = create_team_user_service_factory::exec(&db_conn).await;
 
         let team_user = service
             .exec(CreateTeamUserParams {
@@ -86,8 +88,11 @@ impl TeamUsersController {
         }))
     }
 
-    async fn list(query: web::Query<ListTeamUsersDto>) -> AppResponse {
-        let service = fetch_many_team_users_service_factory::exec().await?;
+    async fn list(
+        db_conn: web::Data<SeaService>,
+        query: web::Query<ListTeamUsersDto>,
+    ) -> AppResponse {
+        let service = fetch_many_team_users_service_factory::exec(&db_conn).await;
 
         let ListTeamUsersDto {
             page,
@@ -132,6 +137,7 @@ impl TeamUsersController {
     }
 
     async fn update(
+        db_conn: web::Data<SeaService>,
         body: web::Json<UpdateTeamUserDto>,
         user: web::ReqData<ReqUser>,
         team_user_id: web::Path<Uuid>,
@@ -141,7 +147,7 @@ impl TeamUsersController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = update_team_user_service_factory::exec().await?;
+        let service = update_team_user_service_factory::exec(&db_conn).await;
 
         let team_user = service
             .exec(UpdateTeamUserParams {
@@ -162,8 +168,12 @@ impl TeamUsersController {
         }))
     }
 
-    async fn delete(user: web::ReqData<ReqUser>, team_user_id: web::Path<Uuid>) -> AppResponse {
-        let service = delete_team_user_service_factory::exec().await?;
+    async fn delete(
+        db_conn: web::Data<SeaService>,
+        user: web::ReqData<ReqUser>,
+        team_user_id: web::Path<Uuid>,
+    ) -> AppResponse {
+        let service = delete_team_user_service_factory::exec(&db_conn).await;
 
         service
             .exec(DeleteTeamUserParams {

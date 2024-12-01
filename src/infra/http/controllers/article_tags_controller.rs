@@ -18,6 +18,7 @@ use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::article_tag::{ArticleTagPresenter, MappedArticleTag};
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
+use crate::infra::sea::sea_service::SeaService;
 use actix_web::{middleware::from_fn, web, HttpResponse};
 use validator::Validate;
 
@@ -56,6 +57,7 @@ impl ControllerTrait for ArticleTagsController {
 
 impl ArticleTagsController {
     async fn create(
+        db_conn: web::Data<SeaService>,
         body: web::Json<CreateArticleTagDto>,
         user: web::ReqData<ReqUser>,
     ) -> AppResponse {
@@ -64,7 +66,7 @@ impl ArticleTagsController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = create_article_tag_service_factory::exec().await?;
+        let service = create_article_tag_service_factory::exec(&db_conn).await;
 
         let article_tag = service
             .exec(CreateArticleTagParams {
@@ -80,7 +82,10 @@ impl ArticleTagsController {
         }))
     }
 
-    async fn list(query: web::Query<ListArticleTagsDto>) -> AppResponse {
+    async fn list(
+        db_conn: web::Data<SeaService>,
+        query: web::Query<ListArticleTagsDto>,
+    ) -> AppResponse {
         let ListArticleTagsDto {
             page,
             per_page,
@@ -90,7 +95,7 @@ impl ArticleTagsController {
             .map(|_| query.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = fetch_many_article_tags_service_factory::exec().await?;
+        let service = fetch_many_article_tags_service_factory::exec(&db_conn).await;
 
         let service_response = service
             .exec(FetchManyArticleTagsParams {
@@ -120,6 +125,7 @@ impl ArticleTagsController {
     }
 
     async fn update(
+        db_conn: web::Data<SeaService>,
         body: web::Json<UpdateArticleTagDto>,
         user: web::ReqData<ReqUser>,
         tag_id: web::Path<i32>,
@@ -129,7 +135,7 @@ impl ArticleTagsController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = update_article_tag_service_factory::exec().await?;
+        let service = update_article_tag_service_factory::exec(&db_conn).await;
 
         let article_tag = service
             .exec(UpdateArticleTagParams {
@@ -146,8 +152,12 @@ impl ArticleTagsController {
         }))
     }
 
-    async fn delete(user: web::ReqData<ReqUser>, tag_id: web::Path<i32>) -> AppResponse {
-        let service = delete_article_tag_service_factory::exec().await?;
+    async fn delete(
+        db_conn: web::Data<SeaService>,
+        user: web::ReqData<ReqUser>,
+        tag_id: web::Path<i32>,
+    ) -> AppResponse {
+        let service = delete_article_tag_service_factory::exec(&db_conn).await;
 
         service
             .exec(DeleteArticleTagParams {

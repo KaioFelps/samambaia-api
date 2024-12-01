@@ -12,13 +12,13 @@ use sea_orm::{ActiveModelTrait, EntityTrait, PaginatorTrait, QueryOrder, QuerySe
 use std::error::Error;
 use uuid::Uuid;
 
-pub struct SeaFreeBadgeRepository {
-    sea_service: SeaService,
+pub struct SeaFreeBadgeRepository<'a> {
+    sea_service: &'a SeaService,
 }
 
-impl SeaFreeBadgeRepository {
+impl<'a> SeaFreeBadgeRepository<'a> {
     // constructor
-    pub async fn new(service: SeaService) -> Self {
+    pub async fn new(service: &'a SeaService) -> Self {
         SeaFreeBadgeRepository {
             sea_service: service,
         }
@@ -26,7 +26,7 @@ impl SeaFreeBadgeRepository {
 }
 
 #[async_trait]
-impl FreeBadgeRepositoryTrait for SeaFreeBadgeRepository {
+impl FreeBadgeRepositoryTrait for SeaFreeBadgeRepository<'_> {
     async fn create(&self, free_badge: FreeBadge) -> Result<FreeBadge, Box<dyn Error>> {
         let free_badge = SeaFreeBadgeMapper::free_badge_to_sea_active_model(free_badge);
         let free_badge = free_badge.insert(&self.sea_service.db).await?;

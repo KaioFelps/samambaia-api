@@ -6,10 +6,11 @@ use validator::Validate;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::role::Role;
-use crate::domain::factories::{
-    change_password_service_factory, create_user_service_factory, fetch_many_users_service_factory,
-    get_user_service_factory, update_user_service_factory,
-};
+use crate::domain::factories::change_password_service_factory;
+use crate::domain::factories::create_user_service_factory;
+use crate::domain::factories::fetch_many_users_service_factory;
+use crate::domain::factories::get_user_service_factory;
+use crate::domain::factories::update_user_service_factory;
 use crate::domain::repositories::user_repository::UserQueryType;
 use crate::domain::services::change_password_service::ChangePasswordParams;
 use crate::domain::services::create_user_service::CreateUserParams;
@@ -26,6 +27,7 @@ use crate::infra::http::middlewares::AuthenticationMiddleware;
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::http::presenters::user::{MappedUser, UserPresenter};
+use crate::infra::sea::sea_service::SeaService;
 
 use super::controller::ControllerTrait;
 use super::AppResponse;
@@ -65,12 +67,12 @@ impl ControllerTrait for UsersController {
 }
 
 impl UsersController {
-    async fn create(body: web::Json<CreateUserDto>) -> AppResponse {
+    async fn create(db_conn: web::Data<SeaService>, body: web::Json<CreateUserDto>) -> AppResponse {
         let CreateUserDto { nickname, password } = body
             .validate()
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
-        let create_user_service = create_user_service_factory::exec().await?;
+        let create_user_service = create_user_service_factory::exec(&db_conn).await;
 
         let user = create_user_service
             .exec(CreateUserParams { nickname, password })
@@ -82,6 +84,7 @@ impl UsersController {
     }
 
     async fn update(
+        db_conn: web::Data<SeaService>,
         body: web::Json<UpdateUserDto>,
         user_id: web::Path<Uuid>,
         user: web::ReqData<ReqUser>,
@@ -95,7 +98,7 @@ impl UsersController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let update_user_service = update_user_service_factory::exec().await?;
+        let update_user_service = update_user_service_factory::exec(&db_conn).await;
 
         let role = match role.map(|role| Role::from_str(&role)) {
             Some(role) => match role {
@@ -128,6 +131,7 @@ impl UsersController {
     }
 
     async fn edit_password(
+        db_conn: web::Data<SeaService>,
         body: web::Json<ChangePasswordDto>,
         user: web::ReqData<ReqUser>,
     ) -> AppResponse {
@@ -139,7 +143,7 @@ impl UsersController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let change_password_service = change_password_service_factory::exec().await?;
+        let change_password_service = change_password_service_factory::exec(&db_conn).await;
 
         change_password_service
             .exec(ChangePasswordParams {
@@ -152,8 +156,8 @@ impl UsersController {
         Ok(HttpResponse::Ok().finish())
     }
 
-    async fn get(user_id: web::Path<Uuid>) -> AppResponse {
-        let get_user_service = get_user_service_factory::exec().await?;
+    async fn get(db_conn: web::Data<SeaService>, user_id: web::Path<Uuid>) -> AppResponse {
+        let get_user_service = get_user_service_factory::exec(&db_conn).await;
 
         let user = get_user_service
             .exec(GetUserServiceParams {
@@ -165,7 +169,7 @@ impl UsersController {
         Ok(HttpResponse::Ok().json(json!({"user": user})))
     }
 
-    async fn list(query: web::Query<ListUsersDto>) -> AppResponse {
+    async fn list(db_conn: web::Data<SeaService>, query: web::Query<ListUsersDto>) -> AppResponse {
         let ListUsersDto {
             nickname,
             page,
@@ -176,7 +180,7 @@ impl UsersController {
             .map(|_| query.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let fetch_many_users_service = fetch_many_users_service_factory::exec().await?;
+        let fetch_many_users_service = fetch_many_users_service_factory::exec(&db_conn).await;
 
         let query: Option<UserQueryType> = if let Some(nickname) = nickname {
             Some(UserQueryType::Nickname(nickname))

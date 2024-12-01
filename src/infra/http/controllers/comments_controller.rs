@@ -1,12 +1,11 @@
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
+use crate::domain::factories::comment_on_article_service_factory;
+use crate::domain::factories::delete_comment_service_factory;
 use crate::domain::factories::fetch_many_comments_service_factory;
+use crate::domain::factories::fetch_many_comments_with_author_service_factory;
 use crate::domain::factories::toggle_comment_visibility_service_factory;
-use crate::domain::factories::{
-    comment_on_article_service_factory, delete_comment_service_factory,
-    fetch_many_comments_with_author_service_factory,
-};
 use crate::domain::services::comment_on_article_service::CommentOnArticleParams;
 use crate::domain::services::delete_comment_service::DeleteCommentParams;
 use crate::domain::services::fetch_many_comments_service::{
@@ -22,6 +21,7 @@ use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::comment::{CommentPresenter, MappedComment, MappedRawComment};
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
+use crate::infra::sea::sea_service::SeaService;
 use actix_web::{middleware::from_fn, web, HttpResponse};
 use serde_json::json;
 use uuid::Uuid;
@@ -68,11 +68,12 @@ impl ControllerTrait for CommentsController {
 
 impl CommentsController {
     async fn create(
+        db_conn: web::Data<SeaService>,
         article_id: web::Path<Uuid>,
         user: web::ReqData<ReqUser>,
         body: web::Json<CommentOnArticleDto>,
     ) -> AppResponse {
-        let service = comment_on_article_service_factory::exec().await?;
+        let service = comment_on_article_service_factory::exec(&db_conn).await;
 
         let _comment = service
             .exec(CommentOnArticleParams {
@@ -86,10 +87,11 @@ impl CommentsController {
     }
 
     async fn list(
+        db_conn: web::Data<SeaService>,
         article_id: web::Path<Uuid>,
         query: web::Query<SimplePaginationQueryDto>,
     ) -> AppResponse {
-        let service = fetch_many_comments_with_author_service_factory::exec().await?;
+        let service = fetch_many_comments_with_author_service_factory::exec(&db_conn).await;
 
         let SimplePaginationQueryDto { per_page, page } = query.into_inner();
 
@@ -115,8 +117,11 @@ impl CommentsController {
                 })))
     }
 
-    async fn admin_list(query: web::Query<ListCommentsDto>) -> AppResponse {
-        let service = fetch_many_comments_service_factory::exec().await?;
+    async fn admin_list(
+        db_conn: web::Data<SeaService>,
+        query: web::Query<ListCommentsDto>,
+    ) -> AppResponse {
+        let service = fetch_many_comments_service_factory::exec(&db_conn).await;
 
         let ListCommentsDto {
             page,
@@ -160,10 +165,11 @@ impl CommentsController {
     }
 
     async fn disable_visibility(
+        db_conn: web::Data<SeaService>,
         user: web::ReqData<ReqUser>,
         comment_id: web::Path<Uuid>,
     ) -> AppResponse {
-        let service = toggle_comment_visibility_service_factory::exec().await?;
+        let service = toggle_comment_visibility_service_factory::exec(&db_conn).await;
 
         let user_role = &user.user_role;
 
@@ -176,8 +182,12 @@ impl CommentsController {
         Ok(HttpResponse::NoContent().finish())
     }
 
-    async fn delete(comment_id: web::Path<Uuid>, user: web::ReqData<ReqUser>) -> AppResponse {
-        let service = delete_comment_service_factory::exec().await?;
+    async fn delete(
+        db_conn: web::Data<SeaService>,
+        comment_id: web::Path<Uuid>,
+        user: web::ReqData<ReqUser>,
+    ) -> AppResponse {
+        let service = delete_comment_service_factory::exec(&db_conn).await;
 
         let ReqUser {
             user_role,

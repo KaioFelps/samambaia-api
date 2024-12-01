@@ -1,36 +1,24 @@
 use crate::domain::services::get_expanded_article_service::GetExpandedArticleService;
-use crate::error::DomainError;
 use crate::infra::sea::repositories::sea_article_repository::SeaArticleRepository;
 use crate::infra::sea::repositories::sea_comment_user_article_repository::SeaCommentUserArticleRepository;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 
-pub async fn exec() -> Result<
-    GetExpandedArticleService<
-        SeaUserRepository,
-        SeaArticleRepository,
-        SeaCommentUserArticleRepository,
-    >,
-    DomainError,
+pub async fn exec(
+    db_conn: &SeaService,
+) -> GetExpandedArticleService<
+    SeaUserRepository,
+    SeaArticleRepository,
+    SeaCommentUserArticleRepository,
 > {
-    let sea_service = SeaService::new()
-        .await
-        .map_err(|_| DomainError::internal_err())?;
+    let user_repository = Box::new(SeaUserRepository::new(db_conn).await);
+    let article_repository = Box::new(SeaArticleRepository::new(db_conn).await);
+    let comment_user_article_repository =
+        Box::new(SeaCommentUserArticleRepository::new(db_conn).await);
 
-    let user_repository: Box<SeaUserRepository> =
-        Box::new(SeaUserRepository::new(sea_service.clone()).await);
-
-    let article_repository: Box<SeaArticleRepository> =
-        Box::new(SeaArticleRepository::new(sea_service.clone()).await);
-
-    let comment_user_article_repository: Box<SeaCommentUserArticleRepository> =
-        Box::new(SeaCommentUserArticleRepository::new(sea_service).await);
-
-    let get_expanded_article_service = GetExpandedArticleService::new(
+    GetExpandedArticleService::new(
         user_repository,
         article_repository,
         comment_user_article_repository,
-    );
-
-    Ok(get_expanded_article_service)
+    )
 }

@@ -1,31 +1,12 @@
-use actix_web::{
-    dev::{ServiceFactory, ServiceRequest, ServiceResponse},
-    middleware, web, App, HttpResponse,
-};
+use crate::infra::http::routes::{api::ApiRoutes, route::RouteTrait};
+use crate::infra::sea::sea_service::SeaService;
+use actix_web::dev::{ServiceFactory, ServiceRequest, ServiceResponse};
+use actix_web::{middleware, web, App, HttpResponse};
 use serde_json::json;
-
-use crate::infra::http::routes::api::ApiRoutes;
-use crate::infra::http::routes::route::RouteTrait;
 
 pub struct ServerFactory;
 
 impl ServerFactory {
-    pub fn exec_and_overwrite_db_url(
-        db: String,
-    ) -> App<
-        impl ServiceFactory<
-            ServiceRequest,
-            Config = (),
-            Response = ServiceResponse,
-            Error = actix_web::Error,
-            InitError = (),
-        >,
-    > {
-        std::env::set_var("DATABASE_URL", db);
-
-        Self::exec()
-    }
-
     pub fn exec() -> App<
         impl ServiceFactory<
             ServiceRequest,
@@ -50,5 +31,19 @@ impl ServerFactory {
                 )
                 .into()
             }))
+    }
+
+    pub fn exec_with_sea(
+        sea_service: web::Data<SeaService>,
+    ) -> App<
+        impl ServiceFactory<
+            ServiceRequest,
+            Config = (),
+            Response = ServiceResponse,
+            Error = actix_web::Error,
+            InitError = (),
+        >,
+    > {
+        Self::exec().app_data(sea_service)
     }
 }
