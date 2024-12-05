@@ -13,4 +13,5 @@ pub trait AnnouncementRepositoryTrait {
     async fn create(&self, announcement: Announcement) -> Result<Announcement, Box<dyn Error>>;
     async fn save(&self, announcement: Announcement) -> Result<Announcement, Box<dyn Error>>;
     async fn find_by_id(&self, id: &Uuid) -> Result<Option<Announcement>, Box<dyn Error>>;
+    async fn delete(&self, id: &Uuid) -> Result<(), Box<dyn Error>>;
 }

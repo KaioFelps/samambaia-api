@@ -45,5 +45,19 @@ pub fn get_announcements_repository() -> (
         Ok(announcement)
     });
 
+    let db_clone = Arc::clone(&db);
+    repository
+        .expect_delete()
+        .returning(move |announcement_id| {
+            let mut db = db_clone.lock().unwrap();
+            *db = db
+                .clone()
+                .into_iter()
+                .filter(|db_announcement| db_announcement.id().ne(announcement_id))
+                .collect();
+
+            Ok(())
+        });
+
     (db, repository)
 }
