@@ -1,5 +1,6 @@
+use std::sync::LazyLock;
+
 use env_config::EnvConfig;
-use once_cell::sync::Lazy;
 
 pub mod core;
 pub mod domain;
@@ -11,7 +12,7 @@ pub mod server;
 mod tests;
 pub mod util;
 
-pub static ENV_VARS: Lazy<EnvConfig> = Lazy::new(EnvConfig::from_env);
+pub static ENV_VARS: LazyLock<EnvConfig> = LazyLock::new(EnvConfig::from_env);
 
 #[cfg(target_os = "windows")]
 const R_EOL: &str = "\r\n";
