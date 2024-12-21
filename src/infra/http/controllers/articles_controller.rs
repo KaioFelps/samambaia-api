@@ -5,7 +5,7 @@ use validator::Validate;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::slug::Slug;
-use crate::domain::factories::{
+use crate::domain::factories::journalism::articles::{
     create_article_service_factory, delete_article_service_factory,
     fetch_many_articles_service_factory, get_expanded_article_service_factory,
     update_article_service_factory,

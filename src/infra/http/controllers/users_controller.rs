@@ -6,11 +6,10 @@ use validator::Validate;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::role::Role;
-use crate::domain::factories::change_password_service_factory;
-use crate::domain::factories::create_user_service_factory;
-use crate::domain::factories::fetch_many_users_service_factory;
-use crate::domain::factories::get_user_service_factory;
-use crate::domain::factories::update_user_service_factory;
+use crate::domain::factories::identity::{
+    change_password_service_factory, create_user_service_factory, fetch_many_users_service_factory,
+    get_user_service_factory, update_user_service_factory,
+};
 use crate::domain::repositories::user_repository::UserQueryType;
 use crate::domain::services::identity::{
     change_password_service::ChangePasswordParams, create_user_service::CreateUserParams,

@@ -1,10 +1,10 @@
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
-use crate::domain::factories::create_team_role_service_factory;
-use crate::domain::factories::delete_team_role_service_factory;
-use crate::domain::factories::fetch_many_team_roles_service_factory;
-use crate::domain::factories::update_team_role_service_factory;
+use crate::domain::factories::teams::{
+    create_team_role_service_factory, delete_team_role_service_factory,
+    fetch_many_team_roles_service_factory, update_team_role_service_factory,
+};
 use crate::domain::repositories::team_role_repository::TeamRoleQueryType;
 use crate::domain::services::teams::{
     create_team_role_service::CreateTeamRoleParams, delete_team_role_service::DeleteTeamRoleParams,

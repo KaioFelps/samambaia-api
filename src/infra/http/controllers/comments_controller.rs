@@ -1,11 +1,11 @@
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
-use crate::domain::factories::comment_on_article_service_factory;
-use crate::domain::factories::delete_comment_service_factory;
-use crate::domain::factories::fetch_many_comments_service_factory;
-use crate::domain::factories::fetch_many_comments_with_author_service_factory;
-use crate::domain::factories::toggle_comment_visibility_service_factory;
+use crate::domain::factories::journalism::comments::{
+    comment_on_article_service_factory, delete_comment_service_factory,
+    fetch_many_comments_service_factory, fetch_many_comments_with_author_service_factory,
+};
+use crate::domain::factories::security::toggle_comment_visibility_service_factory;
 use crate::domain::services::journalism::comments::{
     comment_on_article_service::CommentOnArticleParams,
     delete_comment_service::DeleteCommentParams,

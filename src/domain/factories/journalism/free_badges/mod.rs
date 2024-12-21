@@ -1,0 +1,4 @@
+pub mod create_free_badge_service_factory;
+pub mod delete_free_badge_service_factory;
+pub mod fetch_many_free_badges_service_factory;
+pub mod update_free_badge_service_factory;

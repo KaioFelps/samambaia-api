@@ -1,10 +1,10 @@
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
-use crate::domain::factories::create_free_badge_service_factory;
-use crate::domain::factories::delete_free_badge_service_factory;
-use crate::domain::factories::fetch_many_free_badges_service_factory;
-use crate::domain::factories::update_free_badge_service_factory;
+use crate::domain::factories::journalism::free_badges::{
+    create_free_badge_service_factory, delete_free_badge_service_factory,
+    fetch_many_free_badges_service_factory, update_free_badge_service_factory,
+};
 use crate::domain::services::journalism::free_badges::{
     create_free_badge_service::CreateFreeBadgeParams,
     delete_free_badge_service::DeleteFreeBadgeParams,

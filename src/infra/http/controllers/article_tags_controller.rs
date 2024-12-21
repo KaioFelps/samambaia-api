@@ -1,7 +1,7 @@
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
-use crate::domain::factories::{
+use crate::domain::factories::journalism::article_tags::{
     create_article_tag_service_factory, delete_article_tag_service_factory,
     fetch_many_article_tags_service_factory, update_article_tag_service_factory,
 };

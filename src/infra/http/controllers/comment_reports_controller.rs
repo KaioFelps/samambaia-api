@@ -1,7 +1,7 @@
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
-use crate::domain::factories::{
+use crate::domain::factories::security::{
     create_comment_report_service_factory, delete_comment_report_service_factory,
     fetch_many_comment_reports_service_factory, solve_comment_report_service_factory,
 };

@@ -18,7 +18,8 @@ has been introduced.
 - made Sea repositories constructors synchronous;
 - made services factories synchronous;
 - move repositories dependencies out of `Box` in every service;
-- group services by domain.
+- group services by domain;
+- group factories by domain.
 
 ### Changed
 - database performance has been improved by 92%:
