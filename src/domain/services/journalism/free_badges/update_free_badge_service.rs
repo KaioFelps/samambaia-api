@@ -86,7 +86,6 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> UpdateFreeBadgeService<FreeB
 mod test {
     use crate::domain::domain_entities::free_badge::FreeBadge;
     use crate::domain::domain_entities::role::Role;
-    use crate::domain::services::update_free_badge_service::UpdateFreeBadgeParams;
     use crate::libs::time::TimeHelper;
     use crate::tests::repositories::free_badge_repository::get_free_badge_repository;
 
@@ -107,7 +106,7 @@ mod test {
         let badge_deadline = TimeHelper::now() + chrono::Days::new(5);
 
         let result = sut
-            .exec(UpdateFreeBadgeParams {
+            .exec(super::UpdateFreeBadgeParams {
                 free_badge_id: free_badge.id(),
                 user_role: Role::Writer,
                 code: None,
@@ -148,7 +147,7 @@ mod test {
         let badge_deadline = TimeHelper::now() + chrono::Days::new(5);
 
         let result = sut
-            .exec(UpdateFreeBadgeParams {
+            .exec(super::UpdateFreeBadgeParams {
                 free_badge_id: free_badge.id(),
                 user_role: Role::User,
                 code: None,

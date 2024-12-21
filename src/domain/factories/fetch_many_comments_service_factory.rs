@@ -1,4 +1,4 @@
-use crate::domain::services::fetch_many_comments_service::FetchManyCommentsService;
+use crate::domain::services::journalism::comments::fetch_many_comments_service::FetchManyCommentsService;
 use crate::infra::sea::repositories::sea_article_comment_repository::SeaArticleCommentRepository;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;

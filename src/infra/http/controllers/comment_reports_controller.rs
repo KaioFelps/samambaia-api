@@ -5,12 +5,14 @@ use crate::domain::factories::{
     create_comment_report_service_factory, delete_comment_report_service_factory,
     fetch_many_comment_reports_service_factory, solve_comment_report_service_factory,
 };
-use crate::domain::services::create_comment_report_service::CreateCommentReportParams;
-use crate::domain::services::delete_comment_report_service::DeleteCommentReportParams;
-use crate::domain::services::fetch_many_comment_reports_service::{
-    CommentReportServiceQuery, FetchManyCommentReportsParams,
+use crate::domain::services::security::{
+    create_comment_report_service::CreateCommentReportParams,
+    delete_comment_report_service::DeleteCommentReportParams,
+    fetch_many_comment_reports_service::{
+        CommentReportServiceQuery, FetchManyCommentReportsParams,
+    },
+    solve_comment_report_service::SolveCommentReportParams,
 };
-use crate::domain::services::solve_comment_report_service::SolveCommentReportParams;
 use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::create_comment_report::CreateCommentReportDto;
 use crate::infra::http::dtos::list_comment_reports::ListCommentReportsDto;

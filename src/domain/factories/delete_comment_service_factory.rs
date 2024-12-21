@@ -1,4 +1,4 @@
-use crate::domain::services::delete_comment_service::DeleteCommentService;
+use crate::domain::services::journalism::comments::delete_comment_service::DeleteCommentService;
 use crate::infra::sea::repositories::sea_comment_repository::SeaCommentRepository;
 use crate::infra::sea::sea_service::SeaService;
 

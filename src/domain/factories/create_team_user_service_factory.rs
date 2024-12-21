@@ -1,4 +1,4 @@
-use crate::domain::services::create_team_user_service::CreateTeamUserService;
+use crate::domain::services::teams::create_team_user_service::CreateTeamUserService;
 use crate::infra::sea::repositories::sea_team_role_repository::SeaTeamRoleRepository;
 use crate::infra::sea::repositories::sea_team_user_repository::SeaTeamUserRepository;
 use crate::infra::sea::sea_service::SeaService;

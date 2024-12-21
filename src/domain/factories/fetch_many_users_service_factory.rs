@@ -1,4 +1,4 @@
-use crate::domain::services::fetch_many_users_service::FetchManyUsersService;
+use crate::domain::services::identity::fetch_many_users_service::FetchManyUsersService;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 

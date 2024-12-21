@@ -5,10 +5,12 @@ use crate::domain::factories::{
     create_article_tag_service_factory, delete_article_tag_service_factory,
     fetch_many_article_tags_service_factory, update_article_tag_service_factory,
 };
-use crate::domain::services::create_article_tag_service::CreateArticleTagParams;
-use crate::domain::services::delete_article_tag_service::DeleteArticleTagParams;
-use crate::domain::services::fetch_many_article_tags_service::FetchManyArticleTagsParams;
-use crate::domain::services::update_article_tag_service::UpdateArticleTagParams;
+use crate::domain::services::journalism::article_tags::{
+    create_article_tag_service::CreateArticleTagParams,
+    delete_article_tag_service::DeleteArticleTagParams,
+    fetch_many_article_tags_service::FetchManyArticleTagsParams,
+    update_article_tag_service::UpdateArticleTagParams,
+};
 use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::create_article_tag::CreateArticleTagDto;
 use crate::infra::http::dtos::list_article_tags::ListArticleTagsDto;

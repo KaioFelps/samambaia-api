@@ -1,4 +1,4 @@
-use crate::domain::services::delete_team_role_service::DeleteTeamRoleService;
+use crate::domain::services::teams::delete_team_role_service::DeleteTeamRoleService;
 use crate::infra::sea::repositories::sea_team_role_repository::SeaTeamRoleRepository;
 use crate::infra::sea::sea_service::SeaService;
 

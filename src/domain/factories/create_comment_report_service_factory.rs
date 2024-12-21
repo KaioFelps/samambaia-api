@@ -1,4 +1,4 @@
-use crate::domain::services::create_comment_report_service::CreateCommentReportService;
+use crate::domain::services::security::create_comment_report_service::CreateCommentReportService;
 use crate::infra::sea::repositories::sea_comment_report_repository::SeaCommentReportRepository;
 use crate::infra::sea::repositories::sea_comment_repository::SeaCommentRepository;
 use crate::infra::sea::sea_service::SeaService;

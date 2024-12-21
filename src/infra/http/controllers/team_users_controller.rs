@@ -6,10 +6,11 @@ use crate::domain::factories::delete_team_user_service_factory;
 use crate::domain::factories::fetch_many_team_users_service_factory;
 use crate::domain::factories::update_team_user_service_factory;
 use crate::domain::repositories::team_user_repository::TeamUserQueryType;
-use crate::domain::services::create_team_user_service::CreateTeamUserParams;
-use crate::domain::services::delete_team_user_service::DeleteTeamUserParams;
-use crate::domain::services::fetch_many_team_users_service::FetchManyTeamUsersParams;
-use crate::domain::services::update_team_user_service::UpdateTeamUserParams;
+use crate::domain::services::teams::{
+    create_team_user_service::CreateTeamUserParams, delete_team_user_service::DeleteTeamUserParams,
+    fetch_many_team_users_service::FetchManyTeamUsersParams,
+    update_team_user_service::UpdateTeamUserParams,
+};
 use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::create_team_user::CreateTeamUserDto;
 use crate::infra::http::dtos::list_team_user::ListTeamUsersDto;

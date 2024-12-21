@@ -65,7 +65,6 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait>
 #[cfg(test)]
 mod test {
     use crate::domain::domain_entities::free_badge::FreeBadge;
-    use crate::domain::services::fetch_many_free_badges_service::FetchManyFreeBadgesParams;
     use crate::libs::time::TimeHelper;
     use crate::tests::repositories::free_badge_repository::get_free_badge_repository;
 
@@ -107,7 +106,7 @@ mod test {
         let sut = super::FetchManyFreeBadgesService::new(badges_repository);
 
         let result = sut
-            .exec(FetchManyFreeBadgesParams {
+            .exec(super::FetchManyFreeBadgesParams {
                 per_page: Some(3),
                 page: None,
             })

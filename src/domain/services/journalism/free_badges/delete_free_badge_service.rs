@@ -59,7 +59,6 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> DeleteFreeBadgeService<FreeB
 mod test {
     use crate::domain::domain_entities::free_badge::FreeBadge;
     use crate::domain::domain_entities::role::Role;
-    use crate::domain::services::delete_free_badge_service::DeleteFreeBadgeParams;
     use crate::tests::repositories::free_badge_repository::get_free_badge_repository;
 
     #[tokio::test]
@@ -79,7 +78,7 @@ mod test {
         badges_db.lock().unwrap().push(badge);
 
         let result = sut
-            .exec(DeleteFreeBadgeParams {
+            .exec(super::DeleteFreeBadgeParams {
                 free_badge_id: badge_id,
                 user_role: Role::Writer,
             })
@@ -106,7 +105,7 @@ mod test {
         badges_db.lock().unwrap().push(badge);
 
         let result = sut
-            .exec(DeleteFreeBadgeParams {
+            .exec(super::DeleteFreeBadgeParams {
                 free_badge_id: badge_id,
                 user_role: Role::User,
             })

@@ -1,4 +1,4 @@
-use crate::domain::services::create_user_service::CreateUserService;
+use crate::domain::services::identity::create_user_service::CreateUserService;
 use crate::infra::cryptography::PasswordAuthHasherAndVerifier;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;

@@ -7,7 +7,7 @@ use serde_json::json;
 use validator::Validate;
 
 use crate::domain::factories::authenticate_user_service_factory;
-use crate::domain::services::authenticate_user_service::AuthenticateUserParams;
+use crate::domain::services::identity::authenticate_user_service::AuthenticateUserParams;
 use crate::error::DomainError;
 use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::login::LoginDto;

@@ -17,7 +17,8 @@ has been introduced.
 - implemented `SeaMapper` for every *mapper* and fixed repositories broken method calls due to the *mappers* changes;
 - made Sea repositories constructors synchronous;
 - made services factories synchronous;
-- move repositories dependencies out of `Box` in every service.
+- move repositories dependencies out of `Box` in every service;
+- group services by domain.
 
 ### Changed
 - database performance has been improved by 92%:

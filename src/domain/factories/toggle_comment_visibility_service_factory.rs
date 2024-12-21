@@ -1,4 +1,4 @@
-use crate::domain::services::toggle_comment_visibility_service::ToggleCommentVisibilityService;
+use crate::domain::services::security::toggle_comment_visibility_service::ToggleCommentVisibilityService;
 use crate::infra::sea::repositories::sea_comment_repository::SeaCommentRepository;
 use crate::infra::sea::sea_service::SeaService;
 

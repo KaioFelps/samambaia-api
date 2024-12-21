@@ -1,4 +1,4 @@
-use crate::domain::services::change_password_service::ChangePasswordService;
+use crate::domain::services::identity::change_password_service::ChangePasswordService;
 use crate::infra::cryptography::PasswordAuthHasherAndVerifier;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;

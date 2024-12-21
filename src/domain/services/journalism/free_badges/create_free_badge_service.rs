@@ -56,7 +56,6 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> CreateFreeBadgeService<FreeB
 #[cfg(test)]
 mod test {
     use crate::domain::domain_entities::role::Role;
-    use crate::domain::services::create_free_badge_service::CreateFreeBadgeParams;
     use crate::libs::time::TimeHelper;
     use crate::tests::repositories::free_badge_repository::get_free_badge_repository;
 
@@ -67,7 +66,7 @@ mod test {
         let sut = super::CreateFreeBadgeService::new(free_badge_repository);
 
         let result = sut
-            .exec(CreateFreeBadgeParams {
+            .exec(super::CreateFreeBadgeParams {
                 user_role: Role::Writer,
                 image: "i.imgur.com/".into(),
                 code: "KF001".into(),

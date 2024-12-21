@@ -1,4 +1,4 @@
-use crate::domain::services::fetch_many_free_badges_service::FetchManyFreeBadgesService;
+use crate::domain::services::journalism::free_badges::fetch_many_free_badges_service::FetchManyFreeBadgesService;
 use crate::infra::sea::repositories::sea_free_badge_repository::SeaFreeBadgeRepository;
 use crate::infra::sea::sea_service::SeaService;
 

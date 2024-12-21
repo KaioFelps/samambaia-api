@@ -1,4 +1,4 @@
-use crate::domain::services::update_team_role_service::UpdateTeamRoleService;
+use crate::domain::services::teams::update_team_role_service::UpdateTeamRoleService;
 use crate::infra::sea::repositories::sea_team_role_repository::SeaTeamRoleRepository;
 use crate::infra::sea::sea_service::SeaService;
 

@@ -1,4 +1,4 @@
-use crate::domain::services::update_article_tag_service::UpdateArticleTagService;
+use crate::domain::services::journalism::article_tags::update_article_tag_service::UpdateArticleTagService;
 use crate::infra::sea::repositories::sea_article_tag_repository::SeaArticleTagRepository;
 use crate::infra::sea::sea_service::SeaService;
 

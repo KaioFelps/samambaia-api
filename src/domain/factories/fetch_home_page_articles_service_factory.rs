@@ -1,4 +1,4 @@
-use crate::domain::services::fetch_home_page_articles_service::FetchHomePageArticlesService;
+use crate::domain::services::journalism::articles::fetch_home_page_articles_service::FetchHomePageArticlesService;
 use crate::infra::sea::repositories::sea_article_repository::SeaArticleRepository;
 use crate::infra::sea::sea_service::SeaService;
 

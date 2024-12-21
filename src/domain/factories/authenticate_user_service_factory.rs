@@ -1,4 +1,4 @@
-use crate::domain::services::authenticate_user_service::AuthenticateUserService;
+use crate::domain::services::identity::authenticate_user_service::AuthenticateUserService;
 use crate::infra::cryptography::PasswordAuthHasherAndVerifier;
 use crate::infra::jwt::jwt_service::JwtService;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;

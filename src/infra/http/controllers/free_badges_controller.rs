@@ -5,10 +5,12 @@ use crate::domain::factories::create_free_badge_service_factory;
 use crate::domain::factories::delete_free_badge_service_factory;
 use crate::domain::factories::fetch_many_free_badges_service_factory;
 use crate::domain::factories::update_free_badge_service_factory;
-use crate::domain::services::create_free_badge_service::CreateFreeBadgeParams;
-use crate::domain::services::delete_free_badge_service::DeleteFreeBadgeParams;
-use crate::domain::services::fetch_many_free_badges_service::FetchManyFreeBadgesParams;
-use crate::domain::services::update_free_badge_service::UpdateFreeBadgeParams;
+use crate::domain::services::journalism::free_badges::{
+    create_free_badge_service::CreateFreeBadgeParams,
+    delete_free_badge_service::DeleteFreeBadgeParams,
+    fetch_many_free_badges_service::FetchManyFreeBadgesParams,
+    update_free_badge_service::UpdateFreeBadgeParams,
+};
 use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::create_free_badge::CreateFreeBadgeDto;
 use crate::infra::http::dtos::simple_pagination_query::SimplePaginationQueryDto;

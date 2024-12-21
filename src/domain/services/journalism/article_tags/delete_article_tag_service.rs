@@ -64,7 +64,6 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
 mod test {
     use crate::domain::domain_entities::article_tag::ArticleTag;
     use crate::domain::domain_entities::role::Role;
-    use crate::domain::services::delete_article_tag_service::DeleteArticleTagParams;
     use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
 
     #[tokio::test]
@@ -78,7 +77,7 @@ mod test {
             .push(ArticleTag::new_from_existing(1, "Foo".into()));
 
         let response = sut
-            .exec(DeleteArticleTagParams {
+            .exec(super::DeleteArticleTagParams {
                 tag_id: 1,
                 user_role: &Role::Ceo,
             })
@@ -103,7 +102,7 @@ mod test {
             .push(ArticleTag::new_from_existing(1, "Foo".into()));
 
         let response = sut
-            .exec(DeleteArticleTagParams {
+            .exec(super::DeleteArticleTagParams {
                 tag_id: 1,
                 user_role: &Role::Principal,
             })

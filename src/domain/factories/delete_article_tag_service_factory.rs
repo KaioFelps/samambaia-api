@@ -1,4 +1,4 @@
-use crate::domain::services::delete_article_tag_service::DeleteArticleTagService;
+use crate::domain::services::journalism::article_tags::delete_article_tag_service::DeleteArticleTagService;
 use crate::infra::sea::repositories::sea_article_tag_repository::SeaArticleTagRepository;
 use crate::infra::sea::sea_service::SeaService;
 

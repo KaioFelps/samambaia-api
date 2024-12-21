@@ -1,4 +1,4 @@
-use crate::domain::services::update_team_user_service::UpdateTeamUserService;
+use crate::domain::services::teams::update_team_user_service::UpdateTeamUserService;
 use crate::infra::sea::repositories::sea_team_user_repository::SeaTeamUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 

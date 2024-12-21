@@ -1,4 +1,4 @@
-use crate::domain::services::create_article_service::CreateArticleService;
+use crate::domain::services::journalism::articles::create_article_service::CreateArticleService;
 use crate::infra::sea::repositories::sea_article_repository::SeaArticleRepository;
 use crate::infra::sea::repositories::sea_article_tag_repository::SeaArticleTagRepository;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;

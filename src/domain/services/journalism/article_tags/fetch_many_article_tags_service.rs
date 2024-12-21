@@ -77,7 +77,6 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
 #[cfg(test)]
 mod test {
     use crate::domain::domain_entities::article_tag::ArticleTag;
-    use crate::domain::services::fetch_many_article_tags_service::FetchManyArticleTagsParams;
     use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
 
     #[tokio::test]
@@ -96,7 +95,7 @@ mod test {
         let sut = super::FetchManyArticleTagsService::new(tag_repository);
 
         let result = sut
-            .exec(FetchManyArticleTagsParams {
+            .exec(super::FetchManyArticleTagsParams {
                 query: Some("foo".into()),
                 page: None,
                 per_page: None,

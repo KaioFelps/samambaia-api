@@ -1,4 +1,4 @@
-use crate::domain::services::get_expanded_article_service::GetExpandedArticleService;
+use crate::domain::services::journalism::articles::get_expanded_article_service::GetExpandedArticleService;
 use crate::infra::sea::repositories::sea_article_repository::SeaArticleRepository;
 use crate::infra::sea::repositories::sea_comment_user_article_repository::SeaCommentUserArticleRepository;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;

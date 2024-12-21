@@ -66,7 +66,6 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
 mod test {
     use crate::domain::domain_entities::article_tag::ArticleTag;
     use crate::domain::domain_entities::role::Role;
-    use crate::domain::services::update_article_tag_service::UpdateArticleTagParams;
     use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
 
     #[tokio::test]
@@ -78,7 +77,7 @@ mod test {
         tag_db.lock().unwrap().push(tag);
 
         let result = sut
-            .exec(UpdateArticleTagParams {
+            .exec(super::UpdateArticleTagParams {
                 value: Some("Bar".to_string()),
                 user_role: Role::Principal,
                 tag_id: 1,
@@ -102,7 +101,7 @@ mod test {
         tag_db.lock().unwrap().push(tag);
 
         let result = sut
-            .exec(UpdateArticleTagParams {
+            .exec(super::UpdateArticleTagParams {
                 value: Some("Bar".into()),
                 user_role: Role::Admin,
                 tag_id: 1,

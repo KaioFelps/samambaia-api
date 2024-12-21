@@ -12,11 +12,11 @@ use crate::domain::factories::fetch_many_users_service_factory;
 use crate::domain::factories::get_user_service_factory;
 use crate::domain::factories::update_user_service_factory;
 use crate::domain::repositories::user_repository::UserQueryType;
-use crate::domain::services::change_password_service::ChangePasswordParams;
-use crate::domain::services::create_user_service::CreateUserParams;
-use crate::domain::services::fetch_many_users_service::FetchManyUsersParams;
-use crate::domain::services::get_user_service::GetUserServiceParams;
-use crate::domain::services::update_user_service::UpdateUserParams;
+use crate::domain::services::identity::{
+    change_password_service::ChangePasswordParams, create_user_service::CreateUserParams,
+    fetch_many_users_service::FetchManyUsersParams, get_user_service::GetUserServiceParams,
+    update_user_service::UpdateUserParams,
+};
 use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::change_password::ChangePasswordDto;
 use crate::infra::http::dtos::create_user::CreateUserDto;

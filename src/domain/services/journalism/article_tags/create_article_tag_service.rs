@@ -46,7 +46,6 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
 #[cfg(test)]
 mod test {
     use crate::domain::domain_entities::role::Role;
-    use crate::domain::services::create_article_tag_service::CreateArticleTagParams;
     use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
 
     #[tokio::test]
@@ -55,7 +54,7 @@ mod test {
         let sut = super::CreateArticleTagService::new(tag_repository);
 
         let result = sut
-            .exec(CreateArticleTagParams {
+            .exec(super::CreateArticleTagParams {
                 value: "Foo".into(),
                 user_role: Role::Principal,
             })
@@ -73,7 +72,7 @@ mod test {
         let sut = super::CreateArticleTagService::new(tag_repository);
 
         let result = sut
-            .exec(CreateArticleTagParams {
+            .exec(super::CreateArticleTagParams {
                 value: "Bar".into(),
                 user_role: Role::Admin,
             })

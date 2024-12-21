@@ -1,4 +1,4 @@
-use crate::domain::services::fetch_many_team_roles_service::FetchManyTeamRolesService;
+use crate::domain::services::teams::fetch_many_team_roles_service::FetchManyTeamRolesService;
 use crate::infra::sea::repositories::sea_team_role_repository::SeaTeamRoleRepository;
 use crate::infra::sea::sea_service::SeaService;
 

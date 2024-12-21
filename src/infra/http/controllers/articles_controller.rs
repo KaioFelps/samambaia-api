@@ -10,15 +10,15 @@ use crate::domain::factories::{
     fetch_many_articles_service_factory, get_expanded_article_service_factory,
     update_article_service_factory,
 };
-use crate::domain::services::create_article_service::CreateArticleParams;
-use crate::domain::services::delete_article_service::DeleteArticleParams;
-use crate::domain::services::fetch_many_articles_service::{
-    FetchManyArticlesParams, ServiceArticleQueryType,
+use crate::domain::services::journalism::articles::{
+    create_article_service::CreateArticleParams,
+    delete_article_service::DeleteArticleParams,
+    fetch_many_articles_service::{FetchManyArticlesParams, ServiceArticleQueryType},
+    get_expanded_article_service::{
+        FetchManyCommentsWithAuthorResponse, GetExpandedArticleParams, GetExpandedArticleResponse,
+    },
+    update_article_service::UpdateArticleParams,
 };
-use crate::domain::services::get_expanded_article_service::{
-    FetchManyCommentsWithAuthorResponse, GetExpandedArticleParams, GetExpandedArticleResponse,
-};
-use crate::domain::services::update_article_service::UpdateArticleParams;
 use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;

@@ -6,10 +6,11 @@ use crate::domain::factories::delete_team_role_service_factory;
 use crate::domain::factories::fetch_many_team_roles_service_factory;
 use crate::domain::factories::update_team_role_service_factory;
 use crate::domain::repositories::team_role_repository::TeamRoleQueryType;
-use crate::domain::services::create_team_role_service::CreateTeamRoleParams;
-use crate::domain::services::delete_team_role_service::DeleteTeamRoleParams;
-use crate::domain::services::fetch_many_team_roles_service::FetchManyTeamRolesParams;
-use crate::domain::services::update_team_role_service::UpdateTeamRoleParams;
+use crate::domain::services::teams::{
+    create_team_role_service::CreateTeamRoleParams, delete_team_role_service::DeleteTeamRoleParams,
+    fetch_many_team_roles_service::FetchManyTeamRolesParams,
+    update_team_role_service::UpdateTeamRoleParams,
+};
 use crate::infra::extensions::validator::IntoDomainError;
 use crate::infra::http::dtos::create_team_role::CreateTeamRoleDto;
 use crate::infra::http::dtos::list_team_role::ListTeamRoleDto;
