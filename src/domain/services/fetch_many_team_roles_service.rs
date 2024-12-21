@@ -76,11 +76,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<Team
 
         Ok(FetchManyTeamRolesResponse {
             data: team_roles,
-            pagination: PaginationResponse {
-                current_page: page,
-                total_items,
-                total_pages: (total_items as f64 / items_per_page as f64).ceil() as u32,
-            },
+            pagination: PaginationResponse::new(page, total_items, items_per_page),
         })
     }
 }

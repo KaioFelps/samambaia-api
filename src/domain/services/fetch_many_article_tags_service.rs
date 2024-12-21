@@ -69,11 +69,7 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
 
         Ok(FetchManyArticleTagsResponse {
             data: tags,
-            pagination: PaginationResponse {
-                current_page: page,
-                total_items,
-                total_pages: (total_items as f64 / per_page as f64).ceil() as u32,
-            },
+            pagination: PaginationResponse::new(page, total_items, per_page),
         })
     }
 }

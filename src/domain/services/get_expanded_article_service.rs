@@ -121,11 +121,7 @@ impl<
 
         let comments = FetchManyCommentsWithAuthorResponse {
             data,
-            pagination: PaginationResponse {
-                current_page: 1,
-                total_items,
-                total_pages: (total_items as f64 / items_per_page as f64).ceil() as u32,
-            },
+            pagination: PaginationResponse::new(1, total_items, items_per_page),
         };
 
         let author = self

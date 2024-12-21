@@ -97,11 +97,7 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
 
         Ok(FetchManyArticlesResponse {
             data: articles,
-            pagination: PaginationResponse {
-                current_page: page,
-                total_items,
-                total_pages: (total_items as f64 / items_per_page as f64).ceil() as u32,
-            },
+            pagination: PaginationResponse::new(page, total_items, items_per_page),
         })
     }
 

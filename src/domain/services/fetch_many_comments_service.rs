@@ -120,11 +120,7 @@ impl<
 
         Ok(FetchManyCommentsResponse {
             data: comments,
-            pagination: PaginationResponse {
-                current_page: page,
-                total_items,
-                total_pages: (total_items as f64 / items_per_page as f64).ceil() as u32,
-            },
+            pagination: PaginationResponse::new(page, total_items, items_per_page),
         })
     }
 
@@ -383,22 +379,5 @@ mod test {
                 total_items: 3
             }
         );
-
-        /* RESPONSE SAMPLE
-
-        FetchManyCommentsResponse {
-            pagination: PaginationResponse {
-                current_page: 2,
-                total_pages: 2,
-                total_items: 2,
-            },
-            data: [
-                Comment {
-                    ...
-                },
-            ],
-        }
-
-        */
     }
 }
