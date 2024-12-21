@@ -9,8 +9,8 @@ use crate::{
 };
 
 pub struct DeleteAnnouncementParams<'a> {
-    user_id: &'a Uuid,
-    announcement_id: &'a Uuid,
+    pub user_id: &'a Uuid,
+    pub announcement_id: &'a Uuid,
 }
 
 pub struct DeleteAnnouncementService<UR, AR>

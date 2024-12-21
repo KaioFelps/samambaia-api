@@ -13,11 +13,11 @@ use crate::{
 };
 
 pub struct CreateAnnouncementParams {
-    url: String,
-    image: String,
-    external: bool,
-    staff_id: Uuid,
-    description: String,
+    pub url: String,
+    pub image: String,
+    pub external: bool,
+    pub staff_id: Uuid,
+    pub description: String,
 }
 
 pub struct CreateAnnouncementService<UR, AR>
