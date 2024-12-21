@@ -12,10 +12,11 @@ Consider that the CLI expects few files to exist and some crates to be available
 - `actix-web`: It's used in the controllers stubs.
 
 ## Enabling the CLI
-First of all, compile the cli with `cargo build --release -p hubbitos-cli`.
+You can easily enable the CLI by running the scripts according to your OS. They will build the CLI executable for you,
+if you haven't done it yet.
 
 ### Bash
-Open your bash and type `source .bashrc` and you good to go with Hubbitos CLI.
+Open your bash and type `. ./cli.sh` and you good to go with Hubbitos CLI.
 
 ### Powershell
 Open your powershell terminal and type `. ./cli.ps1` and you good to go with Hubbitos CLI.
