@@ -14,3 +14,4 @@ pub mod team_users_controller;
 pub mod users_controller;
 
 pub type AppResponse = Result<HttpResponse, DomainError>;
+pub mod announcements_controller;

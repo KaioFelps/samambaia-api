@@ -9,6 +9,7 @@ has been introduced.
     -   CRUD services;
     -   Sea Repository;
     -   CRUD services factories;
+    -   DTOs, presenter and controller;
 - added CI automated tests + lint checks.
 
 ### Changed

@@ -1,3 +1,4 @@
+use crate::infra::http::controllers::announcements_controller::AnnouncementsController;
 use crate::infra::http::controllers::article_tags_controller::ArticleTagsController;
 use crate::infra::http::controllers::articles_controller::ArticlesController;
 use crate::infra::http::controllers::comment_reports_controller::CommentReportsController;
@@ -27,7 +28,8 @@ impl RouteTrait for ApiRoutes {
                 .configure(TeamRolesController::register)
                 .configure(TeamUsersController::register)
                 .configure(ArticleTagsController::register)
-                .configure(FreeBadgesController::register),
+                .configure(FreeBadgesController::register)
+                .configure(AnnouncementsController::register),
         );
     }
 }
