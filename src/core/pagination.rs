@@ -16,7 +16,7 @@ impl PaginationResponse {
 }
 
 #[derive(Clone)]
-pub struct PaginationParameters<QT> {
+pub struct PaginationParameters<QT: Clone> {
     pub page: u32,
     pub items_per_page: u32,
     pub query: Option<QT>,
