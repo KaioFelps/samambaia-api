@@ -26,8 +26,8 @@ where
     UR: UserRepositoryTrait,
     AR: AnnouncementRepositoryTrait,
 {
-    users_repository: Box<UR>,
-    announcements_repository: Box<AR>,
+    users_repository: UR,
+    announcements_repository: AR,
 }
 
 impl<UR, AR> UpdateAnnouncementService<UR, AR>
@@ -35,7 +35,7 @@ where
     UR: UserRepositoryTrait,
     AR: AnnouncementRepositoryTrait,
 {
-    pub fn new(users_repository: Box<UR>, announcements_repository: Box<AR>) -> Self {
+    pub fn new(users_repository: UR, announcements_repository: AR) -> Self {
         UpdateAnnouncementService {
             users_repository,
             announcements_repository,
@@ -148,10 +148,8 @@ mod test {
 
         announcements_db.lock().unwrap().push(announcement.clone());
 
-        let service = super::UpdateAnnouncementService::new(
-            Box::new(users_repository),
-            Box::new(announcements_repository),
-        );
+        let service =
+            super::UpdateAnnouncementService::new(users_repository, announcements_repository);
 
         let unauthorized_result = service
             .exec(UpdateAnnouncementParams {

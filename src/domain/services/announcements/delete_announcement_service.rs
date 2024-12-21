@@ -18,8 +18,8 @@ where
     UR: UserRepositoryTrait,
     AR: AnnouncementRepositoryTrait,
 {
-    users_repository: Box<UR>,
-    announcements_repository: Box<AR>,
+    users_repository: UR,
+    announcements_repository: AR,
 }
 
 impl<UR, AR> DeleteAnnouncementService<UR, AR>
@@ -27,7 +27,7 @@ where
     UR: UserRepositoryTrait,
     AR: AnnouncementRepositoryTrait,
 {
-    pub fn new(users_repository: Box<UR>, announcements_repository: Box<AR>) -> Self {
+    pub fn new(users_repository: UR, announcements_repository: AR) -> Self {
         DeleteAnnouncementService {
             users_repository,
             announcements_repository,
@@ -94,10 +94,8 @@ mod test {
         user_db.lock().unwrap().push(authorized_user.clone());
         announcement_db.lock().unwrap().push(announcement.clone());
 
-        let service = super::DeleteAnnouncementService::new(
-            Box::new(users_repository),
-            Box::new(announcements_repository),
-        );
+        let service =
+            super::DeleteAnnouncementService::new(users_repository, announcements_repository);
 
         let failure_result = service
             .exec(super::DeleteAnnouncementParams {

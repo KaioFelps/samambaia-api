@@ -25,8 +25,8 @@ where
     UR: UserRepositoryTrait,
     AR: AnnouncementRepositoryTrait,
 {
-    users_repository: Box<UR>,
-    announcements_repository: Box<AR>,
+    users_repository: UR,
+    announcements_repository: AR,
 }
 
 impl<UR, AR> CreateAnnouncementService<UR, AR>
@@ -34,7 +34,7 @@ where
     UR: UserRepositoryTrait,
     AR: AnnouncementRepositoryTrait,
 {
-    pub fn new(users_repository: Box<UR>, announcements_repository: Box<AR>) -> Self {
+    pub fn new(users_repository: UR, announcements_repository: AR) -> Self {
         CreateAnnouncementService {
             users_repository,
             announcements_repository,
@@ -111,8 +111,8 @@ mod test {
         users_db.lock().unwrap().push(authorized_user.clone());
 
         let service = super::CreateAnnouncementService {
-            users_repository: Box::new(users_repository),
-            announcements_repository: Box::new(announcements_repository),
+            users_repository,
+            announcements_repository,
         };
 
         let failure_call = service
