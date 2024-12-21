@@ -5,67 +5,52 @@ use sea_orm::IntoActiveValue;
 use crate::domain::domain_entities::user::User;
 
 use super::sea_role_mapper::SeaRoleMapper;
+use super::SeaMapper;
 
-pub struct SeaUserMapper {}
+pub struct SeaUserMapper;
 
-impl SeaUserMapper {
-    pub fn user_to_sea_model(user: User) -> UserModel {
-        let role = user.role().map(SeaRoleMapper::to_sea);
-
-        let sea_model = UserModel {
-            id: user.id(),
-            nickname: user.nickname().to_string(),
-            password: user.password().to_string(),
-            role,
-            created_at: user.created_at(),
-            last_login: user.last_login(),
-        };
-
-        sea_model
+impl SeaMapper<User, UserModel, UserActiveModel> for SeaUserMapper {
+    fn entity_into_model(entity: User) -> UserModel {
+        UserModel {
+            id: entity.id(),
+            nickname: entity.nickname().to_string(),
+            password: entity.password().to_string(),
+            role: entity.role().map(SeaRoleMapper::into_model),
+            created_at: entity.created_at(),
+            last_login: entity.last_login(),
+        }
     }
 
-    pub fn user_to_sea_active_model(user: User) -> UserActiveModel {
-        let role = user.role().map(SeaRoleMapper::to_sea);
-
-        let sea_active_model = UserActiveModel {
-            id: user.id().into_active_value(),
-            nickname: user.nickname().to_string().into_active_value(),
-            password: user.password().to_string().into_active_value(),
-            role: sea_orm::ActiveValue::Set(role),
-            created_at: user.created_at().into_active_value(),
-            last_login: user.last_login().into_active_value(),
-        };
-
-        sea_active_model
+    fn entity_into_active_model(entity: User) -> UserActiveModel {
+        UserActiveModel {
+            id: entity.id().into_active_value(),
+            nickname: entity.nickname().to_string().into_active_value(),
+            password: entity.password().to_string().into_active_value(),
+            role: sea_orm::ActiveValue::Set(entity.role().map(SeaRoleMapper::into_model)),
+            created_at: entity.created_at().into_active_value(),
+            last_login: entity.last_login().into_active_value(),
+        }
     }
 
-    pub fn active_model_to_user(active_model_user: UserActiveModel) -> User {
-        let role = active_model_user.role.unwrap();
-
-        let role = role.map(SeaRoleMapper::to_domain);
-
+    fn active_model_into_entity(active_model: UserActiveModel) -> User {
         User::new_from_existing(
-            active_model_user.id.unwrap(),
-            active_model_user.nickname.unwrap(),
-            active_model_user.password.unwrap(),
-            active_model_user.created_at.unwrap(),
-            active_model_user.last_login.unwrap(),
-            role,
+            active_model.id.unwrap(),
+            active_model.nickname.unwrap(),
+            active_model.password.unwrap(),
+            active_model.created_at.unwrap(),
+            active_model.last_login.unwrap(),
+            active_model.role.unwrap().map(SeaRoleMapper::into_entity),
         )
     }
 
-    pub fn model_to_user(model_user: UserModel) -> User {
-        let role = model_user.role;
-
-        let role = role.map(SeaRoleMapper::to_domain);
-
+    fn model_into_entity(model: UserModel) -> User {
         User::new_from_existing(
-            model_user.id.to_owned(),
-            model_user.nickname.to_owned(),
-            model_user.password.to_owned(),
-            model_user.created_at.to_owned(),
-            model_user.last_login.to_owned(),
-            role,
+            model.id.to_owned(),
+            model.nickname.to_owned(),
+            model.password.to_owned(),
+            model.created_at.to_owned(),
+            model.last_login.to_owned(),
+            model.role.map(SeaRoleMapper::into_entity),
         )
     }
 }

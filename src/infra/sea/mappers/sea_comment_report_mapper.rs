@@ -7,67 +7,69 @@ use crate::domain::domain_entities::comment_report::CommentReportIdTrait;
 use crate::domain::domain_entities::comment_report::CommentReportTrait;
 use crate::domain::domain_entities::comment_report::DraftCommentReport;
 
-pub struct SeaCommentReportMapper {}
+use super::SeaMapper;
+
+pub struct SeaCommentReportMapper;
+
+impl SeaMapper<CommentReport, CommentReportModel, CommentReportActiveModel>
+    for SeaCommentReportMapper
+{
+    fn entity_into_model(entity: CommentReport) -> CommentReportModel {
+        CommentReportModel {
+            comment_id: entity.comment_id(),
+            created_at: entity.created_at(),
+            message: entity.message(),
+            solved_by: entity.solved_by(),
+            user_id: entity.user_id(),
+            id: entity.id(),
+        }
+    }
+
+    fn entity_into_active_model(entity: CommentReport) -> CommentReportActiveModel {
+        CommentReportActiveModel {
+            user_id: entity.user_id().into_active_value(),
+            comment_id: entity.comment_id().into_active_value(),
+            message: entity.message().into_active_value(),
+            solved_by: entity.solved_by().into_active_value(),
+            created_at: entity.created_at().into_active_value(),
+            id: entity.id().into_active_value(),
+        }
+    }
+
+    fn active_model_into_entity(active_model: CommentReportActiveModel) -> CommentReport {
+        CommentReport::new_from_existing(
+            active_model.id.unwrap(),
+            active_model.comment_id.unwrap(),
+            active_model.user_id.unwrap(),
+            active_model.message.unwrap(),
+            active_model.solved_by.unwrap(),
+            active_model.created_at.unwrap(),
+        )
+    }
+
+    fn model_into_entity(model: CommentReportModel) -> CommentReport {
+        CommentReport::new_from_existing(
+            model.id,
+            model.comment_id,
+            model.user_id,
+            model.message,
+            model.solved_by,
+            model.created_at,
+        )
+    }
+}
 
 impl SeaCommentReportMapper {
-    pub fn comment_report_to_sea_model(comment_report: CommentReport) -> CommentReportModel {
-        CommentReportModel {
-            comment_id: comment_report.comment_id(),
-            created_at: comment_report.created_at(),
-            message: comment_report.message(),
-            solved_by: comment_report.solved_by(),
-            user_id: comment_report.user_id(),
-            id: comment_report.id(),
-        }
-    }
-
-    pub fn draft_comment_report_to_sea_active_model(
-        comment_report: DraftCommentReport,
+    pub fn draft_entity_into_active_model(
+        draft_entity: DraftCommentReport,
     ) -> CommentReportActiveModel {
         CommentReportActiveModel {
-            user_id: comment_report.user_id().into_active_value(),
-            comment_id: comment_report.comment_id().into_active_value(),
-            message: comment_report.message().into_active_value(),
-            solved_by: comment_report.solved_by().into_active_value(),
-            created_at: comment_report.created_at().into_active_value(),
+            user_id: draft_entity.user_id().into_active_value(),
+            comment_id: draft_entity.comment_id().into_active_value(),
+            message: draft_entity.message().into_active_value(),
+            solved_by: draft_entity.solved_by().into_active_value(),
+            created_at: draft_entity.created_at().into_active_value(),
             ..Default::default()
         }
-    }
-
-    pub fn comment_report_to_sea_active_model(
-        comment_report: CommentReport,
-    ) -> CommentReportActiveModel {
-        CommentReportActiveModel {
-            user_id: comment_report.user_id().into_active_value(),
-            comment_id: comment_report.comment_id().into_active_value(),
-            message: comment_report.message().into_active_value(),
-            solved_by: comment_report.solved_by().into_active_value(),
-            created_at: comment_report.created_at().into_active_value(),
-            id: comment_report.id().into_active_value(),
-        }
-    }
-
-    pub fn active_model_to_comment_report(
-        active_model_comment_report: CommentReportActiveModel,
-    ) -> CommentReport {
-        CommentReport::new_from_existing(
-            active_model_comment_report.id.unwrap(),
-            active_model_comment_report.comment_id.unwrap(),
-            active_model_comment_report.user_id.unwrap(),
-            active_model_comment_report.message.unwrap(),
-            active_model_comment_report.solved_by.unwrap(),
-            active_model_comment_report.created_at.unwrap(),
-        )
-    }
-
-    pub fn model_to_comment_report(model_comment_report: CommentReportModel) -> CommentReport {
-        CommentReport::new_from_existing(
-            model_comment_report.id,
-            model_comment_report.comment_id,
-            model_comment_report.user_id,
-            model_comment_report.message,
-            model_comment_report.solved_by,
-            model_comment_report.created_at,
-        )
     }
 }

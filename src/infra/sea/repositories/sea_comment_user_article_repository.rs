@@ -80,7 +80,7 @@ impl CommentUserArticleRepositoryTrait for SeaCommentUserArticleRepository<'_> {
         let mut mapped_comments: Vec<CommentWithAuthor> = vec![];
 
         for models in comments {
-            mapped_comments.push(SeaCommentWithAuthorMapper::model_to_comment_with_author((
+            mapped_comments.push(SeaCommentWithAuthorMapper::models_into_entity((
                 models.0,
                 models.1.unwrap(),
             )))

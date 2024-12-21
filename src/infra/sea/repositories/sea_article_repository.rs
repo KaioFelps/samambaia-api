@@ -12,6 +12,7 @@ use crate::domain::repositories::article_repository::{
     ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse,
 };
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
+use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 use entities::article::Column as ArticleColumn;
@@ -31,12 +32,12 @@ impl SeaArticleRepository<'_> {
 #[async_trait]
 impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
     async fn create(&self, article: Article) -> Result<Article, Box<dyn Error>> {
-        let new_article = SeaArticleMapper::article_to_sea_active_model(article);
+        let new_article = SeaArticleMapper::entity_into_active_model(article);
 
         let db = &self.sea_service.db;
 
         let created_article = new_article.insert(db).await?;
-        let created_article = SeaArticleMapper::model_to_article(created_article);
+        let created_article = SeaArticleMapper::model_into_entity(created_article);
 
         Ok(created_article)
     }
@@ -50,7 +51,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             return Ok(None);
         }
 
-        let mapped_article = SeaArticleMapper::model_to_article(article.unwrap());
+        let mapped_article = SeaArticleMapper::model_into_entity(article.unwrap());
 
         Ok(Some(mapped_article))
     }
@@ -65,7 +66,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             return Ok(None);
         }
 
-        let mapped_article = SeaArticleMapper::model_to_article(article.unwrap());
+        let mapped_article = SeaArticleMapper::model_into_entity(article.unwrap());
 
         Ok(Some(mapped_article))
     }
@@ -116,7 +117,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
         let mut articles: Vec<Article> = vec![];
 
         for article in articles_response.into_iter() {
-            articles.push(SeaArticleMapper::model_to_article(article));
+            articles.push(SeaArticleMapper::model_into_entity(article));
         }
 
         Ok(FindManyArticlesResponse(articles, articles_count))
@@ -132,7 +133,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
         let mut mapped_articles: Vec<Article> = vec![];
 
         for article in articles {
-            mapped_articles.push(SeaArticleMapper::model_to_article(article));
+            mapped_articles.push(SeaArticleMapper::model_into_entity(article));
         }
 
         Ok(mapped_articles)
@@ -141,14 +142,14 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
     async fn save(&self, article: Article) -> Result<Article, Box<dyn Error>> {
         let article_id = &article.id().clone();
 
-        let article = SeaArticleMapper::article_to_sea_active_model(article);
+        let article = SeaArticleMapper::entity_into_active_model(article);
 
         let article = ArticleEntity::update(article.clone())
             .filter(ArticleColumn::Id.eq(*article_id))
             .exec(&self.sea_service.db)
             .await?;
 
-        Ok(SeaArticleMapper::model_to_article(article))
+        Ok(SeaArticleMapper::model_into_entity(article))
     }
 }
 

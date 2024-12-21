@@ -4,6 +4,7 @@ use crate::domain::repositories::free_badge_repository::{
     FindManyFreeBadgesResponse, FreeBadgeRepositoryTrait,
 };
 use crate::infra::sea::mappers::sea_free_badge_mapper::SeaFreeBadgeMapper;
+use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 use async_trait::async_trait;
 use entities::free_badge::Column as FreeBadgeColumn;
@@ -28,22 +29,22 @@ impl<'a> SeaFreeBadgeRepository<'a> {
 #[async_trait]
 impl FreeBadgeRepositoryTrait for SeaFreeBadgeRepository<'_> {
     async fn create(&self, free_badge: FreeBadge) -> Result<FreeBadge, Box<dyn Error>> {
-        let free_badge = SeaFreeBadgeMapper::free_badge_to_sea_active_model(free_badge);
+        let free_badge = SeaFreeBadgeMapper::entity_into_active_model(free_badge);
         let free_badge = free_badge.insert(&self.sea_service.db).await?;
-        let free_badge = SeaFreeBadgeMapper::model_to_free_badge(free_badge);
+        let free_badge = SeaFreeBadgeMapper::model_into_entity(free_badge);
 
         Ok(free_badge)
     }
 
     async fn save(&self, free_badge: FreeBadge) -> Result<FreeBadge, Box<dyn Error>> {
-        let free_badge = SeaFreeBadgeMapper::free_badge_to_sea_active_model(free_badge);
+        let free_badge = SeaFreeBadgeMapper::entity_into_active_model(free_badge);
         let free_badge = free_badge.update(&self.sea_service.db).await?;
-        let free_badge = SeaFreeBadgeMapper::model_to_free_badge(free_badge);
+        let free_badge = SeaFreeBadgeMapper::model_into_entity(free_badge);
         Ok(free_badge)
     }
 
     async fn delete(&self, free_badge: FreeBadge) -> Result<(), Box<dyn Error>> {
-        let free_badge = SeaFreeBadgeMapper::free_badge_to_sea_active_model(free_badge);
+        let free_badge = SeaFreeBadgeMapper::entity_into_active_model(free_badge);
         free_badge.delete(&self.sea_service.db).await?;
 
         Ok(())
@@ -72,7 +73,7 @@ impl FreeBadgeRepositoryTrait for SeaFreeBadgeRepository<'_> {
 
         let mapped_badges: Vec<FreeBadge> = badges
             .into_iter()
-            .map(SeaFreeBadgeMapper::model_to_free_badge)
+            .map(SeaFreeBadgeMapper::model_into_entity)
             .collect();
 
         Ok(FindManyFreeBadgesResponse(mapped_badges, badges_count))
@@ -88,7 +89,7 @@ impl FreeBadgeRepositoryTrait for SeaFreeBadgeRepository<'_> {
         }
 
         let free_badge_model = result.unwrap();
-        let free_badge = SeaFreeBadgeMapper::model_to_free_badge(free_badge_model);
+        let free_badge = SeaFreeBadgeMapper::model_into_entity(free_badge_model);
 
         Ok(Some(free_badge))
     }

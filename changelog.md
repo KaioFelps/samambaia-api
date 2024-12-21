@@ -6,8 +6,14 @@ has been introduced.
 ### Added
 - introduced **Announcements** domain;
     -   DB model, entity and domain entity;
-    -   CRUD services.
-- added CI automated tests + lint checks;
+    -   CRUD services;
+    -   Sea Repository;
+    -   CRUD services factories;
+- added CI automated tests + lint checks.
+
+### Changed
+- added `SeaMapper` trait that defines the 4 most common methods a SEA-ORM mapper might have;
+- implemented `SeaMapper` for every *mapper* and fixed repositories broken method calls due to the *mappers* changes.
 
 ### Changed
 - database performance has been improved by 92%:

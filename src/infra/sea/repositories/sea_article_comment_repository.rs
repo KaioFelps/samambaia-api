@@ -16,6 +16,7 @@ use crate::domain::repositories::article_comment_repository::{
 };
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
 use crate::infra::sea::mappers::sea_comment_mapper::SeaCommentMapper;
+use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 use entities::comment::Column as CommentColumn;
@@ -91,7 +92,7 @@ impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository<'_> {
         let mut mapped_comments: Vec<Comment> = vec![];
 
         for comment in comments {
-            mapped_comments.push(SeaCommentMapper::model_to_comment(comment))
+            mapped_comments.push(SeaCommentMapper::model_into_entity(comment))
         }
 
         Ok(FindManyCommentsResponse(mapped_comments, comments_count))
@@ -120,7 +121,7 @@ impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository<'_> {
     async fn delete_article_with_comments(&self, article: Article) -> Result<(), Box<dyn Error>> {
         let article_id = article.id();
 
-        let article = SeaArticleMapper::article_to_sea_active_model(article);
+        let article = SeaArticleMapper::entity_into_active_model(article);
 
         let transaction = self.sea_service.db.begin().await?;
 
@@ -140,7 +141,7 @@ impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository<'_> {
     ) -> Result<(), Box<dyn Error>> {
         let article_id = article.id();
 
-        let article = SeaArticleMapper::article_to_sea_active_model(article);
+        let article = SeaArticleMapper::entity_into_active_model(article);
 
         let transaction = self.sea_service.db.begin().await?;
 

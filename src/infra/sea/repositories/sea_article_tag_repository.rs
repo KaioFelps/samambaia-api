@@ -10,6 +10,7 @@ use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::domain_entities::article_tag::DraftArticleTag;
 use crate::infra::sea::mappers::sea_article_tag_mapper::SeaArticleTagMapper;
+use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 use crate::domain::repositories::article_tag_repository::{
@@ -34,13 +35,12 @@ impl<'a> SeaArticleTagRepository<'a> {
 #[async_trait]
 impl ArticleTagRepositoryTrait for SeaArticleTagRepository<'_> {
     async fn create(&self, article_tag: DraftArticleTag) -> Result<ArticleTag, Box<dyn Error>> {
-        let new_article_tag =
-            SeaArticleTagMapper::draft_article_tag_to_sea_active_model(article_tag);
+        let new_article_tag = SeaArticleTagMapper::draft_entity_into_active_model(article_tag);
 
         let db = &self.sea_service.db;
 
         let created_article_tag = new_article_tag.insert(db).await?;
-        let created_article_tag = SeaArticleTagMapper::model_to_article_tag(created_article_tag);
+        let created_article_tag = SeaArticleTagMapper::model_into_entity(created_article_tag);
 
         Ok(created_article_tag)
     }
@@ -52,7 +52,7 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository<'_> {
 
         match article_tag {
             None => Ok(None),
-            Some(article_tag) => Ok(Some(SeaArticleTagMapper::model_to_article_tag(article_tag))),
+            Some(article_tag) => Ok(Some(SeaArticleTagMapper::model_into_entity(article_tag))),
         }
     }
 
@@ -67,7 +67,7 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository<'_> {
 
         match article_tag {
             None => Ok(None),
-            Some(article_tag) => Ok(Some(SeaArticleTagMapper::model_to_article_tag(article_tag))),
+            Some(article_tag) => Ok(Some(SeaArticleTagMapper::model_into_entity(article_tag))),
         }
     }
 
@@ -104,7 +104,7 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository<'_> {
         let mut article_tags: Vec<ArticleTag> = vec![];
 
         for article_tag in article_tags_response.into_iter() {
-            article_tags.push(SeaArticleTagMapper::model_to_article_tag(article_tag));
+            article_tags.push(SeaArticleTagMapper::model_into_entity(article_tag));
         }
 
         Ok(FindManyArticleTagsResponse(
@@ -116,20 +116,20 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository<'_> {
     async fn save(&self, article_tag: ArticleTag) -> Result<ArticleTag, Box<dyn Error>> {
         let comm_rep_id = article_tag.id();
 
-        let article_tag = SeaArticleTagMapper::article_tag_to_sea_active_model(article_tag);
+        let article_tag = SeaArticleTagMapper::entity_into_active_model(article_tag);
 
         let article_tag = ArticleTagEntity::update(article_tag)
             .filter(ArticleTagColumn::Id.eq(comm_rep_id))
             .exec(&self.sea_service.db)
             .await?;
 
-        let article_tag = SeaArticleTagMapper::model_to_article_tag(article_tag);
+        let article_tag = SeaArticleTagMapper::model_into_entity(article_tag);
 
         Ok(article_tag)
     }
 
     async fn delete(&self, article_tag: ArticleTag) -> Result<(), Box<dyn Error>> {
-        let article_tag = SeaArticleTagMapper::article_tag_to_sea_active_model(article_tag);
+        let article_tag = SeaArticleTagMapper::entity_into_active_model(article_tag);
 
         ArticleTagEntity::delete(article_tag)
             .exec(&self.sea_service.db)

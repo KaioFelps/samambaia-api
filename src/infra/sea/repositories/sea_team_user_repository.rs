@@ -15,6 +15,7 @@ use crate::domain::repositories::team_user_repository::FindManyTeamUsersResponse
 use crate::domain::repositories::team_user_repository::TeamUserQueryType;
 use crate::domain::repositories::team_user_repository::TeamUserRepositoryTrait;
 use crate::infra::sea::mappers::sea_team_user_mapper::SeaTeamUserMapper;
+use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 use entities::team_user::Column as TeamUserColumn;
@@ -34,9 +35,9 @@ impl<'a> SeaTeamUserRepository<'a> {
 #[async_trait]
 impl TeamUserRepositoryTrait for SeaTeamUserRepository<'_> {
     async fn create(&self, team_user: TeamUser) -> Result<TeamUser, Box<dyn Error>> {
-        let team_user = SeaTeamUserMapper::team_user_to_sea_active_model(team_user);
+        let team_user = SeaTeamUserMapper::entity_into_active_model(team_user);
         let team_user = team_user.insert(&self.sea_service.db).await?;
-        let team_user = SeaTeamUserMapper::model_to_team_user(team_user);
+        let team_user = SeaTeamUserMapper::model_into_entity(team_user);
 
         Ok(team_user)
     }
@@ -49,22 +50,22 @@ impl TeamUserRepositoryTrait for SeaTeamUserRepository<'_> {
         match team_user {
             None => Ok(None),
             Some(team_user) => {
-                let mapped_team_user = SeaTeamUserMapper::model_to_team_user(team_user);
+                let mapped_team_user = SeaTeamUserMapper::model_into_entity(team_user);
                 Ok(Some(mapped_team_user))
             }
         }
     }
 
     async fn save(&self, team_user: TeamUser) -> Result<TeamUser, Box<dyn Error>> {
-        let team_user = SeaTeamUserMapper::team_user_to_sea_active_model(team_user);
+        let team_user = SeaTeamUserMapper::entity_into_active_model(team_user);
 
         let team_user = team_user.update(&self.sea_service.db).await?;
 
-        Ok(SeaTeamUserMapper::model_to_team_user(team_user))
+        Ok(SeaTeamUserMapper::model_into_entity(team_user))
     }
 
     async fn delete(&self, team_user: TeamUser) -> Result<(), Box<dyn Error>> {
-        let team_user = SeaTeamUserMapper::team_user_to_sea_active_model(team_user);
+        let team_user = SeaTeamUserMapper::entity_into_active_model(team_user);
 
         team_user.delete(&self.sea_service.db).await?;
 
@@ -101,7 +102,7 @@ impl TeamUserRepositoryTrait for SeaTeamUserRepository<'_> {
         let mut team_users: Vec<TeamUser> = vec![];
 
         for team_role in team_users_response.into_iter() {
-            team_users.push(SeaTeamUserMapper::model_to_team_user(team_role));
+            team_users.push(SeaTeamUserMapper::model_into_entity(team_role));
         }
 
         Ok(FindManyTeamUsersResponse(team_users, team_users_count))

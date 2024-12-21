@@ -4,46 +4,39 @@ use sea_orm::IntoActiveValue;
 
 use crate::domain::domain_entities::team_role::TeamRole;
 
-pub struct SeaTeamRoleMapper {}
+use super::SeaMapper;
 
-impl SeaTeamRoleMapper {
-    pub fn team_role_to_sea_model(team_role: TeamRole) -> TeamRoleModel {
-        let sea_model = TeamRoleModel {
-            id: team_role.id(),
-            title: team_role.title().into(),
-            description: team_role.description().into(),
-            created_at: team_role.created_at(),
-        };
+pub struct SeaTeamRoleMapper;
 
-        sea_model
+impl SeaMapper<TeamRole, TeamRoleModel, TeamRoleActiveModel> for SeaTeamRoleMapper {
+    fn entity_into_model(entity: TeamRole) -> TeamRoleModel {
+        TeamRoleModel {
+            id: entity.id(),
+            title: entity.title().into(),
+            description: entity.description().into(),
+            created_at: entity.created_at(),
+        }
     }
 
-    pub fn team_role_to_sea_active_model(team_role: TeamRole) -> TeamRoleActiveModel {
-        let sea_active_model = TeamRoleActiveModel {
-            id: team_role.id().into_active_value(),
-            title: team_role.title().to_owned().into_active_value(),
-            description: team_role.description().to_owned().into_active_value(),
-            created_at: team_role.created_at().into_active_value(),
-        };
-
-        sea_active_model
+    fn entity_into_active_model(entity: TeamRole) -> TeamRoleActiveModel {
+        TeamRoleActiveModel {
+            id: entity.id().into_active_value(),
+            title: entity.title().to_owned().into_active_value(),
+            description: entity.description().to_owned().into_active_value(),
+            created_at: entity.created_at().into_active_value(),
+        }
     }
 
-    pub fn active_model_to_team_role(active_model_team_role: TeamRoleActiveModel) -> TeamRole {
+    fn active_model_into_entity(active_model: TeamRoleActiveModel) -> TeamRole {
         TeamRole::new_from_existing(
-            active_model_team_role.id.unwrap(),
-            active_model_team_role.title.unwrap(),
-            active_model_team_role.description.unwrap(),
-            active_model_team_role.created_at.unwrap(),
+            active_model.id.unwrap(),
+            active_model.title.unwrap(),
+            active_model.description.unwrap(),
+            active_model.created_at.unwrap(),
         )
     }
 
-    pub fn model_to_team_role(model_team_role: TeamRoleModel) -> TeamRole {
-        TeamRole::new_from_existing(
-            model_team_role.id,
-            model_team_role.title,
-            model_team_role.description,
-            model_team_role.created_at,
-        )
+    fn model_into_entity(model: TeamRoleModel) -> TeamRole {
+        TeamRole::new_from_existing(model.id, model.title, model.description, model.created_at)
     }
 }

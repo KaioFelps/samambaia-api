@@ -5,6 +5,7 @@ use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::{FindManyUsersResponse, UserRepositoryTrait};
 use crate::infra::sea::mappers::sea_role_mapper::SeaRoleMapper;
 use crate::infra::sea::mappers::sea_user_mapper::SeaUserMapper;
+use crate::infra::sea::mappers::SeaMapper;
 use crate::{
     domain::repositories::user_repository::UserQueryType, infra::sea::sea_service::SeaService,
 };
@@ -30,12 +31,12 @@ impl SeaUserRepository<'_> {
 #[async_trait]
 impl UserRepositoryTrait for SeaUserRepository<'_> {
     async fn create(&self, user: User) -> Result<User, Box<dyn Error>> {
-        let new_user = SeaUserMapper::user_to_sea_active_model(user);
+        let new_user = SeaUserMapper::entity_into_active_model(user);
 
         let db = &self.sea_service.db;
 
         let created_user = new_user.insert(db).await?;
-        let created_user = SeaUserMapper::model_to_user(created_user);
+        let created_user = SeaUserMapper::model_into_entity(created_user);
 
         Ok(created_user)
     }
@@ -53,7 +54,7 @@ impl UserRepositoryTrait for SeaUserRepository<'_> {
             return Ok(None);
         }
 
-        return Ok(Some(SeaUserMapper::model_to_user(user.unwrap())));
+        return Ok(Some(SeaUserMapper::model_into_entity(user.unwrap())));
     }
 
     async fn find_by_id(&self, id: &Uuid) -> Result<Option<User>, Box<dyn Error>> {
@@ -65,20 +66,20 @@ impl UserRepositoryTrait for SeaUserRepository<'_> {
             return Ok(None);
         }
 
-        return Ok(Some(SeaUserMapper::model_to_user(user.unwrap())));
+        return Ok(Some(SeaUserMapper::model_into_entity(user.unwrap())));
     }
 
     async fn save(&self, user: User) -> Result<User, Box<dyn Error>> {
-        let user_id = &user.id().clone();
+        let user_id = user.id();
 
-        let user = SeaUserMapper::user_to_sea_active_model(user.clone());
+        let user = SeaUserMapper::entity_into_active_model(user.clone());
 
         let user = UserEntity::update(user.clone())
-            .filter(UserColumn::Id.eq(*user_id))
+            .filter(UserColumn::Id.eq(user_id))
             .exec(&self.sea_service.db)
             .await?;
 
-        let user = SeaUserMapper::model_to_user(user);
+        let user = SeaUserMapper::model_into_entity(user);
 
         Ok(user)
     }
@@ -113,7 +114,7 @@ impl UserRepositoryTrait for SeaUserRepository<'_> {
         let mut users: Vec<User> = vec![];
 
         for role in users_response.into_iter() {
-            users.push(SeaUserMapper::model_to_user(role));
+            users.push(SeaUserMapper::model_into_entity(role));
         }
 
         Ok(FindManyUsersResponse(users, users_count))
@@ -137,7 +138,7 @@ impl SeaUserRepository<'_> {
                     UserColumn::Role.into_simple_expr(),
                     Alias::new("text"),
                 ))
-                .eq(SeaRoleMapper::to_sea(content));
+                .eq(SeaRoleMapper::into_model(content));
                 query_builder.filter(filter)
             }
         }

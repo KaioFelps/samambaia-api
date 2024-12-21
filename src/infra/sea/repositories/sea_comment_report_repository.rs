@@ -12,6 +12,7 @@ use crate::domain::repositories::comment_report_repository::{
     CommentReportQueryType, CommentReportRepositoryTrait, FindManyCommentReportsResponse,
 };
 use crate::infra::sea::mappers::sea_comment_report_mapper::SeaCommentReportMapper;
+use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 use entities::comment_report::Column as CommentReportColumn;
@@ -22,7 +23,6 @@ pub struct SeaCommentReportRepository<'a> {
 }
 
 impl<'a> SeaCommentReportRepository<'a> {
-    // constructor
     pub async fn new(service: &'a SeaService) -> Self {
         SeaCommentReportRepository {
             sea_service: service,
@@ -37,13 +37,13 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository<'_> {
         comment_report: DraftCommentReport,
     ) -> Result<CommentReport, Box<dyn Error>> {
         let new_comment_report =
-            SeaCommentReportMapper::draft_comment_report_to_sea_active_model(comment_report);
+            SeaCommentReportMapper::draft_entity_into_active_model(comment_report);
 
         let db = &self.sea_service.db;
 
         let created_comment_report = new_comment_report.insert(db).await?;
         let created_comment_report =
-            SeaCommentReportMapper::model_to_comment_report(created_comment_report);
+            SeaCommentReportMapper::model_into_entity(created_comment_report);
 
         Ok(created_comment_report)
     }
@@ -58,9 +58,7 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository<'_> {
 
         match comm_report {
             None => Ok(None),
-            Some(comm_report) => Ok(Some(SeaCommentReportMapper::model_to_comment_report(
-                comm_report,
-            ))),
+            Some(comm_report) => Ok(Some(SeaCommentReportMapper::model_into_entity(comm_report))),
         }
     }
 
@@ -100,7 +98,7 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository<'_> {
         let mut comment_reports: Vec<CommentReport> = vec![];
 
         for comm_report in comment_reports_response.into_iter() {
-            comment_reports.push(SeaCommentReportMapper::model_to_comment_report(comm_report));
+            comment_reports.push(SeaCommentReportMapper::model_into_entity(comm_report));
         }
 
         Ok(FindManyCommentReportsResponse(
@@ -112,22 +110,20 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository<'_> {
     async fn save(&self, comment_report: CommentReport) -> Result<CommentReport, Box<dyn Error>> {
         let comm_rep_id = comment_report.id();
 
-        let comment_report =
-            SeaCommentReportMapper::comment_report_to_sea_active_model(comment_report);
+        let comment_report = SeaCommentReportMapper::entity_into_active_model(comment_report);
 
         let comment_report = CommentReportEntity::update(comment_report)
             .filter(CommentReportColumn::Id.eq(comm_rep_id))
             .exec(&self.sea_service.db)
             .await?;
 
-        let comment_report = SeaCommentReportMapper::model_to_comment_report(comment_report);
+        let comment_report = SeaCommentReportMapper::model_into_entity(comment_report);
 
         Ok(comment_report)
     }
 
     async fn delete(&self, comment_report: CommentReport) -> Result<(), Box<dyn Error>> {
-        let comment_report =
-            SeaCommentReportMapper::comment_report_to_sea_active_model(comment_report);
+        let comment_report = SeaCommentReportMapper::entity_into_active_model(comment_report);
 
         CommentReportEntity::delete(comment_report)
             .exec(&self.sea_service.db)

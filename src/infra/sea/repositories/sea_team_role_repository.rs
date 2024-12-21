@@ -13,6 +13,7 @@ use crate::domain::repositories::team_role_repository::{
     FindManyTeamRolesResponse, TeamRoleQueryType, TeamRoleRepositoryTrait,
 };
 use crate::infra::sea::mappers::sea_team_role_mapper::SeaTeamRoleMapper;
+use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 use entities::team_role::Column as TeamRoleColumn;
@@ -32,9 +33,9 @@ impl<'a> SeaTeamRoleRepository<'a> {
 #[async_trait]
 impl TeamRoleRepositoryTrait for SeaTeamRoleRepository<'_> {
     async fn create(&self, team_role: TeamRole) -> Result<TeamRole, Box<dyn Error>> {
-        let team_role = SeaTeamRoleMapper::team_role_to_sea_active_model(team_role);
+        let team_role = SeaTeamRoleMapper::entity_into_active_model(team_role);
         let team_role = team_role.insert(&self.sea_service.db).await?;
-        let team_role = SeaTeamRoleMapper::model_to_team_role(team_role);
+        let team_role = SeaTeamRoleMapper::model_into_entity(team_role);
 
         Ok(team_role)
     }
@@ -47,22 +48,22 @@ impl TeamRoleRepositoryTrait for SeaTeamRoleRepository<'_> {
         match team_role {
             None => Ok(None),
             Some(team_role) => {
-                let mapped_team_role = SeaTeamRoleMapper::model_to_team_role(team_role);
+                let mapped_team_role = SeaTeamRoleMapper::model_into_entity(team_role);
                 Ok(Some(mapped_team_role))
             }
         }
     }
 
     async fn save(&self, team_role: TeamRole) -> Result<TeamRole, Box<dyn Error>> {
-        let team_role = SeaTeamRoleMapper::team_role_to_sea_active_model(team_role);
+        let team_role = SeaTeamRoleMapper::entity_into_active_model(team_role);
 
         let team_role = team_role.update(&self.sea_service.db).await?;
 
-        Ok(SeaTeamRoleMapper::model_to_team_role(team_role))
+        Ok(SeaTeamRoleMapper::model_into_entity(team_role))
     }
 
     async fn delete(&self, team_role: TeamRole) -> Result<(), Box<dyn Error>> {
-        let team_role = SeaTeamRoleMapper::team_role_to_sea_active_model(team_role);
+        let team_role = SeaTeamRoleMapper::entity_into_active_model(team_role);
 
         team_role.delete(&self.sea_service.db).await?;
 
@@ -99,7 +100,7 @@ impl TeamRoleRepositoryTrait for SeaTeamRoleRepository<'_> {
         let mut team_roles: Vec<TeamRole> = vec![];
 
         for team_role in team_roles_response.into_iter() {
-            team_roles.push(SeaTeamRoleMapper::model_to_team_role(team_role));
+            team_roles.push(SeaTeamRoleMapper::model_into_entity(team_role));
         }
 
         Ok(FindManyTeamRolesResponse(team_roles, team_roles_count))
