@@ -8,24 +8,24 @@ pub struct SeaArticleTagMapper;
 
 impl SeaArticleTagMapper {
     pub fn article_tag_to_sea_model(tag: ArticleTag) -> ArticleTagModel {
-        return ArticleTagModel {
+        ArticleTagModel {
             id: tag.id(),
             value: tag.value().to_owned(),
-        };
+        }
     }
 
     pub fn draft_article_tag_to_sea_active_model(tag: DraftArticleTag) -> ArticleTagActiveModel {
-        return ArticleTagActiveModel {
+        ArticleTagActiveModel {
             value: tag.value().to_owned().into_active_value(),
             ..Default::default()
-        };
+        }
     }
 
     pub fn article_tag_to_sea_active_model(tag: ArticleTag) -> ArticleTagActiveModel {
-        return ArticleTagActiveModel {
+        ArticleTagActiveModel {
             id: tag.id().into_active_value(),
             value: tag.value().to_owned().into_active_value(),
-        };
+        }
     }
 
     pub fn active_model_to_article_tag(active_model_tag: ArticleTagActiveModel) -> ArticleTag {

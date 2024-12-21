@@ -20,9 +20,9 @@ impl<CommentRepository: CommentRepositoryTrait> ToggleCommentVisibilityService<C
         ToggleCommentVisibilityService { comment_repository }
     }
 
-    pub async fn exec<'exec>(
+    pub async fn exec(
         &self,
-        params: ToggleCommentVisibilityParams<'exec>,
+        params: ToggleCommentVisibilityParams<'_>,
     ) -> Result<Comment, DomainError> {
         let user_can_toggle_visibility =
             verify_role_has_permission(params.user_role, RolePermissions::InactivateComment);

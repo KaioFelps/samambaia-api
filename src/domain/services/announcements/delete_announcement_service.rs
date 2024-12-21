@@ -45,7 +45,7 @@ where
                     err,
                 )
             })?
-            .map_or(false, |user| {
+            .is_some_and(|user| {
                 verify_role_has_permission(
                     user.role().as_ref().unwrap(),
                     RolePermissions::DeleteAnnouncement,

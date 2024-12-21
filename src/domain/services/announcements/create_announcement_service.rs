@@ -65,7 +65,7 @@ where
         if !staff
             .as_ref()
             .and_then(|staff| staff.role())
-            .map_or(false, |role| {
+            .is_some_and(|role| {
                 verify_role_has_permission(&role, RolePermissions::CreateAnnouncement)
             })
         {

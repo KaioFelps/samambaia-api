@@ -63,9 +63,9 @@ impl<
         }
     }
 
-    pub async fn exec<'exec>(
+    pub async fn exec(
         &self,
-        params: GetExpandedArticleParams<'exec>,
+        params: GetExpandedArticleParams<'_>,
     ) -> Result<GetExpandedArticleResponse, DomainError> {
         let items_per_page = params.comments_per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
 

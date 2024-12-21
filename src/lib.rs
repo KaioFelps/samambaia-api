@@ -18,7 +18,7 @@ pub static ENV_VARS: LazyLock<EnvConfig> = LazyLock::new(EnvConfig::from_env);
 const R_EOL: &str = "\r\n";
 
 #[cfg(not(target_os = "windows"))]
-const R_EOL: &'static str = "\n";
+const R_EOL: &str = "\n";
 
 const LOG_SEP: &str = "==============";
 

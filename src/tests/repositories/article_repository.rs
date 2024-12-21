@@ -112,13 +112,13 @@ pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleReposit
                 }
             }
 
-            return match index {
+            match index {
                 None => Err(Box::new(DomainError::resource_not_found_err())),
                 Some(i) => {
                     db_clone.lock().unwrap()[i] = param_article.clone();
                     Ok(param_article)
                 }
-            };
+            }
         });
 
     let db_clone = Arc::clone(&db);

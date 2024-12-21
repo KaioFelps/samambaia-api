@@ -57,7 +57,7 @@ where
                 )
             })?;
 
-        let user_is_authorized = user.map_or(false, |user| {
+        let user_is_authorized = user.is_some_and(|user| {
             verify_role_has_permission(
                 user.role().as_ref().unwrap(),
                 RolePermissions::UpdateAnnouncement,

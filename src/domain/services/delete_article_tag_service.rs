@@ -21,10 +21,7 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
         }
     }
 
-    pub async fn exec<'run>(
-        &self,
-        params: DeleteArticleTagParams<'run>,
-    ) -> Result<(), DomainError> {
+    pub async fn exec(&self, params: DeleteArticleTagParams<'_>) -> Result<(), DomainError> {
         let user_can_delete_article_tag =
             verify_role_has_permission(params.user_role, RolePermissions::DeleteArticleTag);
 
