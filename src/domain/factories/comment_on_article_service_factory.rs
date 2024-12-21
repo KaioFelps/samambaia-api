@@ -3,11 +3,11 @@ use crate::infra::sea::repositories::sea_article_repository::SeaArticleRepositor
 use crate::infra::sea::repositories::sea_comment_repository::SeaCommentRepository;
 use crate::infra::sea::sea_service::SeaService;
 
-pub async fn exec(
+pub fn exec(
     db_conn: &SeaService,
 ) -> CommentOnArticleService<SeaCommentRepository, SeaArticleRepository> {
-    let comment_repository = Box::new(SeaCommentRepository::new(db_conn).await);
-    let article_repository = Box::new(SeaArticleRepository::new(db_conn).await);
+    let comment_repository = Box::new(SeaCommentRepository::new(db_conn));
+    let article_repository = Box::new(SeaArticleRepository::new(db_conn));
 
     CommentOnArticleService::new(comment_repository, article_repository)
 }

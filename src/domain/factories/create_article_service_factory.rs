@@ -4,12 +4,12 @@ use crate::infra::sea::repositories::sea_article_tag_repository::SeaArticleTagRe
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 
-pub async fn exec(
+pub fn exec(
     db_conn: &SeaService,
 ) -> CreateArticleService<SeaArticleRepository, SeaArticleTagRepository, SeaUserRepository> {
-    let sea_article_repository = Box::new(SeaArticleRepository::new(db_conn).await);
-    let sea_article_tag_repository = Box::new(SeaArticleTagRepository::new(db_conn).await);
-    let sea_user_repository = Box::new(SeaUserRepository::new(db_conn).await);
+    let sea_article_repository = Box::new(SeaArticleRepository::new(db_conn));
+    let sea_article_tag_repository = Box::new(SeaArticleTagRepository::new(db_conn));
+    let sea_user_repository = Box::new(SeaUserRepository::new(db_conn));
 
     CreateArticleService::new(
         sea_article_repository,

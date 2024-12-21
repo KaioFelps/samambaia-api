@@ -75,7 +75,7 @@ impl CommentReportsController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = create_comment_report_service_factory::exec(&db_conn).await;
+        let service = create_comment_report_service_factory::exec(&db_conn);
 
         let comment_report = service
             .exec(CreateCommentReportParams {
@@ -94,7 +94,7 @@ impl CommentReportsController {
         db_conn: web::Data<SeaService>,
         query: web::Query<ListCommentReportsDto>,
     ) -> AppResponse {
-        let service = fetch_many_comment_reports_service_factory::exec(&db_conn).await;
+        let service = fetch_many_comment_reports_service_factory::exec(&db_conn);
 
         let ListCommentReportsDto {
             per_page,
@@ -144,7 +144,7 @@ impl CommentReportsController {
         user: web::ReqData<ReqUser>,
         report_id: web::Path<i32>,
     ) -> AppResponse {
-        let service = solve_comment_report_service_factory::exec(&db_conn).await;
+        let service = solve_comment_report_service_factory::exec(&db_conn);
 
         let user = user.into_inner();
 
@@ -164,7 +164,7 @@ impl CommentReportsController {
         user: web::ReqData<ReqUser>,
         report_id: web::Path<i32>,
     ) -> AppResponse {
-        let service = delete_comment_report_service_factory::exec(&db_conn).await;
+        let service = delete_comment_report_service_factory::exec(&db_conn);
 
         service
             .exec(DeleteCommentReportParams {

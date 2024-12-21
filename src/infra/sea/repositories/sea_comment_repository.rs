@@ -19,7 +19,7 @@ pub struct SeaCommentRepository<'a> {
 
 impl<'a> SeaCommentRepository<'a> {
     // constructor
-    pub async fn new(service: &'a SeaService) -> Self {
+    pub fn new(service: &'a SeaService) -> Self {
         SeaCommentRepository {
             sea_service: service,
         }

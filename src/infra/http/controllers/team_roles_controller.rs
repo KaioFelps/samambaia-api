@@ -68,7 +68,7 @@ impl TeamRolesController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = create_team_role_service_factory::exec(&db_conn).await;
+        let service = create_team_role_service_factory::exec(&db_conn);
 
         let team_role = service
             .exec(CreateTeamRoleParams {
@@ -89,7 +89,7 @@ impl TeamRolesController {
         db_conn: web::Data<SeaService>,
         query: web::Query<ListTeamRoleDto>,
     ) -> AppResponse {
-        let service = fetch_many_team_roles_service_factory::exec(&db_conn).await;
+        let service = fetch_many_team_roles_service_factory::exec(&db_conn);
 
         let query = query
             .validate()
@@ -137,7 +137,7 @@ impl TeamRolesController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = update_team_role_service_factory::exec(&db_conn).await;
+        let service = update_team_role_service_factory::exec(&db_conn);
 
         let user = user.into_inner();
 
@@ -162,7 +162,7 @@ impl TeamRolesController {
         user: web::ReqData<ReqUser>,
         team_role_id: web::Path<Uuid>,
     ) -> AppResponse {
-        let service = delete_team_role_service_factory::exec(&db_conn).await;
+        let service = delete_team_role_service_factory::exec(&db_conn);
 
         service
             .exec(DeleteTeamRoleParams {

@@ -88,7 +88,7 @@ impl ArticlesController {
         let body = body.into_inner();
         let auth_user = user.into_inner();
 
-        let service = create_article_service_factory::exec(&db_conn).await;
+        let service = create_article_service_factory::exec(&db_conn);
 
         let CreateArticleDto {
             author_id,
@@ -120,7 +120,7 @@ impl ArticlesController {
         article_slug: web::Path<String>,
         user: Option<web::ReqData<ReqUser>>,
     ) -> AppResponse {
-        let service = get_expanded_article_service_factory::exec(&db_conn).await;
+        let service = get_expanded_article_service_factory::exec(&db_conn);
 
         let (user_id, user_role) = match &user {
             None => (None, None),
@@ -215,7 +215,7 @@ impl ArticlesController {
             .map(|_| body.into_inner())
             .map_err(|err| err.into_domain_err())?;
 
-        let service = update_article_service_factory::exec(&db_conn).await;
+        let service = update_article_service_factory::exec(&db_conn);
 
         let ReqUser {
             user_role, user_id, ..
@@ -245,7 +245,7 @@ impl ArticlesController {
         req_user: web::ReqData<ReqUser>,
         article_id: web::Path<Uuid>,
     ) -> AppResponse {
-        let service = delete_article_service_factory::exec(&db_conn).await;
+        let service = delete_article_service_factory::exec(&db_conn);
 
         service
             .exec(DeleteArticleParams {
@@ -264,7 +264,7 @@ impl ArticlesController {
         per_page: Option<u8>,
         approved_state: Option<bool>,
     ) -> AppResponse {
-        let service = fetch_many_articles_service_factory::exec(db_conn).await;
+        let service = fetch_many_articles_service_factory::exec(db_conn);
 
         let query = {
             if let Some(title) = title {

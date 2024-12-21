@@ -24,7 +24,7 @@ pub struct SeaArticleRepository<'a> {
 
 impl SeaArticleRepository<'_> {
     // constructor
-    pub async fn new(sea_service: &SeaService) -> SeaArticleRepository<'_> {
+    pub fn new(sea_service: &SeaService) -> SeaArticleRepository<'_> {
         SeaArticleRepository { sea_service }
     }
 }

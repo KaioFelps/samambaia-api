@@ -73,7 +73,7 @@ impl CommentsController {
         user: web::ReqData<ReqUser>,
         body: web::Json<CommentOnArticleDto>,
     ) -> AppResponse {
-        let service = comment_on_article_service_factory::exec(&db_conn).await;
+        let service = comment_on_article_service_factory::exec(&db_conn);
 
         let _comment = service
             .exec(CommentOnArticleParams {
@@ -91,7 +91,7 @@ impl CommentsController {
         article_id: web::Path<Uuid>,
         query: web::Query<SimplePaginationQueryDto>,
     ) -> AppResponse {
-        let service = fetch_many_comments_with_author_service_factory::exec(&db_conn).await;
+        let service = fetch_many_comments_with_author_service_factory::exec(&db_conn);
 
         let SimplePaginationQueryDto { per_page, page } = query.into_inner();
 
@@ -121,7 +121,7 @@ impl CommentsController {
         db_conn: web::Data<SeaService>,
         query: web::Query<ListCommentsDto>,
     ) -> AppResponse {
-        let service = fetch_many_comments_service_factory::exec(&db_conn).await;
+        let service = fetch_many_comments_service_factory::exec(&db_conn);
 
         let ListCommentsDto {
             page,
@@ -169,7 +169,7 @@ impl CommentsController {
         user: web::ReqData<ReqUser>,
         comment_id: web::Path<Uuid>,
     ) -> AppResponse {
-        let service = toggle_comment_visibility_service_factory::exec(&db_conn).await;
+        let service = toggle_comment_visibility_service_factory::exec(&db_conn);
 
         let user_role = &user.user_role;
 
@@ -187,7 +187,7 @@ impl CommentsController {
         comment_id: web::Path<Uuid>,
         user: web::ReqData<ReqUser>,
     ) -> AppResponse {
-        let service = delete_comment_service_factory::exec(&db_conn).await;
+        let service = delete_comment_service_factory::exec(&db_conn);
 
         let ReqUser {
             user_role,

@@ -9,11 +9,11 @@ use crate::{
     },
 };
 
-pub async fn exec(
+pub fn exec(
     db_conn: &SeaService,
 ) -> UpdateAnnouncementService<SeaUserRepository, SeaAnnouncementRepository> {
-    let sea_user_repository = SeaUserRepository::new(db_conn).await;
-    let sea_announcement_repository = SeaAnnouncementRepository::new(db_conn).await;
+    let sea_user_repository = SeaUserRepository::new(db_conn);
+    let sea_announcement_repository = SeaAnnouncementRepository::new(db_conn);
 
     UpdateAnnouncementService::new(sea_user_repository, sea_announcement_repository)
 }

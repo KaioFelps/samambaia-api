@@ -66,7 +66,7 @@ impl AnnouncementsController {
         body.validate().map_err(IntoDomainError::into_domain_err)?;
         let body = body.into_inner();
 
-        let service = create_announcement_service_factory::exec(&db_conn).await;
+        let service = create_announcement_service_factory::exec(&db_conn);
         service
             .exec(CreateAnnouncementParams {
                 description: body.description,
@@ -87,7 +87,7 @@ impl AnnouncementsController {
         db_conn: web::Data<SeaService>,
         query: web::Query<ListAnnouncementsDto>,
     ) -> AppResponse {
-        let service = fetch_many_announcements_service_factory::exec(&db_conn).await;
+        let service = fetch_many_announcements_service_factory::exec(&db_conn);
         service
             .exec(FetchManyAnnouncementsParams {
                 page: query.page,
@@ -120,7 +120,7 @@ impl AnnouncementsController {
         body.validate().map_err(IntoDomainError::into_domain_err)?;
         let body = body.into_inner();
 
-        let service = update_announcement_service_factory::exec(&db_conn).await;
+        let service = update_announcement_service_factory::exec(&db_conn);
 
         service
             .exec(UpdateAnnouncementParams {
@@ -144,7 +144,7 @@ impl AnnouncementsController {
         staff: web::ReqData<ReqUser>,
         announcement_id: web::Path<Uuid>,
     ) -> AppResponse {
-        let service = delete_announcement_service_factory::exec(&db_conn).await;
+        let service = delete_announcement_service_factory::exec(&db_conn);
 
         service
             .exec(DeleteAnnouncementParams {

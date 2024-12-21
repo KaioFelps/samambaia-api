@@ -72,7 +72,7 @@ impl UsersController {
             .validate()
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
-        let create_user_service = create_user_service_factory::exec(&db_conn).await;
+        let create_user_service = create_user_service_factory::exec(&db_conn);
 
         let user = create_user_service
             .exec(CreateUserParams { nickname, password })
@@ -98,7 +98,7 @@ impl UsersController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let update_user_service = update_user_service_factory::exec(&db_conn).await;
+        let update_user_service = update_user_service_factory::exec(&db_conn);
 
         let role = match role.map(|role| Role::from_str(&role)) {
             Some(role) => match role {
@@ -143,7 +143,7 @@ impl UsersController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let change_password_service = change_password_service_factory::exec(&db_conn).await;
+        let change_password_service = change_password_service_factory::exec(&db_conn);
 
         change_password_service
             .exec(ChangePasswordParams {
@@ -157,7 +157,7 @@ impl UsersController {
     }
 
     async fn get(db_conn: web::Data<SeaService>, user_id: web::Path<Uuid>) -> AppResponse {
-        let get_user_service = get_user_service_factory::exec(&db_conn).await;
+        let get_user_service = get_user_service_factory::exec(&db_conn);
 
         let user = get_user_service
             .exec(GetUserServiceParams {
@@ -180,7 +180,7 @@ impl UsersController {
             .map(|_| query.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let fetch_many_users_service = fetch_many_users_service_factory::exec(&db_conn).await;
+        let fetch_many_users_service = fetch_many_users_service_factory::exec(&db_conn);
 
         let query: Option<UserQueryType> = if let Some(nickname) = nickname {
             Some(UserQueryType::Nickname(nickname))

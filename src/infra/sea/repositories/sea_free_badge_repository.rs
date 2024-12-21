@@ -19,7 +19,7 @@ pub struct SeaFreeBadgeRepository<'a> {
 
 impl<'a> SeaFreeBadgeRepository<'a> {
     // constructor
-    pub async fn new(service: &'a SeaService) -> Self {
+    pub fn new(service: &'a SeaService) -> Self {
         SeaFreeBadgeRepository {
             sea_service: service,
         }

@@ -68,7 +68,7 @@ impl TeamUsersController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = create_team_user_service_factory::exec(&db_conn).await;
+        let service = create_team_user_service_factory::exec(&db_conn);
 
         let team_user = service
             .exec(CreateTeamUserParams {
@@ -92,7 +92,7 @@ impl TeamUsersController {
         db_conn: web::Data<SeaService>,
         query: web::Query<ListTeamUsersDto>,
     ) -> AppResponse {
-        let service = fetch_many_team_users_service_factory::exec(&db_conn).await;
+        let service = fetch_many_team_users_service_factory::exec(&db_conn);
 
         let ListTeamUsersDto {
             page,
@@ -147,7 +147,7 @@ impl TeamUsersController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = update_team_user_service_factory::exec(&db_conn).await;
+        let service = update_team_user_service_factory::exec(&db_conn);
 
         let team_user = service
             .exec(UpdateTeamUserParams {
@@ -173,7 +173,7 @@ impl TeamUsersController {
         user: web::ReqData<ReqUser>,
         team_user_id: web::Path<Uuid>,
     ) -> AppResponse {
-        let service = delete_team_user_service_factory::exec(&db_conn).await;
+        let service = delete_team_user_service_factory::exec(&db_conn);
 
         service
             .exec(DeleteTeamUserParams {

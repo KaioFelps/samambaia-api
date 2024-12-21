@@ -6,9 +6,7 @@ use crate::{
     },
 };
 
-pub async fn exec(
-    db_conn: &SeaService,
-) -> FetchManyAnnouncementsService<SeaAnnouncementRepository> {
-    let sea_announcement_repository = SeaAnnouncementRepository::new(db_conn).await;
+pub fn exec(db_conn: &SeaService) -> FetchManyAnnouncementsService<SeaAnnouncementRepository> {
+    let sea_announcement_repository = SeaAnnouncementRepository::new(db_conn);
     FetchManyAnnouncementsService::new(sea_announcement_repository)
 }

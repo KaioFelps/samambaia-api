@@ -38,7 +38,7 @@ impl SessionsController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let authenticate_service = authenticate_user_service_factory::exec(&db_conn).await;
+        let authenticate_service = authenticate_user_service_factory::exec(&db_conn);
 
         let MakeJwtResult {
             access_token,

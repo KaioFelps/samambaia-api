@@ -4,17 +4,16 @@ use crate::infra::sea::repositories::sea_comment_user_article_repository::SeaCom
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 
-pub async fn exec(
+pub fn exec(
     db_conn: &SeaService,
 ) -> GetExpandedArticleService<
     SeaUserRepository,
     SeaArticleRepository,
     SeaCommentUserArticleRepository,
 > {
-    let user_repository = Box::new(SeaUserRepository::new(db_conn).await);
-    let article_repository = Box::new(SeaArticleRepository::new(db_conn).await);
-    let comment_user_article_repository =
-        Box::new(SeaCommentUserArticleRepository::new(db_conn).await);
+    let user_repository = Box::new(SeaUserRepository::new(db_conn));
+    let article_repository = Box::new(SeaArticleRepository::new(db_conn));
+    let comment_user_article_repository = Box::new(SeaCommentUserArticleRepository::new(db_conn));
 
     GetExpandedArticleService::new(
         user_repository,

@@ -25,7 +25,7 @@ pub struct SeaTeamRoleRepository<'a> {
 
 impl<'a> SeaTeamRoleRepository<'a> {
     // constructor
-    pub async fn new(sea_service: &'a SeaService) -> Self {
+    pub fn new(sea_service: &'a SeaService) -> Self {
         SeaTeamRoleRepository { sea_service }
     }
 }

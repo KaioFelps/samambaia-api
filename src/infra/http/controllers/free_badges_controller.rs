@@ -67,7 +67,7 @@ impl FreeBadgesController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = create_free_badge_service_factory::exec(&db_conn).await;
+        let service = create_free_badge_service_factory::exec(&db_conn);
 
         let free_badge = service
             .exec(CreateFreeBadgeParams {
@@ -89,7 +89,7 @@ impl FreeBadgesController {
         db_conn: web::Data<SeaService>,
         query: web::Query<SimplePaginationQueryDto>,
     ) -> AppResponse {
-        let service = fetch_many_free_badges_service_factory::exec(&db_conn).await;
+        let service = fetch_many_free_badges_service_factory::exec(&db_conn);
 
         let free_badges = service
             .exec(FetchManyFreeBadgesParams {
@@ -132,7 +132,7 @@ impl FreeBadgesController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = update_free_badge_service_factory::exec(&db_conn).await;
+        let service = update_free_badge_service_factory::exec(&db_conn);
 
         let free_badge = service
             .exec(UpdateFreeBadgeParams {
@@ -158,7 +158,7 @@ impl FreeBadgesController {
         user: web::ReqData<ReqUser>,
         free_badge_id: web::Path<Uuid>,
     ) -> AppResponse {
-        let service = delete_free_badge_service_factory::exec(&db_conn).await;
+        let service = delete_free_badge_service_factory::exec(&db_conn);
 
         service
             .exec(DeleteFreeBadgeParams {

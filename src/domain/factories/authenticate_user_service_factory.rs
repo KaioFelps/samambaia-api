@@ -4,8 +4,8 @@ use crate::infra::jwt::jwt_service::JwtService;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 
-pub async fn exec(db_conn: &SeaService) -> AuthenticateUserService<SeaUserRepository> {
-    let user_repository: Box<SeaUserRepository> = Box::new(SeaUserRepository::new(db_conn).await);
+pub fn exec(db_conn: &SeaService) -> AuthenticateUserService<SeaUserRepository> {
+    let user_repository: Box<SeaUserRepository> = Box::new(SeaUserRepository::new(db_conn));
 
     let jwt_service = JwtService {};
 

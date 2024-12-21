@@ -66,7 +66,7 @@ impl ArticleTagsController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = create_article_tag_service_factory::exec(&db_conn).await;
+        let service = create_article_tag_service_factory::exec(&db_conn);
 
         let article_tag = service
             .exec(CreateArticleTagParams {
@@ -95,7 +95,7 @@ impl ArticleTagsController {
             .map(|_| query.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = fetch_many_article_tags_service_factory::exec(&db_conn).await;
+        let service = fetch_many_article_tags_service_factory::exec(&db_conn);
 
         let service_response = service
             .exec(FetchManyArticleTagsParams {
@@ -135,7 +135,7 @@ impl ArticleTagsController {
             .map(|_| body.into_inner())
             .map_err(IntoDomainError::into_domain_err)?;
 
-        let service = update_article_tag_service_factory::exec(&db_conn).await;
+        let service = update_article_tag_service_factory::exec(&db_conn);
 
         let article_tag = service
             .exec(UpdateArticleTagParams {
@@ -157,7 +157,7 @@ impl ArticleTagsController {
         user: web::ReqData<ReqUser>,
         tag_id: web::Path<i32>,
     ) -> AppResponse {
-        let service = delete_article_tag_service_factory::exec(&db_conn).await;
+        let service = delete_article_tag_service_factory::exec(&db_conn);
 
         service
             .exec(DeleteArticleTagParams {

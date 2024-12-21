@@ -22,7 +22,7 @@ pub struct SeaAnnouncementRepository<'a> {
 }
 
 impl<'a> SeaAnnouncementRepository<'a> {
-    pub async fn new(service: &'a SeaService) -> Self {
+    pub fn new(service: &'a SeaService) -> Self {
         SeaAnnouncementRepository {
             sea_service: service,
         }
