@@ -37,8 +37,8 @@ pub struct FetchManyCommentReportsService<
     CommentReportRepository: CommentReportRepositoryTrait,
     UserRepository: UserRepositoryTrait,
 > {
-    comment_report_repository: Box<CommentReportRepository>,
-    user_repository: Box<UserRepository>,
+    comment_report_repository: CommentReportRepository,
+    user_repository: UserRepository,
 }
 
 impl<
@@ -47,8 +47,8 @@ impl<
     > FetchManyCommentReportsService<CommentReportRepository, UserRepository>
 {
     pub fn new(
-        comment_report_repository: Box<CommentReportRepository>,
-        user_repository: Box<UserRepository>,
+        comment_report_repository: CommentReportRepository,
+        user_repository: UserRepository,
     ) -> Self {
         FetchManyCommentReportsService {
             comment_report_repository,
@@ -276,8 +276,8 @@ mod test {
             });
 
         let sut = FetchManyCommentReportsService {
-            comment_report_repository: Box::new(mocked_comm_report_repo),
-            user_repository: Box::new(mocked_user_repo),
+            comment_report_repository: mocked_comm_report_repo,
+            user_repository: mocked_user_repo,
         };
 
         let res = sut

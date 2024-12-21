@@ -12,11 +12,11 @@ pub struct DeleteTeamRoleParams {
 }
 
 pub struct DeleteTeamRoleService<TeamRoleRepository: TeamRoleRepositoryTrait> {
-    team_role_repository: Box<TeamRoleRepository>,
+    team_role_repository: TeamRoleRepository,
 }
 
 impl<TeamRoleRepository: TeamRoleRepositoryTrait> DeleteTeamRoleService<TeamRoleRepository> {
-    pub fn new(team_role_repository: Box<TeamRoleRepository>) -> Self {
+    pub fn new(team_role_repository: TeamRoleRepository) -> Self {
         DeleteTeamRoleService {
             team_role_repository,
         }
@@ -105,7 +105,7 @@ mod test {
                 Ok(())
             });
 
-        let sut = DeleteTeamRoleService::new(Box::new(mocked_team_role_repository));
+        let sut = DeleteTeamRoleService::new(mocked_team_role_repository);
 
         let failing_res = sut
             .exec(DeleteTeamRoleParams {

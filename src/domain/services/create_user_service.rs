@@ -9,13 +9,15 @@ pub struct CreateUserParams {
     pub nickname: String,
     pub password: String,
 }
-pub struct CreateUserService<UserRepository: UserRepositoryTrait> {
-    user_repository: Box<UserRepository>,
-    hasher: Box<dyn HasherTrait>,
+pub struct CreateUserService<UserRepository: UserRepositoryTrait, Hasher: HasherTrait> {
+    user_repository: UserRepository,
+    hasher: Hasher,
 }
 
-impl<UserRepositoryType: UserRepositoryTrait> CreateUserService<UserRepositoryType> {
-    pub fn new(user_repository: Box<UserRepositoryType>, hasher: Box<dyn HasherTrait>) -> Self {
+impl<UserRepositoryType: UserRepositoryTrait, Hasher: HasherTrait>
+    CreateUserService<UserRepositoryType, Hasher>
+{
+    pub fn new(user_repository: UserRepositoryType, hasher: Hasher) -> Self {
         CreateUserService {
             user_repository,
             hasher,
@@ -98,8 +100,8 @@ mod test {
             .returning(|param_password| format!("{}--hashed", param_password));
 
         let service = super::CreateUserService {
-            user_repository: Box::new(mocked_repo),
-            hasher: Box::new(mocked_hasher),
+            user_repository: mocked_repo,
+            hasher: mocked_hasher,
         };
 
         let result = service

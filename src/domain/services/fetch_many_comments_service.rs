@@ -26,8 +26,8 @@ where
     ArticleCommentRepository: ArticleCommentRepositoryTrait,
     UserRepository: UserRepositoryTrait,
 {
-    article_comment_repository: Box<ArticleCommentRepository>,
-    user_repository: Box<UserRepository>,
+    article_comment_repository: ArticleCommentRepository,
+    user_repository: UserRepository,
 }
 
 #[derive(Debug)]
@@ -45,8 +45,8 @@ impl<
 {
     // CONSTRUCTOR
     pub fn new(
-        article_comment_repository: Box<ArticleCommentRepository>,
-        user_repository: Box<UserRepository>,
+        article_comment_repository: ArticleCommentRepository,
+        user_repository: UserRepository,
     ) -> Self {
         FetchManyCommentsService {
             article_comment_repository,
@@ -288,10 +288,8 @@ mod test {
             },
         );
 
-        let fetch_many_comments_service = FetchManyCommentsService::new(
-            Box::new(mocked_comment_repo),
-            Box::new(mocked_user_repo),
-        );
+        let fetch_many_comments_service =
+            FetchManyCommentsService::new(mocked_comment_repo, mocked_user_repo);
 
         // make a request querying by title
         let res = fetch_many_comments_service

@@ -19,12 +19,12 @@ where
     CR: CommentRepositoryTrait,
     AR: ArticleRepositoryTrait,
 {
-    comment_repository: Box<CR>,
-    article_repository: Box<AR>,
+    comment_repository: CR,
+    article_repository: AR,
 }
 
 impl<CR: CommentRepositoryTrait, AR: ArticleRepositoryTrait> CommentOnArticleService<CR, AR> {
-    pub fn new(comment_repository: Box<CR>, article_repository: Box<AR>) -> Self {
+    pub fn new(comment_repository: CR, article_repository: AR) -> Self {
         CommentOnArticleService {
             comment_repository,
             article_repository,
@@ -121,10 +121,7 @@ mod test {
                 Ok(comment)
             });
 
-        let sut = CommentOnArticleService::new(
-            Box::new(mocked_comment_repo),
-            Box::new(mocked_article_repo),
-        );
+        let sut = CommentOnArticleService::new(mocked_comment_repo, mocked_article_repo);
 
         let res = sut
             .exec(CommentOnArticleParams {

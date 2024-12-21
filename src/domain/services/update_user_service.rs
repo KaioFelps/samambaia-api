@@ -16,13 +16,15 @@ pub struct UpdateUserParams {
     pub password: Option<String>,
     pub role: Option<Role>,
 }
-pub struct UpdateUserService<UserRepository: UserRepositoryTrait> {
-    user_repository: Box<UserRepository>,
-    hasher: Box<dyn HasherTrait>,
+pub struct UpdateUserService<UserRepository: UserRepositoryTrait, Hasher: HasherTrait> {
+    user_repository: UserRepository,
+    hasher: Hasher,
 }
 
-impl<UserRepositoryType: UserRepositoryTrait> UpdateUserService<UserRepositoryType> {
-    pub fn new(user_repository: Box<UserRepositoryType>, hasher: Box<dyn HasherTrait>) -> Self {
+impl<UserRepositoryType: UserRepositoryTrait, Hasher: HasherTrait>
+    UpdateUserService<UserRepositoryType, Hasher>
+{
+    pub fn new(user_repository: UserRepositoryType, hasher: Hasher) -> Self {
         UpdateUserService {
             user_repository,
             hasher,

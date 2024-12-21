@@ -21,9 +21,9 @@ pub struct CreateArticleService<
     ArticleTagRepository: ArticleTagRepositoryTrait,
     UserRepository: UserRepositoryTrait,
 > {
-    article_repository: Box<ArticleRepository>,
-    article_tag_repository: Box<ArticleTagRepository>,
-    user_repository: Box<UserRepository>,
+    article_repository: ArticleRepository,
+    article_tag_repository: ArticleTagRepository,
+    user_repository: UserRepository,
 }
 
 impl<
@@ -33,9 +33,9 @@ impl<
     > CreateArticleService<ArticleRepository, ArticleTagRepository, UserRepository>
 {
     pub fn new(
-        article_repository: Box<ArticleRepository>,
-        article_tag_repository: Box<ArticleTagRepository>,
-        user_repository: Box<UserRepository>,
+        article_repository: ArticleRepository,
+        article_tag_repository: ArticleTagRepository,
+        user_repository: UserRepository,
     ) -> Self {
         CreateArticleService {
             article_repository,
@@ -165,9 +165,9 @@ mod test {
         });
 
         let service = super::CreateArticleService {
-            article_repository: Box::new(mocked_article_repo),
-            article_tag_repository: Box::new(mocked_tag_repo),
-            user_repository: Box::new(mocked_user_repo),
+            article_repository: mocked_article_repo,
+            article_tag_repository: mocked_tag_repo,
+            user_repository: mocked_user_repo,
         };
 
         let result = service

@@ -20,16 +20,16 @@ where
     TeamUserRepository: TeamUserRepositoryTrait,
     TeamRoleRepository: TeamRoleRepositoryTrait,
 {
-    team_user_repository: Box<TeamUserRepository>,
-    team_role_repository: Box<TeamRoleRepository>,
+    team_user_repository: TeamUserRepository,
+    team_role_repository: TeamRoleRepository,
 }
 
 impl<TeamUserRepository: TeamUserRepositoryTrait, TeamRoleRepository: TeamRoleRepositoryTrait>
     CreateTeamUserService<TeamUserRepository, TeamRoleRepository>
 {
     pub fn new(
-        team_user_repository: Box<TeamUserRepository>,
-        team_role_repository: Box<TeamRoleRepository>,
+        team_user_repository: TeamUserRepository,
+        team_role_repository: TeamRoleRepository,
     ) -> Self {
         CreateTeamUserService {
             team_user_repository,
@@ -129,10 +129,7 @@ mod test {
             });
 
         // testing
-        let sut = CreateTeamUserService::new(
-            Box::new(mocked_team_user_repo),
-            Box::new(mocked_team_role_repo),
-        );
+        let sut = CreateTeamUserService::new(mocked_team_user_repo, mocked_team_role_repo);
 
         let result = sut
             .exec(CreateTeamUserParams {

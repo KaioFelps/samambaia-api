@@ -14,13 +14,13 @@ pub struct SolveCommentReportParams {
 }
 
 pub struct SolveCommentReportService<CommentReportRepository: CommentReportRepositoryTrait> {
-    comment_report_repository: Box<CommentReportRepository>,
+    comment_report_repository: CommentReportRepository,
 }
 
 impl<CommentReportRepository: CommentReportRepositoryTrait>
     SolveCommentReportService<CommentReportRepository>
 {
-    pub fn new(comment_report_repository: Box<CommentReportRepository>) -> Self {
+    pub fn new(comment_report_repository: CommentReportRepository) -> Self {
         SolveCommentReportService {
             comment_report_repository,
         }
@@ -143,7 +143,7 @@ mod test {
             });
 
         let sut = SolveCommentReportService {
-            comment_report_repository: Box::new(mocked_comment_report_repo),
+            comment_report_repository: mocked_comment_report_repo,
         };
 
         let fake_staff_id = Uuid::new_v4();

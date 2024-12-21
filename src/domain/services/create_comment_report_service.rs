@@ -16,14 +16,14 @@ pub struct CreateCommentReportParams {
 }
 pub struct CreateCommentReportService<CR: CommentRepositoryTrait, CRR: CommentReportRepositoryTrait>
 {
-    comment_repository: Box<CR>,
-    comment_report_repository: Box<CRR>,
+    comment_repository: CR,
+    comment_report_repository: CRR,
 }
 
 impl<CR: CommentRepositoryTrait, CRR: CommentReportRepositoryTrait>
     CreateCommentReportService<CR, CRR>
 {
-    pub fn new(comment_repository: Box<CR>, comment_report_repository: Box<CRR>) -> Self {
+    pub fn new(comment_repository: CR, comment_report_repository: CRR) -> Self {
         CreateCommentReportService {
             comment_repository,
             comment_report_repository,
@@ -120,8 +120,8 @@ mod test {
             .times(1);
 
         let service = super::CreateCommentReportService {
-            comment_repository: Box::new(mocked_comment_repo),
-            comment_report_repository: Box::new(mocked_comment_report_repo),
+            comment_repository: mocked_comment_repo,
+            comment_report_repository: mocked_comment_report_repo,
         };
 
         let result = service

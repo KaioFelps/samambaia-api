@@ -11,17 +11,19 @@ pub struct AuthenticateUserParams {
     pub nickname: String,
     pub password: String,
 }
-pub struct AuthenticateUserService<UserRepository: UserRepositoryTrait> {
-    user_repository: Box<UserRepository>,
-    jwt_service: Box<JwtService>,
-    comparer: Box<dyn ComparerTrait>,
+pub struct AuthenticateUserService<UserRepository: UserRepositoryTrait, Comparer: ComparerTrait> {
+    user_repository: UserRepository,
+    jwt_service: JwtService,
+    comparer: Comparer,
 }
 
-impl<UserRepositoryType: UserRepositoryTrait> AuthenticateUserService<UserRepositoryType> {
+impl<UserRepositoryType: UserRepositoryTrait, Comparer: ComparerTrait>
+    AuthenticateUserService<UserRepositoryType, Comparer>
+{
     pub fn new(
-        user_repository: Box<UserRepositoryType>,
-        jwt_service: Box<JwtService>,
-        comparer: Box<dyn ComparerTrait>,
+        user_repository: UserRepositoryType,
+        jwt_service: JwtService,
+        comparer: Comparer,
     ) -> Self {
         AuthenticateUserService {
             user_repository,

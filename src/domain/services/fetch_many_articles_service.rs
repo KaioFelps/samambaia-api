@@ -27,8 +27,8 @@ where
     ArticleRepository: ArticleRepositoryTrait,
     UserRepository: UserRepositoryTrait,
 {
-    article_repository: Box<ArticleRepository>,
-    user_repository: Box<UserRepository>,
+    article_repository: ArticleRepository,
+    user_repository: UserRepository,
 }
 
 #[derive(Debug)]
@@ -41,10 +41,7 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
     FetchManyArticlesService<ArticleRepository, UserRepository>
 {
     // CONSTRUCTOR
-    pub fn new(
-        article_repository: Box<ArticleRepository>,
-        user_repository: Box<UserRepository>,
-    ) -> Self {
+    pub fn new(article_repository: ArticleRepository, user_repository: UserRepository) -> Self {
         FetchManyArticlesService {
             article_repository,
             user_repository,
@@ -184,10 +181,8 @@ mod test {
                 Ok(None)
             });
 
-        let fetch_many_articles_service = FetchManyArticlesService::new(
-            Box::new(mocked_article_repo),
-            Box::new(mocked_user_repo),
-        );
+        let fetch_many_articles_service =
+            FetchManyArticlesService::new(mocked_article_repo, mocked_user_repo);
 
         let query_by_title_request = fetch_many_articles_service
             .exec(FetchManyArticlesParams {

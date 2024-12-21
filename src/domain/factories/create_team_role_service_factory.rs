@@ -3,6 +3,6 @@ use crate::infra::sea::repositories::sea_team_role_repository::SeaTeamRoleReposi
 use crate::infra::sea::sea_service::SeaService;
 
 pub fn exec(db_conn: &SeaService) -> CreateTeamRoleService<SeaTeamRoleRepository> {
-    let sea_team_role_repository = Box::new(SeaTeamRoleRepository::new(db_conn));
+    let sea_team_role_repository = SeaTeamRoleRepository::new(db_conn);
     CreateTeamRoleService::new(sea_team_role_repository)
 }

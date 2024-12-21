@@ -19,11 +19,11 @@ pub struct FetchManyTeamUsersParams {
 }
 
 pub struct FetchManyTeamUsersService<TeamUserRepository: TeamUserRepositoryTrait> {
-    team_user_repository: Box<TeamUserRepository>,
+    team_user_repository: TeamUserRepository,
 }
 
 impl<TeamUserRepository: TeamUserRepositoryTrait> FetchManyTeamUsersService<TeamUserRepository> {
-    pub fn new(team_user_repository: Box<TeamUserRepository>) -> Self {
+    pub fn new(team_user_repository: TeamUserRepository) -> Self {
         FetchManyTeamUsersService {
             team_user_repository,
         }
@@ -163,7 +163,7 @@ mod test {
 
         // TESTING
 
-        let sut = FetchManyTeamUsersService::new(Box::new(mocked_team_user_repository));
+        let sut = FetchManyTeamUsersService::new(mocked_team_user_repository);
 
         let result_1 = sut
             .exec(FetchManyTeamUsersParams {

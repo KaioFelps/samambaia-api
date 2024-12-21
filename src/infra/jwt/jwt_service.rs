@@ -53,7 +53,7 @@ pub struct MakeJwtResult {
     pub refresh_token: EncodedToken,
 }
 
-pub struct JwtService {}
+pub struct JwtService;
 
 impl JwtService {
     pub fn make_jwt(

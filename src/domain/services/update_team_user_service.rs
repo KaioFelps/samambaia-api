@@ -16,11 +16,11 @@ pub struct UpdateTeamUserParams {
 }
 
 pub struct UpdateTeamUserService<TeamUserRepository: TeamUserRepositoryTrait> {
-    team_user_repository: Box<TeamUserRepository>,
+    team_user_repository: TeamUserRepository,
 }
 
 impl<TeamUserRepository: TeamUserRepositoryTrait> UpdateTeamUserService<TeamUserRepository> {
-    pub fn new(team_user_repository: Box<TeamUserRepository>) -> Self {
+    pub fn new(team_user_repository: TeamUserRepository) -> Self {
         UpdateTeamUserService {
             team_user_repository,
         }
@@ -146,7 +146,7 @@ mod test {
             });
 
         // testing
-        let sut = UpdateTeamUserService::new(Box::new(mocked_team_user_repository));
+        let sut = UpdateTeamUserService::new(mocked_team_user_repository);
 
         let res = sut
             .exec(UpdateTeamUserParams {

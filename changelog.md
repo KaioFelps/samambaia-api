@@ -14,7 +14,10 @@ has been introduced.
 
 ### Changed
 - added `SeaMapper` trait that defines the 4 most common methods a SEA-ORM mapper might have;
-- implemented `SeaMapper` for every *mapper* and fixed repositories broken method calls due to the *mappers* changes.
+- implemented `SeaMapper` for every *mapper* and fixed repositories broken method calls due to the *mappers* changes;
+- made Sea repositories constructors synchronous;
+- made services factories synchronous;
+- move repositories dependencies out of `Box` in every service.
 
 ### Changed
 - database performance has been improved by 92%:

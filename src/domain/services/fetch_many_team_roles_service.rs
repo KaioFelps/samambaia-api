@@ -22,11 +22,11 @@ pub struct FetchManyTeamRolesResponse {
 }
 
 pub struct FetchManyTeamRolesService<TeamRoleRepository: TeamRoleRepositoryTrait> {
-    team_role_repository: Box<TeamRoleRepository>,
+    team_role_repository: TeamRoleRepository,
 }
 
 impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<TeamRoleRepository> {
-    pub fn new(team_role_repository: Box<TeamRoleRepository>) -> Self {
+    pub fn new(team_role_repository: TeamRoleRepository) -> Self {
         FetchManyTeamRolesService {
             team_role_repository,
         }
@@ -148,7 +148,7 @@ mod test {
 
         // TESTING
 
-        let sut = FetchManyTeamRolesService::new(Box::new(mocked_team_role_repository));
+        let sut = FetchManyTeamRolesService::new(mocked_team_role_repository);
 
         let result_1 = sut
             .exec(FetchManyTeamRolesParams {

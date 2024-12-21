@@ -4,11 +4,11 @@ use crate::error::DomainError;
 use crate::util::generate_service_internal_error;
 
 pub struct FetchHomePageArticlesService<ArticleRepository: ArticleRepositoryTrait> {
-    article_repository: Box<ArticleRepository>,
+    article_repository: ArticleRepository,
 }
 
 impl<ArticleRepository: ArticleRepositoryTrait> FetchHomePageArticlesService<ArticleRepository> {
-    pub fn new(article_repository: Box<ArticleRepository>) -> Self {
+    pub fn new(article_repository: ArticleRepository) -> Self {
         FetchHomePageArticlesService { article_repository }
     }
 
@@ -61,7 +61,7 @@ mod test {
             "Foo".into(),
         ));
 
-        let service = FetchHomePageArticlesService::new(Box::new(article_repository));
+        let service = FetchHomePageArticlesService::new(article_repository);
 
         let result = service.exec().await.unwrap();
 

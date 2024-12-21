@@ -12,11 +12,11 @@ pub struct DeleteTeamUserParams {
 }
 
 pub struct DeleteTeamUserService<TeamUserRepository: TeamUserRepositoryTrait> {
-    team_user_repository: Box<TeamUserRepository>,
+    team_user_repository: TeamUserRepository,
 }
 
 impl<TeamUserRepository: TeamUserRepositoryTrait> DeleteTeamUserService<TeamUserRepository> {
-    pub fn new(team_user_repository: Box<TeamUserRepository>) -> Self {
+    pub fn new(team_user_repository: TeamUserRepository) -> Self {
         DeleteTeamUserService {
             team_user_repository,
         }
@@ -114,7 +114,7 @@ mod test {
                 Ok(())
             });
 
-        let sut = DeleteTeamUserService::new(Box::new(mocked_team_user_repository));
+        let sut = DeleteTeamUserService::new(mocked_team_user_repository);
 
         let failing_res = sut
             .exec(DeleteTeamUserParams {

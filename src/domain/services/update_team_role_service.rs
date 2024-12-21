@@ -13,11 +13,11 @@ pub struct UpdateTeamRoleParams {
 }
 
 pub struct UpdateTeamRoleService<TeamRoleRepository: TeamRoleRepositoryTrait> {
-    team_role_repository: Box<TeamRoleRepository>,
+    team_role_repository: TeamRoleRepository,
 }
 
 impl<TeamRoleRepository: TeamRoleRepositoryTrait> UpdateTeamRoleService<TeamRoleRepository> {
-    pub fn new(team_role_repository: Box<TeamRoleRepository>) -> Self {
+    pub fn new(team_role_repository: TeamRoleRepository) -> Self {
         UpdateTeamRoleService {
             team_role_repository,
         }
@@ -127,7 +127,7 @@ mod test {
 
         // TESTING
 
-        let sut = UpdateTeamRoleService::new(Box::new(mocked_team_role_repository));
+        let sut = UpdateTeamRoleService::new(mocked_team_role_repository);
 
         // should fail because admins cannot update team roles
         let result = sut

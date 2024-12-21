@@ -12,11 +12,11 @@ pub struct ToggleCommentVisibilityParams<'exec> {
 }
 
 pub struct ToggleCommentVisibilityService<CommentRepository: CommentRepositoryTrait> {
-    comment_repository: Box<CommentRepository>,
+    comment_repository: CommentRepository,
 }
 
 impl<CommentRepository: CommentRepositoryTrait> ToggleCommentVisibilityService<CommentRepository> {
-    pub fn new(comment_repository: Box<CommentRepository>) -> Self {
+    pub fn new(comment_repository: CommentRepository) -> Self {
         ToggleCommentVisibilityService { comment_repository }
     }
 
@@ -115,7 +115,7 @@ mod test {
 
         // SERVICE INSTANTIATING
         let sut = ToggleCommentVisibilityService {
-            comment_repository: Box::new(mocked_comment_repo),
+            comment_repository: mocked_comment_repo,
         };
 
         let res = sut

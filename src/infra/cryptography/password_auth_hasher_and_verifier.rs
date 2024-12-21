@@ -3,7 +3,7 @@ use crate::domain::cryptography::{comparer::ComparerTrait, hasher::HasherTrait};
 use password_auth::generate_hash;
 use password_auth::verify_password;
 
-pub struct PasswordAuthHasherAndVerifier {}
+pub struct PasswordAuthHasherAndVerifier;
 
 impl HasherTrait for PasswordAuthHasherAndVerifier {
     fn hash(&self, password: String) -> String {

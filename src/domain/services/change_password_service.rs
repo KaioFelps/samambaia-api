@@ -11,15 +11,20 @@ pub struct ChangePasswordParams {
     pub current_password: String,
     pub new_password: String,
 }
-pub struct ChangePasswordService<UserRepository: UserRepositoryTrait> {
-    user_repository: Box<UserRepository>,
-    hasher_and_comparer: Box<dyn HasherAndComparerTrait>,
+pub struct ChangePasswordService<
+    UserRepository: UserRepositoryTrait,
+    HasherAndComparer: HasherAndComparerTrait,
+> {
+    user_repository: UserRepository,
+    hasher_and_comparer: HasherAndComparer,
 }
 
-impl<UserRepositoryType: UserRepositoryTrait> ChangePasswordService<UserRepositoryType> {
+impl<UserRepositoryType: UserRepositoryTrait, HasherAndComparer: HasherAndComparerTrait>
+    ChangePasswordService<UserRepositoryType, HasherAndComparer>
+{
     pub fn new(
-        user_repository: Box<UserRepositoryType>,
-        hasher_and_comparer: Box<dyn HasherAndComparerTrait>,
+        user_repository: UserRepositoryType,
+        hasher_and_comparer: HasherAndComparer,
     ) -> Self {
         ChangePasswordService {
             user_repository,
@@ -126,10 +131,7 @@ mod test {
             });
 
         // testing
-        let sut = ChangePasswordService::new(
-            Box::new(mocked_user_repository),
-            Box::new(fake_hasher.clone()),
-        );
+        let sut = ChangePasswordService::new(mocked_user_repository, fake_hasher.clone());
 
         let res = sut
             .exec(ChangePasswordParams {

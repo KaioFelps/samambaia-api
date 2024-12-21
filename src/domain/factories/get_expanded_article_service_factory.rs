@@ -11,9 +11,9 @@ pub fn exec(
     SeaArticleRepository,
     SeaCommentUserArticleRepository,
 > {
-    let user_repository = Box::new(SeaUserRepository::new(db_conn));
-    let article_repository = Box::new(SeaArticleRepository::new(db_conn));
-    let comment_user_article_repository = Box::new(SeaCommentUserArticleRepository::new(db_conn));
+    let user_repository = SeaUserRepository::new(db_conn);
+    let article_repository = SeaArticleRepository::new(db_conn);
+    let comment_user_article_repository = SeaCommentUserArticleRepository::new(db_conn);
 
     GetExpandedArticleService::new(
         user_repository,

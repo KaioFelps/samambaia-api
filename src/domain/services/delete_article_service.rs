@@ -15,18 +15,18 @@ pub struct DeleteArticleService<
     ACR: ArticleCommentRepositoryTrait,
     UR: UserRepositoryTrait,
 > {
-    article_repository: Box<AR>,
-    article_comment_repository: Box<ACR>,
-    user_repository: Box<UR>,
+    article_repository: AR,
+    article_comment_repository: ACR,
+    user_repository: UR,
 }
 
 impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRepositoryTrait>
     DeleteArticleService<AR, ACR, UR>
 {
     pub fn new(
-        article_repository: Box<AR>,
-        article_comment_repository: Box<ACR>,
-        user_repository: Box<UR>,
+        article_repository: AR,
+        article_comment_repository: ACR,
+        user_repository: UR,
     ) -> Self {
         DeleteArticleService {
             article_repository,
@@ -161,9 +161,9 @@ mod test {
         });
 
         let service = DeleteArticleService {
-            user_repository: Box::new(mocked_user_repo),
-            article_comment_repository: Box::new(mocked_article_comment_repo),
-            article_repository: Box::new(mocked_article_repo),
+            user_repository: mocked_user_repo,
+            article_comment_repository: mocked_article_comment_repo,
+            article_repository: mocked_article_repo,
         };
 
         let result = service

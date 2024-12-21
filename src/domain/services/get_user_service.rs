@@ -10,11 +10,11 @@ pub struct GetUserServiceParams {
 }
 
 pub struct GetUserService<UserRepository: UserRepositoryTrait> {
-    user_repository: Box<UserRepository>,
+    user_repository: UserRepository,
 }
 
 impl<UserRepository: UserRepositoryTrait> GetUserService<UserRepository> {
-    pub fn new(user_repository: Box<UserRepository>) -> Self {
+    pub fn new(user_repository: UserRepository) -> Self {
         GetUserService { user_repository }
     }
 
@@ -67,7 +67,7 @@ mod test {
             });
 
         // TESTING
-        let sut = GetUserService::new(Box::new(mocked_user_repository));
+        let sut = GetUserService::new(mocked_user_repository);
 
         let success_result = sut
             .exec(GetUserServiceParams { user_id: user.id() })

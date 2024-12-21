@@ -6,8 +6,8 @@ use crate::infra::sea::sea_service::SeaService;
 pub fn exec(
     db_conn: &SeaService,
 ) -> CreateTeamUserService<SeaTeamUserRepository, SeaTeamRoleRepository> {
-    let team_role_repository = Box::new(SeaTeamRoleRepository::new(db_conn));
-    let team_user_repository = Box::new(SeaTeamUserRepository::new(db_conn));
+    let team_role_repository = SeaTeamRoleRepository::new(db_conn);
+    let team_user_repository = SeaTeamUserRepository::new(db_conn);
 
     CreateTeamUserService::new(team_user_repository, team_role_repository)
 }

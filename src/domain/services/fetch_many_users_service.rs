@@ -19,11 +19,11 @@ pub struct FetchManyUsersParams {
 }
 
 pub struct FetchManyUsersService<UserRepository: UserRepositoryTrait> {
-    user_repository: Box<UserRepository>,
+    user_repository: UserRepository,
 }
 
 impl<UserRepository: UserRepositoryTrait> FetchManyUsersService<UserRepository> {
-    pub fn new(user_repository: Box<UserRepository>) -> Self {
+    pub fn new(user_repository: UserRepository) -> Self {
         FetchManyUsersService { user_repository }
     }
 
@@ -153,7 +153,7 @@ mod test {
 
         // TESTING
 
-        let sut = FetchManyUsersService::new(Box::new(mocked_user_repository));
+        let sut = FetchManyUsersService::new(mocked_user_repository);
 
         let result_1 = sut
             .exec(FetchManyUsersParams {

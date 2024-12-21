@@ -11,11 +11,11 @@ pub struct DeleteCommentParams {
     pub comment_id: Uuid,
 }
 pub struct DeleteCommentService<CommentRepository: CommentRepositoryTrait> {
-    comment_repository: Box<CommentRepository>,
+    comment_repository: CommentRepository,
 }
 
 impl<CommentRepository: CommentRepositoryTrait> DeleteCommentService<CommentRepository> {
-    pub fn new(comment_repository: Box<CommentRepository>) -> Self {
+    pub fn new(comment_repository: CommentRepository) -> Self {
         DeleteCommentService { comment_repository }
     }
 
@@ -108,7 +108,7 @@ mod test {
             });
 
         let service = DeleteCommentService {
-            comment_repository: Box::new(mocked_comment_repo),
+            comment_repository: mocked_comment_repo,
         };
 
         let result = service.exec(DeleteCommentParams {

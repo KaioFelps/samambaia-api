@@ -4,12 +4,14 @@ use crate::infra::jwt::jwt_service::JwtService;
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 
-pub fn exec(db_conn: &SeaService) -> AuthenticateUserService<SeaUserRepository> {
-    let user_repository: Box<SeaUserRepository> = Box::new(SeaUserRepository::new(db_conn));
+pub fn exec(
+    db_conn: &SeaService,
+) -> AuthenticateUserService<SeaUserRepository, PasswordAuthHasherAndVerifier> {
+    let user_repository = SeaUserRepository::new(db_conn);
 
-    let jwt_service = JwtService {};
+    let jwt_service = JwtService;
 
-    let verifier = Box::new(PasswordAuthHasherAndVerifier {});
+    let verifier = PasswordAuthHasherAndVerifier;
 
-    AuthenticateUserService::new(user_repository, Box::new(jwt_service), verifier)
+    AuthenticateUserService::new(user_repository, jwt_service, verifier)
 }

@@ -12,11 +12,11 @@ pub struct CreateTeamRoleParams {
 }
 
 pub struct CreateTeamRoleService<TeamRoleRepository: TeamRoleRepositoryTrait> {
-    team_role_repository: Box<TeamRoleRepository>,
+    team_role_repository: TeamRoleRepository,
 }
 
 impl<TeamRoleRepository: TeamRoleRepositoryTrait> CreateTeamRoleService<TeamRoleRepository> {
-    pub fn new(team_role_repository: Box<TeamRoleRepository>) -> Self {
+    pub fn new(team_role_repository: TeamRoleRepository) -> Self {
         CreateTeamRoleService {
             team_role_repository,
         }
@@ -77,7 +77,7 @@ mod test {
             });
 
         // testing
-        let sut = CreateTeamRoleService::new(Box::new(mocked_team_role_repo));
+        let sut = CreateTeamRoleService::new(mocked_team_role_repo);
 
         let response = sut
             .exec(CreateTeamRoleParams {

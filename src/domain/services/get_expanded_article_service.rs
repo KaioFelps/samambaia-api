@@ -40,9 +40,9 @@ where
     AR: ArticleRepositoryTrait,
     CUAR: CommentUserArticleRepositoryTrait,
 {
-    user_repository: Box<UR>,
-    article_repository: Box<AR>,
-    comment_user_article_repository: Box<CUAR>,
+    user_repository: UR,
+    article_repository: AR,
+    comment_user_article_repository: CUAR,
 }
 
 impl<
@@ -52,9 +52,9 @@ impl<
     > GetExpandedArticleService<UR, AR, CUAR>
 {
     pub fn new(
-        user_repository: Box<UR>,
-        article_repository: Box<AR>,
-        comment_user_article_repository: Box<CUAR>,
+        user_repository: UR,
+        article_repository: AR,
+        comment_user_article_repository: CUAR,
     ) -> Self {
         GetExpandedArticleService {
             user_repository,
@@ -283,9 +283,9 @@ mod test {
             });
 
         let sut = GetExpandedArticleService {
-            user_repository: Box::new(mocked_user_repo),
-            comment_user_article_repository: Box::new(mock_comm_user_art_repo),
-            article_repository: Box::new(mocked_article_repository),
+            user_repository: mocked_user_repo,
+            comment_user_article_repository: mock_comm_user_art_repo,
+            article_repository: mocked_article_repository,
         };
 
         let allowed_result = sut

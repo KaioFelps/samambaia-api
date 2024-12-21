@@ -23,8 +23,8 @@ pub struct UpdateArticleService<
     ArticleRepository: ArticleRepositoryTrait,
     ArticleTagRepository: ArticleTagRepositoryTrait,
 > {
-    article_repository: Box<ArticleRepository>,
-    article_tag_repository: Box<ArticleTagRepository>,
+    article_repository: ArticleRepository,
+    article_tag_repository: ArticleTagRepository,
 }
 
 impl<
@@ -33,8 +33,8 @@ impl<
     > UpdateArticleService<ArticleRepository, ArticleTagRepository>
 {
     pub fn new(
-        article_repository: Box<ArticleRepository>,
-        article_tag_repository: Box<ArticleTagRepository>,
+        article_repository: ArticleRepository,
+        article_tag_repository: ArticleTagRepository,
     ) -> Self {
         UpdateArticleService {
             article_repository,
@@ -201,8 +201,8 @@ mod test {
         article_db.lock().unwrap().push(article.clone());
 
         let service = super::UpdateArticleService {
-            article_repository: Box::new(article_repository),
-            article_tag_repository: Box::new(article_tag_repository),
+            article_repository,
+            article_tag_repository,
         };
 
         let result = service

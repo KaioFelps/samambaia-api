@@ -19,7 +19,7 @@ pub struct FetchManyArticleCommentsWithAuthorService<CommentUserArticleRepositor
 where
     CommentUserArticleRepository: CommentUserArticleRepositoryTrait,
 {
-    article_comment_repository: Box<CommentUserArticleRepository>,
+    article_comment_repository: CommentUserArticleRepository,
 }
 
 #[derive(Debug)]
@@ -34,7 +34,7 @@ impl<CommentUserArticleRepository: CommentUserArticleRepositoryTrait>
     FetchManyArticleCommentsWithAuthorService<CommentUserArticleRepository>
 {
     // CONSTRUCTOR
-    pub fn new(article_comment_repository: Box<CommentUserArticleRepository>) -> Self {
+    pub fn new(article_comment_repository: CommentUserArticleRepository) -> Self {
         Self {
             article_comment_repository,
         }
@@ -188,7 +188,7 @@ mod test {
         );
 
         let fetch_many_comments_service =
-            FetchManyArticleCommentsWithAuthorService::new(Box::new(mocked_comment_repo));
+            FetchManyArticleCommentsWithAuthorService::new(mocked_comment_repo);
 
         let response = fetch_many_comments_service
             .exec(

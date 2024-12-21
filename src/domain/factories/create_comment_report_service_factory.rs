@@ -6,8 +6,8 @@ use crate::infra::sea::sea_service::SeaService;
 pub fn exec(
     db_conn: &SeaService,
 ) -> CreateCommentReportService<SeaCommentRepository, SeaCommentReportRepository> {
-    let comment_repository = Box::new(SeaCommentRepository::new(db_conn));
-    let comment_report_repository = Box::new(SeaCommentReportRepository::new(db_conn));
+    let comment_repository = SeaCommentRepository::new(db_conn);
+    let comment_report_repository = SeaCommentReportRepository::new(db_conn);
 
     CreateCommentReportService::new(comment_repository, comment_report_repository)
 }
