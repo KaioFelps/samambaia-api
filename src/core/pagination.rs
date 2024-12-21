@@ -5,6 +5,16 @@ pub struct PaginationResponse {
     pub total_items: u64,
 }
 
+impl PaginationResponse {
+    pub fn new(current_page: u32, items_count: u64, per_page: u32) -> Self {
+        Self {
+            current_page,
+            total_items: items_count,
+            total_pages: (items_count as f64 / per_page as f64).ceil() as u32,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct PaginationParameters<QT> {
     pub page: u32,
