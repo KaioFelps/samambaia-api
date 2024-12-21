@@ -9,6 +9,7 @@ use crate::{
     core::pagination::PaginationParameters, domain::domain_entities::announcement::Announcement,
 };
 
+#[derive(Clone)]
 pub enum AnnouncementQueryType {
     Description(String),
 }
@@ -23,7 +24,7 @@ pub trait AnnouncementRepositoryTrait {
     async fn find_by_id(&self, id: &Uuid) -> Result<Option<Announcement>, Box<dyn Error>>;
     async fn find_many(
         &self,
-        query: PaginationParameters<AnnouncementQueryType>,
+        params: PaginationParameters<AnnouncementQueryType>,
     ) -> Result<FindManyAnnouncementsResponse, Box<dyn Error>>;
     async fn delete(&self, id: &Uuid) -> Result<(), Box<dyn Error>>;
 }
