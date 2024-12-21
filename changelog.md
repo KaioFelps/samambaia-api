@@ -4,13 +4,13 @@ has been introduced.
 
 ## Unreleased
 ### Added
-- Introduced **Announcements** domain;
+- introduced **Announcements** domain;
     -   DB model, entity and domain entity;
     -   CRUD services.
-- Added CI automated tests + lint checks;
+- added CI automated tests + lint checks;
 
 ### Changed
-- Database performance has been improved by 92%:
+- database performance has been improved by 92%:
     -   database connection are now created only once at the application bootstrap;
     -   repositories now holds a reference for the database connection, instead of an owned connection;
     -   factories now requires a reference to a `SeaService` (database connection) in order to instantiate the
@@ -56,4 +56,4 @@ has been introduced.
 - introduced **Comments Reports** domain + CRUD + migrations and entities.
 
 ### Changed
-- Started using releases for managing the fansite versioning.
+- started using releases for managing the fansite versioning.
