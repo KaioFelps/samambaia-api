@@ -1,5 +1,10 @@
-use crate::domain::domain_entities::announcement::Announcement;
-use crate::domain::repositories::announcements_repository::MockAnnouncementRepositoryTrait;
+use crate::domain::repositories::announcements_repository::{
+    FindManyAnnouncementsResponse, MockAnnouncementRepositoryTrait,
+};
+use crate::domain::{
+    domain_entities::announcement::Announcement,
+    repositories::announcements_repository::AnnouncementQueryType,
+};
 use std::sync::{Arc, Mutex};
 
 pub fn get_announcements_repository() -> (
@@ -58,6 +63,39 @@ pub fn get_announcements_repository() -> (
 
             Ok(())
         });
+
+    let db_clone = db.clone();
+    repository.expect_find_many().returning(move |params| {
+        let db = db_clone.lock().unwrap();
+
+        let mut selected = match params.query {
+            None => db.iter().cloned().collect::<Vec<Announcement>>(),
+            Some(query) => match query {
+                AnnouncementQueryType::Description(value) => db
+                    .iter()
+                    .filter(|announcement| {
+                        announcement
+                            .description()
+                            .to_lowercase()
+                            .contains(&value.to_lowercase())
+                    })
+                    .cloned()
+                    .collect::<Vec<Announcement>>(),
+            },
+        };
+
+        let total_items = selected.len() as u64;
+
+        selected.sort_by(|a, b| b.created_at().cmp(a.created_at()));
+
+        let selected = selected
+            .into_iter()
+            .skip(((params.page - 1) * params.items_per_page) as usize)
+            .take(params.items_per_page as usize)
+            .collect::<Vec<Announcement>>();
+
+        Ok(FindManyAnnouncementsResponse(selected, total_items))
+    });
 
     (db, repository)
 }
