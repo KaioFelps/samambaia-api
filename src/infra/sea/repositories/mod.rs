@@ -1,3 +1,4 @@
+pub mod sea_announcement_repository;
 pub mod sea_article_comment_repository;
 pub mod sea_article_repository;
 pub mod sea_article_tag_repository;
