@@ -13,3 +13,4 @@ has been introduced.
 - Introduced `Announcements` domain;
     -   DB model, entity and domain entity;
     -   CRUD services.
+- Added CI automated tests + lint checks;
