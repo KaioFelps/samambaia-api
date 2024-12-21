@@ -18,7 +18,7 @@ First of all, compile the cli with `cargo build --release -p hubbitos-cli`.
 Open your bash and type `source .bashrc` and you good to go with Hubbitos CLI.
 
 ### Powershell
-Open your powershell terminal and type `. ./src/cli.ps1` and you good to go with Hubbitos CLI.
+Open your powershell terminal and type `. ./cli.ps1` and you good to go with Hubbitos CLI.
 
 ## Services
 Generate a service file on `src/domain/services` and append it in `src/domain/services/mod.rs`.
