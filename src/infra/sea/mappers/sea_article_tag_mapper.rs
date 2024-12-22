@@ -1,44 +1,42 @@
-use entities::article_tag::Model as ArticleTagModel;
 use entities::article_tag::ActiveModel as ArticleTagActiveModel;
+use entities::article_tag::Model as ArticleTagModel;
 use sea_orm::IntoActiveValue;
 
 use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
 
+use super::SeaMapper;
+
 pub struct SeaArticleTagMapper;
 
+impl SeaMapper<ArticleTag, ArticleTagModel, ArticleTagActiveModel> for SeaArticleTagMapper {
+    fn entity_into_model(entity: ArticleTag) -> ArticleTagModel {
+        ArticleTagModel {
+            id: entity.id(),
+            value: entity.value().to_owned(),
+        }
+    }
+
+    fn entity_into_active_model(entity: ArticleTag) -> ArticleTagActiveModel {
+        ArticleTagActiveModel {
+            id: entity.id().into_active_value(),
+            value: entity.value().to_owned().into_active_value(),
+        }
+    }
+
+    fn active_model_into_entity(active_model: ArticleTagActiveModel) -> ArticleTag {
+        ArticleTag::new_from_existing(active_model.id.unwrap(), active_model.value.unwrap())
+    }
+
+    fn model_into_entity(model: ArticleTagModel) -> ArticleTag {
+        ArticleTag::new_from_existing(model.id, model.value)
+    }
+}
+
 impl SeaArticleTagMapper {
-    pub fn article_tag_to_sea_model(tag: ArticleTag) -> ArticleTagModel {
-        return ArticleTagModel {
-            id: tag.id(),
-            value: tag.value().to_owned()
-        };
-    }
-
-    pub fn draft_article_tag_to_sea_active_model(tag: DraftArticleTag) -> ArticleTagActiveModel {
-        return ArticleTagActiveModel {
-            value: tag.value().to_owned().into_active_value(),
+    pub fn draft_entity_into_active_model(draft_entity: DraftArticleTag) -> ArticleTagActiveModel {
+        ArticleTagActiveModel {
+            value: draft_entity.value().to_owned().into_active_value(),
             ..Default::default()
-        };
-    }
-
-    pub fn article_tag_to_sea_active_model(tag: ArticleTag) -> ArticleTagActiveModel {
-        return ArticleTagActiveModel {
-            id: tag.id().into_active_value(),
-            value: tag.value().to_owned().into_active_value(),
-        };
-    }
-
-    pub fn active_model_to_article_tag(active_model_tag: ArticleTagActiveModel) -> ArticleTag {
-        return ArticleTag::new_from_existing(
-            active_model_tag.id.unwrap(),
-            active_model_tag.value.unwrap()
-        );
-    }
-
-    pub fn model_to_article_tag(model_tag: ArticleTagModel) -> ArticleTag {
-        return ArticleTag::new_from_existing(
-            model_tag.id,
-            model_tag.value,
-        );
+        }
     }
 }

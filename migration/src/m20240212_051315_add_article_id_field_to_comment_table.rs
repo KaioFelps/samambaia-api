@@ -17,12 +17,14 @@ impl MigrationTrait for Migration {
 
         manager
             .create_foreign_key(
-                ForeignKey::create().name("fk-article-id")
+                ForeignKey::create()
+                    .name("fk-article-id")
                     .from(Comment::Table, Comment::ArticleId)
                     .to(Article::Table, Article::Id)
                     .on_delete(ForeignKeyAction::Cascade)
-                    .to_owned()
-            ).await?;
+                    .to_owned(),
+            )
+            .await?;
 
         Ok(())
     }
@@ -31,9 +33,9 @@ impl MigrationTrait for Migration {
         manager
             .alter_table(
                 Table::alter()
-                .table(Comment::Table)
-                .drop_column(Comment::ArticleId)
-                .to_owned()
+                    .table(Comment::Table)
+                    .drop_column(Comment::ArticleId)
+                    .to_owned(),
             )
             .await
     }
@@ -48,5 +50,5 @@ enum Comment {
 #[derive(DeriveIden)]
 enum Article {
     Table,
-    Id
+    Id,
 }

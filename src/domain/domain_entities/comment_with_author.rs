@@ -12,18 +12,14 @@ pub struct CommentWithAuthor {
     content: String,
     is_active: bool,
     created_at: DateTime,
-    author: User
+    author: User,
 }
 
-impl CommentWithAuthor{
+impl CommentWithAuthor {
     // CONSTRUCTORS
-    pub fn new(
-        article_id: Option<Uuid>,
-        content: String,
-        author: User,
-    ) -> Self {
+    pub fn new(article_id: Option<Uuid>, content: String, author: User) -> Self {
         let id = Uuid::new_v4();
-        let created_at  = TimeHelper::now();
+        let created_at = TimeHelper::now();
         let is_active = true;
 
         CommentWithAuthor {
@@ -32,7 +28,7 @@ impl CommentWithAuthor{
             content,
             is_active,
             created_at,
-            author
+            author,
         }
     }
 
@@ -42,7 +38,7 @@ impl CommentWithAuthor{
         content: String,
         is_active: bool,
         created_at: DateTime,
-        author: User
+        author: User,
     ) -> Self {
         CommentWithAuthor {
             id,
@@ -50,7 +46,7 @@ impl CommentWithAuthor{
             content,
             is_active,
             created_at,
-            author
+            author,
         }
     }
 

@@ -4,24 +4,21 @@ use entities::comment::Model as CommentModel;
 use entities::user::Model as UserModel;
 
 use super::sea_user_mapper::SeaUserMapper;
+use super::SeaMapper;
 
-pub struct SeaCommentWithAuthorMapper {}
+pub struct SeaCommentWithAuthorMapper;
 
 impl SeaCommentWithAuthorMapper {
-    pub fn model_to_comment_with_author(models: (CommentModel, UserModel)) -> CommentWithAuthor {
-        let (model_comment, model_user) = models;
+    pub fn models_into_entity(entities: (CommentModel, UserModel)) -> CommentWithAuthor {
+        let (comment_model, user_model) = entities;
 
-        let domain_author = SeaUserMapper::model_to_user(model_user);
-        
-        let comment_with_author = CommentWithAuthor::new_from_existing(
-            model_comment.id.into(),
-            model_comment.article_id.into(),
-            model_comment.content.into(),
-            model_comment.is_active,
-            model_comment.created_at,
-            domain_author,
-        );
-
-        comment_with_author
+        CommentWithAuthor::new_from_existing(
+            comment_model.id,
+            comment_model.article_id,
+            comment_model.content,
+            comment_model.is_active,
+            comment_model.created_at,
+            SeaUserMapper::model_into_entity(user_model),
+        )
     }
 }

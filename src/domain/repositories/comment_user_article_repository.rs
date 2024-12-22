@@ -1,17 +1,17 @@
-use async_trait::async_trait;
-use uuid::Uuid;
-use std::error::Error;
 use crate::core::pagination::PaginationParameters;
+use async_trait::async_trait;
+use std::error::Error;
+use uuid::Uuid;
 
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
- 
+
 #[cfg(test)]
 use mockall::automock;
 
 #[derive(Debug)]
-pub struct FindManyCommentsWithAuthorResponse (
+pub struct FindManyCommentsWithAuthorResponse(
     pub Vec<CommentWithAuthor>, // data
-    pub u64, // count
+    pub u64,                    // count
 );
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -27,6 +27,6 @@ pub trait CommentUserArticleRepositoryTrait {
         &self,
         article_id: Uuid,
         include_inactive: bool,
-        params: PaginationParameters<CommentWithAuthorQueryType>
+        params: PaginationParameters<CommentWithAuthorQueryType>,
     ) -> Result<FindManyCommentsWithAuthorResponse, Box<dyn Error>>;
 }

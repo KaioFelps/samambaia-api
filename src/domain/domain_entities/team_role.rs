@@ -13,12 +13,9 @@ pub struct TeamRole {
 
 impl TeamRole {
     // CONSTRUCTORS
-    pub fn new(
-        title: String,
-        description: String,
-    ) -> Self {
+    pub fn new(title: String, description: String) -> Self {
         let id = Uuid::new_v4();
-        let created_at  = TimeHelper::now();
+        let created_at = TimeHelper::now();
 
         TeamRole {
             id,
@@ -54,7 +51,7 @@ impl TeamRole {
     pub fn description(&self) -> &str {
         self.description.as_ref()
     }
-    
+
     pub fn created_at(&self) -> DateTime {
         self.created_at
     }

@@ -1,25 +1,22 @@
+use std::fmt::Display;
+
 use unicode_normalization::UnicodeNormalization;
 use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Slug {
-    value: String
+    value: String,
 }
 
 impl Slug {
     // CONSTRUCTORS
-    pub fn new(
-        id: Uuid,
-        title: String
-    ) -> Self {
+    pub fn new(id: Uuid, title: String) -> Self {
         let value = Self::generate_slug(id, title);
-        
+
         Slug { value }
     }
 
-    pub fn new_from_existing(
-        value: String
-    ) -> Self {
+    pub fn new_from_existing(value: String) -> Self {
         Slug { value }
     }
 
@@ -48,11 +45,11 @@ impl Slug {
         let normalized_text = format!("{}-{}", id_first_hash, normalized_text);
         normalized_text
     }
+}
 
-    // GETTERS
-
-    pub fn to_string(&self) -> String {
-        self.value.clone()
+impl Display for Slug {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value)
     }
 }
 
@@ -66,11 +63,17 @@ mod test {
 
         let uuid = Uuid::new_v4();
 
-        let slug = Slug::new(uuid.clone(), text);
-        
-        let first_hash = (uuid.to_string().split("-").collect::<Vec<&str>>())[0].to_string(); 
-        
-        assert_eq!(format!("{}-habbo-e-atualizado-mais-uma-vez-por-avo-em-2024-lacre", first_hash), slug.to_string());
+        let slug = Slug::new(uuid, text);
+
+        let first_hash = (uuid.to_string().split("-").collect::<Vec<&str>>())[0].to_string();
+
+        assert_eq!(
+            format!(
+                "{}-habbo-e-atualizado-mais-uma-vez-por-avo-em-2024-lacre",
+                first_hash
+            ),
+            slug.to_string()
+        );
     }
 
     #[test]

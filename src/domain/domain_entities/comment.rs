@@ -14,15 +14,10 @@ pub struct Comment {
 }
 
 impl Comment {
-
     // CONSTRUCTORS
-    pub fn new(
-        author_id: Uuid,
-        article_id: Option<Uuid>,
-        content: String,
-    ) -> Self {
+    pub fn new(author_id: Uuid, article_id: Option<Uuid>, content: String) -> Self {
         let id = Uuid::new_v4();
-        let created_at  = TimeHelper::now();
+        let created_at = TimeHelper::now();
         let is_active = true;
 
         Comment {
@@ -31,7 +26,7 @@ impl Comment {
             author_id,
             content,
             is_active,
-            created_at
+            created_at,
         }
     }
 

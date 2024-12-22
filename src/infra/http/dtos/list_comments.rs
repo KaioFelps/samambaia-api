@@ -9,10 +9,10 @@ use validator::Validate;
 */
 #[derive(Serialize, Deserialize, Validate)]
 pub struct ListCommentsDto {
-    #[validate(range(min=1, message = "Min page is 1."))]
+    #[validate(range(min = 1, message = "Min page is 1."))]
     pub page: Option<u32>,
 
-    #[validate(range(min=1, message = "Per page amount mus be at least 1."))]
+    #[validate(range(min = 1, message = "Per page amount mus be at least 1."))]
     pub per_page: Option<u8>,
 
     pub include_inactive: Option<bool>,

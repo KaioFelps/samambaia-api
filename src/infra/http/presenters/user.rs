@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime as DateTime;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::domain::domain_entities::{role::Role, user::User};
@@ -21,7 +21,7 @@ impl PresenterTrait<User, MappedUser> for UserPresenter {
             nickname: user.nickname().into(),
             id: user.id(),
             role: user.role().unwrap(),
-            createdAt: user.created_at()
+            createdAt: user.created_at(),
         }
     }
 }

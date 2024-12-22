@@ -1,5 +1,5 @@
-use chrono::NaiveDateTime as DateTime;
 use crate::libs::time::TimeHelper;
+use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -10,7 +10,7 @@ pub struct TeamUser {
     user_function: String,
     twitter: Option<String>,
     discord: Option<String>,
-    created_at: DateTime
+    created_at: DateTime,
 }
 
 impl TeamUser {
@@ -23,7 +23,7 @@ impl TeamUser {
         team_role_id: Uuid,
     ) -> Self {
         let id = Uuid::new_v4();
-        let created_at  = TimeHelper::now();
+        let created_at = TimeHelper::now();
 
         TeamUser {
             id,
@@ -43,7 +43,7 @@ impl TeamUser {
         user_function: String,
         twitter: Option<String>,
         discord: Option<String>,
-        created_at: DateTime
+        created_at: DateTime,
     ) -> Self {
         TeamUser {
             id,
@@ -80,7 +80,7 @@ impl TeamUser {
     pub fn discord(&self) -> Option<String> {
         self.discord.clone()
     }
-    
+
     pub fn created_at(&self) -> DateTime {
         self.created_at
     }
@@ -105,5 +105,4 @@ impl TeamUser {
     pub fn set_team_role_id(&mut self, team_role_id: Uuid) {
         self.team_role_id = team_role_id;
     }
-
 }

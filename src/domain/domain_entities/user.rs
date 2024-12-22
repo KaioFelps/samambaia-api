@@ -15,16 +15,11 @@ pub struct User {
 }
 
 impl User {
-    
     // CONSTRUCTOR
-    pub fn new(
-        nickname: String,
-        password: String,
-        role: Option<Role>
-    ) -> Self {
+    pub fn new(nickname: String, password: String, role: Option<Role>) -> Self {
         let id = Uuid::new_v4();
 
-        let created_at  = TimeHelper::now();
+        let created_at = TimeHelper::now();
         let last_login = None;
 
         User {
@@ -33,7 +28,7 @@ impl User {
             password,
             created_at,
             last_login,
-            role
+            role,
         }
     }
 
@@ -51,10 +46,9 @@ impl User {
             password,
             created_at,
             last_login,
-            role
+            role,
         }
     }
-    
 
     // GETTERS
     pub fn id(&self) -> Uuid {

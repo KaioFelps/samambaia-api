@@ -10,7 +10,12 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Comment::Table)
-                    .add_column(ColumnDef::new(Comment::IsActive).not_null().boolean().default(true))
+                    .add_column(
+                        ColumnDef::new(Comment::IsActive)
+                            .not_null()
+                            .boolean()
+                            .default(true),
+                    )
                     .to_owned(),
             )
             .await
@@ -18,18 +23,18 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-        .alter_table(
-            Table::alter()
-                .table(Comment::Table)
-                .drop_column(Comment::IsActive)
-                .to_owned(),
-        )
-        .await
+            .alter_table(
+                Table::alter()
+                    .table(Comment::Table)
+                    .drop_column(Comment::IsActive)
+                    .to_owned(),
+            )
+            .await
     }
 }
 
 #[derive(DeriveIden)]
 enum Comment {
     Table,
-    IsActive
+    IsActive,
 }

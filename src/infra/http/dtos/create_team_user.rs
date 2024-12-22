@@ -6,7 +6,7 @@ use validator::Validate;
 pub struct CreateTeamUserDto {
     pub nickname: String,
 
-    #[serde(rename="function")]
+    #[serde(rename = "function")]
     pub user_function: String,
 
     #[validate(url(message = "Twitter/X field must be a valid url."))]

@@ -1,8 +1,6 @@
-pub fn get_service_template(
-    service_capitalized_name: &String,
-) -> String {
-    return format!(
-"use std::error::Error;
+pub fn get_service_template(service_capitalized_name: &String) -> String {
+    format!(
+        "use crate::error::DomainError;
 
 pub struct {service_capitalized_name}Params {{}}
 
@@ -13,7 +11,7 @@ impl {service_capitalized_name}Service {{
         {service_capitalized_name}Service {{}}
     }}
 
-    pub async fn exec(&self, params: {service_capitalized_name}Params) -> Result<(), Box<dyn Error>> {{
+    pub async fn exec(&self, params: {service_capitalized_name}Params) -> Result<(), DomainError> {{
         Ok(())
     }}
 }}
@@ -21,5 +19,5 @@ impl {service_capitalized_name}Service {{
 #[cfg(test)]
 mod test {{}}
 "
-    );
+    )
 }

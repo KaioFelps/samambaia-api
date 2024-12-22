@@ -6,7 +6,7 @@ pub struct SeaRoleMapper {}
 
 impl SeaRoleMapper {
     #[allow(clippy::wrong_self_convention)]
-    pub fn to_sea(role: Role) -> RoleModel {
+    pub fn into_model(role: Role) -> RoleModel {
         match role {
             Role::Ceo => RoleModel::Ceo,
             Role::Principal => RoleModel::Principal,
@@ -19,7 +19,7 @@ impl SeaRoleMapper {
     }
 
     #[allow(clippy::wrong_self_convention)]
-    pub fn to_domain(role: RoleModel) -> Role {
+    pub fn into_entity(role: RoleModel) -> Role {
         match role {
             RoleModel::Ceo => Role::Ceo,
             RoleModel::Principal => Role::Principal,

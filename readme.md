@@ -1,31 +1,32 @@
-# Hubbitos
-Hubbitos é um fã-site de Habbo com as seguintes funcionalidades:
+# Samambaia
+Samambaia é um sistema de gerenciamento de conteúdo para fã-site de Habbo. A API conta com as seguintes funcionalidades:
 - Fluxo e gerenciamento de usuários (login, registro, edição);
 - Controle de usuários de equipe (criação, apagamento, edição, busca);
 - Notícias (publicar notícias, se autorizado, visualizar notícias, alterar e apagar);
 - Comentários em notícias (escrever, inativar se autorizado);
 - Denúncia dos comentários (criação de uma denúncia, resolução e/ou apagamento se autorizado);
 - Tags de notícias (criar uma nova tag, editar uma tag, apagar uma tag, exibir várias tags);
-- Emblemas grátis (criar, editar, apagar uma tag, listar várias tags).
+- Emblemas grátis (criar, editar, apagar uma tag, listar várias tags);
+- Slides de anúncios (criar, editar, apagar, listar).
 
 O fã-site implementa um sistema de autorizações por cargos (roles) e permissões para cada cargo através de heranças.
 
-# Hubbitos API
-Backend de fã-site feito para o Hubbitos, mas não exclusivo deste. É o projeto responsável por implementar todas as funcionalidades e assegurar as autorizações e permissões performadas no fã-site.
+# Samambaia API
+Backend de fã-site feito, primariamente, para ser utilizado pelo fã-site Cosmic, mas não exclusivo deste. É o projeto responsável por todas as funcionalidades do fã-site.
 
 ## Instalando a aplicação
-Para rodar o hubbitos-backend, será necessário:
-1. Rustup ([como instalar](https://www.rust-lang.org/tools/install));
+Para rodar a API, será necessário:
+1. Cargo ([como instalar](https://www.rust-lang.org/tools/install));
 2. Docker ([como instalar](https://docs.docker.com/get-docker/));
 
 **Passo a passo:**
 1. clone este repositório:
 ```bash
-git clone https://github.com/KaioFelps/hubbitos-backend.git
+git clone https://github.com/KaioFelps/samambaia-api.git
 ```
 2. entre no repositório:
 ```bash
-cd hubbitos-backend
+cd samambaia-api
 ```
 3. copie todas as informações do arquivo `.env.sample` para um arquivo nomeado `.env` e preencha as informações necessárias:
 ```dotenv
@@ -57,7 +58,7 @@ Leia a [documentação do Cargo](https://doc.rust-lang.org/book/ch01-03-hello-ca
 A aplicação implementa a Arquitetura Limpa (clean architecture) até onde for conveniente. Abaixo, está uma tabela contendo os diretórios da aplicação e suas respectivas "funções":
 | Diretório | Finalidade |
 | :---  | :---      |
-| cli/  | contém a micro-aplicação de linha de comando Hubbitos CLI. |
+| cli/  | contém a micro-aplicação de linha de comando Samambaia CLI. |
 | entities/ | diretório gerado e gerenciado pela ORM utilizada pela aplicação. |
 | migration/    | diretório gerado e gerenciado pela ORM utilizada pela aplicação. |
 | src/  | contém todo o código fonte da aplicação. |
@@ -99,10 +100,10 @@ Lista com "links" das documentações e outros sites úteis para se inteirar das
 - [Postgre](https://www.postgresql.org/): banco de dados utilizado;
 - [Docker](https://docs.docker.com/get-docker/): serviço de "containers" para levantar serviços em desenvolvimento (como bancos de dados).
 
-# Hubbitos CLI
-Hubbitos CLI (Hubbitos Command Line Interface) é uma linha de comandos em processo de desenvolvimento que objetiva facilitar a criação de novas funcionalidades seguindo o padrão já estabelecido pela aplicação. Atingimos esse objetivo através de convenções e templates.
+# Samambaia CLI
+Samambaia CLI (Samambaia Command Line Interface) é uma linha de comandos (em processo de desenvolvimento) que objetiva facilitar a criação de novas funcionalidades seguindo o padrão já estabelecido pela aplicação. Atingimos essa meta através de convenções e templates.
 
-Para mais informações sobre como utilizar a Hubbitos CLI acesse a [documentação](cli/readme.md).
+Para mais informações sobre como utilizar a Samambaia CLI acesse sua própria [documentação](cli/readme.md).
 
 ---
 

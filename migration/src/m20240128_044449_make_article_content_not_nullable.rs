@@ -9,9 +9,14 @@ impl MigrationTrait for Migration {
         manager
             .alter_table(
                 Table::alter()
-                .table(Article::Table)
-                .modify_column(ColumnDef::new(Article::Content).text().not_null().default(""))
-                .to_owned()
+                    .table(Article::Table)
+                    .modify_column(
+                        ColumnDef::new(Article::Content)
+                            .text()
+                            .not_null()
+                            .default(""),
+                    )
+                    .to_owned(),
             )
             .await
     }
@@ -20,9 +25,9 @@ impl MigrationTrait for Migration {
         manager
             .alter_table(
                 Table::alter()
-                .table(Article::Table)
-                .modify_column(ColumnDef::new(Article::Content).text().default(""))
-                .to_owned()
+                    .table(Article::Table)
+                    .modify_column(ColumnDef::new(Article::Content).text().default(""))
+                    .to_owned(),
             )
             .await
     }
@@ -31,5 +36,5 @@ impl MigrationTrait for Migration {
 #[derive(DeriveIden)]
 enum Article {
     Table,
-    Content
+    Content,
 }

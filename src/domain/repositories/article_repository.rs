@@ -1,19 +1,16 @@
 use async_trait::async_trait;
-use uuid::Uuid;
 use std::error::Error;
+use uuid::Uuid;
 
-use crate::domain::domain_entities::article::Article;
 use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::slug::Slug;
 
 #[cfg(test)]
 use mockall::automock;
 
 #[derive(Debug)]
-pub struct FindManyArticlesResponse (
-    pub Vec<Article>,
-    pub u64,
-);
+pub struct FindManyArticlesResponse(pub Vec<Article>, pub u64);
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ArticleQueryType {
@@ -31,7 +28,11 @@ pub trait ArticleRepositoryTrait {
 
     async fn find_by_slug(&self, slug: &Slug) -> Result<Option<Article>, Box<dyn Error>>;
 
-    async fn find_many(&self, params: PaginationParameters<ArticleQueryType>, show_only_approved_state: Option<bool>) -> Result<FindManyArticlesResponse, Box<dyn Error>>;
+    async fn find_many(
+        &self,
+        params: PaginationParameters<ArticleQueryType>,
+        show_only_approved_state: Option<bool>,
+    ) -> Result<FindManyArticlesResponse, Box<dyn Error>>;
 
     async fn get_home_articles(&self) -> Result<Vec<Article>, Box<dyn Error>>;
 

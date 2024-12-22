@@ -7,60 +7,66 @@ pub struct Migration;
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-        .alter_table(
-            Table::alter()
-                .table(Comment::Table)
-                .drop_column(Comment::ArticleId)
-                .to_owned()
-        ).await?;
+            .alter_table(
+                Table::alter()
+                    .table(Comment::Table)
+                    .drop_column(Comment::ArticleId)
+                    .to_owned(),
+            )
+            .await?;
 
         manager
-        .alter_table(
-            Table::alter()
-                .table(Comment::Table)
-                .add_column(ColumnDef::new(Comment::ArticleId).uuid().null())
-                .to_owned(),
-        )
-        .await?;
+            .alter_table(
+                Table::alter()
+                    .table(Comment::Table)
+                    .add_column(ColumnDef::new(Comment::ArticleId).uuid().null())
+                    .to_owned(),
+            )
+            .await?;
 
         manager
             .create_foreign_key(
-                ForeignKey::create().name("fk-article-id")
+                ForeignKey::create()
+                    .name("fk-article-id")
                     .from(Comment::Table, Comment::ArticleId)
                     .to(Article::Table, Article::Id)
                     .on_delete(ForeignKeyAction::NoAction)
-                    .to_owned()
-            ).await?;
+                    .to_owned(),
+            )
+            .await?;
 
         Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-        .alter_table(
-            Table::alter()
-                .table(Comment::Table)
-                .drop_column(Comment::ArticleId)
-                .to_owned()
-        ).await?;
-        
-        manager
-        .alter_table(
-            Table::alter()
-                .table(Comment::Table)
-                .add_column(ColumnDef::new(Comment::ArticleId).uuid().not_null())
-                .to_owned(),
-        )
-        .await?;
+            .alter_table(
+                Table::alter()
+                    .table(Comment::Table)
+                    .drop_column(Comment::ArticleId)
+                    .to_owned(),
+            )
+            .await?;
 
         manager
-        .create_foreign_key(
-            ForeignKey::create().name("fk-article-id")
-                .from(Comment::Table, Comment::ArticleId)
-                .to(Article::Table, Article::Id)
-                .on_delete(ForeignKeyAction::NoAction)
-                .to_owned()
-        ).await?;
+            .alter_table(
+                Table::alter()
+                    .table(Comment::Table)
+                    .add_column(ColumnDef::new(Comment::ArticleId).uuid().not_null())
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_foreign_key(
+                ForeignKey::create()
+                    .name("fk-article-id")
+                    .from(Comment::Table, Comment::ArticleId)
+                    .to(Article::Table, Article::Id)
+                    .on_delete(ForeignKeyAction::NoAction)
+                    .to_owned(),
+            )
+            .await?;
 
         Ok(())
     }
@@ -75,5 +81,5 @@ enum Comment {
 #[derive(DeriveIden)]
 enum Article {
     Table,
-    Id
+    Id,
 }

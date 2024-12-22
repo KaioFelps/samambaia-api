@@ -7,11 +7,10 @@ edition.workspace = true
 actix-web.workspace = true
 dotenvy.workspace = true
 rand = {version = "0.8.5", default-features = false, features = ["small_rng"]}
-once_cell.workspace = true
 log.workspace = true
 env_logger.workspace = true
 
-[dependencies.hubbitos_backend]
+[dependencies.samambaia]
 path = "../"
 
 [dev-dependencies]

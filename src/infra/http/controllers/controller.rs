@@ -1,11 +1,11 @@
 use actix_web::web::ServiceConfig;
 
 /**
- # Controller Trait
- Trait that every controller struct should implement.
- 
- It guarantees that the struct will contain the `register` and other controller-mandatory functions.
- */
+# Controller Trait
+Trait that every controller struct should implement.
+
+It guarantees that the struct will contain the `register` and other controller-mandatory functions.
+*/
 pub trait ControllerTrait {
     /**
      # Register

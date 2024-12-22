@@ -5,7 +5,7 @@ use validator::Validate;
 pub struct ListTeamRoleDto {
     pub page: Option<u32>,
 
-    #[serde(rename="perPage")]
+    #[serde(rename = "perPage")]
     pub per_page: Option<u8>,
 
     pub title: Option<String>,

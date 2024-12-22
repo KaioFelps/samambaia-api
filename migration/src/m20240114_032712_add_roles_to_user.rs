@@ -1,5 +1,5 @@
-use sea_orm_migration::{prelude::*, sea_orm::EnumIter, sea_query::extension::postgres::Type};
 use sea_orm::Iterable;
+use sea_orm_migration::{prelude::*, sea_orm::EnumIter, sea_query::extension::postgres::Type};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -8,20 +8,24 @@ pub struct Migration;
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-        .create_type(
-            Type::create()
-            .as_enum(Role::Table)
-            .values(Role::iter().skip(1))
-            .to_owned()
-        ).await?;
+            .create_type(
+                Type::create()
+                    .as_enum(Role::Table)
+                    .values(Role::iter().skip(1))
+                    .to_owned(),
+            )
+            .await?;
 
         manager
             .alter_table(
                 Table::alter()
                     .table(User::Table)
-                    .add_column_if_not_exists(ColumnDef::new(User::Role).enumeration(Role::Table, Role::iter().skip(1)))
-                    .to_owned()
-            ).await?;
+                    .add_column_if_not_exists(
+                        ColumnDef::new(User::Role).enumeration(Role::Table, Role::iter().skip(1)),
+                    )
+                    .to_owned(),
+            )
+            .await?;
 
         Ok(())
     }
@@ -32,16 +36,13 @@ impl MigrationTrait for Migration {
                 Table::alter()
                     .table(User::Table)
                     .drop_column(Role::Table)
-                    .to_owned()
-            ).await?;
+                    .to_owned(),
+            )
+            .await?;
 
         manager
-            .drop_type(
-                Type::drop()
-                .if_exists()
-                .name(Role::Table)
-                .to_owned()
-            ).await?;
+            .drop_type(Type::drop().if_exists().name(Role::Table).to_owned())
+            .await?;
 
         Ok(())
     }
@@ -50,7 +51,7 @@ impl MigrationTrait for Migration {
 #[derive(DeriveIden)]
 enum User {
     Table,
-    Role
+    Role,
 }
 
 #[derive(Iden, EnumIter)]
@@ -69,5 +70,5 @@ pub enum Role {
     #[iden = "Principal"]
     Principal,
     #[iden = "Ceo"]
-    Ceo
+    Ceo,
 }

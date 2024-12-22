@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime as DateTime;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::domain::domain_entities::article::Article;

@@ -1,6 +1,6 @@
-use sea_orm_migration::prelude::*;
 use crate::extension::postgres::Type;
 use crate::sea_orm::EnumIter;
+use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -13,21 +13,24 @@ impl MigrationTrait for Migration {
                 Type::alter()
                     .name(Role::Table)
                     .rename_value(Alias::new("Writter"), Alias::new("Writer"))
-                    .to_owned()
-            ).await
+                    .to_owned(),
+            )
+            .await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        manager.alter_type(
-            Type::alter()
-                .name(Role::Table)
-                .rename_value(Alias::new("Writer"), Alias::new("Writter"))
-                .to_owned()
-        ).await
+        manager
+            .alter_type(
+                Type::alter()
+                    .name(Role::Table)
+                    .rename_value(Alias::new("Writer"), Alias::new("Writter"))
+                    .to_owned(),
+            )
+            .await
     }
 }
 
 #[derive(Iden, EnumIter)]
 pub enum Role {
-    Table
+    Table,
 }

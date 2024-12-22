@@ -5,13 +5,13 @@ use validator::Validate;
 pub struct AdminListArticlesDto {
     pub page: Option<u32>,
 
-    #[serde(rename="perPage")]
+    #[serde(rename = "perPage")]
     pub per_page: Option<u8>,
-    
+
     pub title: Option<String>,
 
     pub author: Option<String>,
 
-    #[serde(rename="approvedState")]
+    #[serde(rename = "approvedState")]
     pub approved_state: Option<bool>,
 }

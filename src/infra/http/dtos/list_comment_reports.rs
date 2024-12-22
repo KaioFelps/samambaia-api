@@ -5,10 +5,10 @@ use validator::Validate;
 pub struct ListCommentReportsDto {
     pub page: Option<u32>,
 
-    #[serde(rename="perPage")]
+    #[serde(rename = "perPage")]
     pub per_page: Option<u8>,
 
-    #[serde(rename="solvedBy")]
+    #[serde(rename = "solvedBy")]
     pub solved_by: Option<String>,
 
     pub solved: Option<bool>,

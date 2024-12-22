@@ -1,14 +1,16 @@
+use crate::domain::domain_entities::comment_report::{
+    CommentReport, CommentReportIdTrait, CommentReportTrait,
+};
 use crate::domain::domain_entities::role::Role;
-use chrono::NaiveDateTime as DateTime;
-use serde::{Serialize, Deserialize};
-use uuid::Uuid;
-use crate::domain::domain_entities::comment_report::{CommentReport, CommentReportIdTrait, CommentReportTrait};
 use crate::infra::http::presenters::presenter::PresenterTrait;
+use chrono::NaiveDateTime as DateTime;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 struct MappedCommentAuthor {
     nickname: String,
-    role: Role
+    role: Role,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -22,7 +24,7 @@ pub struct MappedCommentReport {
     #[serde(rename = "solvedBy")]
     solved_by: Option<Uuid>,
     #[serde(rename = "createdAt")]
-    created_at: DateTime
+    created_at: DateTime,
 }
 
 pub struct CommentReportPresenter;
@@ -35,7 +37,7 @@ impl PresenterTrait<CommentReport, MappedCommentReport> for CommentReportPresent
             solved_by: report.solved_by(),
             comment_id: report.comment_id(),
             message: report.message(),
-            created_at: report.created_at()
+            created_at: report.created_at(),
         }
     }
 }

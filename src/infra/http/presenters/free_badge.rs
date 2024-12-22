@@ -1,19 +1,19 @@
-use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime;
-use uuid::Uuid;
 use crate::domain::domain_entities::free_badge::FreeBadge;
 use crate::infra::http::presenters::presenter::PresenterTrait;
+use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct MappedFreeBadge {
     pub id: Uuid,
     pub code: String,
     pub link: String,
-    #[serde(rename="linkIsExternal")]
+    #[serde(rename = "linkIsExternal")]
     pub link_is_external: bool,
-    #[serde(rename="availableUntil")]
+    #[serde(rename = "availableUntil")]
     pub available_until: Option<NaiveDateTime>,
-    pub image: String
+    pub image: String,
 }
 
 pub struct FreeBadgePresenter;
@@ -26,7 +26,7 @@ impl PresenterTrait<FreeBadge, MappedFreeBadge> for FreeBadgePresenter {
             link: free_badge.link().into(),
             image: free_badge.image().into(),
             available_until: free_badge.available_until(),
-            link_is_external: free_badge.link_is_external()
+            link_is_external: free_badge.link_is_external(),
         }
     }
 }
