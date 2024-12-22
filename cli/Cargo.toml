@@ -1,5 +1,5 @@
 [package]
-name = "hubbitos-cli"
+name = "samambaia-cli"
 version = "0.1.0"
 edition = "2021"
 publish = false

@@ -1,6 +1,6 @@
-use crate::error::HubbitosCliError;
+use crate::error::SamambaiaCliError;
 
-pub fn exec(args: &[String]) -> Result<Option<String>, HubbitosCliError> {
+pub fn exec(args: &[String]) -> Result<Option<String>, SamambaiaCliError> {
     if args.contains(&"-o".to_string()) {
         let mut arg_index = None;
         let output_flag_aliases = ["-o", "--output", "--output-dir", "--dir", "-d"];
@@ -8,7 +8,7 @@ pub fn exec(args: &[String]) -> Result<Option<String>, HubbitosCliError> {
         for (i, arg) in args.iter().enumerate() {
             if output_flag_aliases.contains(&arg.as_str()) {
                 if args.len() < i + 1 {
-                    return Err(HubbitosCliError::ArgumentError(format!(
+                    return Err(SamambaiaCliError::ArgumentError(format!(
                         "'{}' flag requires to be followed by the new output directory.",
                         arg
                     )));

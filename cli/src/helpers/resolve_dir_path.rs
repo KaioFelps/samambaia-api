@@ -1,8 +1,8 @@
-use crate::error::HubbitosCliError;
+use crate::error::SamambaiaCliError;
 
 use super::extract_dir_flag;
 
-pub fn resolve_dir_path(args: &[String], default: &str) -> Result<String, HubbitosCliError> {
+pub fn resolve_dir_path(args: &[String], default: &str) -> Result<String, SamambaiaCliError> {
     let custom_output_dir = extract_dir_flag::exec(args)?;
 
     if let Some(directory) = custom_output_dir {

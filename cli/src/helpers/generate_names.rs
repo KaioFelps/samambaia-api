@@ -1,4 +1,4 @@
-use crate::error::HubbitosCliError;
+use crate::error::SamambaiaCliError;
 
 pub struct FormattedNames {
     pub capitalized: String,
@@ -10,10 +10,10 @@ pub fn extract_formatted_names(
     args: &[String],
     artifact: &str,
     use_plural: bool,
-) -> Result<FormattedNames, HubbitosCliError> {
+) -> Result<FormattedNames, SamambaiaCliError> {
     let name_argument = match args.get(3) {
         None => {
-            return Err(HubbitosCliError::ArgumentError(format!(
+            return Err(SamambaiaCliError::ArgumentError(format!(
                 "Missing the {} name argument.",
                 artifact
             )))

@@ -1,9 +1,9 @@
 use actix_web::HttpServer;
 use dotenvy::dotenv;
 use env_logger::{self, Target};
-use hubbitos_backend::{infra::sea::sea_service::SeaService, server::ServerFactory, ENV_VARS};
 use log::error;
 use migration::{Migrator, MigratorTrait};
+use samambaia::{infra::sea::sea_service::SeaService, server::ServerFactory, ENV_VARS};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

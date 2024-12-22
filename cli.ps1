@@ -1,9 +1,9 @@
-function hubbitos-cli {
-    $global:HubbitosCliPath = "target/release/hubbitos-cli.exe"
+function samambaia {
+    $global:SamambaiaCliPath = "target/release/samambaia-cli.exe"
 
-    if (-not [System.IO.File]::Exists($HubbitosCliPath)) {
-        & cargo build --release -p hubbitos-cli
+    if (-not [System.IO.File]::Exists($SamambaiaCliPath)) {
+        & cargo build --release -p samambaia-cli
     }
 
-    & $HubbitosCliPath $args
+    & $SamambaiaCliPath $args
 }

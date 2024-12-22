@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::{
-    error::HubbitosCliError,
+    error::SamambaiaCliError,
     helpers::{
         generate_names::extract_formatted_names, resolve_dir_path::resolve_dir_path,
         save_artifact::save_artifact,
@@ -10,14 +10,14 @@ use crate::{
     DEFAULT_REPOSITORIES_DIR,
 };
 
-pub fn generate_repository(args: &[String], current_dir: &Path) -> Result<(), HubbitosCliError> {
+pub fn generate_repository(args: &[String], current_dir: &Path) -> Result<(), SamambaiaCliError> {
     let repository_name = extract_formatted_names(args, "repository", true)?;
 
     let output_dir = resolve_dir_path(args, DEFAULT_REPOSITORIES_DIR)?;
     let output_dir_path = current_dir.join(Path::new(&output_dir));
 
     if let Err(err) = std::fs::create_dir_all(&output_dir_path) {
-        return Err(HubbitosCliError::GeneratorError(format!(
+        return Err(SamambaiaCliError::GeneratorError(format!(
             "Error on creating provided directory: {}",
             err,
         )));

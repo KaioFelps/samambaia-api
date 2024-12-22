@@ -1,10 +1,10 @@
 [package]
-name = "hubbitos_backend"
+name = "samambaia"
 version.workspace = true
 edition.workspace = true
 
 [workspace.package]
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 
 [workspace]

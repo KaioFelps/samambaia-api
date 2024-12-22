@@ -1,4 +1,4 @@
-name: "hubbitos-api"
+name: "samambaia-api"
 
 services:
   postgres:

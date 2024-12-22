@@ -10,7 +10,7 @@ rand = {version = "0.8.5", default-features = false, features = ["small_rng"]}
 log.workspace = true
 env_logger.workspace = true
 
-[dependencies.hubbitos_backend]
+[dependencies.samambaia]
 path = "../"
 
 [dev-dependencies]

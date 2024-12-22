@@ -1627,40 +1627,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
 
 [[package]]
-name = "hubbitos-cli"
-version = "0.1.0"
-
-[[package]]
-name = "hubbitos_backend"
-version = "0.4.0"
-dependencies = [
- "actix-web",
- "actix-web-lab",
- "async-trait",
- "chrono",
- "config",
- "dotenvy",
- "duplicate",
- "entities",
- "env_logger",
- "http 1.2.0",
- "jsonwebtoken",
- "log",
- "migration",
- "mockall 0.13.1",
- "password-auth",
- "regex",
- "sea-orm",
- "serde",
- "serde-envfile",
- "serde_json",
- "tokio",
- "unicode-normalization",
- "uuid",
- "validator",
-]
-
-[[package]]
 name = "humantime"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2892,6 +2858,40 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3cb5ba0dc43242ce17de99c180e96db90b235b8a9fdc9543c96d2209116bd9f"
 
 [[package]]
+name = "samambaia"
+version = "0.5.0"
+dependencies = [
+ "actix-web",
+ "actix-web-lab",
+ "async-trait",
+ "chrono",
+ "config",
+ "dotenvy",
+ "duplicate",
+ "entities",
+ "env_logger",
+ "http 1.2.0",
+ "jsonwebtoken",
+ "log",
+ "migration",
+ "mockall 0.13.1",
+ "password-auth",
+ "regex",
+ "sea-orm",
+ "serde",
+ "serde-envfile",
+ "serde_json",
+ "tokio",
+ "unicode-normalization",
+ "uuid",
+ "validator",
+]
+
+[[package]]
+name = "samambaia-cli"
+version = "0.1.0"
+
+[[package]]
 name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3604,15 +3604,15 @@ checksum = "8f50febec83f5ee1df3015341d8bd429f2d1cc62bcba7ea2076759d315084683"
 
 [[package]]
 name = "tests"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "actix-web",
  "dotenvy",
  "env_logger",
- "hubbitos_backend",
  "log",
  "mockall 0.12.1",
  "rand",
+ "samambaia",
 ]
 
 [[package]]

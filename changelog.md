@@ -3,6 +3,9 @@ This file contains the most notable changes of each released version, starting f
 has been introduced.
 
 ## Unreleased
+- nothing.
+
+## Samambaia@0.5.0
 ### Added
 - introduced **Announcements** domain;
     -   DB model, entity and domain entity;
@@ -19,7 +22,8 @@ has been introduced.
 - made services factories synchronous;
 - move repositories dependencies out of `Box` in every service;
 - group services by domain;
-- group factories by domain.
+- group factories by domain;
+- rename the system to **Samambaia**.
 
 ### Changed
 - database performance has been improved by 92%:
@@ -30,7 +34,7 @@ has been introduced.
     -   controllers can now retrieve a reference to the `SeaService` struct by using the `actix_web::web::Data`
         extractor; they must use it for executing the services factories.
 
-## Hubbitos @0.4.0
+## Hubbitos@0.4.0
 ### Added
 - added a full authentication middleware (that does not require from_fn).
 

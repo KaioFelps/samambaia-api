@@ -1,8 +1,8 @@
 #/bin/bash
-hubbitos_cli_path='./target/release/hubbitos-cli.exe'
+samambaia_cli_path='./target/release/samambaia-cli.exe'
 
-if [ ! -e "$hubbitos_cli_path" ]; then
-    cargo build --release -p hubbitos-cli
+if [ ! -e "$samambaia_cli_path" ]; then
+    cargo build --release -p samambaia-cli
 fi
 
-alias hubbitos-cli="$hubbitos_cli_path"
+alias samambaia="$samambaia_cli_path"

@@ -1,7 +1,7 @@
 MAIN=src/main.rs
-DISPLAY_NAME=hubbitos_backend
-DESCRIPTION=backend do hubbitos
+DISPLAY_NAME=samambaia-api
+DESCRIPTION=backend para o fã-site
 VERSION=recommended
-SUBDOMAIN=hubbitosbackend
+SUBDOMAIN=samambaiaapi
 MEMORY=1000
 AUTORESTART=true

@@ -1,4 +1,4 @@
-# Using Hubbitos CLI for generating boilerplates
+# Using Samambaia CLI for generating boilerplates
 
 Consider that the CLI expects few files to exist and some crates to be available on your application:
 ## Files
@@ -16,15 +16,15 @@ You can easily enable the CLI by running the scripts according to your OS. They 
 if you haven't done it yet.
 
 ### Bash
-Open your bash and type `. ./cli.sh` and you good to go with Hubbitos CLI.
+Open your bash and type `. ./cli.sh` and you good to go with Samambaia CLI.
 
 ### Powershell
-Open your powershell terminal and type `. ./cli.ps1` and you good to go with Hubbitos CLI.
+Open your powershell terminal and type `. ./cli.ps1` and you good to go with Samambaia CLI.
 
 ## Services
 Generate a service file on `src/domain/services` and append it in `src/domain/services/mod.rs`.
 ```bash
-hubbitos-cli generate service "service name lowercase splitten by spaces"
+samambaia generate service "service name lowercase splitten by spaces"
 ```
 
 This will generate a service just like:
@@ -54,7 +54,7 @@ mod test {}
 ## Repository
 If for some reason you aim to generate only a repository with no entity, the command below will generate a new file on `src/domain/repositories` and append it to `src/domain/repositories/mod.rs`.
 ```bash
-hubbitos-cli generate repository "repository name"
+samambaia generate repository "repository name"
 ```
 
 This will generate a repository like:
@@ -73,7 +73,7 @@ pub trait RepositoryNameRepositoryTrait {}
 ## Controller
 Generate a controller on `src/infra/http/controllers/` and append it on `src/infra/http/controller/mod.rs`.
 ```bash
-hubbitos-cli generate controller "user"
+samambaia generate controller "user"
 # you can also overwrite the default directory with -o flag
 # note that the domain entity is written in lowercase singular
 # for compound names, simply add whitespaces, ie: "comment report"
@@ -151,13 +151,13 @@ If you pass an absolute path (e.g. "/path/to/controllers/"), it will replace the
 Otherwise, it will be concatenated to the default directory as a child segment:
 
 ```bash
-hubbitos-cli g controller "user" --output "/src/custom/path"
+samambaia g controller "user" --output "/src/custom/path"
 # generates ./src/custom/path/users_controller.rs
 # and adds `users_controller` module to ./src/custom/path/mod.rs
 ```
 
 ```bash
-hubbitos-cli g controller "user" --output "child/directory"
+samambaia g controller "user" --output "child/directory"
 # generates ./src/infra/http/controllers/child/directory/users_controller.rs
 # and adds `users_controller` module to ./src/infra/http/controllers/child/directory/mod.rs
 ```

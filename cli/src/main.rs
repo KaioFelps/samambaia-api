@@ -1,6 +1,6 @@
 use std::io;
 
-use error::{HubbitosCliError, IntoIoError};
+use error::{IntoIoError, SamambaiaCliError};
 
 mod error;
 mod generators;
@@ -16,7 +16,7 @@ fn main() -> io::Result<()> {
     let args = std::env::args().collect::<Vec<String>>();
 
     if args.len() <= 1 {
-        return Err(HubbitosCliError::ArgumentError(
+        return Err(SamambaiaCliError::ArgumentError(
             "Invalid command. 1 or less arguments have been passed. Please, refer to the documentation.".into(),
         )
         .into_io_err());
@@ -28,7 +28,7 @@ fn main() -> io::Result<()> {
         let generators = ["service", "repository", "controller"];
 
         if args.len() < 3 || !generators.contains(&&args[2][..]) {
-            return Err(HubbitosCliError::ArgumentError(
+            return Err(SamambaiaCliError::ArgumentError(
                 "Not any valid generator has been specified. Cancelling the operation.".into(),
             )
             .into_io_err());
@@ -42,7 +42,7 @@ fn main() -> io::Result<()> {
             "controller" => {
                 generators::controller(&args, &current_dir).map_err(IntoIoError::into_io_err)
             }
-            _ => Err(HubbitosCliError::ArgumentError(format!(
+            _ => Err(SamambaiaCliError::ArgumentError(format!(
                 "Invalid command --{} provided: {}.",
                 args[1], args[2]
             ))
@@ -51,7 +51,7 @@ fn main() -> io::Result<()> {
     }
 
     Err(
-        HubbitosCliError::ArgumentError(format!("Invalid command provided: {}.", args[1]))
+        SamambaiaCliError::ArgumentError(format!("Invalid command provided: {}.", args[1]))
             .into_io_err(),
     )
 }
