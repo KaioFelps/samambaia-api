@@ -1,0 +1,47 @@
+name: Deploy
+
+on:
+    workflow_call: 
+
+jobs:
+  deploy-to-production:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        run: |
+          rustup update stable
+          rustup default stable
+
+      - name: Build the Rust application
+        run: cargo build --release
+      
+      - name: Bundle the front-end assets
+        run: |
+          npm install
+          npm run build
+
+      - name: Make package directories
+        run: |
+          mkdir __package
+
+      - name: Copy most important files to the package directory
+        run: |
+          cp ./target/release/samambaia __package/
+          cp ./start.sh __package/
+
+      - name: Setup Square Cloud
+        uses: squarecloudofc/github-action@v2
+        with:
+          token: ${{ secrets.SQUARE_TOKEN }}
+          install-only: true
+        
+      - name: Commit the application to the host
+        run: |
+          cd package
+          squarecloud login --token=${{ secrets.SQUARE_TOKEN }}
+          squarecloud commit ${{ secrets.SQUARE_APPLICATION_ID }}
+          squarecloud app restart ${{ secrets.SQUARE_APPLICATION_ID }}

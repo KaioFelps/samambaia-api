@@ -1,0 +1,18 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request: 
+  push: 
+
+jobs:
+  linting:
+    uses: ./.github/workflows/formatting.yaml
+
+  tests:
+    uses: ./.github/workflows/tests.yaml
+
+  deploy:
+    needs: [linting, tests]
+    secrets: inherit
+    if: github.ref_name == 'main' && github.ref_type == 'branch' &&  github.event_name == 'push'
+    uses: ./.github/workflows/deploy.yaml

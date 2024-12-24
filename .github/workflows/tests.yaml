@@ -1,8 +1,7 @@
-name: Cargo Build & Test
+name: Cargo Test
 
 on:
-  push:
-  pull_request:
+  workflow_call: 
 
 env: 
   CARGO_TERM_COLOR: always
