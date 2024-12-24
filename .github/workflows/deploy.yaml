@@ -19,11 +19,11 @@ jobs:
       - name: Build the Rust application
         run: cargo build --release
 
-      - name: Make package directories
+      - name: Make __package directory
         run: |
           mkdir __package
 
-      - name: Copy most important files to the package directory
+      - name: Copy most important files to the __package directory
         run: |
           cp ./target/release/samambaia __package/
           cp ./start.sh __package/
@@ -36,7 +36,7 @@ jobs:
         
       - name: Commit the application to the host
         run: |
-          cd package
+          cd __package
           squarecloud login --token=${{ secrets.SQUARE_TOKEN }}
           squarecloud commit ${{ secrets.SQUARE_APPLICATION_ID }}
           squarecloud app restart ${{ secrets.SQUARE_APPLICATION_ID }}
