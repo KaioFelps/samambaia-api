@@ -6,7 +6,7 @@ on:
 
 jobs:
   linting:
-    uses: ./.github/workflows/formatting.yaml
+    uses: ./.github/workflows/linting.yaml
 
   tests:
     uses: ./.github/workflows/tests.yaml
