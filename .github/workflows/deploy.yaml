@@ -18,11 +18,6 @@ jobs:
 
       - name: Build the Rust application
         run: cargo build --release
-      
-      - name: Bundle the front-end assets
-        run: |
-          npm install
-          npm run build
 
       - name: Make package directories
         run: |
