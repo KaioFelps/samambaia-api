@@ -1,1 +1,1 @@
-node --version ; chmod u+x ./samambaia ; ./samambaia
+chmod u+x ./samambaia ; ./samambaia
