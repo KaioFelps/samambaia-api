@@ -4,3 +4,5 @@ __package/
 .env
 .env.prod
 .idea/
+/dist
+/public/bundle
