@@ -2,6 +2,7 @@ use std::sync::LazyLock;
 
 use env_config::EnvConfig;
 
+pub mod configs;
 pub mod core;
 pub mod domain;
 pub mod env_config;
