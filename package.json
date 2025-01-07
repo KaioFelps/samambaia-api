@@ -1,0 +1,37 @@
+{
+  "name": "live-cosmic",
+  "version": "1.0.0",
+  "description": "Páginas do Live Cosmic.",
+  "main": "www/app.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && vite build --ssr"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "Kaio Felps",
+  "license": "GPL-3.0-only",
+  "dependencies": {
+    "@inertiajs/core": "2.0.0",
+    "@inertiajs/react": "2.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@rocketseat/eslint-config": "3.0.12",
+    "@types/node": "22.10.5",
+    "@types/react": "19.0.3",
+    "@types/react-dom": "19.0.2",
+    "@vitejs/plugin-react": "4.3.4",
+    "autoprefixer": "10.4.20",
+    "eslint": "9.17.0",
+    "eslint-plugin-simple-import-sort": "12.1.1",
+    "laravel-vite-plugin": "1.1.1",
+    "postcss": "8.4.49",
+    "postcss-import": "16.1.0",
+    "postcss-load-config": "6.0.1",
+    "tailwindcss": "3.4.17",
+    "vite": "6.0.7",
+    "vite-tsconfig-paths": "5.1.4"
+  }
+}
