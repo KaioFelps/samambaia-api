@@ -14,7 +14,7 @@ async fn get_db_conn() -> Result<DatabaseConnection, DbErr> {
         .connect_timeout(Duration::from_secs(8))
         .idle_timeout(Duration::from_secs(8))
         .max_lifetime(Duration::from_secs(8))
-        .sqlx_logging(true);
+        .sqlx_logging(false);
 
     let connection = Database::connect(db_opts).await;
 
