@@ -1,3 +1,4 @@
+use crate::infra::http::routes::web::WebRoutes;
 use crate::infra::http::routes::{api::ApiRoutes, route::RouteTrait};
 use crate::infra::sea::sea_service::SeaService;
 use actix_web::dev::{ServiceFactory, ServiceRequest, ServiceResponse};
@@ -21,6 +22,7 @@ impl ServerFactory {
                 middleware::TrailingSlash::Trim,
             ))
             .configure(ApiRoutes::register)
+            .configure(WebRoutes::register)
             .app_data(web::JsonConfig::default().error_handler(|err, _req| {
                 actix_web::error::InternalError::from_response(
                     "",
