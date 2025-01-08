@@ -1,15 +1,32 @@
 import react from "@vitejs/plugin-react";
 import laravel from "laravel-vite-plugin";
-import { builtinModules } from "module";
+import path from "path";
 import type { UserConfig } from "vite";
-import tsConfigPaths from "vite-tsconfig-paths";
 
-const allExternal = [
-  ...builtinModules,
-  ...builtinModules.map((m) => `node:${m}`),
-];
+import tsconfig from "./tsconfig.json";
+
+const tsconfigPathAliases = Object.fromEntries(
+  Object.entries(tsconfig.compilerOptions.paths).map(([key, values]) => {
+    let value = values[0];
+    if (key.endsWith("/*")) {
+      key = key.slice(0, -2);
+      value = value.slice(0, -2);
+    }
+
+    const nodeModulesPrefix = "node_modules/";
+    if (value.startsWith(nodeModulesPrefix)) {
+      value = value.replace(nodeModulesPrefix, "");
+    } else {
+      value = path.join(__dirname, value);
+    }
+
+    return [key, value];
+  }),
+);
+
 export default {
   plugins: [
+    react(),
     laravel({
       input: ["www/app.tsx"],
       buildDirectory: "bundle",
@@ -17,13 +34,26 @@ export default {
       ssrOutputDirectory: "dist/ssr",
       ssr: "www/ssr.tsx",
     }),
-    tsConfigPaths(),
-    react(),
   ],
   publicDir: "/public",
+  resolve: {
+    alias: tsconfigPathAliases,
+  },
   build: {
     rollupOptions: {
-      external: ["fsevents", ...allExternal],
+      watch: {
+        exclude: [
+          "node_modules/**",
+          "src/**",
+          "migration/**",
+          "entities/**",
+          "cli/**",
+          "target/**",
+          "tests/**",
+          "public/**",
+        ],
+      },
     },
   },
+
 } satisfies UserConfig;
