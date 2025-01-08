@@ -1,5 +1,9 @@
-use crate::infra::http::presenters::pagination::MappedPagination;
+use crate::{
+    core::pagination::PaginationResponse, infra::http::presenters::pagination::MappedPagination,
+};
 use serde::{Deserialize, Serialize};
+
+use super::pagination::PaginationPresenter;
 
 pub trait PresenterTrait<Entity, MappedEntity> {
     #[allow(clippy::wrong_self_convention)]
@@ -7,13 +11,14 @@ pub trait PresenterTrait<Entity, MappedEntity> {
 
     #[allow(clippy::wrong_self_convention)]
     fn to_json_paginated_wrapper(
-        entities: Vec<MappedEntity>,
-        pagination: MappedPagination,
+        entities: Vec<Entity>,
+        pagination: PaginationResponse,
+        per_page: u8,
     ) -> JsonWrappedPaginatedEntity<MappedEntity> {
-        JsonWrappedPaginatedEntity {
-            pagination,
-            data: entities,
-        }
+        let data = entities.into_iter().map(Self::to_http).collect::<Vec<_>>();
+        let pagination = PaginationPresenter::to_http(pagination, per_page);
+
+        JsonWrappedPaginatedEntity { pagination, data }
     }
 }
 

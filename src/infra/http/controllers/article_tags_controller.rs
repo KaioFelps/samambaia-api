@@ -17,8 +17,7 @@ use crate::infra::http::dtos::list_article_tags::ListArticleTagsDto;
 use crate::infra::http::dtos::update_article_tag::UpdateArticleTagDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
-use crate::infra::http::presenters::article_tag::{ArticleTagPresenter, MappedArticleTag};
-use crate::infra::http::presenters::pagination::PaginationPresenter;
+use crate::infra::http::presenters::article_tag::ArticleTagPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
 use crate::infra::sea::sea_service::SeaService;
 use actix_web::{middleware::from_fn, web, HttpResponse};
@@ -99,29 +98,18 @@ impl ArticleTagsController {
 
         let service = fetch_many_article_tags_service_factory::exec(&db_conn);
 
-        let service_response = service
+        let articles = service
             .exec(FetchManyArticleTagsParams {
                 per_page: per_page.map(|pp| pp as u32),
                 query: value,
                 page,
             })
             .await?;
-
-        let mapped_article_tags = service_response
-            .data
-            .into_iter()
-            .map(ArticleTagPresenter::to_http)
-            .collect::<Vec<MappedArticleTag>>();
-
-        let mapped_pagination = PaginationPresenter::to_http(
-            service_response.pagination,
-            per_page.unwrap_or(DEFAULT_PER_PAGE),
-        );
-
         Ok(
             HttpResponse::Ok().json(ArticleTagPresenter::to_json_paginated_wrapper(
-                mapped_article_tags,
-                mapped_pagination,
+                articles.data,
+                articles.pagination,
+                per_page.unwrap_or(DEFAULT_PER_PAGE),
             )),
         )
     }

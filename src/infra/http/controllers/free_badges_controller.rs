@@ -17,8 +17,7 @@ use crate::infra::http::dtos::simple_pagination_query::SimplePaginationQueryDto;
 use crate::infra::http::dtos::update_free_badge::UpdateFreeBadgeDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
-use crate::infra::http::presenters::free_badge::{FreeBadgePresenter, MappedFreeBadge};
-use crate::infra::http::presenters::pagination::PaginationPresenter;
+use crate::infra::http::presenters::free_badge::FreeBadgePresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
 use crate::infra::sea::sea_service::SeaService;
 use actix_web::{middleware::from_fn, web, HttpResponse};
@@ -104,21 +103,11 @@ impl FreeBadgesController {
             })
             .await?;
 
-        let mapped_free_badges = free_badges
-            .data
-            .into_iter()
-            .map(FreeBadgePresenter::to_http)
-            .collect::<Vec<MappedFreeBadge>>();
-
-        let mapped_pagination = PaginationPresenter::to_http(
-            free_badges.pagination,
-            query.per_page.unwrap_or(DEFAULT_PER_PAGE),
-        );
-
         Ok(
             HttpResponse::Ok().json(FreeBadgePresenter::to_json_paginated_wrapper(
-                mapped_free_badges,
-                mapped_pagination,
+                free_badges.data,
+                free_badges.pagination,
+                query.per_page.unwrap_or(DEFAULT_PER_PAGE),
             )),
         )
     }

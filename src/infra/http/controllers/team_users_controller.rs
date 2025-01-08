@@ -17,9 +17,8 @@ use crate::infra::http::dtos::list_team_user::ListTeamUsersDto;
 use crate::infra::http::dtos::update_team_user::UpdateTeamUserDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
-use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
-use crate::infra::http::presenters::team_user::{MappedTeamUser, TeamUserPresenter};
+use crate::infra::http::presenters::team_user::TeamUserPresenter;
 use crate::infra::sea::sea_service::SeaService;
 use actix_web::{middleware::from_fn, web, HttpResponse};
 use uuid::Uuid;
@@ -118,21 +117,11 @@ impl TeamUsersController {
             })
             .await?;
 
-        let mapped_team_users = team_users
-            .data
-            .into_iter()
-            .map(TeamUserPresenter::to_http)
-            .collect::<Vec<MappedTeamUser>>();
-
-        let mapped_pagination = PaginationPresenter::to_http(
-            team_users.pagination,
-            per_page.unwrap_or(DEFAULT_PER_PAGE),
-        );
-
         Ok(
             HttpResponse::Ok().json(TeamUserPresenter::to_json_paginated_wrapper(
-                mapped_team_users,
-                mapped_pagination,
+                team_users.data,
+                team_users.pagination,
+                per_page.unwrap_or(DEFAULT_PER_PAGE),
             )),
         )
     }

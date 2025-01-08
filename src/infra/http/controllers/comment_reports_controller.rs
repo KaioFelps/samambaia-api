@@ -18,8 +18,7 @@ use crate::infra::http::dtos::create_comment_report::CreateCommentReportDto;
 use crate::infra::http::dtos::list_comment_reports::ListCommentReportsDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
-use crate::infra::http::presenters::comment_report::{CommentReportPresenter, MappedCommentReport};
-use crate::infra::http::presenters::pagination::PaginationPresenter;
+use crate::infra::http::presenters::comment_report::CommentReportPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
 use actix_web::{middleware::from_fn, web, HttpResponse};
@@ -116,7 +115,7 @@ impl CommentReportsController {
             }
         };
 
-        let comment_reports_paginated_data = service
+        let comment_reports = service
             .exec(FetchManyCommentReportsParams {
                 query,
                 per_page: per_page.map(|pp| pp as u32),
@@ -124,19 +123,11 @@ impl CommentReportsController {
             })
             .await?;
 
-        let mapped_reports = comment_reports_paginated_data
-            .data
-            .into_iter()
-            .map(CommentReportPresenter::to_http)
-            .collect::<Vec<MappedCommentReport>>();
-
         Ok(
             HttpResponse::Ok().json(CommentReportPresenter::to_json_paginated_wrapper(
-                mapped_reports,
-                PaginationPresenter::to_http(
-                    comment_reports_paginated_data.pagination,
-                    per_page.unwrap_or(DEFAULT_PER_PAGE),
-                ),
+                comment_reports.data,
+                comment_reports.pagination,
+                per_page.unwrap_or(DEFAULT_PER_PAGE),
             )),
         )
     }
