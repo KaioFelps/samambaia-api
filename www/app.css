@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+    .pixelated {
+        image-rendering: pixelated;
+    }
+
+    .font-kanis {
+        font-family: Kanit, sans-serif;
+    }
+
+    .font-rowdies {
+        font-family: Rowdies, Kanit, sans-serif;
+    }
+}
+
 @layer base {
     * {
         margin: 0;
@@ -10,10 +24,22 @@
     }
 
     :root {
-        font-family: Poppins, sans-serif;
+        @apply font-kanis
     }
 
     #app {
         @apply h-full;
+    }
+}
+
+@layer components {
+    .navbar-item {
+        @apply relative border-r-2 border-black flex items-center
+        justify-center gap-3 px-6 text-white font-bold select-none
+
+        ring-purple-500 ring-0 focus-within:ring-4 transition-all duration-100
+        focus-within:z-10 outline-none data-[state=open]:ring-4
+
+        hover:bg-black/10 active:bg-black/20
     }
 }
