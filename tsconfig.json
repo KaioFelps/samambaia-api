@@ -20,17 +20,17 @@
     "jsx": "react-jsx",
     "incremental": true,
     "paths": {
-      "@crate/*": ["./*"],
-      "@/*": ["./www/*"]
+      "@/*": ["./www/*"],
+      "@crate/*": ["./*"]
     },
     "removeComments": true,
     "isolatedModules": true,
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "./www/**/*.js",
     "./www/**/*.ts",
-    "./www/**/*.tsx",
+    "./www/**/*.tsx"
   ],
   "exclude": [
     "dist",
