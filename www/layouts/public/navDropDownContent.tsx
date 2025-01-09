@@ -8,7 +8,7 @@ import { DropdownContentProps } from "@/components/dropdown/content";
 import { colorWithOpacity } from "@/lib/tailwind";
 
 type NavDropdownContentProps = Omit<DropdownContentProps, "className">;
-type NavDropdownItemProps = { children: ReactNode, href: string };
+type NavDropdownItemProps = { children: ReactNode; href: string };
 
 export function NavDropdownContent({ children, ...rest }: NavDropdownContentProps) {
   return (

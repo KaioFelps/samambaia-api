@@ -1,5 +1,11 @@
-export default function Index() {
+import { SharedProps } from "@/inertiaShared";
+
+type HomeProps = SharedProps & {};
+
+export default function Index(_props: HomeProps) {
   return (
-    <h1>Live Cosmic!</h1>
+    <div>
+      <h1>Live Cosmic!</h1>
+    </div>
   );
 }

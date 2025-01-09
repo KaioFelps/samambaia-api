@@ -20,7 +20,7 @@ export function colorWithOpacity(
 
 export function generateReverseableKeyFrame(
   name: string,
-  keyframe: { from: object, to: object },
+  keyframe: { from: object; to: object },
 ): CustomThemeConfig["extend"]["keyframes"] {
   return {
     [name]: keyframe,

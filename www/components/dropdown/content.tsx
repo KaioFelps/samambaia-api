@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { ReactNode } from "react";
 
 export type DropdownContentProps = Dropdown.DropdownMenuContentProps & {
-  children: ReactNode
+  children: ReactNode;
 };
 
 export function DropdownContent({ children, className, ...rest }: DropdownContentProps) {
