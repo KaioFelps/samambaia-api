@@ -7,16 +7,17 @@ import { colorWithOpacity } from "@/lib/tailwind";
 
 export function Footer() {
   return (
-    <footer className="mt-2 bg-gray-200 h-fit shadow-black/15 shadow-[0_2px_0_0]">
-      <header
-        style={{
-          boxShadow: `
-            inset 0 2px 0 0 ${colorWithOpacity(colors.black, 25)},
-            inset 0 4px 0 0 ${colorWithOpacity(colors.white)}
-          `,
-        }}
-        className="flex items-center justify-between px-6 py-1.5"
-      >
+    <footer
+      style={{
+        boxShadow: `
+          inset 0 2px 0 0 ${colorWithOpacity(colors.black, 25)},
+          inset 0 4px 0 0 ${colorWithOpacity(colors.white)},
+          0 2px 0 0 ${colorWithOpacity(colors.black, 15)}
+        `,
+      }}
+      className="mt-2 bg-gray-200 h-fit"
+    >
+      <header className="main-screen-centralized flex items-center justify-between px-6 py-1.5">
         <span className="text-gray-700 font-medium flex gap-2 items-center">
           <Code
             size={16}
@@ -63,15 +64,9 @@ export function Footer() {
         </div>
       </header>
 
-      <div
-        style={{
-          boxShadow: `
-            inset 0 2px 0 0 ${colorWithOpacity(colors.black, 15)},
-            inset 0 4px 0 0 ${colorWithOpacity(colors.white)}
-            `,
-        }}
-        className="px-6 flex items-stretch"
-      >
+      <div className="w-full h-0.5 bg-black/15 shadow-white shadow-[0_2px_0_0]" />
+
+      <div className="px-6 flex items-stretch main-screen-centralized">
         <div className="flex-1 flex max-w-[441px] gap-12 items-center">
           <Sprite
             x={-721}
@@ -87,7 +82,7 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="h-auto w-0.5 bg-black/15 shadow-white shadow-[2_1_0_0] mx-[72px]" />
+        <div className="h-auto w-0.5 bg-black/15 shadow-white shadow-[2px_1px_0_0] mx-[72px]" />
 
         <div className="
             flex-1 flex items-start gap-2 py-3 prose-a:font-medium hover:prose-a:text-purple-700
