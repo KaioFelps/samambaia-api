@@ -52,6 +52,9 @@ export const tailwindConfig = {
       },
     },
     extend: {
+      screens: {
+        main: "1392px",
+      },
       animation: {
         "top-bg": "topBgKeyframe 50s linear infinite",
         ...generateReverseableAnimation("slideDownAndFade", "400ms cubic-bezier(0.16, 1, 0.3, 1)"),

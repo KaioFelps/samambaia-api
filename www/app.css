@@ -33,6 +33,10 @@
 }
 
 @layer components {
+    .main-screen-centralized {
+        @apply max-w-screen-main w-[calc(100%_-_48px)] mx-auto
+    }
+
     .navbar-item {
         @apply relative border-r-2 border-black flex items-center
         justify-center gap-3 px-6 text-white font-bold select-none
