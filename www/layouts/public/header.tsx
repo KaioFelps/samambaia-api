@@ -8,7 +8,7 @@ import { colorWithOpacity } from "../../lib/tailwind";
 import { NavDropdownContent, NavDropdownItem } from "./navDropDownContent";
 
 type HeaderProps = {
-  topBg: string
+  topBg: string;
 };
 
 export function Header({ topBg }: HeaderProps) {
@@ -28,6 +28,7 @@ export function Header({ topBg }: HeaderProps) {
           />
         </Link>
       </div>
+
       <div
         style={{
           boxShadow: `inset 0 2px 0 0 ${colorWithOpacity(colors.black)},
@@ -37,7 +38,7 @@ export function Header({ topBg }: HeaderProps) {
         }}
         className="bg-gray-800 text-white"
       >
-        <nav className="h-[68px] flex px-6">
+        <nav className="h-[68px] flex px-6 main-screen-centralized">
           <Link
             href=""
             className="navbar-item"
