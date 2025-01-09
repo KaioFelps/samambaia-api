@@ -1,7 +1,10 @@
-use actix_web::{web, HttpRequest, Responder};
+use actix_web::{web, HttpRequest};
 use inertia_rust::{Inertia, InertiaFacade};
 
-use crate::infra::http::controllers::controller::ControllerTrait;
+use crate::{
+    error::IntoDomainError,
+    infra::http::controllers::{controller::ControllerTrait, AppResponse},
+};
 
 pub struct HomeController;
 
@@ -12,8 +15,9 @@ impl ControllerTrait for HomeController {
 }
 
 impl HomeController {
-    async fn home(req: HttpRequest) -> impl Responder {
-        println!("executou");
-        Inertia::render(&req, "index".into()).await
+    async fn home(req: HttpRequest) -> AppResponse {
+        Inertia::render(&req, "index".into())
+            .await
+            .map_err(IntoDomainError::into_domain_error)
     }
 }
