@@ -33,9 +33,15 @@
     "./www/**/*.tsx"
   ],
   "exclude": [
-    "dist",
-    "public/bundle",
-    "vite.config.js",
-    "node_modules"
+    "./dist/**",
+    "./public/bundle/**",
+    "./vite.config.js",
+    "./node_modules/**",
+    "./src/**",
+    "./migration/**",
+    "./entities/**",
+    "./cli/**",
+    "./target/**",
+    "./tests/**"
   ]
 }

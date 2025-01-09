@@ -24,6 +24,18 @@ const tsconfigPathAliases = Object.fromEntries(
   }),
 );
 
+const filesToExclude = [
+  "./node_modules/**",
+  "./src/**",
+  "./migration/**",
+  "./entities/**",
+  "./cli/**",
+  "./target/**",
+  "./tests/**",
+  "./public/**",
+  "/DumpStack.log.tmp",
+];
+
 export default {
   plugins: [
     react(),
@@ -39,21 +51,13 @@ export default {
   resolve: {
     alias: tsconfigPathAliases,
   },
+
   build: {
     rollupOptions: {
+      external: filesToExclude,
       watch: {
-        exclude: [
-          "node_modules/**",
-          "src/**",
-          "migration/**",
-          "entities/**",
-          "cli/**",
-          "target/**",
-          "tests/**",
-          "public/**",
-        ],
+        exclude: filesToExclude,
       },
     },
   },
-
 } satisfies UserConfig;
