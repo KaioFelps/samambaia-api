@@ -5,7 +5,8 @@
   "main": "www/app.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && vite build --ssr"
+    "build": "vite build && vite build --ssr",
+    "lint": "eslint --fix"
   },
   "type": "module",
   "keywords": [],
