@@ -10,8 +10,7 @@ use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
 use actix_web::web::{self, Data};
 use inertia_rust::actix::InertiaMiddleware;
-use inertia_rust::{hashmap, prop_resolver, InertiaProp};
-use serde_json::to_value;
+use inertia_rust::{hashmap, prop_resolver, InertiaProp, IntoInertiaError, IntoInertiaPropResult};
 use std::sync::Arc;
 
 pub struct WebRoutes;
@@ -39,14 +38,13 @@ impl RouteTrait for WebRoutes {
                                         query: None,
                                     })
                                     .await
-                                    .unwrap();
+                                    .map_err(IntoInertiaError::into_inertia_error)?;
 
-                                to_value(AnnouncementPresenter::to_json_paginated_wrapper(
+                                AnnouncementPresenter::to_json_paginated_wrapper(
                                     announcements.data,
                                     announcements.pagination,
                                     DEFAULT_PER_PAGE,
-                                ))
-                                .unwrap()
+                                ).into_inertia_value()
                             }))
                         ]
                     })
