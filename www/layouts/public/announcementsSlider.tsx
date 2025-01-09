@@ -42,6 +42,7 @@ export function AnnouncementsSlider({ announcements }: AnnouncementsSliderProps)
               }}
               className="
                 pixelated flex flex-col items-center justify-end p-6 h-full w-full bg-center
+                bg-cover
                 "
               href={url}
               target={external
