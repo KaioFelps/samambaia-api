@@ -1,1 +1,1 @@
-chmod u+x ./samambaia ; ./samambaia
+npm ci ; chmod u+x ./samambaia ; ./samambaia
