@@ -1,5 +1,6 @@
 node_modules/
 __package/
+__package.zip
 /target
 .env
 .env.prod
@@ -7,3 +8,4 @@ __package/
 /dist
 /public/bundle
 /public/hot
+build.sh
