@@ -1,8 +1,12 @@
-use crate::{env_config::RustEnv, ENV_VARS};
+use crate::{
+    env_config::RustEnv,
+    error::{DomainError, IntoDomainError},
+    ENV_VARS,
+};
 
 use super::vite::initialize_vite;
 use inertia_rust::{
-    template_resolvers::ViteTemplateResolver, Inertia, InertiaConfig, InertiaVersion,
+    template_resolvers::ViteTemplateResolver, Inertia, InertiaConfig, InertiaError, InertiaVersion,
 };
 use std::io;
 
@@ -33,4 +37,10 @@ pub async fn initialize_inertia() -> Result<Inertia, io::Error> {
     }
 
     Inertia::new(inertia_config)
+}
+
+impl IntoDomainError for InertiaError {
+    fn into_domain_error(self) -> DomainError {
+        DomainError::internal_err().with_message(self.get_cause())
+    }
 }

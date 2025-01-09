@@ -12,6 +12,10 @@ pub trait DomainErrorTrait: Error {
     fn message(&self) -> &String;
 }
 
+pub trait IntoDomainError {
+    fn into_domain_error(self) -> DomainError;
+}
+
 type ErrorsMap = HashMap<String, Vec<ValidationError>>;
 
 #[derive(Debug, Clone)]
