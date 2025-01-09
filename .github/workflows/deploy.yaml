@@ -2,6 +2,13 @@ name: Deploy
 
 on:
     workflow_call: 
+      secrets:
+        square_token:
+          description: Authentication Token for loging in Square Cloud CLI
+          required: true
+        square_app_id:
+          description: ID of the Square Cloud deployed application
+          required: true
 
 jobs:
   deploy-to-production:
