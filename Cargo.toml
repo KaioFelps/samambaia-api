@@ -47,7 +47,7 @@ dotenvy.workspace = true
 log.workspace = true
 env_logger.workspace = true
 inertia-rust = { version = "2.2", features = ["actix", "vite-template-resolver"] }
-vite-rust = "0.2"
+vite-rust = "0.2.2"
 actix-files = "0.6.6"
 
 [dev-dependencies]
