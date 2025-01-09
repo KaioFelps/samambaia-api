@@ -15,8 +15,8 @@ jobs:
     needs: [linting, tests]
     if: github.ref_name == 'main' && github.ref_type == 'branch' &&  github.event_name == 'push'
     secrets:
-      square_token: ${{ secrets.square_token }}
-      square_app_id: ${{ secrets.MAIN_square_app_id }}
+      square_token: ${{ secrets.SQUARE_TOKEN }}
+      square_app_id: ${{ secrets.MAIN_SQUARE_APPLICATION_ID }}
     uses: ./.github/workflows/deploy.yaml
 
   deploy_staging:
