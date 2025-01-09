@@ -55,12 +55,12 @@ jobs:
       - name: Setup Square Cloud
         uses: squarecloudofc/github-action@v2
         with:
-          token: ${{ secrets.SQUARE_TOKEN }}
+          token: ${{ secrets.square_token }}
           install-only: true
         
       - name: Commit the application to the host
         run: |
           cd __package
-          squarecloud login --token=${{ secrets.SQUARE_TOKEN }}
-          squarecloud commit ${{ secrets.SQUARE_APPLICATION_ID }}
-          squarecloud app restart ${{ secrets.SQUARE_APPLICATION_ID }}
+          squarecloud login --token=${{ secrets.square_token }}
+          squarecloud commit ${{ secrets.square_app_id }}
+          squarecloud app restart ${{ secrets.square_app_id }}
