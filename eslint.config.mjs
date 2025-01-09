@@ -26,6 +26,10 @@ export default [
       }],
       "@stylistic/max-len": ["warn", 100],
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": ["warn", {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_"
+      }],
       "@stylistic/ts/member-delimiter-style": ["error", {
         multiline: {
           delimiter: "semi",
