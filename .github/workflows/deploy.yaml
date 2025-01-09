@@ -41,8 +41,8 @@ jobs:
 
       - name: Copy most important files to the __package directory
         run: |
-          cp ./target/release/samambaia __package/
-          cp ./start.sh __package/
+          cp ./target/release/samambaia __package
+          cp ./start.sh __package
 
           if [ -d "public" ]; then
             cp -a public __package
@@ -52,11 +52,11 @@ jobs:
             cp -a dist __package
           fi
           
-          cp package-lock.json __package/
-          cp package.json .__package/
-          cp Cargo.toml __package/
-          cp Cargo.lock __package/
-          cp www/root.html __package/www/
+          cp package-lock.json __package
+          cp package.json .__package
+          cp Cargo.toml __package
+          cp Cargo.lock __package
+          cp www/root.html __package/www
 
       - name: Setup Square Cloud
         uses: squarecloudofc/github-action@v2
