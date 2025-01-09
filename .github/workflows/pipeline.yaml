@@ -13,6 +13,16 @@ jobs:
 
   deploy:
     needs: [linting, tests]
-    secrets: inherit
     if: github.ref_name == 'main' && github.ref_type == 'branch' &&  github.event_name == 'push'
+    secrets:
+      SQUARE_TOKEN: ${{ secrets.SQUARE_TOKEN }}
+      SQUARE_APPLICATION_ID: ${{ secrets.MAIN_SQUARE_APPLICATION_ID }}
+    uses: ./.github/workflows/deploy.yaml
+
+  deploy_staging:
+    needs: [linting, tests]
+    if: github.ref_name == 'staging' && github.ref_type == 'branch' &&  github.event_name == 'push'
+    secrets:
+      SQUARE_TOKEN: ${{ secrets.SQUARE_TOKEN }}
+      SQUARE_APPLICATION_ID: ${{ secrets.STAGING_SQUARE_APPLICATION_ID }}
     uses: ./.github/workflows/deploy.yaml
