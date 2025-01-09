@@ -2,9 +2,10 @@ import { ReactNode } from "react";
 
 import { Footer } from "./footer";
 import { Header } from "./header";
+import { SideBar } from "./sideBar";
 
 type PublicLayoutProps = {
-  children: ReactNode
+  children: ReactNode;
 };
 
 export function PublicLayout({ children }: PublicLayoutProps) {
@@ -13,7 +14,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <>
       <Header topBg={topBg} />
-      {children}
+      <div className="main-screen-centralized flex gap-2">
+        <SideBar />
+        {children}
+      </div>
       <Footer />
     </>
   );
