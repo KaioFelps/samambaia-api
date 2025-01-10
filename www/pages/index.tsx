@@ -1,4 +1,4 @@
-import { SharedProps } from "@/inertiaShared";
+import { type SharedProps } from "@/inertiaShared";
 
 type HomeProps = SharedProps & {};
 

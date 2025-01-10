@@ -3,7 +3,7 @@ import createServer from "@inertiajs/react/server";
 import { ReactNode } from "react";
 import ReactDOMServer from "react-dom/server";
 
-import { PageComponent, resolveTitle } from "./inertiaShared";
+import { type PageComponent, resolveTitle } from "./inertiaShared";
 import { PublicLayout } from "./layouts/public";
 
 const appName = process.env.APP_NAME ?? "Live Cosmic";

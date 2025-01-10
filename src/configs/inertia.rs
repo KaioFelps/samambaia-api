@@ -7,6 +7,7 @@ use crate::{
 use super::vite::initialize_vite;
 use inertia_rust::{
     template_resolvers::ViteTemplateResolver, Inertia, InertiaConfig, InertiaError, InertiaVersion,
+    IntoInertiaError,
 };
 use std::io;
 
@@ -42,5 +43,11 @@ pub async fn initialize_inertia() -> Result<Inertia, io::Error> {
 impl IntoDomainError for InertiaError {
     fn into_domain_error(self) -> DomainError {
         DomainError::internal_err().with_message(self.get_cause())
+    }
+}
+
+impl IntoInertiaError for DomainError {
+    fn into_inertia_error(self) -> InertiaError {
+        InertiaError::RenderError(self.to_string())
     }
 }

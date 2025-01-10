@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .pixelated {
+        image-rendering: pixelated;
+    }
+
+    .font-kanis {
+        font-family: Kanit, sans-serif;
+    }
+
+    .font-rowdies {
+        font-family: Rowdies, Kanit, sans-serif;
+    }
+}
+
+@layer base {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        @apply font-kanis
+    }
+
+    #app {
+        @apply h-full;
+    }
+}
+
+@layer components {
+    .main-screen-centralized {
+        @apply max-w-screen-main w-[calc(100%_-_48px)] mx-auto
+    }
+
+    .navbar-item {
+        @apply relative border-r-2 border-black flex items-center
+        justify-center gap-3 px-6 text-white font-bold select-none
+
+        ring-purple-500 ring-0 focus-within:ring-4 transition-all duration-100
+        focus-within:z-10 outline-none data-[state=open]:ring-4
+
+        hover:bg-black/10 active:bg-black/20
+    }
+
+    .section-header {
+        background: linear-gradient(180deg, var(--tw-gradient-from) 50%, var(--tw-gradient-to) 50%);
+        text-shadow: 0 -2px rgba(0 0 0 / 20%), 0 2px rgba(255 255 255 / 50%);
+        @apply  rounded-[7px] border-2 border-gray-800 px-3 py-2.5 shadow-white/50 shadow-[inset_0_2px_0_0]
+                font-bold text-lg text-white leading-tight;
+    
+        &.blue { @apply from-blue-500 to-blue-700 }
+        &.green { @apply from-green-500 to-green-600 }
+        &.yellow {
+            text-shadow: 0 2px rgba(255 255 255 / 50%);
+            @apply from-yellow-500 to-yellow-700 text-black
+        }
+    }
+
+    .btn {
+        @apply px-6 py-3 rounded-[6px] bg-gray-200 border-2 border-gray-700 font-bold text-sm leading-tight
+        transition-all duration-100 hover:bg-gray-250 outline-0 ring-0 focus-within:ring-4 ring-black/15;
+        
+        box-shadow: inset 0 3px 0 0 white, inset 0 -3px 0 0 rgba(0 0 0 / 10%), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+
+        &:focus-within {
+            box-shadow: inset 0 3px 0 0 white, inset 0 -3px 0 0 rgba(0 0 0 / 10%), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+        }
+
+        &:active {
+            box-shadow: inset 0 3px 0 0 rgba(0 0 0 / 10%), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+        }
+
+        &:disabled {
+            @apply shadow-none cursor-not-allowed
+        }
+    }
+
+    .text-input {
+        @apply block w-full bg-white px-4 py-3 rounded-md shadow-black/15 shadow-[inset_0_0__0_2px]
+        text-sm placeholder:text-gray-700 text-gray-800 outline-none ring-0
+        ring-purple-500/40 focus-within:ring-4 focus-within:shadow-purple-700 transition-all
+        will-change-[box-shadow]
+
+        disabled:bg-gray-200
+    }
+}
