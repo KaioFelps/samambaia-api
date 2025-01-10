@@ -5,7 +5,7 @@ import { createInertiaApp } from "@inertiajs/react";
 import { ReactNode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 
-import { PageComponent, resolveTitle } from "./inertiaShared";
+import { type PageComponent, resolveTitle } from "./inertiaShared";
 import { PublicLayout } from "./layouts/public";
 
 const appName = import.meta.env.VITE_APP_NAME ?? "Live Cosmic";
