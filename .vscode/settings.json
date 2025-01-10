@@ -2,5 +2,6 @@
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": "always",
     },
-    "eslint.useFlatConfig": true
+    "eslint.useFlatConfig": true,
+    "scss.lint.unknownAtRules": "ignore"
 }
