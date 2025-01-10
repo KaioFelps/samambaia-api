@@ -38,7 +38,7 @@ export function Header({ topBg }: HeaderProps) {
         }}
         className="bg-gray-800 text-white"
       >
-        <nav className="h-[68px] flex px-6 main-screen-centralized">
+        <nav className="h-[68px] flex main-screen-centralized">
           <Link
             href=""
             className="navbar-item"
