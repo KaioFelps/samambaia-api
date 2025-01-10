@@ -17,7 +17,7 @@ export function Footer() {
       }}
       className="mt-2 bg-gray-200 h-fit"
     >
-      <header className="main-screen-centralized flex items-center justify-between px-6 py-1.5">
+      <header className="main-screen-centralized flex items-center justify-between py-1.5">
         <span className="text-gray-700 font-medium flex gap-2 items-center">
           <Code
             size={16}
@@ -66,7 +66,7 @@ export function Footer() {
 
       <div className="w-full h-0.5 bg-black/15 shadow-white shadow-[0_2px_0_0]" />
 
-      <div className="px-6 flex items-stretch main-screen-centralized">
+      <div className="flex items-stretch main-screen-centralized">
         <div className="flex-1 flex max-w-[441px] gap-12 items-center">
           <Sprite
             x={-721}
