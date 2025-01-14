@@ -1,10 +1,8 @@
 import { createInertiaApp } from "@inertiajs/react";
 import createServer from "@inertiajs/react/server";
-import { ReactNode } from "react";
 import ReactDOMServer from "react-dom/server";
 
-import { type PageComponent, resolveTitle } from "./inertiaShared";
-import { PublicLayout } from "./layouts/public";
+import { type PageComponent, resolvePageLayout, resolveTitle } from "./inertiaShared";
 
 const appName = process.env.APP_NAME ?? "Live Cosmic";
 
@@ -18,10 +16,7 @@ createServer(page =>
 
     resolve: name => {
       const pages = import.meta.glob("./pages/**/*.tsx", { eager: true });
-      const page = pages[`./pages/${name}.tsx`] as PageComponent;
-
-      page.default.layout =
-      page.default.layout || ((page: ReactNode) => <PublicLayout>{page}</PublicLayout>);
+      const page = resolvePageLayout(pages[`./pages/${name}.tsx`] as PageComponent);
 
       return page;
     },

@@ -2,11 +2,9 @@ import "./app.scss";
 
 import { colors } from "@crate/tailwind.config";
 import { createInertiaApp } from "@inertiajs/react";
-import { ReactNode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 
-import { type PageComponent, resolveTitle } from "./inertiaShared";
-import { PublicLayout } from "./layouts/public";
+import { type PageComponent, resolvePageLayout, resolveTitle } from "./inertiaShared";
 
 const appName = import.meta.env.VITE_APP_NAME ?? "Live Cosmic";
 const production = import.meta.env.VITE_RUST_ENV === "PRODUCTION";
@@ -18,10 +16,7 @@ createInertiaApp({
 
   resolve: (name) => {
     const pages = import.meta.glob("./pages/**/*.tsx", { eager: true });
-    const page = pages[`./pages/${name}.tsx`] as PageComponent;
-
-    page["default"].layout =
-    page["default"].layout || ((page: ReactNode) => <PublicLayout>{page}</PublicLayout>);
+    const page = resolvePageLayout(pages[`./pages/${name}.tsx`] as PageComponent);
 
     return page;
   },
