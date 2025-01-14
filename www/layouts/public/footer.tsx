@@ -85,7 +85,7 @@ export function Footer() {
         <div className="h-auto w-0.5 bg-black/15 shadow-white shadow-[2px_1px_0_0] mx-[72px]" />
 
         <div className="
-            flex-1 flex items-start gap-2 py-3 prose-a:font-medium hover:prose-a:text-purple-700
+            flex-1 flex items-start gap-2 py-6 prose-a:font-medium hover:prose-a:text-purple-700
             active:prose-a:underline prose-a:transition-colors prose-a:duration-75
         "
         >
