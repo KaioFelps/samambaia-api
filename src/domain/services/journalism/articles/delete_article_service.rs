@@ -117,7 +117,7 @@ mod test {
     #[tokio::test]
     async fn test() {
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
-        let (article_db, mocked_article_repo) = get_article_repository();
+        let (article_db, _, mocked_article_repo) = get_article_repository();
         let mut mocked_article_comment_repo = MockArticleCommentRepositoryTrait::new();
 
         let article = Article::new(
@@ -127,6 +127,7 @@ mod test {
             "coverurl.inicial".to_string(),
             1,
             "Foo".into(),
+            "Bar baz!".into(),
         );
 
         article_db.lock().unwrap().push(article.clone());

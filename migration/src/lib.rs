@@ -26,6 +26,7 @@ mod m20240725_022019_create_free_badges_table;
 mod m20240726_175757_rename_user_role_enum_writter_property_to_writer;
 mod m20241124_033241_add_adsense_table;
 mod m20241124_154522_add_extra_fields_to_announcement_table;
+mod m20250114_045251_add_description_field_to_articles;
 
 pub struct Migrator;
 
@@ -63,6 +64,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20240726_175757_rename_user_role_enum_writter_property_to_writer::Migration),
             Box::new(m20241124_033241_add_adsense_table::Migration),
             Box::new(m20241124_154522_add_extra_fields_to_announcement_table::Migration),
+            Box::new(m20250114_045251_add_description_field_to_articles::Migration),
         ]
     }
 }

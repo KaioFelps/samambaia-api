@@ -173,7 +173,7 @@ mod test {
     async fn test() {
         let mut mocked_user_repo = MockUserRepositoryTrait::new();
         let mut mock_comm_user_art_repo = MockCommentUserArticleRepositoryTrait::new();
-        let (articles_db, mocked_article_repository) = get_article_repository();
+        let (articles_db, _, mocked_article_repository) = get_article_repository();
 
         let comments_db: Arc<Mutex<Vec<CommentWithAuthor>>> = Arc::new(Mutex::new(vec![]));
 
@@ -185,10 +185,11 @@ mod test {
             "url_da_cover.com".into(),
             1,
             "MockedTag".into(),
+            "Mocked description".into(),
         );
 
         let mocked_article_id = mocked_article.id();
-        let mocked_article_slug = mocked_article.slug();
+        let mocked_article_slug = mocked_article.slug().clone();
         articles_db.lock().unwrap().push(mocked_article);
 
         let mocked_comm_1 = CommentWithAuthor::new(
@@ -314,7 +315,7 @@ mod test {
 
         let unauthorized_result = sut
             .exec(GetExpandedArticleParams {
-                article_slug: mocked_article_slug,
+                article_slug: mocked_article_slug.clone(),
                 comments_per_page: None,
                 user_id: None,
                 user_role: None,

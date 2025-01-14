@@ -12,6 +12,7 @@ pub struct Article {
     cover_url: String,
     title: String,
     content: String,
+    description: String,
     approved: bool,
     tag_id: Option<i32>,
     tag_value: Option<String>,
@@ -29,6 +30,7 @@ impl Article {
         cover_url: String,
         tag_id: i32,
         tag_value: String,
+        description: String,
     ) -> Self {
         let id = Uuid::new_v4();
 
@@ -49,6 +51,7 @@ impl Article {
             created_at,
             updated_at,
             slug,
+            description,
         }
     }
 
@@ -65,6 +68,7 @@ impl Article {
         tag_id: Option<i32>,
         tag_value: Option<String>,
         slug: Slug,
+        description: String,
     ) -> Self {
         Article {
             id,
@@ -78,6 +82,7 @@ impl Article {
             created_at,
             updated_at,
             slug,
+            description,
         }
     }
 
@@ -121,16 +126,20 @@ impl Article {
         self.updated_at
     }
 
-    pub fn slug(&self) -> Slug {
-        self.slug.clone()
+    pub fn slug(&self) -> &Slug {
+        &self.slug
     }
 
     pub fn tag_id(&self) -> Option<i32> {
         self.tag_id
     }
 
-    pub fn tag_value(&self) -> Option<String> {
-        self.tag_value.clone()
+    pub fn tag_value(&self) -> &Option<String> {
+        &self.tag_value
+    }
+
+    pub fn description(&self) -> &str {
+        &self.description
     }
 
     // SETTERS
@@ -162,10 +171,15 @@ impl Article {
     }
 
     pub fn set_tag_id(&mut self, tag_id: i32) {
-        self.tag_id = Some(tag_id)
+        self.tag_id = Some(tag_id);
     }
 
     pub fn set_tag_value(&mut self, tag_value: String) {
-        self.tag_value = Some(tag_value)
+        self.tag_value = Some(tag_value);
+    }
+
+    pub fn set_description(&mut self, description: String) {
+        self.description = description;
+        self.touch();
     }
 }

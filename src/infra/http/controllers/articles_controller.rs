@@ -96,6 +96,7 @@ impl ArticlesController {
             cover_url,
             title,
             tag_id,
+            description,
         } = body;
 
         let article = service
@@ -106,6 +107,7 @@ impl ArticlesController {
                 cover_url,
                 title,
                 tag_id,
+                description,
             })
             .await?;
 
@@ -210,6 +212,7 @@ impl ArticlesController {
             content,
             author_id,
             tag_id,
+            description,
         } = body
             .validate()
             .map(|_| body.into_inner())
@@ -232,6 +235,7 @@ impl ArticlesController {
                 title,
                 author_id,
                 tag_id,
+                description,
             })
             .await?;
 

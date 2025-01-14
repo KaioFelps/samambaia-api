@@ -188,6 +188,7 @@ mod test {
             "url do cover".into(),
             1,
             "Foo".into(),
+            "baz".into(),
         );
 
         db.push(Comment::new(

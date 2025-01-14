@@ -1,6 +1,6 @@
-use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::error::DomainError;
+use crate::infra::http::presenters::home_article::MappedHomeArticle;
 use crate::util::generate_service_internal_error;
 
 pub struct FetchHomePageArticlesService<ArticleRepository: ArticleRepositoryTrait> {
@@ -12,7 +12,7 @@ impl<ArticleRepository: ArticleRepositoryTrait> FetchHomePageArticlesService<Art
         FetchHomePageArticlesService { article_repository }
     }
 
-    pub async fn exec(&self) -> Result<Vec<Article>, DomainError> {
+    pub async fn exec(&self) -> Result<Vec<MappedHomeArticle>, DomainError> {
         self.article_repository
             .get_home_articles()
             .await
@@ -28,43 +28,57 @@ impl<ArticleRepository: ArticleRepositoryTrait> FetchHomePageArticlesService<Art
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::tests::repositories::article_repository::get_article_repository;
+    use crate::{
+        domain::domain_entities::{article::Article, role::Role, user::User},
+        tests::repositories::article_repository::get_article_repository,
+    };
     use tokio;
-    use uuid::Uuid;
 
     #[tokio::test]
     async fn test() {
-        let (article_db, article_repository) = get_article_repository();
+        let (article_db, users_db, article_repository) = get_article_repository();
+
+        let author = User::new("Floricultor".into(), "password".into(), Some(Role::Writer));
+        let author_id = author.id();
+
+        users_db.lock().unwrap().push(author);
 
         article_db.lock().unwrap().push(Article::new(
-            Uuid::new_v4(),
+            author_id,
             "Título da notícia 1".to_string(),
             "Conteúdo da primeira notícia".to_string(),
             "url".to_string(),
             1,
             "Foo".into(),
+            "Descrição da notícia 1".into(),
         ));
         article_db.lock().unwrap().push(Article::new(
-            Uuid::new_v4(),
+            author_id,
             "Título da notícia 2".to_string(),
             "Conteúdo da segunda notícia".to_string(),
             "url".to_string(),
             1,
             "Foo".into(),
+            "Descrição da notícia 2".into(),
         ));
         article_db.lock().unwrap().push(Article::new(
-            Uuid::new_v4(),
+            author_id,
             "Título da notícia 3".to_string(),
             "Conteúdo da terceira notícia".to_string(),
             "url".to_string(),
             1,
             "Foo".into(),
+            "Descrição da notícia 3".into(),
         ));
 
         let service = FetchHomePageArticlesService::new(article_repository);
+        let result = service.exec().await;
 
-        let result = service.exec().await.unwrap();
+        assert!(result.is_ok());
+
+        let result = result.unwrap();
 
         assert_eq!(3, result.len());
+        assert_eq!("Floricultor", &result[0].author.nickname);
     }
 }

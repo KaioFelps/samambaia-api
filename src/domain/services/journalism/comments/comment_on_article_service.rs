@@ -78,7 +78,7 @@ mod test {
 
     #[tokio::test]
     async fn test() {
-        let (article_db, mocked_article_repo) = get_article_repository();
+        let (article_db, _, mocked_article_repo) = get_article_repository();
         let mut mocked_comment_repo = MockCommentRepositoryTrait::new();
 
         let user_id = Uuid::new_v4();
@@ -96,6 +96,7 @@ mod test {
             Some(1),
             Some("Foo".to_string()),
             Slug::new(article_id, "title".into()),
+            "description".into(),
         ));
 
         let comment_article_db: Arc<Mutex<Vec<CommentArticle>>> = Arc::new(Mutex::new(vec![]));

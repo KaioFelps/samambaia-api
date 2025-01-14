@@ -9,6 +9,8 @@ pub struct UpdateArticleDto {
 
     pub content: Option<String>,
 
+    pub description: Option<String>,
+
     #[validate(url(message = "Cover url must be a valid url."))]
     #[serde(rename = "coverUrl")]
     pub cover_url: Option<String>,

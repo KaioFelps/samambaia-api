@@ -1,24 +1,30 @@
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
+use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType, FindManyArticlesResponse, MockArticleRepositoryTrait,
 };
 use crate::error::DomainError;
+use crate::infra::http::presenters::home_article::HomeArticlePresenter;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 use std::sync::{Arc, Mutex};
 
-pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleRepositoryTrait) {
-    let db: Arc<Mutex<Vec<Article>>> = Arc::new(Mutex::new(vec![]));
+type LocalDb<T> = Arc<Mutex<Vec<T>>>;
+
+pub fn get_article_repository() -> (LocalDb<Article>, LocalDb<User>, MockArticleRepositoryTrait) {
+    let articles_db: Arc<Mutex<Vec<Article>>> = Arc::new(Mutex::new(vec![]));
+    let users_db: Arc<Mutex<Vec<User>>> = Arc::new(Mutex::new(vec![]));
     let mut repository = MockArticleRepositoryTrait::new();
 
-    let db_clone = Arc::clone(&db);
+    let articles_db_clone = Arc::clone(&articles_db);
     repository
         .expect_create()
         .returning(move |article: Article| {
-            db_clone.lock().unwrap().push(article.clone());
+            articles_db_clone.lock().unwrap().push(article.clone());
             Ok(article)
         });
 
-    let db_clone = Arc::clone(&db);
+    let articles_db_clone = Arc::clone(&articles_db);
     repository
         .expect_find_many()
         .returning(move |params, approved_status_filter| {
@@ -34,7 +40,7 @@ pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleReposit
                 let query = query.unwrap();
                 match query {
                     ArticleQueryType::Title(content) => {
-                        for item in db_clone.lock().unwrap().iter() {
+                        for item in articles_db_clone.lock().unwrap().iter() {
                             if item
                                 .title()
                                 .to_lowercase()
@@ -45,14 +51,14 @@ pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleReposit
                         }
                     }
                     ArticleQueryType::Author(content) => {
-                        for item in db_clone.lock().unwrap().iter() {
+                        for item in articles_db_clone.lock().unwrap().iter() {
                             if item.author_id().eq(&content) {
                                 articles.push(item.clone());
                             }
                         }
                     }
                     ArticleQueryType::Tag(tag_id) => {
-                        for item in db_clone.lock().unwrap().iter() {
+                        for item in articles_db_clone.lock().unwrap().iter() {
                             if item.tag_id().unwrap().eq(&tag_id) {
                                 articles.push(item.clone());
                             }
@@ -60,7 +66,7 @@ pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleReposit
                     }
                 }
             } else {
-                articles = db_clone.lock().unwrap().clone();
+                articles = articles_db_clone.lock().unwrap().clone();
             }
 
             if approved_status_filter.is_some() {
@@ -89,9 +95,9 @@ pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleReposit
             ))
         });
 
-    let db_clone = Arc::clone(&db);
+    let articles_db_clone = Arc::clone(&articles_db);
     repository.expect_find_by_id().returning(move |id| {
-        for article in db_clone.lock().unwrap().iter() {
+        for article in articles_db_clone.lock().unwrap().iter() {
             if article.id().eq(&id) {
                 return Ok(Some(article.clone()));
             }
@@ -100,12 +106,12 @@ pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleReposit
         Ok(None)
     });
 
-    let db_clone = Arc::clone(&db);
+    let articles_db_clone = Arc::clone(&articles_db);
     repository
         .expect_save()
         .returning(move |param_article: Article| {
             let mut index = None;
-            for (i, item) in db_clone.lock().unwrap().iter().enumerate() {
+            for (i, item) in articles_db_clone.lock().unwrap().iter().enumerate() {
                 if item.id() == param_article.id() {
                     index = Some(i);
                     break;
@@ -115,19 +121,19 @@ pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleReposit
             match index {
                 None => Err(Box::new(DomainError::resource_not_found_err())),
                 Some(i) => {
-                    db_clone.lock().unwrap()[i] = param_article.clone();
+                    articles_db_clone.lock().unwrap()[i] = param_article.clone();
                     Ok(param_article)
                 }
             }
         });
 
-    let db_clone = Arc::clone(&db);
+    let articles_db_clone = Arc::clone(&articles_db);
     repository
         .expect_find_by_slug()
         .returning(move |article_slug| {
             let mut article: Option<Article> = None;
 
-            for item in db_clone.lock().unwrap().iter() {
+            for item in articles_db_clone.lock().unwrap().iter() {
                 if item.slug().eq(article_slug) {
                     article = Some(item.clone());
                     break;
@@ -137,16 +143,42 @@ pub fn get_article_repository() -> (Arc<Mutex<Vec<Article>>>, MockArticleReposit
             Ok(article)
         });
 
-    let db_clone = Arc::clone(&db);
+    let articles_db_clone = Arc::clone(&articles_db);
+    let users_db_clone = Arc::clone(&users_db);
     repository.expect_get_home_articles().returning(move || {
-        let mut articles = db_clone.lock().unwrap().clone();
+        let mut articles = articles_db_clone.lock().unwrap().clone();
+        let users = users_db_clone.lock().unwrap().clone();
+
         articles.sort_by(|a, b| b.created_at().partial_cmp(&a.created_at()).unwrap());
 
-        let articles = &articles[0..=2];
-        let articles = articles.iter().map(|article| article.to_owned()).collect();
+        let articles = articles
+            .iter()
+            .take(6)
+            .map(|article| {
+                let user = users.iter().find(|user| user.id().eq(&article.author_id()));
+                (article, user)
+            })
+            .collect::<Vec<_>>();
 
-        Ok(articles)
+        let mut mapped_articles = vec![];
+
+        for (article, user) in articles {
+            match user {
+                None => {
+                    println!("Encountered an article that has no author: {:#?}", article);
+                    return Err(Box::new(DomainError::internal_err()));
+                }
+                Some(user) => {
+                    mapped_articles.push(HomeArticlePresenter::to_http((
+                        article.clone(),
+                        user.clone(),
+                    )));
+                }
+            }
+        }
+
+        Ok(mapped_articles)
     });
 
-    (db, repository)
+    (articles_db, users_db, repository)
 }
