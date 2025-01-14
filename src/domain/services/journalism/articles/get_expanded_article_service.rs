@@ -173,7 +173,7 @@ mod test {
     async fn test() {
         let mut mocked_user_repo = MockUserRepositoryTrait::new();
         let mut mock_comm_user_art_repo = MockCommentUserArticleRepositoryTrait::new();
-        let (articles_db, mocked_article_repository) = get_article_repository();
+        let (articles_db, _, mocked_article_repository) = get_article_repository();
 
         let comments_db: Arc<Mutex<Vec<CommentWithAuthor>>> = Arc::new(Mutex::new(vec![]));
 

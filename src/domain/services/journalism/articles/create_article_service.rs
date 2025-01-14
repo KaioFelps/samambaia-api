@@ -126,7 +126,7 @@ mod test {
 
     #[tokio::test]
     async fn test() {
-        let (_article_db, mocked_article_repo) = get_article_repository();
+        let (_article_db, _, mocked_article_repo) = get_article_repository();
         let mut mocked_tag_repo: MockArticleTagRepositoryTrait =
             MockArticleTagRepositoryTrait::new();
         let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();

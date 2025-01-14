@@ -112,7 +112,7 @@ mod test {
     async fn test() {
         let mut mocked_comment_repo: MockCommentUserArticleRepositoryTrait =
             MockCommentUserArticleRepositoryTrait::new();
-        let (article_db, _) = get_article_repository();
+        let (article_db, _, _) = get_article_repository();
 
         let mut db: Vec<CommentWithAuthor> = Vec::new();
 

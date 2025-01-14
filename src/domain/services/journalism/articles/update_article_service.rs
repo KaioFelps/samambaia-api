@@ -183,7 +183,7 @@ mod test {
 
     #[tokio::test]
     async fn test() {
-        let (article_db, article_repository) = get_article_repository();
+        let (article_db, _, article_repository) = get_article_repository();
         let (tag_db, article_tag_repository) = get_article_tag_repository();
 
         let article = Article::new(
