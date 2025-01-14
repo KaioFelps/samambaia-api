@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+
 use migration::{Expr, Func};
 use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter};
 use sea_orm::{ColumnTrait, PaginatorTrait, QueryOrder, QuerySelect, QueryTrait};
@@ -11,7 +12,11 @@ use crate::domain::domain_entities::slug::Slug;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse,
 };
+use crate::error::DomainError;
+use crate::infra::http::presenters::home_article::{HomeArticlePresenter, MappedHomeArticle};
+use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
+use crate::infra::sea::mappers::sea_user_mapper::SeaUserMapper;
 use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 
@@ -123,17 +128,28 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
         Ok(FindManyArticlesResponse(articles, articles_count))
     }
 
-    async fn get_home_articles(&self) -> Result<Vec<Article>, Box<dyn Error>> {
+    async fn get_home_articles(&self) -> Result<Vec<MappedHomeArticle>, Box<dyn Error>> {
         let articles = ArticleEntity::find()
-            .limit(3)
+            .limit(6)
             .order_by_desc(ArticleColumn::CreatedAt)
+            .find_also_related(entities::user::Entity)
             .all(&self.sea_service.db)
             .await?;
 
-        let mut mapped_articles: Vec<Article> = vec![];
+        let mut mapped_articles = vec![];
 
-        for article in articles {
-            mapped_articles.push(SeaArticleMapper::model_into_entity(article));
+        for (article, user) in articles {
+            match user {
+                None => {
+                    log::error!("Encountered an article that has no author: {:#?}", article);
+                    return Err(Box::new(DomainError::internal_err()));
+                }
+                Some(user) => {
+                    let article = SeaArticleMapper::model_into_entity(article);
+                    let user = SeaUserMapper::model_into_entity(user);
+                    mapped_articles.push(HomeArticlePresenter::to_http((article, user)));
+                }
+            }
         }
 
         Ok(mapped_articles)

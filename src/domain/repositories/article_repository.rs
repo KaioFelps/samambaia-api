@@ -5,6 +5,7 @@ use uuid::Uuid;
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::slug::Slug;
+use crate::infra::http::presenters::home_article::MappedHomeArticle;
 
 #[cfg(test)]
 use mockall::automock;
@@ -34,7 +35,7 @@ pub trait ArticleRepositoryTrait {
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesResponse, Box<dyn Error>>;
 
-    async fn get_home_articles(&self) -> Result<Vec<Article>, Box<dyn Error>>;
+    async fn get_home_articles(&self) -> Result<Vec<MappedHomeArticle>, Box<dyn Error>>;
 
     async fn save(&self, article: Article) -> Result<Article, Box<dyn Error>>;
 }
