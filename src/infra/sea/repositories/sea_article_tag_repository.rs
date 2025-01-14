@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use migration::{Expr, Func};
-use sea_orm::{ActiveModelTrait, EntityTrait};
+use sea_orm::{ActiveModelTrait, EntityTrait, TransactionTrait};
 use sea_orm::{
     ColumnTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait, Select,
 };
@@ -114,16 +114,25 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository<'_> {
     }
 
     async fn save(&self, article_tag: ArticleTag) -> Result<ArticleTag, Box<dyn Error>> {
-        let comm_rep_id = article_tag.id();
+        let active_article_tag = SeaArticleTagMapper::entity_into_active_model(article_tag.clone());
 
-        let article_tag = SeaArticleTagMapper::entity_into_active_model(article_tag);
+        let transaction = self.sea_service.db.begin().await?;
 
-        let article_tag = ArticleTagEntity::update(article_tag)
-            .filter(ArticleTagColumn::Id.eq(comm_rep_id))
-            .exec(&self.sea_service.db)
+        let _ = ArticleTagEntity::update(active_article_tag)
+            .filter(ArticleTagColumn::Id.eq(article_tag.id()))
+            .exec(&transaction)
             .await?;
 
-        let article_tag = SeaArticleTagMapper::model_into_entity(article_tag);
+        entities::article::Entity::update_many()
+            .filter(entities::article::Column::TagId.eq(article_tag.id()))
+            .col_expr(
+                entities::article::Column::TagValue,
+                Expr::value(article_tag.value()),
+            )
+            .exec(&transaction)
+            .await?;
+
+        transaction.commit().await?;
 
         Ok(article_tag)
     }
