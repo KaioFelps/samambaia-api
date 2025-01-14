@@ -28,14 +28,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Delete old public directory from Square Cloud
-        run: |
-          curl --request DELETE \
-            --url https://api.squarecloud.app/v2/apps/${{ secrets.square_app_id }}/files \
-            --header "Authorization: ${{ secrets.square_token }}" \
-            --header 'Content-Type: application/json' \
-            --data '{ "path": "public" }'
-
       - name: Build the Rust application
         run: cargo build --release
 
@@ -53,7 +45,8 @@ jobs:
           cp ./start.sh __package
 
           if [ -d "public" ]; then
-            cp -a public __package
+            mv public _public
+            cp -a _public __package
           fi
 
           if [ -d "dist" ]; then
