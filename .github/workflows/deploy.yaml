@@ -64,6 +64,15 @@ jobs:
           token: ${{ secrets.square_token }}
           install-only: true
         
+      - name: Delete old public directory from the host
+        run: |
+          curl --request DELETE \
+            --url https://api.squarecloud.app/v2/apps/${{ secrets.square_app_id }}/files \
+            --header "Authorization: ${{ secrets.square_token }}" \
+            --header 'Content-Type: application/json' \
+            --data '{ "path": "public" }'
+
+
       - name: Commit the application to the host
         run: |
           cd __package
