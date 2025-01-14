@@ -15,6 +15,7 @@ pub struct UpdateArticleParams {
     pub cover_url: Option<String>,
     pub title: Option<String>,
     pub content: Option<String>,
+    pub description: Option<String>,
     pub approved: Option<bool>,
     pub author_id: Option<Uuid>,
     pub tag_id: Option<i32>,
@@ -106,32 +107,32 @@ impl<
         }
 
         // modifies the article where requested
-        if params.author_id.is_some() {
-            article.set_author_id(params.author_id.unwrap())
+        if let Some(author_id) = params.author_id {
+            article.set_author_id(author_id);
         }
 
-        if params.content.is_some() {
-            article.set_content(params.content.unwrap())
+        if let Some(content) = params.content {
+            article.set_content(content);
         }
 
-        if params.title.is_some() {
-            article.set_title(params.title.unwrap());
+        if let Some(description) = params.description {
+            article.set_description(description);
         }
 
-        if params.cover_url.is_some() {
-            article.set_cover_url(params.cover_url.unwrap());
+        if let Some(title) = params.title {
+            article.set_title(title);
         }
 
-        if params.approved.is_some() {
-            article.set_approved(params.approved.unwrap());
+        if let Some(cover_url) = params.cover_url {
+            article.set_cover_url(cover_url);
         }
 
-        if params.tag_id.is_some() {
-            let tag = self.get_tag_by_id(params.tag_id.unwrap()).await;
-            let tag = match tag {
-                Ok(tag) => tag,
-                Err(error) => return Err(error),
-            };
+        if let Some(approved) = params.approved {
+            article.set_approved(approved);
+        }
+
+        if let Some(tag_id) = params.tag_id {
+            let tag = self.get_tag_by_id(tag_id).await?;
 
             article.set_tag_id(tag.id());
             article.set_tag_value(tag.value().to_owned());
@@ -188,11 +189,12 @@ mod test {
 
         let article = Article::new(
             Uuid::new_v4(),
-            "Título inicial".to_string(),
-            "Conteúdo inicial".to_string(),
-            "coverurl.inicial".to_string(),
+            "Initial title".to_string(),
+            "Initial content".to_string(),
+            "initial.coverurl".to_string(),
             1,
             "Foo".to_string(),
+            "Initial description".into(),
         );
 
         let article_tag = ArticleTag::new_from_existing(2, "Bar".to_string());
@@ -213,6 +215,7 @@ mod test {
                 approved: Some(true),
                 title: None,
                 content: None,
+                description: None,
                 cover_url: None,
                 author_id: None,
                 tag_id: None,
@@ -227,8 +230,9 @@ mod test {
                 user_role: Role::Writer,
                 article_id: article.id(),
                 approved: None,
-                title: Some("Título atualizado".to_string()),
-                content: Some("Conteúdo atualizado".to_string()),
+                title: Some("updated title".to_string()),
+                content: Some("updated content".to_string()),
+                description: Some("updated description".to_string()),
                 cover_url: None,
                 author_id: None,
                 tag_id: Some(2),
@@ -237,7 +241,9 @@ mod test {
 
         let result = result.unwrap();
 
-        assert_eq!("Título atualizado", result.title());
-        assert_eq!("Bar".to_string(), result.tag_value().unwrap());
+        assert_eq!("updated title", result.title());
+        assert_eq!("updated description", result.description());
+        assert_eq!("updated content", result.content());
+        assert_eq!("Bar", result.tag_value().as_ref().unwrap());
     }
 }

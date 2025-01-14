@@ -185,10 +185,11 @@ mod test {
             "url_da_cover.com".into(),
             1,
             "MockedTag".into(),
+            "Mocked description".into(),
         );
 
         let mocked_article_id = mocked_article.id();
-        let mocked_article_slug = mocked_article.slug();
+        let mocked_article_slug = mocked_article.slug().clone();
         articles_db.lock().unwrap().push(mocked_article);
 
         let mocked_comm_1 = CommentWithAuthor::new(
@@ -314,7 +315,7 @@ mod test {
 
         let unauthorized_result = sut
             .exec(GetExpandedArticleParams {
-                article_slug: mocked_article_slug,
+                article_slug: mocked_article_slug.clone(),
                 comments_per_page: None,
                 user_id: None,
                 user_role: None,

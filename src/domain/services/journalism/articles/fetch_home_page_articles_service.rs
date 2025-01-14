@@ -50,6 +50,7 @@ mod test {
             "url".to_string(),
             1,
             "Foo".into(),
+            "Descrição da notícia 1".into(),
         ));
         article_db.lock().unwrap().push(Article::new(
             author_id,
@@ -58,6 +59,7 @@ mod test {
             "url".to_string(),
             1,
             "Foo".into(),
+            "Descrição da notícia 2".into(),
         ));
         article_db.lock().unwrap().push(Article::new(
             author_id,
@@ -66,6 +68,7 @@ mod test {
             "url".to_string(),
             1,
             "Foo".into(),
+            "Descrição da notícia 3".into(),
         ));
 
         let service = FetchHomePageArticlesService::new(article_repository);

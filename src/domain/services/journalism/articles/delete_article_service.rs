@@ -127,6 +127,7 @@ mod test {
             "coverurl.inicial".to_string(),
             1,
             "Foo".into(),
+            "Bar baz!".into(),
         );
 
         article_db.lock().unwrap().push(article.clone());

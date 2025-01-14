@@ -14,6 +14,7 @@ pub struct CreateArticleParams {
     pub cover_url: String,
     pub title: String,
     pub content: String,
+    pub description: String,
     pub tag_id: i32,
 }
 pub struct CreateArticleService<
@@ -96,6 +97,7 @@ impl<
             params.cover_url,
             tag.id(),
             tag.value().to_owned(),
+            params.description,
         );
 
         let response = self.article_repository.create(article).await;
@@ -174,13 +176,14 @@ mod test {
             .exec(CreateArticleParams {
                 custom_author_id: None,
                 staff_id: user.id(),
-                content: "Conteúdo do artigo aqui".to_string(),
+                content: "Article content right here!".to_string(),
                 cover_url: "https://i.imgur.com/fodase".to_string(),
                 title: "Fake title".to_string(),
                 tag_id: tag.id(),
+                description: "A humble description...".into(),
             })
             .await;
 
-        assert_eq!("Conteúdo do artigo aqui", result.unwrap().content());
+        assert_eq!("Article content right here!", result.unwrap().content());
     }
 }

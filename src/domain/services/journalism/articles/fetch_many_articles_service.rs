@@ -156,6 +156,7 @@ mod test {
             "url".to_string(),
             1,
             "Foo".into(),
+            "Description".into(),
         );
         approved_article.set_approved(true);
         article_db.lock().unwrap().push(approved_article.clone());
@@ -166,6 +167,7 @@ mod test {
             "url".to_string(),
             1,
             "Foo".into(),
+            "Description".into(),
         ));
 
         mocked_user_repo

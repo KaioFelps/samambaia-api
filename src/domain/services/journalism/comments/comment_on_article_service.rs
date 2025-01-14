@@ -96,6 +96,7 @@ mod test {
             Some(1),
             Some("Foo".to_string()),
             Slug::new(article_id, "title".into()),
+            "description".into(),
         ));
 
         let comment_article_db: Arc<Mutex<Vec<CommentArticle>>> = Arc::new(Mutex::new(vec![]));

@@ -128,6 +128,7 @@ mod test {
             "url do cover".into(),
             1,
             "Foo".into(),
+            "baz".into(),
         );
         let article_id = article.id();
 
