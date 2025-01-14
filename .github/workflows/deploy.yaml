@@ -53,7 +53,7 @@ jobs:
           fi
           
           cp package-lock.json __package
-          cp package.json .__package
+          cp package.json __package
           cp Cargo.toml __package
           cp Cargo.lock __package
           cp www/root.html __package/www
