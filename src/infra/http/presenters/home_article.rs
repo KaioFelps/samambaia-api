@@ -26,6 +26,7 @@ pub struct MappedHomeArticle {
     #[serde(rename = "coverUrl")]
     pub cover_url: String,
     pub title: String,
+    pub description: String,
     pub tag: Option<MappedHomeArticleTag>,
     #[serde(rename = "createdAt")]
     pub created_at: DateTime,
@@ -38,7 +39,7 @@ impl PresenterTrait<HomeArticle, MappedHomeArticle> for HomeArticlePresenter {
     fn to_http((article, user): HomeArticle) -> MappedHomeArticle {
         let tag = article.tag_id().map(|id| MappedHomeArticleTag {
             id,
-            value: article.tag_value().unwrap(),
+            value: article.tag_value().as_ref().unwrap().to_string(),
         });
 
         MappedHomeArticle {
@@ -46,12 +47,13 @@ impl PresenterTrait<HomeArticle, MappedHomeArticle> for HomeArticlePresenter {
                 id: user.id(),
                 nickname: user.nickname().into(),
             },
+            id: article.id(),
+            tag,
+            slug: article.slug().to_string(),
+            title: article.title().into(),
             cover_url: article.cover_url().into(),
             created_at: article.created_at(),
-            id: article.id(),
-            slug: article.slug().to_string(),
-            tag,
-            title: article.title().into(),
+            description: article.description().into(),
         }
     }
 }

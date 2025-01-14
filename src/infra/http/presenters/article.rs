@@ -14,6 +14,7 @@ pub struct MappedArticle {
     cover_url: String,
     title: String,
     content: String,
+    description: String,
     approved: bool,
     #[serde(rename = "createdAt")]
     created_at: DateTime,
@@ -32,6 +33,7 @@ impl PresenterTrait<Article, MappedArticle> for ArticlePresenter {
             title: article.title().into(),
             cover_url: article.cover_url().into(),
             content: article.content().into(),
+            description: article.description().into(),
             slug: article.slug().to_string(),
             approved: article.approved(),
             created_at: article.created_at(),

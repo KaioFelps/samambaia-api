@@ -22,7 +22,8 @@ impl SeaMapper<Article, ArticleModel, ArticleActiveModel> for SeaArticleMapper {
             updated_at: entity.updated_at(),
             slug: entity.slug().to_string(),
             tag_id: entity.tag_id(),
-            tag_value: entity.tag_value(),
+            tag_value: entity.tag_value().clone(),
+            description: entity.description().to_string(),
         }
     }
 
@@ -37,8 +38,9 @@ impl SeaMapper<Article, ArticleModel, ArticleActiveModel> for SeaArticleMapper {
             created_at: entity.created_at().into_active_value(),
             updated_at: entity.updated_at().into_active_value(),
             slug: entity.slug().to_string().into_active_value(),
-            tag_value: entity.tag_value().into_active_value(),
+            tag_value: entity.tag_value().to_owned().into_active_value(),
             tag_id: entity.tag_id().into_active_value(),
+            description: entity.description().to_owned().into_active_value(),
         }
     }
 
@@ -55,6 +57,7 @@ impl SeaMapper<Article, ArticleModel, ArticleActiveModel> for SeaArticleMapper {
             active_model.tag_id.unwrap(),
             active_model.tag_value.unwrap(),
             Slug::new_from_existing(active_model.slug.unwrap()),
+            active_model.description.unwrap(),
         )
     }
 
@@ -71,6 +74,7 @@ impl SeaMapper<Article, ArticleModel, ArticleActiveModel> for SeaArticleMapper {
             model.tag_id,
             model.tag_value,
             Slug::new_from_existing(model.slug),
+            model.description,
         )
     }
 }
