@@ -1,6 +1,6 @@
 import { colors } from "@crate/tailwind.config";
 import { Link } from "@inertiajs/react";
-import { Plus } from "@phosphor-icons/react/dist/ssr";
+import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 
 import { ArticleCard } from "@/components/articleCard";
 import { Sprite } from "@/components/sprite";
