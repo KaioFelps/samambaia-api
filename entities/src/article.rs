@@ -19,6 +19,7 @@ pub struct Model {
     pub slug: String,
     pub tag_id: Option<i32>,
     pub tag_value: Option<String>,
+    pub description: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
