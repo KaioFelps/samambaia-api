@@ -130,8 +130,9 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
 
     async fn get_home_articles(&self) -> Result<Vec<MappedHomeArticle>, Box<dyn Error>> {
         let articles = ArticleEntity::find()
-            .limit(6)
             .order_by_desc(ArticleColumn::CreatedAt)
+            .filter(ArticleColumn::Approved.eq(true))
+            .limit(6)
             .find_also_related(entities::user::Entity)
             .all(&self.sea_service.db)
             .await?;
