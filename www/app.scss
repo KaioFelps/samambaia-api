@@ -14,6 +14,13 @@
     .font-rowdies {
         font-family: Rowdies, Kanit, sans-serif;
     }
+
+    @supports (-webkit-text-stroke: 2px black) {
+        .highlight-member-name-stroke {
+            -webkit-text-stroke: 2px black;
+            -webkit-text-fill-color: white;
+        }
+    }
 }
 
 @layer base {
@@ -53,6 +60,7 @@
         @apply  rounded-[7px] border-2 border-gray-800 px-3 py-2.5 shadow-white/50 shadow-[inset_0_2px_0_0]
                 font-bold text-lg text-white leading-tight;
     
+        &.purple { @apply from-purple-500 to-purple-700 }
         &.blue { @apply from-blue-500 to-blue-700 }
         &.green { @apply from-green-500 to-green-600 }
         &.yellow {
@@ -87,5 +95,9 @@
         will-change-[box-shadow]
 
         disabled:bg-gray-200
+    }
+
+    .card {
+        @apply rounded-lg border-2 border-black/25 bg-white p-3 shadow-black/15 shadow-[0_2px_0_0]
     }
 }

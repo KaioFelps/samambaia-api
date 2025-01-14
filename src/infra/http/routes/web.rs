@@ -11,6 +11,7 @@ use crate::infra::sea::sea_service::SeaService;
 use actix_web::web::{self, Data};
 use inertia_rust::actix::InertiaMiddleware;
 use inertia_rust::{hashmap, prop_resolver, InertiaProp, IntoInertiaError, IntoInertiaPropResult};
+use serde_json::json;
 use std::sync::Arc;
 
 pub struct WebRoutes;
@@ -45,6 +46,16 @@ impl RouteTrait for WebRoutes {
                                     announcements.pagination,
                                     DEFAULT_PER_PAGE,
                                 ).into_inertia_value()
+                            })),
+                            // TODO: adicionar o domínio de membros destaques 
+                            "featuredUsers" => InertiaProp::data(json!({
+                                "data": [],
+                                "pagination": {
+                                    "currentPage": 0,
+                                    "totalItems": 0,
+                                    "totalPages": 0,
+                                    "itemsPerPage": 0,
+                                }
                             }))
                         ]
                     })

@@ -1,13 +1,15 @@
 import { usePage } from "@inertiajs/react";
 
+import iconsSprite from "@/assets/icons-sprite.png";
 import Popover from "@/components/popover";
 import { Sprite } from "@/components/sprite";
 import { SharedProps } from "@/inertiaShared";
+import { Imager } from "@/utils/imager";
 
 import { AnnouncementsSlider } from "./announcementsSlider";
 
 export function SideBar() {
-  const { announcements } = usePage<SharedProps>().props;
+  const { announcements, featuredUsers } = usePage<SharedProps>().props;
 
   return (
     <aside className="flex-1 max-w-[336px] flex flex-col gap-2">
@@ -16,12 +18,9 @@ export function SideBar() {
           <AnnouncementsSlider announcements={announcements.data} />
       }
 
-      <div className="
-        rounded-lg border-2 border-black/25 bg-white p-3 shadow-black/25
-        shadow-[0_2px_0_0]
-        "
-      >
-        <header className="section-header from-purple-500 to-purple-700 mb-3">
+      {/* GOSSIPING AND COMPLAINING */}
+      <div className="card">
+        <header className="section-header purple mb-3">
           <span>Reclame aqui</span>
         </header>
 
@@ -73,8 +72,66 @@ export function SideBar() {
               Reclamar
             </button>
           </div>
+
         </div>
       </div>
+
+      {/* FEATURED USERS */}
+      {featuredUsers.data.length > 0 && (
+        <div className="card overflow-hidden">
+          <header className="section-header purple">
+            <span>Membro destaque</span>
+          </header>
+
+          <div className="flex flex-col gap-2">
+            {featuredUsers.data.map(({ nickname, cause }) => (
+              <div
+                className="
+                flex gap-3 [&:not(:last-child)]:overflow-hidden
+                [&:not(:last-child)]:border-b-2 border-black/15
+                "
+                key={"live-cosmic-featured-user-" + nickname}
+              >
+                <div className="
+                relative w-[150px] min-h-[172px] flex flex-col justify-end items-center -mb-4
+                "
+                >
+                  <div
+                    aria-hidden
+                    className="w-[150px] h-[114px] absolute -bottom-[1px]"
+                    style={{
+                      backgroundImage: `url("${iconsSprite}")`,
+                      backgroundPosition: "-570px 0",
+                      backgroundRepeat: "no-repeat",
+                    }}
+                  />
+                  <img
+                    className="relative mb-16"
+                    src={Imager.getUserImage(nickname, {
+                      action: "wav",
+                      head_direction: "3",
+                      direction: "2",
+                      size: "m",
+                    })}
+                    alt={`Habbo ${nickname} acenando`}
+                  />
+                </div>
+                <div className="flex-1">
+                  <span className="
+                    text-2xl font-black leading-loose text-white highlight-member-name-stroke mb-1
+                    "
+                  >
+                    Parmesan
+                  </span>
+                  <p className="text-sm">
+                    {cause}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
