@@ -28,9 +28,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Build the Rust application
-        run: cargo build --release
-
       - name: Delete old public directory from Square Cloud
         run: |
           curl --request DELETE \
@@ -38,6 +35,9 @@ jobs:
             --header "Authorization: ${{ secrets.square_token }}" \
             --header 'Content-Type: application/json' \
             --data '{ "path": "public" }'
+
+      - name: Build the Rust application
+        run: cargo build --release
 
       - name: Build the front-end
         run: |
