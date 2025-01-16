@@ -39,7 +39,7 @@ export function SideBar() {
 
               <Popover.Trigger asChild>
                 <button className="
-                  p-0.5 rounded-full outline-0 ring-0 ring-blue-500/25 focus-within:ring-4
+                  p-0.5 rounded-full outline-0 ring-0 ring-blue-500/25 focus-visible:ring-4
                   transition-all duration-100 will-change-[box-shadow]
                   "
                 >
