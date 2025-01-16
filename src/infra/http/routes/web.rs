@@ -2,15 +2,24 @@ use super::route::RouteTrait;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::announcements::fetch_many_announcements_service_factory;
 use crate::domain::services::announcements::fetch_many_announcements_service::FetchManyAnnouncementsParams;
+use crate::env_config::RustEnv;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::web::home_controller::HomeController;
 use crate::infra::http::middlewares::RequestUserMiddleware;
 use crate::infra::http::presenters::announcement::AnnouncementPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
+use crate::ENV_VARS;
+use actix_web::body::BoxBody;
+use actix_web::dev::{ServiceRequest, ServiceResponse};
+use actix_web::http::StatusCode;
+use actix_web::middleware::{from_fn, Next};
 use actix_web::web::{self, Data};
 use inertia_rust::actix::InertiaMiddleware;
-use inertia_rust::{hashmap, prop_resolver, InertiaProp, IntoInertiaError, IntoInertiaPropResult};
+use inertia_rust::{
+    hashmap, prop_resolver, Inertia, InertiaFacade, InertiaProp, IntoInertiaError,
+    IntoInertiaPropResult,
+};
 use serde_json::json;
 use std::sync::Arc;
 
@@ -20,6 +29,7 @@ impl RouteTrait for WebRoutes {
     fn register(cfg: &mut web::ServiceConfig) {
         cfg.service(
             web::scope("")
+                .wrap(from_fn(default_error_handler))
                 .wrap(RequestUserMiddleware)
                 .wrap(InertiaMiddleware::new().with_shared_props(Arc::new(|req| {
                     let req = req.clone();
@@ -68,4 +78,27 @@ impl RouteTrait for WebRoutes {
                 }),
         );
     }
+}
+
+async fn default_error_handler(
+    req: ServiceRequest,
+    next: Next<BoxBody>,
+) -> Result<ServiceResponse<BoxBody>, actix_web::error::Error> {
+    let res = next.call(req).await?;
+    let status = res.status().as_u16();
+
+    if ENV_VARS.rust_env != RustEnv::Development && [503, 500, 404, 403].contains(&status) {
+        let mut inertia_err_response = Inertia::render_with_props(
+            res.request(),
+            "Error".into(),
+            hashmap![ "status" => InertiaProp::data(status) ],
+        )
+        .await?;
+
+        *inertia_err_response.status_mut() = StatusCode::from_u16(status).unwrap();
+
+        return Ok(res.into_response(inertia_err_response));
+    }
+
+    Ok(res)
 }

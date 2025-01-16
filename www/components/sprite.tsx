@@ -1,6 +1,6 @@
 import iconsSprite from "../assets/icons-sprite.png";
 
-type SpriteProps = {
+export type SpriteProps = {
   spriteUrl?: string;
   x: number;
   y: number;

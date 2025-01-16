@@ -2,8 +2,8 @@ import { colors } from "@crate/tailwind.config";
 import { Link } from "@inertiajs/react";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 
+import { Alert } from "@/components/alert";
 import { ArticleCard } from "@/components/articleCard";
-import { Sprite } from "@/components/sprite";
 import { type SharedProps } from "@/inertiaShared";
 import { colorWithOpacity } from "@/lib/tailwind";
 import { Article } from "@/types/article";
@@ -49,21 +49,10 @@ export default function Index({ articles }: HomeProps) {
             </div>
             )
           : (
-            <div className="
-              w-full grid place-items-center p-3 rounded-lg mx-auto bg-yellow-500/10 mt-3
-              border-2 border-yellow-500/25
-              "
-            >
-              <span className="text-yellow-900 font-bold text-lg">
-                ✨ Ainda não há notícias ✨
-              </span>
-              <Sprite
-                x={-679}
-                y={-118}
-                width={119}
-                height={180}
-              />
-            </div>
+            <Alert
+              type="warning"
+              message="Ups! Parece que ainda não há notícias."
+            />
             )}
       </section>
     </main>

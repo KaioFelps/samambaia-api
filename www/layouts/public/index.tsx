@@ -9,15 +9,23 @@ type PublicLayoutProps = {
 };
 
 export function PublicLayout({ children }: PublicLayoutProps) {
+  return (
+    <RawPublicLayout>
+      <div className="main-screen-centralized flex gap-2">
+        <SideBar />
+        {children}
+      </div>
+    </RawPublicLayout>
+  );
+}
+
+export function RawPublicLayout({ children }: PublicLayoutProps) {
   const topBg = "https://i.imgur.com/bBw1X5C.png";
 
   return (
     <>
       <Header topBg={topBg} />
-      <div className="main-screen-centralized flex gap-2">
-        <SideBar />
-        {children}
-      </div>
+      {children}
       <Footer />
     </>
   );
