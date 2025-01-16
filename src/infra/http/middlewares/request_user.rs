@@ -81,7 +81,7 @@ where
         // let svc = self.service.clone();
         // Box::pin(async move { ... async code }
 
-        log::info!("Request going through Request User Middleware.");
+        log::debug!("Request going through Request User Middleware.");
 
         let auth_header = req.headers().get("Authorization");
         let auth_header = {
