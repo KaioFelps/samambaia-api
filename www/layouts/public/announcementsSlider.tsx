@@ -25,7 +25,7 @@ export function AnnouncementsSlider({ announcements }: AnnouncementsSliderProps)
         pauseOnMouseEnter: true,
       }}
       className="
-          w-full bg-purple-700 h-[282px] rounded-lg border-2 border-black
+          w-full bg-purple-700 aspect-square rounded-lg border-2 border-black
           shadow-black/25 shadow-[0_2px_0_0]
           "
     >
@@ -41,7 +41,7 @@ export function AnnouncementsSlider({ announcements }: AnnouncementsSliderProps)
                 backgroundImage: `url("${image}")`,
               }}
               className="
-                pixelated flex flex-col items-center justify-end p-6 h-full w-full bg-center
+                pixelated flex flex-col items-center justify-end p-4 h-full w-full bg-center
                 bg-cover
                 "
               href={url}
@@ -55,7 +55,7 @@ export function AnnouncementsSlider({ announcements }: AnnouncementsSliderProps)
               <span
                 style={{ textShadow: `0 3px 0 ${colorWithOpacity(colors.black, 25)}` }}
                 className="
-                  px-[20px] py-1 font-bold bg-gray-800 rounded-full text-white text-2xl
+                  px-6 py-1 font-bold bg-gray-800 rounded-full text-white text-2xl
                   text-center text-balance shadow-black/25 shadow-[0_2px_0_0]
                   "
               >
