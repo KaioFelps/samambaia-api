@@ -40,7 +40,7 @@ export function Header({ topBg }: HeaderProps) {
       >
         <nav className="h-[68px] flex main-screen-centralized">
           <Link
-            href=""
+            href="/"
             className="navbar-item"
           >
             <span className="block size-[40px]">
