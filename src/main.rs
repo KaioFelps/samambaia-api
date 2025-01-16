@@ -1,4 +1,4 @@
-use actix_web::{web::Data, HttpServer};
+use actix_web::{middleware, web::Data, HttpServer};
 use dotenvy::dotenv;
 use env_logger::{self, Target};
 use log::{error, info};
@@ -24,8 +24,7 @@ async fn main() -> std::io::Result<()> {
 
     let migration_result = Migrator::up(&sea_service.db, None).await;
 
-    if migration_result.is_err() {
-        let err = migration_result.unwrap_err();
+    if let Err(err) = migration_result {
         error!("Error occurred on applying pending migrations: \n{}", err);
     }
 
@@ -36,7 +35,9 @@ async fn main() -> std::io::Result<()> {
     let inertia_data = inertia.clone();
 
     let server = HttpServer::new(move || {
-        ServerFactory::exec_with_sea(sea_service.clone()).app_data(inertia_data.clone())
+        ServerFactory::exec_with_sea(sea_service.clone())
+            .app_data(inertia_data.clone())
+            .wrap(middleware::Logger::default())
     })
     .bind((ENV_VARS.host.as_str(), ENV_VARS.port))?
     .workers(ENV_VARS.workers);
