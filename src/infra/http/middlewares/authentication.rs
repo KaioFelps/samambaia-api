@@ -45,11 +45,11 @@ pub async fn authentication_middleware<B>(
     req: ServiceRequest,
     next: Next<B>,
 ) -> Result<ServiceResponse<EitherBody<B>>, Error> {
-    log::info!("Request going through Authentication Middleware.");
+    log::debug!("Request going through Authentication Middleware.");
     let has_user = req.extensions().contains::<ReqUser>();
 
     if !has_user {
-        log::info!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
+        log::debug!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
 
         let http_res = SamambaiaError::unauthorized_err().error_response();
         let (http_req, _) = req.into_parts();
@@ -58,7 +58,7 @@ pub async fn authentication_middleware<B>(
         return Ok(res.map_into_right_body());
     }
 
-    log::info!("Request passing successfully through Authentication Middleware.");
+    log::debug!("Request passing successfully through Authentication Middleware.");
 
     next.call(req)
         .await
@@ -128,11 +128,11 @@ where
     dev::forward_ready!(service);
 
     fn call(&self, request: ServiceRequest) -> Self::Future {
-        log::info!("Request going through Authentication Middleware.");
+        log::debug!("Request going through Authentication Middleware.");
         let has_user = request.extensions().contains::<ReqUser>();
 
         if !has_user {
-            log::info!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
+            log::debug!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
 
             let http_res = SamambaiaError::unauthorized_err()
                 .error_response()
@@ -143,7 +143,7 @@ where
             return Box::pin(async { Ok(res) });
         }
 
-        log::info!("Request passing successfully through Authentication Middleware.");
+        log::debug!("Request passing successfully through Authentication Middleware.");
 
         let res = self.service.call(request);
         Box::pin(async move { res.await.map(ServiceResponse::map_into_left_body) })
