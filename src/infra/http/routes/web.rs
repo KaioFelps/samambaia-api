@@ -1,15 +1,15 @@
 use super::route::RouteTrait;
+use crate::configs::app::APP_CONFIG;
+use crate::configs::env::RustEnv;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::announcements::fetch_many_announcements_service_factory;
 use crate::domain::services::announcements::fetch_many_announcements_service::FetchManyAnnouncementsParams;
-use crate::env_config::RustEnv;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::web::home_controller::HomeController;
 use crate::infra::http::middlewares::RequestUserMiddleware;
 use crate::infra::http::presenters::announcement::AnnouncementPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
-use crate::ENV_VARS;
 use actix_web::body::BoxBody;
 use actix_web::dev::{ServiceRequest, ServiceResponse};
 use actix_web::http::StatusCode;
@@ -87,7 +87,7 @@ async fn default_error_handler(
     let res = next.call(req).await?;
     let status = res.status().as_u16();
 
-    if ENV_VARS.rust_env != RustEnv::Development && [503, 500, 404, 403].contains(&status) {
+    if APP_CONFIG.rust_env != RustEnv::Development && [503, 500, 404, 403].contains(&status) {
         let mut inertia_err_response = Inertia::render_with_props(
             res.request(),
             "Error".into(),

@@ -6,6 +6,7 @@ use log::info;
 use serde_json::json;
 use validator::Validate;
 
+use crate::configs::app::APP_CONFIG;
 use crate::domain::factories::identity::authenticate_user_service_factory;
 use crate::domain::services::identity::authenticate_user_service::AuthenticateUserParams;
 use crate::error::SamambaiaError;
@@ -13,7 +14,6 @@ use crate::infra::extensions::validator::IntoSamambaiaError;
 use crate::infra::http::dtos::login::LoginDto;
 use crate::infra::jwt::jwt_service::{DecodedToken, JwtService, MakeJwtResult};
 use crate::infra::sea::sea_service::SeaService;
-use crate::ENV_VARS;
 
 use super::controller::ControllerTrait;
 use super::AppResponse;
@@ -48,7 +48,7 @@ impl SessionsController {
             .await?;
 
         let refresh_cookie = Cookie::build("refresh_token", refresh_token.token)
-            .domain(&ENV_VARS.domain)
+            .domain(&APP_CONFIG.domain)
             .path("/")
             .secure(true)
             .http_only(true)
@@ -73,7 +73,7 @@ impl SessionsController {
         let jwt_service = JwtService {};
         let decoded_token = jwt_service.decode_jwt(
             refresh_token.into(),
-            DecodingKey::from_secret(ENV_VARS.jwt_secret.as_ref()),
+            DecodingKey::from_secret(APP_CONFIG.jwt_secret.as_ref()),
         );
 
         if let Err(err) = decoded_token {
@@ -110,7 +110,7 @@ impl SessionsController {
         let tokens = jwt_service.make_jwt(
             user_id,
             user_role.unwrap(),
-            EncodingKey::from_secret(ENV_VARS.jwt_secret.as_ref()),
+            EncodingKey::from_secret(APP_CONFIG.jwt_secret.as_ref()),
         );
 
         if tokens.is_err() {
@@ -124,7 +124,7 @@ impl SessionsController {
         } = tokens.unwrap();
 
         let refresh_cookie = Cookie::build("refresh_token", refresh_token.token)
-            .domain(&ENV_VARS.domain)
+            .domain(&APP_CONFIG.domain)
             .path("/")
             .secure(true)
             .http_only(true)
@@ -137,7 +137,7 @@ impl SessionsController {
 
     async fn logout() -> impl Responder {
         let mut refresh_cookie = Cookie::build("refresh_token", "")
-            .domain(&ENV_VARS.domain)
+            .domain(&APP_CONFIG.domain)
             .path("/")
             .secure(true)
             .http_only(true)

@@ -1,7 +1,7 @@
 use crate::{
-    env_config::RustEnv,
+    configs::app::APP_CONFIG,
+    configs::env::RustEnv,
     error::{IntoSamambaiaError, SamambaiaError},
-    ENV_VARS,
 };
 
 use super::vite::initialize_vite;
@@ -19,9 +19,9 @@ pub async fn initialize_inertia() -> Result<Inertia, io::Error> {
     let url = Box::leak(
         format!(
             "{}://{}:{}",
-            if ENV_VARS.https { "https" } else { "http" },
-            ENV_VARS.domain,
-            ENV_VARS.port
+            if APP_CONFIG.https { "https" } else { "http" },
+            APP_CONFIG.domain,
+            APP_CONFIG.port
         )
         .into_boxed_str(),
     );
@@ -33,7 +33,7 @@ pub async fn initialize_inertia() -> Result<Inertia, io::Error> {
         .set_template_resolver(Box::new(resolver))
         .build();
 
-    if ENV_VARS.rust_env == RustEnv::Production {
+    if APP_CONFIG.rust_env == RustEnv::Production {
         inertia_config.with_ssr = true;
     }
 

@@ -1,9 +1,9 @@
+use crate::configs::app::APP_CONFIG;
 use crate::domain::cryptography::comparer::ComparerTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;
 use crate::infra::jwt::jwt_service::{JwtService, MakeJwtResult};
 use crate::util::generate_service_internal_error;
-use crate::ENV_VARS;
 
 use jsonwebtoken::EncodingKey;
 
@@ -62,7 +62,7 @@ impl<UserRepositoryType: UserRepositoryTrait, Comparer: ComparerTrait>
         let jwt = self.jwt_service.make_jwt(
             user_on_db.id(),
             user_on_db.role().unwrap(),
-            EncodingKey::from_secret(ENV_VARS.jwt_secret.as_ref()),
+            EncodingKey::from_secret(APP_CONFIG.jwt_secret.as_ref()),
         );
 
         match jwt {

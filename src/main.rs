@@ -4,8 +4,9 @@ use env_logger::{self, Target};
 use log::{error, info};
 use migration::{Migrator, MigratorTrait};
 use samambaia::{
-    configs::inertia::initialize_inertia, env_config::RustEnv, infra::sea::sea_service::SeaService,
-    server::ServerFactory, ENV_VARS,
+    configs::{app::APP_CONFIG, env::RustEnv, inertia::initialize_inertia},
+    infra::sea::sea_service::SeaService,
+    server::ServerFactory,
 };
 
 #[actix_web::main]
@@ -39,10 +40,10 @@ async fn main() -> std::io::Result<()> {
             .app_data(inertia_data.clone())
             .wrap(middleware::Logger::default())
     })
-    .bind((ENV_VARS.host.as_str(), ENV_VARS.port))?
-    .workers(ENV_VARS.workers);
+    .bind((APP_CONFIG.host.as_str(), APP_CONFIG.port))?
+    .workers(APP_CONFIG.workers);
 
-    let is_production = ENV_VARS.rust_env == RustEnv::Production;
+    let is_production = APP_CONFIG.rust_env == RustEnv::Production;
     let mut node_process = None;
 
     if is_production {
