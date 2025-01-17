@@ -5,9 +5,10 @@ import { Sprite, SpriteProps } from "./sprite";
 type AlertProps = {
   type: "warning";
   message: string;
+  className?: string;
 };
 
-export function Alert({ message, type }: AlertProps) {
+export function Alert({ message, type, className }: AlertProps) {
   const sprites: Record<string, SpriteProps> = {
     warning: {
       x: -431,
@@ -19,8 +20,9 @@ export function Alert({ message, type }: AlertProps) {
 
   return (
     <div className={clsx(
-      "w-full flex items-center gap-3 p-2 rounded-lg mx-auto mt-3 border-2 cursor-default",
+      "w-full flex items-center gap-3 p-2 rounded-lg mx-auto border-2 cursor-default",
       type === "warning" && "bg-yellow-500/25 border-yellow-900 text-yellow-900",
+      className && className,
     )}
     >
       <div className={clsx(
