@@ -9,7 +9,7 @@ pub struct SeaService {
 }
 
 async fn get_db_conn() -> Result<DatabaseConnection, DbErr> {
-    let mut db_opts: ConnectOptions = ConnectOptions::new(&APP_CONFIG.database_url);
+    let mut db_opts: ConnectOptions = ConnectOptions::new(APP_CONFIG.database_url);
     db_opts
         .max_connections(15)
         .connect_timeout(Duration::from_secs(8))

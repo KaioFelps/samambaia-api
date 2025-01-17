@@ -48,7 +48,7 @@ impl SessionsController {
             .await?;
 
         let refresh_cookie = Cookie::build("refresh_token", refresh_token.token)
-            .domain(&APP_CONFIG.domain)
+            .domain(APP_CONFIG.domain)
             .path("/")
             .secure(true)
             .http_only(true)
@@ -124,7 +124,7 @@ impl SessionsController {
         } = tokens.unwrap();
 
         let refresh_cookie = Cookie::build("refresh_token", refresh_token.token)
-            .domain(&APP_CONFIG.domain)
+            .domain(APP_CONFIG.domain)
             .path("/")
             .secure(true)
             .http_only(true)
@@ -137,7 +137,7 @@ impl SessionsController {
 
     async fn logout() -> impl Responder {
         let mut refresh_cookie = Cookie::build("refresh_token", "")
-            .domain(&APP_CONFIG.domain)
+            .domain(APP_CONFIG.domain)
             .path("/")
             .secure(true)
             .http_only(true)

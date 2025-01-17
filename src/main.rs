@@ -40,7 +40,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(inertia_data.clone())
             .wrap(middleware::Logger::default())
     })
-    .bind((APP_CONFIG.host.as_str(), APP_CONFIG.port))?
+    .bind((APP_CONFIG.host, APP_CONFIG.port))?
     .workers(APP_CONFIG.workers);
 
     let is_production = APP_CONFIG.rust_env == RustEnv::Production;
