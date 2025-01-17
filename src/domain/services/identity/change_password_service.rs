@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::domain::cryptography::both::HasherAndComparerTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 
 use crate::util::generate_service_internal_error;
 
@@ -32,7 +32,7 @@ impl<UserRepositoryType: UserRepositoryTrait, HasherAndComparer: HasherAndCompar
         }
     }
 
-    pub async fn exec(&self, params: ChangePasswordParams) -> Result<(), DomainError> {
+    pub async fn exec(&self, params: ChangePasswordParams) -> Result<(), SamambaiaError> {
         let user_on_db = self
             .user_repository
             .find_by_id(&params.user_id)
@@ -45,7 +45,7 @@ impl<UserRepositoryType: UserRepositoryTrait, HasherAndComparer: HasherAndCompar
             })?;
 
         if user_on_db.is_none() {
-            return Err(DomainError::resource_not_found_err());
+            return Err(SamambaiaError::resource_not_found_err());
         }
 
         let mut user = user_on_db.unwrap();
@@ -55,7 +55,7 @@ impl<UserRepositoryType: UserRepositoryTrait, HasherAndComparer: HasherAndCompar
             .compare(&params.current_password, user.password());
 
         if !password_matches {
-            return Err(DomainError::invalid_credentials_err());
+            return Err(SamambaiaError::invalid_credentials_err());
         }
 
         let new_password = self.hasher_and_comparer.hash(params.new_password);
@@ -66,7 +66,7 @@ impl<UserRepositoryType: UserRepositoryTrait, HasherAndComparer: HasherAndCompar
 
         match result {
             Ok(_) => Ok(()),
-            Err(_err) => Err(DomainError::internal_err()),
+            Err(_err) => Err(SamambaiaError::internal_err()),
         }
     }
 }

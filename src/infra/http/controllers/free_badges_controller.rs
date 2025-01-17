@@ -11,7 +11,7 @@ use crate::domain::services::journalism::free_badges::{
     fetch_many_free_badges_service::FetchManyFreeBadgesParams,
     update_free_badge_service::UpdateFreeBadgeParams,
 };
-use crate::infra::extensions::validator::IntoDomainError;
+use crate::infra::extensions::validator::IntoSamambaiaError;
 use crate::infra::http::dtos::create_free_badge::CreateFreeBadgeDto;
 use crate::infra::http::dtos::simple_pagination_query::SimplePaginationQueryDto;
 use crate::infra::http::dtos::update_free_badge::UpdateFreeBadgeDto;
@@ -66,7 +66,7 @@ impl FreeBadgesController {
         let body = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_domain_err)?;
 
         let service = create_free_badge_service_factory::exec(&db_conn);
 
@@ -121,7 +121,7 @@ impl FreeBadgesController {
         let body = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_domain_err)?;
 
         let service = update_free_badge_service_factory::exec(&db_conn);
 

@@ -3,7 +3,7 @@ use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::repositories::article_tag_repository::{
     ArticleTagQueryType, FindManyArticleTagsResponse, MockArticleTagRepositoryTrait,
 };
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use std::sync::{Arc, Mutex};
 
 pub fn get_article_tag_repository() -> (Arc<Mutex<Vec<ArticleTag>>>, MockArticleTagRepositoryTrait)
@@ -74,7 +74,7 @@ pub fn get_article_tag_repository() -> (Arc<Mutex<Vec<ArticleTag>>>, MockArticle
                 db_clone.lock().unwrap()[i] = tag.clone();
                 Ok(tag)
             }
-            None => Err(Box::new(DomainError::resource_not_found_err())),
+            None => Err(Box::new(SamambaiaError::resource_not_found_err())),
         }
     });
 

@@ -13,7 +13,7 @@ use crate::domain::services::security::{
     },
     solve_comment_report_service::SolveCommentReportParams,
 };
-use crate::infra::extensions::validator::IntoDomainError;
+use crate::infra::extensions::validator::IntoSamambaiaError;
 use crate::infra::http::dtos::create_comment_report::CreateCommentReportDto;
 use crate::infra::http::dtos::list_comment_reports::ListCommentReportsDto;
 use crate::infra::http::extractors::req_user::ReqUser;
@@ -74,7 +74,7 @@ impl CommentReportsController {
         let body = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_domain_err)?;
 
         let service = create_comment_report_service_factory::exec(&db_conn);
 

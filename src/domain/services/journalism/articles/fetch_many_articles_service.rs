@@ -4,10 +4,10 @@ use crate::domain::repositories::article_repository::{
     ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse,
 };
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 
-type Error = DomainError;
+type Error = SamambaiaError;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ServiceArticleQueryType {
@@ -111,13 +111,13 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
                 let user = self.user_repository.find_by_nickname(&content).await;
 
                 if user.is_err() {
-                    return Err(DomainError::internal_err());
+                    return Err(SamambaiaError::internal_err());
                 }
 
                 let user = user.unwrap();
 
                 if user.is_none() {
-                    return Err(DomainError::resource_not_found_err());
+                    return Err(SamambaiaError::resource_not_found_err());
                 }
 
                 Ok(Some(ArticleQueryType::Author(user.unwrap().id())))

@@ -8,7 +8,7 @@ use crate::{
             user_repository::UserRepositoryTrait,
         },
     },
-    error::DomainError,
+    error::SamambaiaError,
     util::{generate_service_internal_error, verify_role_has_permission, RolePermissions},
 };
 
@@ -45,7 +45,7 @@ where
     pub async fn exec(
         &self,
         params: UpdateAnnouncementParams,
-    ) -> Result<Announcement, DomainError> {
+    ) -> Result<Announcement, SamambaiaError> {
         let user = self
             .users_repository
             .find_by_id(&params.user_id)
@@ -65,7 +65,7 @@ where
         });
 
         if !user_is_authorized {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let mut announcement = match self
@@ -77,7 +77,7 @@ where
                 err
             ))?
         {
-            None => return Err(DomainError::resource_not_found_err().with_message("Announcement not found.")),
+            None => return Err(SamambaiaError::resource_not_found_err().with_message("Announcement not found.")),
             Some(announcement) => announcement,
         };
 
@@ -116,7 +116,7 @@ mod test {
     use super::UpdateAnnouncementParams;
     use crate::{
         domain::domain_entities::{announcement::Announcement, role::Role, user::User},
-        error::DomainError,
+        error::SamambaiaError,
         tests::repositories::{
             announcements_repository::get_announcements_repository,
             users_repository::get_user_repository,
@@ -165,7 +165,7 @@ mod test {
         assert!(unauthorized_result.is_err());
         assert!(matches!(
             unauthorized_result.unwrap_err(),
-            DomainError::Unauthorized(_)
+            SamambaiaError::Unauthorized(_)
         ));
     }
 }

@@ -1,6 +1,6 @@
 use crate::{
     env_config::RustEnv,
-    error::{DomainError, IntoDomainError},
+    error::{IntoSamambaiaError, SamambaiaError},
     ENV_VARS,
 };
 
@@ -40,13 +40,13 @@ pub async fn initialize_inertia() -> Result<Inertia, io::Error> {
     Inertia::new(inertia_config)
 }
 
-impl IntoDomainError for InertiaError {
-    fn into_domain_error(self) -> DomainError {
-        DomainError::internal_err().with_message(self.get_cause())
+impl IntoSamambaiaError for InertiaError {
+    fn into_samambaia_error(self) -> SamambaiaError {
+        SamambaiaError::internal_err().with_message(self.get_cause())
     }
 }
 
-impl IntoInertiaError for DomainError {
+impl IntoInertiaError for SamambaiaError {
     fn into_inertia_error(self) -> InertiaError {
         InertiaError::RenderError(self.to_string())
     }

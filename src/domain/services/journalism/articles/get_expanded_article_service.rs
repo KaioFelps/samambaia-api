@@ -10,7 +10,7 @@ use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::comment_user_article_repository::CommentUserArticleRepositoryTrait;
 use crate::domain::repositories::comment_user_article_repository::FindManyCommentsWithAuthorResponse;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 use uuid::Uuid;
 
@@ -66,7 +66,7 @@ impl<
     pub async fn exec(
         &self,
         params: GetExpandedArticleParams<'_>,
-    ) -> Result<GetExpandedArticleResponse, DomainError> {
+    ) -> Result<GetExpandedArticleResponse, SamambaiaError> {
         let items_per_page = params.comments_per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
 
         let article = match self
@@ -79,7 +79,7 @@ impl<
                     err,
                 )
             })? {
-            None => return Err(DomainError::resource_not_found_err()),
+            None => return Err(SamambaiaError::resource_not_found_err()),
             Some(article) => article,
         };
 
@@ -97,7 +97,7 @@ impl<
         };
 
         if !article.approved() && !user_can_see_article {
-            return Err(DomainError::resource_not_found_err());
+            return Err(SamambaiaError::resource_not_found_err());
         }
 
         let FindManyCommentsWithAuthorResponse(data, total_items) = self
@@ -140,7 +140,7 @@ impl<
                 "Author from article of id '{}' returned None on Get Expanded Article Service.",
                 article.id().to_string()
             );
-            return Err(DomainError::resource_not_found_err());
+            return Err(SamambaiaError::resource_not_found_err());
         }
 
         let author = author.unwrap();

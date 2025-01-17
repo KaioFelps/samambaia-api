@@ -8,7 +8,7 @@ use crate::{
             user_repository::UserRepositoryTrait,
         },
     },
-    error::DomainError,
+    error::SamambaiaError,
     util::{generate_service_internal_error, verify_role_has_permission, RolePermissions},
 };
 
@@ -50,7 +50,7 @@ where
             staff_id,
             description,
         }: CreateAnnouncementParams,
-    ) -> Result<Announcement, DomainError> {
+    ) -> Result<Announcement, SamambaiaError> {
         let staff = self
             .users_repository
             .find_by_id(&staff_id)
@@ -69,7 +69,7 @@ where
                 verify_role_has_permission(&role, RolePermissions::CreateAnnouncement)
             })
         {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let announcement = Announcement::new(url, image, external, staff_id, description);
@@ -92,7 +92,7 @@ where
 mod test {
     use crate::{
         domain::domain_entities::{role::Role, user::User},
-        error::DomainError,
+        error::SamambaiaError,
         tests::repositories::{
             announcements_repository::get_announcements_repository,
             users_repository::get_user_repository,
@@ -128,7 +128,7 @@ mod test {
         assert!(failure_call.is_err());
         assert!(matches!(
             failure_call.unwrap_err(),
-            DomainError::Unauthorized(_)
+            SamambaiaError::Unauthorized(_)
         ));
 
         let successful_call = service

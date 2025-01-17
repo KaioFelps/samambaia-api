@@ -4,7 +4,7 @@ use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 use crate::util::{verify_role_has_permission, RolePermissions};
 
@@ -45,7 +45,7 @@ impl<
         }
     }
 
-    pub async fn exec(&self, params: CreateArticleParams) -> Result<Article, DomainError> {
+    pub async fn exec(&self, params: CreateArticleParams) -> Result<Article, SamambaiaError> {
         let staff_on_db = self
             .user_repository
             .find_by_id(&params.staff_id)
@@ -63,7 +63,7 @@ impl<
                 RolePermissions::CreateArticle,
             )
         {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let author_id = {
@@ -84,7 +84,7 @@ impl<
         let tag = tag.unwrap();
 
         if tag.is_none() {
-            return Err(DomainError::bad_request_err()
+            return Err(SamambaiaError::bad_request_err()
                 .with_message(format!("Tag with id '{}' not found.", params.tag_id)));
         }
 

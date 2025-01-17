@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 use crate::util::verify_role_has_permission;
 use crate::util::RolePermissions;
@@ -26,12 +26,12 @@ impl<CommentReportRepository: CommentReportRepositoryTrait>
         }
     }
 
-    pub async fn exec(&self, params: SolveCommentReportParams) -> Result<(), DomainError> {
+    pub async fn exec(&self, params: SolveCommentReportParams) -> Result<(), SamambaiaError> {
         let staff_can_solve =
             verify_role_has_permission(&params.staff_role, RolePermissions::SolveReport);
 
         if !staff_can_solve {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let comm_report = self
@@ -44,7 +44,7 @@ impl<CommentReportRepository: CommentReportRepositoryTrait>
             ))?;
 
         if comm_report.is_none() {
-            return Err(DomainError::resource_not_found_err());
+            return Err(SamambaiaError::resource_not_found_err());
         }
 
         let mut comm_report = comm_report.unwrap();

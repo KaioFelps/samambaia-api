@@ -1,6 +1,6 @@
 use crate::domain::cryptography::comparer::ComparerTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::infra::jwt::jwt_service::{JwtService, MakeJwtResult};
 use crate::util::generate_service_internal_error;
 use crate::ENV_VARS;
@@ -32,7 +32,10 @@ impl<UserRepositoryType: UserRepositoryTrait, Comparer: ComparerTrait>
         }
     }
 
-    pub async fn exec(&self, params: AuthenticateUserParams) -> Result<MakeJwtResult, DomainError> {
+    pub async fn exec(
+        &self,
+        params: AuthenticateUserParams,
+    ) -> Result<MakeJwtResult, SamambaiaError> {
         let user_on_db = self
             .user_repository
             .find_by_nickname(&params.nickname)
@@ -43,7 +46,7 @@ impl<UserRepositoryType: UserRepositoryTrait, Comparer: ComparerTrait>
             )?;
 
         if user_on_db.is_none() {
-            return Err(DomainError::invalid_credentials_err());
+            return Err(SamambaiaError::invalid_credentials_err());
         }
 
         let user_on_db = user_on_db.unwrap();
@@ -53,7 +56,7 @@ impl<UserRepositoryType: UserRepositoryTrait, Comparer: ComparerTrait>
             .compare(&params.password, user_on_db.password());
 
         if !password_matches {
-            return Err(DomainError::invalid_credentials_err());
+            return Err(SamambaiaError::invalid_credentials_err());
         }
 
         let jwt = self.jwt_service.make_jwt(
@@ -64,7 +67,7 @@ impl<UserRepositoryType: UserRepositoryTrait, Comparer: ComparerTrait>
 
         match jwt {
             Ok(jwt) => Ok(jwt),
-            Err(_err) => Err(DomainError::internal_err()),
+            Err(_err) => Err(SamambaiaError::internal_err()),
         }
     }
 }

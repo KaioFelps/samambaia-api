@@ -5,7 +5,7 @@ use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct UpdateArticleParams {
@@ -43,14 +43,14 @@ impl<
         }
     }
 
-    pub async fn exec(&self, params: UpdateArticleParams) -> Result<Article, DomainError> {
+    pub async fn exec(&self, params: UpdateArticleParams) -> Result<Article, SamambaiaError> {
         // checks if there is something to be updated
         if params.cover_url.is_none()
             && params.title.is_none()
             && params.cover_url.is_none()
             && params.approved.is_none()
         {
-            return Err(DomainError::bad_request_err());
+            return Err(SamambaiaError::bad_request_err());
         }
 
         // article verifications
@@ -66,7 +66,7 @@ impl<
             })?;
 
         if article.is_none() {
-            return Err(DomainError::resource_not_found_err());
+            return Err(SamambaiaError::resource_not_found_err());
         }
 
         let mut article = article.unwrap();
@@ -82,28 +82,28 @@ impl<
             verify_role_has_permission(&params.user_role, RolePermissions::DisapproveArticle);
 
         if !user_can_approve && params.approved.is_some() {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
         if !user_can_disapprove && params.approved.is_some() && !params.approved.unwrap() {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let user_is_author = article.author_id() == params.user_id;
 
         if !user_can_update && !user_is_author {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         // if user is author but does no longer belong to the team, he can't delete his own article either.
         if user_is_author && params.user_role == Role::User {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let user_can_change_article_author =
             verify_role_has_permission(&params.user_role, RolePermissions::ChangeArticleAuthor);
 
         if !user_can_change_article_author && params.author_id.is_some() {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         // modifies the article where requested
@@ -151,7 +151,7 @@ impl<
         Ok(article)
     }
 
-    async fn get_tag_by_id(&self, tag_id: i32) -> Result<ArticleTag, DomainError> {
+    async fn get_tag_by_id(&self, tag_id: i32) -> Result<ArticleTag, SamambaiaError> {
         let tag = self
             .article_tag_repository
             .find_by_id(tag_id)
@@ -164,7 +164,7 @@ impl<
             })?;
 
         if tag.is_none() {
-            return Err(DomainError::bad_request_err()
+            return Err(SamambaiaError::bad_request_err()
                 .with_message(format!("Tag with id '{}' not found.", tag_id)));
         }
 

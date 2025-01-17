@@ -6,7 +6,7 @@ use crate::domain::repositories::article_comment_repository::{
     ArticleCommentRepositoryTrait, CommentQueryType, FindManyCommentsResponse,
 };
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -36,7 +36,7 @@ pub struct FetchManyCommentsResponse {
     pub data: Vec<Comment>,
 }
 
-type ExecFuncReturn = Result<FetchManyCommentsResponse, DomainError>;
+type ExecFuncReturn = Result<FetchManyCommentsResponse, SamambaiaError>;
 
 impl<
         ArticleCommentRepository: ArticleCommentRepositoryTrait,
@@ -127,7 +127,7 @@ impl<
     async fn parse_query(
         &self,
         query: Option<ServiceCommentQueryType>,
-    ) -> Result<Option<CommentQueryType>, DomainError> {
+    ) -> Result<Option<CommentQueryType>, SamambaiaError> {
         if query.is_none() {
             return Ok(None);
         }
@@ -139,13 +139,13 @@ impl<
                 let user = self.user_repository.find_by_nickname(&content).await;
 
                 if user.is_err() {
-                    return Err(DomainError::internal_err());
+                    return Err(SamambaiaError::internal_err());
                 }
 
                 let user = user.unwrap();
 
                 if user.is_none() {
-                    return Err(DomainError::resource_not_found_err());
+                    return Err(SamambaiaError::resource_not_found_err());
                 }
 
                 let content = user.unwrap().id();

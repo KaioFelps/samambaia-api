@@ -1,5 +1,5 @@
 use crate::domain::domain_entities::role::Role;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
@@ -22,7 +22,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> CreateTeamRoleService<TeamRole
         }
     }
 
-    pub async fn exec(&self, params: CreateTeamRoleParams) -> Result<TeamRole, DomainError> {
+    pub async fn exec(&self, params: CreateTeamRoleParams) -> Result<TeamRole, SamambaiaError> {
         let CreateTeamRoleParams {
             title,
             description,
@@ -33,7 +33,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> CreateTeamRoleService<TeamRole
             verify_role_has_permission(&staff_role, RolePermissions::CreateNewTeamRole);
 
         if !user_can_create_team_role {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let team_role = TeamRole::new(title, description);
@@ -90,7 +90,7 @@ mod test {
         assert!(response.is_err());
         assert_eq!(
             response.unwrap_err().to_string(),
-            DomainError::unauthorized_err().to_string()
+            SamambaiaError::unauthorized_err().to_string()
         );
 
         let response = sut

@@ -6,7 +6,7 @@ use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
 
 use crate::{
     domain::factories::journalism::articles::fetch_home_page_articles_service_factory,
-    error::IntoDomainError,
+    error::IntoSamambaiaError,
     infra::{
         http::controllers::{controller::ControllerTrait, AppResponse},
         sea::sea_service::SeaService,
@@ -34,6 +34,6 @@ impl HomeController {
             ],
         )
         .await
-        .map_err(IntoDomainError::into_domain_error)
+        .map_err(IntoSamambaiaError::into_samambaia_error)
     }
 }

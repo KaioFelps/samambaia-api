@@ -11,7 +11,7 @@ use crate::domain::services::teams::{
     fetch_many_team_roles_service::FetchManyTeamRolesParams,
     update_team_role_service::UpdateTeamRoleParams,
 };
-use crate::infra::extensions::validator::IntoDomainError;
+use crate::infra::extensions::validator::IntoSamambaiaError;
 use crate::infra::http::dtos::create_team_role::CreateTeamRoleDto;
 use crate::infra::http::dtos::list_team_role::ListTeamRoleDto;
 use crate::infra::http::dtos::update_team_role::UpdateTeamRoleDto;
@@ -66,7 +66,7 @@ impl TeamRolesController {
         let body = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_domain_err)?;
 
         let service = create_team_role_service_factory::exec(&db_conn);
 
@@ -94,7 +94,7 @@ impl TeamRolesController {
         let query = query
             .validate()
             .map(|_| query.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_domain_err)?;
 
         let team_roles = service
             .exec(FetchManyTeamRolesParams {
@@ -123,10 +123,10 @@ impl TeamRolesController {
         team_role_id: web::Path<Uuid>,
         body: web::Json<UpdateTeamRoleDto>,
     ) -> AppResponse {
-        let UpdateTeamRoleDto { title, description } = body
-            .validate()
-            .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+        let UpdateTeamRoleDto { title, description } =
+            body.validate()
+                .map(|_| body.into_inner())
+                .map_err(IntoSamambaiaError::into_domain_err)?;
 
         let service = update_team_role_service_factory::exec(&db_conn);
 

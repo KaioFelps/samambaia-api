@@ -19,7 +19,7 @@ use crate::domain::services::journalism::articles::{
     },
     update_article_service::UpdateArticleParams,
 };
-use crate::infra::extensions::validator::IntoDomainError;
+use crate::infra::extensions::validator::IntoSamambaiaError;
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
 use crate::infra::http::dtos::list_articles::ListArticlesDto;

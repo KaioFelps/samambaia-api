@@ -3,7 +3,7 @@ use crate::domain::domain_entities::free_badge::FreeBadge;
 use crate::domain::repositories::free_badge_repository::{
     FindManyFreeBadgesResponse, FreeBadgeRepositoryTrait,
 };
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 
 pub struct FetchManyFreeBadgesParams {
@@ -33,7 +33,7 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait>
     pub async fn exec(
         &self,
         params: FetchManyFreeBadgesParams,
-    ) -> Result<FetchManyFreeBadgesResponse, DomainError> {
+    ) -> Result<FetchManyFreeBadgesResponse, SamambaiaError> {
         let page = params.page.unwrap_or(1);
         let items_per_page = params.per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
 

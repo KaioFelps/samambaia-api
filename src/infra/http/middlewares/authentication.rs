@@ -6,7 +6,7 @@ use actix_web::{Error, ResponseError};
 use actix_web_lab::__reexports::futures_util::future::LocalBoxFuture;
 use std::future::{ready, Ready};
 
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::infra::http::extractors::req_user::ReqUser;
 
 /**
@@ -51,7 +51,7 @@ pub async fn authentication_middleware<B>(
     if !has_user {
         log::info!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
 
-        let http_res = DomainError::unauthorized_err().error_response();
+        let http_res = SamambaiaError::unauthorized_err().error_response();
         let (http_req, _) = req.into_parts();
         let res = ServiceResponse::new(http_req, http_res);
 
@@ -134,7 +134,7 @@ where
         if !has_user {
             log::info!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
 
-            let http_res = DomainError::unauthorized_err()
+            let http_res = SamambaiaError::unauthorized_err()
                 .error_response()
                 .map_into_right_body();
             let (http_req, _) = request.into_parts();

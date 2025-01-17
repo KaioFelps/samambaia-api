@@ -1,7 +1,7 @@
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission};
 use uuid::Uuid;
 
@@ -23,14 +23,14 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> UpdateTeamRoleService<TeamRole
         }
     }
 
-    pub async fn exec(&self, params: UpdateTeamRoleParams) -> Result<TeamRole, DomainError> {
+    pub async fn exec(&self, params: UpdateTeamRoleParams) -> Result<TeamRole, SamambaiaError> {
         let user_can_update_team_role = verify_role_has_permission(
             &params.staff_role,
             crate::util::RolePermissions::UpdateTeamRole,
         );
 
         if !user_can_update_team_role {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let team_role_on_db = self
@@ -45,7 +45,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> UpdateTeamRoleService<TeamRole
             })?;
 
         if team_role_on_db.is_none() {
-            return Err(DomainError::resource_not_found_err());
+            return Err(SamambaiaError::resource_not_found_err());
         }
 
         let mut team_role = team_role_on_db.unwrap();

@@ -3,7 +3,7 @@ use uuid::Uuid;
 use crate::domain::repositories::article_comment_repository::ArticleCommentRepositoryTrait;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct DeleteArticleParams {
@@ -35,7 +35,7 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRep
         }
     }
 
-    pub async fn exec(&self, params: DeleteArticleParams) -> Result<(), DomainError> {
+    pub async fn exec(&self, params: DeleteArticleParams) -> Result<(), SamambaiaError> {
         let user_on_db = self
             .user_repository
             .find_by_id(&params.user_id)
@@ -48,7 +48,7 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRep
             })?;
 
         if user_on_db.is_none() {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         // article verifications
@@ -65,7 +65,7 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRep
             })?;
 
         if article_on_db.is_none() {
-            return Err(DomainError::resource_not_found_err());
+            return Err(SamambaiaError::resource_not_found_err());
         }
 
         let article = article_on_db.clone().unwrap();
@@ -83,7 +83,7 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRep
         );
 
         if !user_can_delete {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         self.article_comment_repository

@@ -12,7 +12,7 @@ use crate::domain::domain_entities::slug::Slug;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse,
 };
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::infra::http::presenters::home_article::{HomeArticlePresenter, MappedHomeArticle};
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
@@ -143,7 +143,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             match user {
                 None => {
                     log::error!("Encountered an article that has no author: {:#?}", article);
-                    return Err(Box::new(DomainError::internal_err()));
+                    return Err(Box::new(SamambaiaError::internal_err()));
                 }
                 Some(user) => {
                     let article = SeaArticleMapper::model_into_entity(article);

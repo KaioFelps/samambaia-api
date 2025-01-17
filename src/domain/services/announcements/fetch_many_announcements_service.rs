@@ -6,7 +6,7 @@ use crate::{
             AnnouncementQueryType, AnnouncementRepositoryTrait,
         },
     },
-    error::DomainError,
+    error::SamambaiaError,
     util::generate_service_internal_error,
 };
 
@@ -35,7 +35,7 @@ impl<AR: AnnouncementRepositoryTrait> FetchManyAnnouncementsService<AR> {
     pub async fn exec(
         &self,
         params: FetchManyAnnouncementsParams,
-    ) -> Result<FetchManyAnnouncementsResponse, DomainError> {
+    ) -> Result<FetchManyAnnouncementsResponse, SamambaiaError> {
         let items_per_page = params.per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
         let page = params.page.unwrap_or(1).max(1);
         let query = params.query.map(AnnouncementQueryType::Description);

@@ -2,7 +2,7 @@ use crate::domain::cryptography::hasher::HasherTrait;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 use crate::util::verify_role_has_permission;
 use crate::util::verify_role_hierarchy_matches;
@@ -31,14 +31,14 @@ impl<UserRepositoryType: UserRepositoryTrait, Hasher: HasherTrait>
         }
     }
 
-    pub async fn exec(&self, params: UpdateUserParams) -> Result<User, DomainError> {
+    pub async fn exec(&self, params: UpdateUserParams) -> Result<User, SamambaiaError> {
         let staff_can_update_user = verify_role_has_permission(
             &params.staff_role,
             crate::util::RolePermissions::UpdateUser,
         );
 
         if !staff_can_update_user {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let mut user = match self
@@ -51,7 +51,7 @@ impl<UserRepositoryType: UserRepositoryTrait, Hasher: HasherTrait>
                     err,
                 )
             })? {
-            None => return Err(DomainError::resource_not_found_err()),
+            None => return Err(SamambaiaError::resource_not_found_err()),
             Some(user) => user,
         };
 
@@ -59,7 +59,7 @@ impl<UserRepositoryType: UserRepositoryTrait, Hasher: HasherTrait>
             verify_role_hierarchy_matches(user.role().as_ref().unwrap(), &params.staff_role);
 
         if !operation_follows_role_hierarchy {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         user.set_nickname(if params.nickname.is_some() {

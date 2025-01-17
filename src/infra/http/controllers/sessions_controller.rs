@@ -8,8 +8,8 @@ use validator::Validate;
 
 use crate::domain::factories::identity::authenticate_user_service_factory;
 use crate::domain::services::identity::authenticate_user_service::AuthenticateUserParams;
-use crate::error::DomainError;
-use crate::infra::extensions::validator::IntoDomainError;
+use crate::error::SamambaiaError;
+use crate::infra::extensions::validator::IntoSamambaiaError;
 use crate::infra::http::dtos::login::LoginDto;
 use crate::infra::jwt::jwt_service::{DecodedToken, JwtService, MakeJwtResult};
 use crate::infra::sea::sea_service::SeaService;
@@ -36,7 +36,7 @@ impl SessionsController {
         let LoginDto { nickname, password } = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_domain_err)?;
 
         let authenticate_service = authenticate_user_service_factory::exec(&db_conn);
 
@@ -64,7 +64,7 @@ impl SessionsController {
 
         if refresh_token.is_none() {
             info!("Refresh token is None; bad request.");
-            return Err(DomainError::bad_request_err());
+            return Err(SamambaiaError::bad_request_err());
         }
 
         let refresh_token = refresh_token.unwrap();
@@ -89,11 +89,11 @@ impl SessionsController {
                 | ErrorKind::Json(_)
                 | ErrorKind::Utf8(_) => {
                     info!("Token decoding validation error; bad request.");
-                    DomainError::bad_request_err()
+                    SamambaiaError::bad_request_err()
                 }
                 _ => {
                     info!("Token decoding configuration error; internal server error.");
-                    DomainError::bad_request_err()
+                    SamambaiaError::bad_request_err()
                 }
             });
         }
@@ -104,7 +104,7 @@ impl SessionsController {
 
         if user_role.is_none() {
             info!("User role from decoded jwt token is None; bad request.");
-            return Err(DomainError::bad_request_err());
+            return Err(SamambaiaError::bad_request_err());
         }
 
         let tokens = jwt_service.make_jwt(
@@ -115,7 +115,7 @@ impl SessionsController {
 
         if tokens.is_err() {
             info!("Failed to make new jwt token; internal server error.");
-            return Err(DomainError::internal_err());
+            return Err(SamambaiaError::internal_err());
         }
 
         let MakeJwtResult {
