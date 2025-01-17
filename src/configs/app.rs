@@ -36,6 +36,12 @@ pub struct AppConfig<'a> {
     // garbage collector, which will remove unused resources
     // (such as expired sessions files)
     pub lottery: [u8; 2],
+
+    // The directory where sessions will be stored at
+    pub sessions_dir: &'a str,
+
+    // The key that stores the expiration date inside the session json
+    pub sessions_exp_key: &'a str,
 }
 
 impl AppConfig<'_> {
@@ -44,6 +50,8 @@ impl AppConfig<'_> {
 
         Self {
             lottery: [2, 100],
+            sessions_dir: "storage/sessions",
+            sessions_exp_key: "___expires_at___",
 
             // FROM ENVIRONMENT VARIABLES
             app_key: Box::leak(env_vars.app_key.into_boxed_str()),
