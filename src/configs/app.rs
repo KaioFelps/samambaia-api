@@ -42,6 +42,9 @@ pub struct AppConfig<'a> {
 
     // The key that stores the expiration date inside the session json
     pub sessions_exp_key: &'a str,
+
+    // The name of the cookie which holds the user's session id
+    pub session_cookie: &'a str,
 }
 
 impl AppConfig<'_> {
@@ -52,6 +55,7 @@ impl AppConfig<'_> {
             lottery: [2, 100],
             sessions_dir: "storage/sessions",
             sessions_exp_key: "___expires_at___",
+            session_cookie: "live_cosmic_session",
 
             // FROM ENVIRONMENT VARIABLES
             app_key: Box::leak(env_vars.app_key.into_boxed_str()),
