@@ -53,7 +53,6 @@ impl SessionStore for FileSessionStore<'_> {
                         Self::has_expired(expiration_date).map_err(LoadError::Other)?;
 
                     if has_expired {
-                        let _ = remove_file(self.get_session_path(session_key.as_ref())).await;
                         return Ok(None);
                     }
                 } else {
@@ -133,8 +132,6 @@ impl SessionStore for FileSessionStore<'_> {
         }));
 
         if has_expired {
-            let _ = remove_file(self.get_session_path(session_key.as_ref())).await;
-
             return self
                 .save(session_state, ttl)
                 .await
