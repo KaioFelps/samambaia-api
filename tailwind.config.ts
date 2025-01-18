@@ -1,7 +1,11 @@
 import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
 
-import { generateReverseableAnimation, generateReverseableKeyFrame } from "./www/lib/tailwind";
+import {
+  generateReverseableAnimation,
+  generateReverseableKeyFrame,
+  textShadow,
+} from "./www/lib/tailwind";
 
 export const tailwindConfig = {
   content: ["./www/**/*.{html,ts,tsx,js}"],
@@ -95,6 +99,7 @@ export const tailwindConfig = {
   },
   plugins: [
     typography(),
+    textShadow({ extras: 1 }),
   ],
 } satisfies Config;
 
