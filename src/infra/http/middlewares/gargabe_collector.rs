@@ -51,6 +51,7 @@ where
             let res = fut.await?;
 
             if is_raffled {
+                log::info!("Request raffled to run the garbage collector.");
                 let _ = clean_expired_sessions().await;
             }
 

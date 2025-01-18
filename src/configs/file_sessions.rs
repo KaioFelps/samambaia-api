@@ -276,6 +276,7 @@ impl FileSessionStore<'_> {
 }
 
 pub async fn clean_expired_sessions() -> io::Result<()> {
+    log::debug!("Starting cleanup of expired sessions.");
     inner_clean_expired_sessions(APP_CONFIG.sessions_dir).await
 }
 
@@ -285,6 +286,11 @@ async fn inner_clean_expired_sessions(sessions_dir: &str) -> io::Result<()> {
 
     while let Some(file) = directory.next_entry().await? {
         if file_should_be_cleaned(&file).await {
+            log::debug!(
+                "Removing session file: '{}'",
+                file.path().to_str().unwrap_or("")
+            );
+
             let _ = remove_file(file.path()).await;
         }
     }
