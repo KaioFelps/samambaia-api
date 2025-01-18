@@ -33,6 +33,7 @@ export const tailwindConfig = {
         300: "#14FF48",
         500: "#27C13F",
         600: "#23AE39",
+        700: "#10A530",
       },
 
       purple: {
@@ -52,6 +53,7 @@ export const tailwindConfig = {
         400: "#FFD600",
         500: "#EFBA00",
         700: "#FFB800",
+        800: "#D3A200",
         900: "#9D4200",
       },
     },
