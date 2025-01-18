@@ -96,7 +96,7 @@
     .btn-success {
         @apply
             rounded-md bg-green-500 from-green-300 to-green-600 flex items-center
-            text-white border-2 border-green-600 text-shadow-black/10 text-shadow-extra-1-white/30
+            text-white border-2 border-green-700 text-shadow-black/10 text-shadow-extra-1-white/30
             px-5 py-2 gap-2 font-medium text-base transition-all duration-150 will-change-[shadow,_filter]
             hover:brightness-95 active:brightness-90
             outline-none ring-green-500/40 ring-0 focus-visible:ring-4;
