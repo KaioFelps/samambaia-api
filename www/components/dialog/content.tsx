@@ -24,6 +24,8 @@ export function DialogContent({ children, className }: DialogContentProps) {
           className={clsx(
             "z-20 bg-purple-100 p-4 rounded-lg border-2 border-black w-[calc(100%_-_48px)]",
             "max-w-screen-sm",
+            "data-[state=open]:animate-scaleUpAndFade",
+            "data-[state=closed]:animate-scaleUpAndFadeReverse",
             className && className,
           )}
         >
