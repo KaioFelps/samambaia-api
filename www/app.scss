@@ -148,6 +148,7 @@
         focus-visible:border-purple-700 ring-purple-500/40 focus-visible:ring-4 transition-all will-change-[box-shadow]
 
         disabled:bg-gray-200
+        data-[invalid]:border-red-700 data-[invalid]:ring-red-700/40
     }
 
     .card {
