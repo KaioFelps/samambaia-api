@@ -13,7 +13,7 @@ pub mod team_roles_controller;
 pub mod team_users_controller;
 pub mod users_controller;
 
-pub type AppResponse = Result<HttpResponse, SamambaiaError>;
+pub type AppResponse<T = HttpResponse> = Result<T, SamambaiaError>;
 pub mod announcements_controller;
 
 pub mod web;
