@@ -86,8 +86,6 @@ impl<T: DeserializeOwned + Validate> InertiaValidateOrRedirect<T, HttpRequest, R
                     })
                     .collect::<HashMap<_, _>>();
 
-                println!("{:#?}", errors);
-
                 Err(Inertia::back_with_errors(req, errors))
             }
         }

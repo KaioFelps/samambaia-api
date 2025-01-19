@@ -499,7 +499,6 @@ mod tests {
             session_files_found.push(file.file_name().into_string().unwrap())
         }
 
-        println!("{:#?}", session_files_found);
         assert_eq!(1, session_files_found.len());
         assert_eq!(
             &[format!("{}.json", session_key.as_ref())],

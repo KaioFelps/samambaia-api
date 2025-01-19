@@ -57,8 +57,6 @@ impl RouteTrait for WebRoutes {
                         .get_session()
                         .remove(SESSION_FLASH_KEY);
 
-                    println!("{:#?}", flash);
-
                     let flash= flash.map(|map| serde_json::from_str::<serde_json::Map<_, _>>(&map).unwrap_or_default())
                         .unwrap_or_default();
 
