@@ -78,27 +78,27 @@ impl SamambaiaError {
     }
 
     pub fn unauthorized_err() -> Self {
-        Self::Unauthorized("Unauthorized.".into())
+        Self::Unauthorized("Não autorizado.".into())
     }
 
     pub fn bad_request_err() -> Self {
-        Self::BadRequest("Bad request performed.".into())
+        Self::BadRequest("Request mal formada.".into())
     }
 
     pub fn internal_err() -> Self {
-        Self::Internal("Internal server error.".into())
+        Self::Internal("Erro interno do servidor.".into())
     }
 
     pub fn invalid_credentials_err() -> Self {
-        Self::InvalidCredentials("Invalid credentials.".into())
+        Self::InvalidCredentials("Credenciais inválidas.".into())
     }
 
     pub fn resource_not_found_err() -> Self {
-        SamambaiaError::ResourceNotFound("Resource not found.".into())
+        SamambaiaError::ResourceNotFound("Recurso não encontrado.".into())
     }
 
     pub fn user_already_exists_err(nickname: &str) -> Self {
-        Self::UserAlreadyExists(format!("User with nickname {} already exist.", nickname))
+        Self::UserAlreadyExists(format!("Já existe um user com o apelido '{}'.", nickname))
     }
 
     pub fn validation_err<'b>(
@@ -109,7 +109,7 @@ impl SamambaiaError {
             .map(|(k, v)| (k.to_string(), v.to_vec()))
             .collect();
 
-        Self::Validation("Validation errors.".into(), _errors_map)
+        Self::Validation("Erros de validação.".into(), _errors_map)
     }
 
     pub fn enum_coercion_err(enum_name: &str) -> Self {
