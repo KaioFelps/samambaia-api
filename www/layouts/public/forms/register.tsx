@@ -9,6 +9,8 @@ import { SharedProps } from "@/inertiaShared";
 
 import { AuthenticationDialogProps } from "../userBox";
 
+const confirmationCode = "@livecosmicfs";
+
 type RegisterFormData = {
   nickname: string;
   password: string;
@@ -24,12 +26,29 @@ export function RegisterForm({
   setOpen,
 }: AuthenticationDialogProps) {
   const props = usePage<SharedProps<{ registerSuccess?: string }>>().props;
-  const { post, errors, reset, clearErrors } = useForm<RegisterFormData>();
+  const { post, errors, reset, clearErrors, data, setData, setError } = useForm<RegisterFormData>();
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    clearErrors();
 
-    post("/sessions/register");
+    if (data.password !== data.passwordRepetition) {
+      setError("passwordRepetition", "As senhas precisam ser iguais.");
+      return;
+    }
+
+    fetch(`${import.meta.env.VITE_USER_INFO_API}${data.nickname}`)
+      .then(res => res.json()
+        .then(({ motto }) => {
+          if (motto !== confirmationCode) {
+            setError(
+              "verification_code",
+          `Mude sua missão para ${confirmationCode} para registrar-se (atual: "${motto}").`,
+            );
+          } else {
+            post("/sessions/register");
+          }
+        }));
   }
 
   useEffect(() => {
@@ -76,32 +95,44 @@ export function RegisterForm({
             containerClassName="mb-4"
             name="register-nickname"
             validationError={errors.nickname}
+            onInput={(e) => {
+              const value = (e.target as HTMLInputElement).value;
+              setData({ ...data, nickname: value });
+            }}
           />
 
           <Input
             label="Senha"
-            type="text"
+            type="password"
             placeholder="**********"
             className="text-input"
             containerClassName="mb-4"
             name="register-senha"
             validationError={errors.password}
+            onInput={(e) => {
+              const value = (e.target as HTMLInputElement).value;
+              setData({ ...data, password: value });
+            }}
           />
 
           <Input
             label="Repita sua senha"
-            type="text"
+            type="password"
             placeholder="**********"
             className="text-input"
             containerClassName="mb-4"
             name="register-repita-a-senha"
             validationError={errors.passwordRepetition}
+            onInput={(e) => {
+              const value = (e.target as HTMLInputElement).value;
+              setData({ ...data, passwordRepetition: value });
+            }}
           />
 
           <Input
             label="Cole na sua missão"
             type="text"
-            value="ovjsdovjsoosduhvkusdn2497tgy284hfw@$G#$@fd"
+            value={confirmationCode}
             className="text-input bg-gray-200 cursor-pointer"
             containerClassName="mb-4"
             readOnly
@@ -118,6 +149,10 @@ export function RegisterForm({
             }}
             name="register-codigo-verificacao"
             validationError={errors.verification_code}
+            onInput={(e) => {
+              const value = (e.target as HTMLInputElement).value;
+              setData({ ...data, verification_code: value });
+            }}
           />
 
           <div className="flex items-center justify-end gap-2">
