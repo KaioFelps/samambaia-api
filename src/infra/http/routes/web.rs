@@ -1,5 +1,5 @@
 use super::route::RouteTrait;
-use crate::configs::app::APP_CONFIG;
+use crate::configs::app::{APP_CONFIG, SESSION_FLASH_KEY, SESSION_USER_KEY};
 use crate::configs::env::RustEnv;
 use crate::configs::file_sessions::FileSessionStore;
 use crate::core::pagination::DEFAULT_PER_PAGE;
@@ -15,7 +15,7 @@ use crate::infra::http::middlewares::{
 use crate::infra::http::presenters::announcement::AnnouncementPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
-use actix_session::SessionMiddleware;
+use actix_session::{SessionExt, SessionMiddleware};
 use actix_web::body::BoxBody;
 use actix_web::cookie::{Key, SameSite};
 use actix_web::dev::{ServiceRequest, ServiceResponse};
@@ -52,7 +52,17 @@ impl RouteTrait for WebRoutes {
                 .wrap(WebAuthUserMiddleware)
                 .wrap(WebRequestUserMiddleware)
                 .wrap(InertiaMiddleware::new().with_shared_props(Arc::new(|req| {
-                    let req = req.clone();
+                    let flash = req
+                        .get_session()
+                        .remove(SESSION_FLASH_KEY);
+
+                    println!("{:#?}", flash);
+
+                    let flash= flash.map(|map| serde_json::from_str::<serde_json::Map<_, _>>(&map).unwrap_or_default())
+                        .unwrap_or_default();
+
+
+                    // let req = req.clone();
 
                     let user = if let Some(WebRequestUser::User(user)) = req.extensions()
                         .get::<WebRequestUser>()
@@ -85,6 +95,7 @@ impl RouteTrait for WebRoutes {
                                 ).into_inertia_value()
                             })),
                             "auth" => user,
+                            "flash" => InertiaProp::always(flash),
                             // TODO: adicionar o domínio de membros destaques 
                             "featuredUsers" => InertiaProp::data(json!({
                                 "data": [],

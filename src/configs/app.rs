@@ -5,6 +5,7 @@ use super::env::{EnvConfig, RustEnv};
 pub static APP_CONFIG: LazyLock<AppConfig> = LazyLock::new(AppConfig::initialize);
 
 pub const SESSION_USER_KEY: &str = "__user_id__";
+pub const SESSION_FLASH_KEY: &str = "__flash__";
 
 pub struct AppConfig<'a> {
     // Whether the application is running on PRODUCTION or DEVELOPMENT mode
