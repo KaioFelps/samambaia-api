@@ -7,6 +7,7 @@ use crate::domain::factories::announcements::fetch_many_announcements_service_fa
 use crate::domain::services::announcements::fetch_many_announcements_service::FetchManyAnnouncementsParams;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::web::home_controller::HomeController;
+use crate::infra::http::controllers::web::sessions_controller::SessionsController;
 use crate::infra::http::middlewares::web::WebRequestUser;
 use crate::infra::http::middlewares::{
     GarbageCollectorMiddleware, ReflashTemporarySessionMiddleware, WebAuthUserMiddleware,
@@ -118,6 +119,7 @@ impl RouteTrait for WebRoutes {
                     .cookie_secure(APP_CONFIG.rust_env == RustEnv::Production)
                     .build())
                 .configure(HomeController::register)
+                .configure(SessionsController::register)
                 .configure(|cfg| {
                     // serves public assets directly from /path
                     // needs to be the last service because it's a wildcard
