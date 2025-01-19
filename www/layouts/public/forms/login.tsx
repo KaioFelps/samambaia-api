@@ -1,10 +1,12 @@
 import { useForm, usePage } from "@inertiajs/react";
-import React, { useEffect } from "react";
+import { type FormEvent, useEffect } from "react";
 
 import { Alert } from "@/components/alert";
 import Dialog from "@/components/dialog";
+import { Input } from "@/components/form/input";
+import type { SharedProps } from "@/inertiaShared";
 
-import { AuthenticationDialogProps } from "../userBox";
+import type { AuthenticationDialogProps } from "../userBox";
 
 type LoginFormData = {
   nickname: string;
@@ -17,16 +19,12 @@ export function LoginForm({
   setDialog,
   children: trigger,
 }: AuthenticationDialogProps) {
-  const props = usePage().props;
+  const props = usePage<SharedProps<{ loginSuccess?: string }>>().props;
 
-  const { post, setData, data, errors, transform } = useForm<LoginFormData>();
+  const { post, setData, data, errors, clearErrors, reset } = useForm<LoginFormData>();
 
-  function handleFormSubmit(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+  function handleFormSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    transform(data => {
-      console.log(data);
-      return data;
-    });
 
     post("/sessions/login", {
       errorBag: "login",
@@ -34,8 +32,12 @@ export function LoginForm({
   }
 
   useEffect(() => {
-    console.log(props);
-  }, [props]);
+    if (!open) {
+      clearErrors();
+      reset();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <Dialog.Root
@@ -52,49 +54,47 @@ export function LoginForm({
           description="Acesse sua conta na Live Cosmic."
         />
 
+        {props.flash.loginSuccess && (
+          <Alert
+            type="warning"
+            message={props.flash.loginSuccess}
+          />
+        )}
+
         {(errors as Record<string, string>)["error"] && (
           <Alert
             type="warning"
             message={(errors as Record<string, string>)["error"]}
           />)}
-        <form>
-          <div className="mb-2">
-            <label
-              htmlFor=""
-              className="text-sm mb-2 ml-1"
-            >
-              Nickname
-            </label>
 
-            <input
-              type="text"
-              placeholder="FãDoFloricultor"
-              className="text-input"
-              onInput={(e) => setData({
-                ...data,
-                nickname: (e.target as HTMLInputElement).value,
-              })}
-            />
-          </div>
+        <form onSubmit={handleFormSubmit}>
+          <Input
+            name="login-nickname"
+            containerClassName="mb-4"
+            label="Nickname"
+            validationError={errors.nickname}
+            type="text"
+            placeholder="FãDoFloricultor"
+            className="text-input"
+            onInput={(e) => setData({
+              ...data,
+              nickname: (e.target as HTMLInputElement).value,
+            })}
+          />
 
-          <div className="mb-4">
-            <label
-              htmlFor=""
-              className="text-sm mb-2 ml-1"
-            >
-              Senha
-            </label>
-
-            <input
-              type="text"
-              placeholder="**********"
-              className="text-input"
-              onInput={(e) => setData({
-                ...data,
-                password: (e.target as HTMLInputElement).value,
-              })}
-            />
-          </div>
+          <Input
+            name="login-senha"
+            containerClassName="mb-4"
+            validationError={errors.password}
+            label="Senha"
+            type="text"
+            placeholder="**********"
+            className="text-input"
+            onInput={(e) => setData({
+              ...data,
+              password: (e.target as HTMLInputElement).value,
+            })}
+          />
 
           <div className="flex items-center justify-end gap-2">
             <button
@@ -106,8 +106,9 @@ export function LoginForm({
             </button>
             <button
               className="btn-success btn-lg"
-              onClick={handleFormSubmit}
-            >Logar
+              type="submit"
+            >
+              Logar
             </button>
           </div>
         </form>

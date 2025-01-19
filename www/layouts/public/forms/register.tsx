@@ -1,8 +1,21 @@
+import { useForm, usePage } from "@inertiajs/react";
+import { FormEvent, useEffect } from "react";
 import { toast } from "react-toastify";
 
+import { Alert } from "@/components/alert";
 import Dialog from "@/components/dialog";
+import { Input } from "@/components/form/input";
+import { SharedProps } from "@/inertiaShared";
 
 import { AuthenticationDialogProps } from "../userBox";
+
+type RegisterFormData = {
+  nickname: string;
+  password: string;
+  passwordRepetition: string;
+  verification_code: string;
+  error?: string;
+};
 
 export function RegisterForm({
   children: trigger,
@@ -10,6 +23,23 @@ export function RegisterForm({
   setDialog,
   setOpen,
 }: AuthenticationDialogProps) {
+  const props = usePage<SharedProps<{ registerSuccess?: string }>>().props;
+  const { post, errors, reset, clearErrors } = useForm<RegisterFormData>();
+
+  function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    post("/sessions/register");
+  }
+
+  useEffect(() => {
+    if (!open) {
+      reset();
+      clearErrors();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   return (
     <Dialog.Root
       open={open}
@@ -24,78 +54,71 @@ export function RegisterForm({
           description="Crie sua própria conta na Live Cosmic de graça!"
         />
 
-        <form>
-          <div className="mb-2">
-            <label
-              htmlFor=""
-              className="text-sm mb-2 ml-1"
-            >
-              Nickname
-            </label>
+        {props.flash.registerSuccess && (
+          <Alert
+            type="warning"
+            message={props.flash.registerSuccess}
+          />
+        )}
 
-            <input
-              type="text"
-              placeholder="FãDoFloricultor"
-              className="text-input"
-            />
-          </div>
+        {errors.error && (
+          <Alert
+            type="warning"
+            message={errors.error}
+          />)}
 
-          <div className="mb-4">
-            <label
-              htmlFor=""
-              className="text-sm mb-2 ml-1"
-            >
-              Senha
-            </label>
+        <form onSubmit={handleFormSubmit}>
+          <Input
+            label="Nickname"
+            type="text"
+            placeholder="FãDoFloricultor"
+            className="text-input"
+            containerClassName="mb-4"
+            name="register-nickname"
+            validationError={errors.nickname}
+          />
 
-            <input
-              type="text"
-              placeholder="**********"
-              className="text-input"
-            />
-          </div>
+          <Input
+            label="Senha"
+            type="text"
+            placeholder="**********"
+            className="text-input"
+            containerClassName="mb-4"
+            name="register-senha"
+            validationError={errors.password}
+          />
 
-          <div className="mb-4">
-            <label
-              htmlFor=""
-              className="text-sm mb-2 ml-1"
-            >
-              Repita sua senha
-            </label>
+          <Input
+            label="Repita sua senha"
+            type="text"
+            placeholder="**********"
+            className="text-input"
+            containerClassName="mb-4"
+            name="register-repita-a-senha"
+            validationError={errors.passwordRepetition}
+          />
 
-            <input
-              type="text"
-              placeholder="**********"
-              className="text-input"
-            />
-          </div>
+          <Input
+            label="Cole na sua missão"
+            type="text"
+            value="ovjsdovjsoosduhvkusdn2497tgy284hfw@$G#$@fd"
+            className="text-input bg-gray-200 cursor-pointer"
+            containerClassName="mb-4"
+            readOnly
+            onClick={(e) => {
+              e.preventDefault();
 
-          <div className="mb-4">
-            <label
-              htmlFor=""
-              className="text-sm mb-2 ml-1"
-            >
-              Cole na sua missão
-            </label>
+              window.navigator.clipboard.writeText((
+                e.target as HTMLInputElement).value as string,
+              );
 
-            <input
-              type="text"
-              value="ovjsdovjsoosduhvkusdn2497tgy284hfw@$G#$@fd"
-              className="text-input bg-gray-200 cursor-pointer"
-              readOnly
-              onClick={(e) => {
-                e.preventDefault();
-
-                window.navigator.clipboard.writeText((
-                  e.target as HTMLInputElement).value as string,
-                );
-
-                toast("Valor copiado!", {
-                  type: "info",
-                });
-              }}
-            />
-          </div>
+              toast("Valor copiado!", {
+                type: "info",
+              });
+            }}
+            name="register-codigo-verificacao"
+            validationError={errors.verification_code}
+          />
 
           <div className="flex items-center justify-end gap-2">
             <button
