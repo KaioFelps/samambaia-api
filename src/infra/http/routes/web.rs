@@ -7,8 +7,10 @@ use crate::domain::factories::announcements::fetch_many_announcements_service_fa
 use crate::domain::services::announcements::fetch_many_announcements_service::FetchManyAnnouncementsParams;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::web::home_controller::HomeController;
+use crate::infra::http::middlewares::web::WebRequestUser;
 use crate::infra::http::middlewares::{
-    GarbageCollectorMiddleware, ReflashTemporarySessionMiddleware, RequestUserMiddleware,
+    GarbageCollectorMiddleware, ReflashTemporarySessionMiddleware, WebAuthUserMiddleware,
+    WebRequestUserMiddleware,
 };
 use crate::infra::http::presenters::announcement::AnnouncementPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
@@ -20,6 +22,7 @@ use actix_web::dev::{ServiceRequest, ServiceResponse};
 use actix_web::http::StatusCode;
 use actix_web::middleware::{from_fn, Next};
 use actix_web::web::{self, Data};
+use actix_web::HttpMessage;
 use base64::prelude::BASE64_STANDARD;
 use base64::Engine;
 use inertia_rust::actix::InertiaMiddleware;
@@ -46,9 +49,17 @@ impl RouteTrait for WebRoutes {
             web::scope("")
                 .wrap(GarbageCollectorMiddleware)
                 .wrap(from_fn(default_error_handler))
-                .wrap(RequestUserMiddleware)
+                .wrap(WebAuthUserMiddleware)
+                .wrap(WebRequestUserMiddleware)
                 .wrap(InertiaMiddleware::new().with_shared_props(Arc::new(|req| {
                     let req = req.clone();
+
+                    let user = if let Some(WebRequestUser::User(user)) = req.extensions()
+                        .get::<WebRequestUser>()
+                        .cloned() { Some(user) } else { None };
+
+                    let user = InertiaProp::always(user);
+
                     let db_conn = req
                         .app_data::<Data<SeaService>>()
                         .expect("Could not find 'SeaService' struct in the server app data.")
@@ -73,6 +84,7 @@ impl RouteTrait for WebRoutes {
                                     DEFAULT_PER_PAGE,
                                 ).into_inertia_value()
                             })),
+                            "auth" => user,
                             // TODO: adicionar o domínio de membros destaques 
                             "featuredUsers" => InertiaProp::data(json!({
                                 "data": [],

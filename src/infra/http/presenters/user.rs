@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::domain::domain_entities::{role::Role, user::User};
 use crate::infra::http::presenters::presenter::PresenterTrait;
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
 pub struct MappedUser {
     id: Uuid,

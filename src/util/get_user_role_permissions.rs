@@ -1,6 +1,7 @@
 use crate::domain::domain_entities::role::Role;
+use serde::Serialize;
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 pub enum RolePermissions {
     UpdateUser,
     ChangeUserPassword,
