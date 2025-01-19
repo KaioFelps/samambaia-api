@@ -87,7 +87,7 @@ export function LoginForm({
             containerClassName="mb-4"
             validationError={errors.password}
             label="Senha"
-            type="text"
+            type="password"
             placeholder="**********"
             className="text-input"
             onInput={(e) => setData({
