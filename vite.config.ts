@@ -30,7 +30,7 @@ export default {
     laravel({
       input: ["www/app.tsx"],
       buildDirectory: "bundle",
-      refresh: "www/**",
+      // refresh: "www/**",
       ssrOutputDirectory: "dist/ssr",
       ssr: "www/ssr.tsx",
     }),
