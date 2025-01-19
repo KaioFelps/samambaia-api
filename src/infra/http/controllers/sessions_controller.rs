@@ -1,4 +1,4 @@
-use actix_web::cookie::Cookie;
+use actix_web::cookie::{Cookie, SameSite};
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{DecodingKey, EncodingKey};
@@ -40,18 +40,32 @@ impl SessionsController {
 
         let authenticate_service = authenticate_user_service_factory::exec(&db_conn);
 
+        let user = authenticate_service
+            .exec(AuthenticateUserParams { nickname, password })
+            .await?;
+
+        let jwt_service = JwtService {};
+
+        let jwt_token = jwt_service.make_jwt(
+            user.id(),
+            user.role().unwrap(),
+            EncodingKey::from_secret(APP_CONFIG.jwt_secret.as_ref()),
+        );
+
         let MakeJwtResult {
             access_token,
             refresh_token,
-        } = authenticate_service
-            .exec(AuthenticateUserParams { nickname, password })
-            .await?;
+        } = match jwt_token {
+            Ok(token) => token,
+            Err(_err) => return Err(SamambaiaError::internal_err()),
+        };
 
         let refresh_cookie = Cookie::build("refresh_token", refresh_token.token)
             .domain(APP_CONFIG.domain)
             .path("/")
             .secure(true)
             .http_only(true)
+            .same_site(SameSite::Strict)
             .finish();
 
         Ok(HttpResponse::Ok().cookie(refresh_cookie).json(json!({
@@ -128,6 +142,7 @@ impl SessionsController {
             .path("/")
             .secure(true)
             .http_only(true)
+            .same_site(SameSite::Strict)
             .finish();
 
         Ok(HttpResponse::Ok().cookie(refresh_cookie).json(json!({
@@ -141,6 +156,7 @@ impl SessionsController {
             .path("/")
             .secure(true)
             .http_only(true)
+            .same_site(SameSite::Strict)
             .finish();
 
         refresh_cookie.make_removal();
