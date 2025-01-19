@@ -1,50 +1,27 @@
-import { router } from "@inertiajs/react";
-import { Link } from "@inertiajs/react";
-import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import Dialog from "@/components/dialog";
-import { Sprite } from "@/components/sprite";
 
-export function RegisterForm() {
-  const [backUrl, setBackUrl] = useState("/");
-  const [open, setOpen] = useState(false);
+import { AuthenticationDialogProps } from "../userBox";
 
-  useEffect(() => {
-    const handleNavigationChange = () => {
-      const url = new URL(window.location.href);
-      setOpen(!!url.searchParams.has("register"));
-
-      const _backUrl = url;
-      _backUrl.searchParams.delete("register");
-      setBackUrl(_backUrl.pathname);
-    };
-
-    router.on("navigate", handleNavigationChange);
-  }, []);
-
+export function RegisterForm({
+  children: trigger,
+  open,
+  setDialog,
+  setOpen,
+}: AuthenticationDialogProps) {
   return (
     <Dialog.Root
       open={open}
-      onOpenChange={() => router.visit(backUrl)}
+      onOpenChange={setOpen}
     >
+      <Dialog.Trigger>
+        {trigger}
+      </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.Header
           title="Registre-se"
           description="Crie sua própria conta na Live Cosmic de graça!"
-          customClose={
-            <Link
-              className="dialog-close-btn"
-              href={backUrl}
-            >
-              <Sprite
-                x={-160}
-                y={-63}
-                width={20}
-                height={20}
-              />
-            </Link>
-          }
         />
 
         <form>
@@ -121,12 +98,13 @@ export function RegisterForm() {
           </div>
 
           <div className="flex items-center justify-end gap-2">
-            <Link
-              href="?login"
+            <button
+              type="button"
+              onClick={() => setDialog("login")}
               className="btn-ghost-success"
             >
               Já tenho conta
-            </Link>
+            </button>
             <button className="btn-success btn-lg">Registre-me</button>
           </div>
         </form>

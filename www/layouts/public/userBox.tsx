@@ -1,4 +1,5 @@
-import { Link, usePage } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
+import { ReactNode, useState } from "react";
 
 import { Sprite } from "@/components/sprite";
 import { SharedProps } from "@/inertiaShared";
@@ -14,41 +15,61 @@ export function UserBox() {
     : Unlogged();
 }
 
+type AuthenticationDialog = "login" | "register";
+
+export type AuthenticationDialogProps = {
+  setDialog: (_: AuthenticationDialog) => void;
+  children: ReactNode;
+  open: boolean;
+  setOpen: (_: boolean) => void;
+};
+
 function Unlogged() {
+  const [dialog, setDialog] = useState<AuthenticationDialog>();
+
   return (
     <>
       <div className="flex items-center gap-2">
-        <Link
-          href="?register"
-          className="btn-black"
+        <RegisterForm
+          open={dialog === "register"}
+          setDialog={setDialog}
+          setOpen={(v) => setDialog(v
+            ? "register"
+            : undefined,
+          )}
         >
-          <Sprite
-            x={-66}
-            y={-64}
-            width={13}
-            height={16}
-          />
+          <button className="btn-black">
+            <Sprite
+              x={-66}
+              y={-64}
+              width={13}
+              height={16}
+            />
+            Registrar
+          </button>
 
-          Registrar
-        </Link>
+        </RegisterForm>
 
-        <Link
-          href="?login"
-          className="btn-success btn-lg border-black to-black/25"
+        <LoginForm
+          open={dialog === "login"}
+          setDialog={setDialog}
+          setOpen={(v) => setDialog(v
+            ? "login"
+            : undefined,
+          )}
         >
-          <Sprite
-            x={-32}
-            y={-65}
-            width={15}
-            height={15}
-          />
+          <button className="btn-success btn-lg border-black to-black/25">
+            <Sprite
+              x={-32}
+              y={-65}
+              width={15}
+              height={15}
+            />
 
-          Login
-        </Link>
+            Login
+          </button>
+        </LoginForm>
       </div>
-
-      <LoginForm />
-      <RegisterForm />
     </>
   );
 }
