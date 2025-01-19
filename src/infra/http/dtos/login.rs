@@ -3,8 +3,15 @@ use validator::Validate;
 
 #[derive(Serialize, Deserialize, Validate)]
 pub struct LoginDto {
-    pub nickname: String,
+    #[validate(
+        required(message = "Nickname é um campo obrigatório."),
+        length(min = 1, message = "Nickname curtíssimo. Fanfic do after.")
+    )]
+    pub nickname: Option<String>,
 
-    #[validate(length(min = 1))]
-    pub password: String,
+    #[validate(
+        required(message = "Senha é um campo obrigatório."),
+        length(min = 1, message = "Com certeza, sua senha é maior que 1 caractere.")
+    )]
+    pub password: Option<String>,
 }

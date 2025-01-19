@@ -41,7 +41,10 @@ impl SessionsController {
         let authenticate_service = authenticate_user_service_factory::exec(&db_conn);
 
         let user = authenticate_service
-            .exec(AuthenticateUserParams { nickname, password })
+            .exec(AuthenticateUserParams {
+                nickname: nickname.unwrap(),
+                password: password.unwrap(),
+            })
             .await?;
 
         let jwt_service = JwtService {};
