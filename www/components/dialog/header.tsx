@@ -26,10 +26,7 @@ export function DialogHeader({
         title="Fechar diálogo"
         aria-describedby="Fechar a janela pop-up"
         autoFocus={false}
-        className={clsx(
-          "dialog-close-btn",
-          className && className,
-        )}
+        className="dialog-close-btn"
       >
         <Sprite
           x={-160}
@@ -41,7 +38,11 @@ export function DialogHeader({
     );
 
   return (
-    <header className="section-header purple flex items-center justify-between gap-3 mb-3">
+    <header className={clsx(
+      "section-header purple flex items-center justify-between gap-3 mb-3",
+      className && className,
+    )}
+    >
       <Dialog.Title>{title}</Dialog.Title>
       <Dialog.Description className="sr-only">{description}</Dialog.Description>
 
