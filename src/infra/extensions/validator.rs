@@ -1,6 +1,6 @@
 use validator::ValidationErrors;
 
-use crate::error::SamambaiaError;
+use crate::error::{IntoSamambaiaError, SamambaiaError};
 
 impl From<ValidationErrors> for SamambaiaError {
     fn from(value: ValidationErrors) -> Self {
@@ -9,12 +9,8 @@ impl From<ValidationErrors> for SamambaiaError {
     }
 }
 
-pub trait IntoSamambaiaError {
-    fn into_domain_err(self) -> SamambaiaError;
-}
-
 impl IntoSamambaiaError for ValidationErrors {
-    fn into_domain_err(self) -> SamambaiaError {
+    fn into_samambaia_error(self) -> SamambaiaError {
         self.into()
     }
 }

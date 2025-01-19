@@ -9,8 +9,8 @@ use validator::Validate;
 use crate::configs::app::APP_CONFIG;
 use crate::domain::factories::identity::authenticate_user_service_factory;
 use crate::domain::services::identity::authenticate_user_service::AuthenticateUserParams;
+use crate::error::IntoSamambaiaError;
 use crate::error::SamambaiaError;
-use crate::infra::extensions::validator::IntoSamambaiaError;
 use crate::infra::http::dtos::login::LoginDto;
 use crate::infra::jwt::jwt_service::{DecodedToken, JwtService, MakeJwtResult};
 use crate::infra::sea::sea_service::SeaService;
@@ -36,7 +36,7 @@ impl SessionsController {
         let LoginDto { nickname, password } = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoSamambaiaError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
 
         let authenticate_service = authenticate_user_service_factory::exec(&db_conn);
 

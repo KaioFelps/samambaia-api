@@ -9,7 +9,7 @@ use crate::domain::services::announcements::fetch_many_announcements_service::{
     FetchManyAnnouncementsParams, FetchManyAnnouncementsResponse,
 };
 use crate::domain::services::announcements::update_announcement_service::UpdateAnnouncementParams;
-use crate::infra::extensions::validator::IntoSamambaiaError;
+use crate::error::IntoSamambaiaError;
 use crate::infra::http::dtos::announcements::{
     CreateAnnouncementDto, ListAnnouncementsDto, UpdateAnnouncementDto,
 };
@@ -64,7 +64,7 @@ impl AnnouncementsController {
         staff: web::ReqData<ReqUser>,
     ) -> AppResponse {
         body.validate()
-            .map_err(IntoSamambaiaError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
         let body = body.into_inner();
 
         let service = create_announcement_service_factory::exec(&db_conn);
@@ -119,7 +119,7 @@ impl AnnouncementsController {
         announcement_id: web::Path<Uuid>,
     ) -> AppResponse {
         body.validate()
-            .map_err(IntoSamambaiaError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
         let body = body.into_inner();
 
         let service = update_announcement_service_factory::exec(&db_conn);
