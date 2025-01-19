@@ -2,6 +2,7 @@ use std::future::{ready, Future, Ready};
 use std::pin::Pin;
 use std::rc::Rc;
 
+use crate::configs::app::SESSION_USER_KEY;
 use crate::domain::factories::identity::get_user_service_factory;
 use crate::domain::services::identity::get_user_service::GetUserServiceParams;
 use crate::error::SamambaiaError;
@@ -104,7 +105,7 @@ async fn get_session_user(req: &mut ServiceRequest) -> Result<WebRequestUser, Sa
 
     let user_id = match match req
         .get_session()
-        .get::<String>("__user_id__")
+        .get::<String>(SESSION_USER_KEY)
         .unwrap_or(None)
     {
         None => return Ok(WebRequestUser::Ghast),
