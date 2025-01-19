@@ -69,6 +69,10 @@ export const tailwindConfig = {
         ...generateReverseableAnimation("slideRightAndFade", "400ms cubic-bezier(0.16, 1, 0.3, 1)"),
         ...generateReverseableAnimation("slideDownAndFade", "400ms cubic-bezier(0.16, 1, 0.3, 1)"),
         ...generateReverseableAnimation("scaleUpAndFade", "400ms cubic-bezier(0.16, 1, 0.3, 1)"),
+        ...generateReverseableAnimation(
+          "dialogScaleUpAndFade",
+          "400ms cubic-bezier(0.16, 1, 0.3, 1) both",
+        ),
       },
 
       keyframes: {
@@ -100,6 +104,10 @@ export const tailwindConfig = {
         ...generateReverseableKeyFrame("scaleUpAndFade", {
           from: { opacity: "0", transform: "scale(0.9)" },
           to: { opacity: "1", transform: "scale(1)" },
+        }),
+        ...generateReverseableKeyFrame("dialogScaleUpAndFade", {
+          from: { opacity: "0", transform: "translate(-50%, -50%) scale(0.9)" },
+          to: { opacity: "1", transform: "translate(-50%, -50%) scale(1)" },
         }),
       },
     },
