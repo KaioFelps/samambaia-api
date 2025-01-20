@@ -47,6 +47,8 @@ impl RouteTrait for WebRoutes {
 
         cfg.service(
             web::scope("")
+                .wrap(from_fn(default_error_handler))
+                .wrap(GarbageCollectorMiddleware)
                 .wrap(InertiaMiddleware::new().with_shared_props(Arc::new(|req| {
                     let flash = req
                         .get_session()
@@ -54,9 +56,6 @@ impl RouteTrait for WebRoutes {
 
                     let flash= flash.map(|map| serde_json::from_str::<serde_json::Map<_, _>>(&map).unwrap_or_default())
                         .unwrap_or_default();
-
-
-                    // let req = req.clone();
 
                     let user = match req.extensions()
                         .get::<WebRequestUser>()
@@ -110,8 +109,6 @@ impl RouteTrait for WebRoutes {
                         ]
                     })
                 })))
-                .wrap(from_fn(default_error_handler))
-                .wrap(GarbageCollectorMiddleware)
                 .wrap(WebRequestUserMiddleware)
                 .wrap(ReflashTemporarySessionMiddleware)
                 .wrap(SessionMiddleware::builder(storage, key)
@@ -139,9 +136,9 @@ async fn default_error_handler(
     let res = next.call(req).await?;
     let status = res.status().as_u16();
 
-    log::debug!("Falled to default error handler.");
-
     if [503, 500, 404, 403, 401].contains(&status) {
+        log::debug!("Request has fallen to default error handler.");
+
         if APP_CONFIG.rust_env != RustEnv::Production {
             log::debug!("{:#?}", res.response().body());
         }
