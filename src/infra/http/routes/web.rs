@@ -141,7 +141,11 @@ async fn default_error_handler(
 
     log::debug!("Falled to default error handler.");
 
-    if APP_CONFIG.rust_env != RustEnv::Development && [503, 500, 404, 403, 401].contains(&status) {
+    if [503, 500, 404, 403, 401].contains(&status) {
+        if APP_CONFIG.rust_env != RustEnv::Production {
+            log::debug!("{:#?}", res.response().body());
+        }
+
         let mut inertia_err_response = Inertia::render_with_props(
             res.request(),
             "Error".into(),
