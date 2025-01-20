@@ -14,13 +14,15 @@ export default function ErrorPage({ status }: ErrorPageProps) {
     503: "Nossos serviços não estão disponíveis.",
     404: "Lugar errado?!",
     403: "Negativo! Acesso negado.",
+    401: "Negativo! Não autorizado.",
   };
 
   const descriptions: Record<number, string> = {
     503: "Talvez alguma atualização esteja chegando? Quem sabe... Tente mais tarde.",
     500: "Não é você... Somos nós.",
     404: "Talvez você tenha ido longe demais! Dê alguns passos para trás.",
-    403: "Você não tem todo esse poder, se ponha no teu lugar.",
+    403: "Eu posso. Você não pode! Você não pode, eu posso!",
+    401: "Você não tem todo esse poder, se ponha no teu lugar.",
   };
 
   return (
