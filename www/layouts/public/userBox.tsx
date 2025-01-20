@@ -1,4 +1,4 @@
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { ReactNode, useState } from "react";
 
 import { Sprite } from "@/components/sprite";
@@ -75,5 +75,12 @@ function Unlogged() {
 }
 
 function Logged() {
-  return <div />;
+  function handleLogout() {
+    router.post("/sessions/logout");
+  }
+  return (
+    <div>
+      <button onClick={handleLogout}>logout</button>
+    </div>
+  );
 }
