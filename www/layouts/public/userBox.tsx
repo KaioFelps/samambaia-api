@@ -7,14 +7,6 @@ import { SharedProps } from "@/inertiaShared";
 import { LoginForm } from "./forms/login";
 import { RegisterForm } from "./forms/register";
 
-export function UserBox() {
-  const { auth } = usePage<SharedProps>().props;
-
-  return auth
-    ? Logged()
-    : Unlogged();
-}
-
 type AuthenticationDialog = "login" | "register";
 
 export type AuthenticationDialogProps = {
@@ -24,9 +16,19 @@ export type AuthenticationDialogProps = {
   setOpen: (_: boolean) => void;
 };
 
-function Unlogged() {
+export function UserBox() {
+  const { auth } = usePage<SharedProps>().props;
   const [dialog, setDialog] = useState<AuthenticationDialog>();
 
+  return auth
+    ? Logged()
+    : Unlogged({ dialog, setDialog });
+}
+
+function Unlogged({ dialog, setDialog }: {
+  dialog?: AuthenticationDialog;
+  setDialog: (_: AuthenticationDialog | undefined) => void;
+}) {
   return (
     <>
       <div className="flex items-center gap-2">
