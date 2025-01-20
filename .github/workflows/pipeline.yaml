@@ -18,9 +18,6 @@ jobs:
     secrets:
       square_token: ${{ secrets.SQUARE_TOKEN }}
       square_app_id: ${{ secrets.MAIN_SQUARE_APPLICATION_ID }}
-    with:
-      RUST_ENV: ${{ vars.RUST_ENV }}
-      USER_INFO_API: ${{ vars.USER_INFO_API }}
 
   deploy_staging:
     needs: [linting, tests]
@@ -29,6 +26,3 @@ jobs:
     secrets:
       square_token: ${{ secrets.SQUARE_TOKEN }}
       square_app_id: ${{ secrets.STAGING_SQUARE_APPLICATION_ID }}
-    with:
-      RUST_ENV: ${{ vars.RUST_ENV }}
-      USER_INFO_API: ${{ vars.USER_INFO_API }}

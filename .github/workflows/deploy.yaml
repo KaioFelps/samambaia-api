@@ -9,25 +9,11 @@ on:
         square_app_id:
           description: ID of the Square Cloud deployed application
           required: true
-      inputs:
-        RUST_ENV:
-          default: PRODUCTION
-          description: The environment which the produced code will run in
-          required: true 
-          type: string
-        USER_INFO_API:
-          description: The URL to habblive api
-          required: true 
-          type: string
 
 jobs:
   deploy-to-production:
     name: Deploy
     runs-on: ubuntu-22.04
-    env:
-      VITE_RUST_ENV: ${{ inputs.RUST_ENV }}
-      VITE_USER_INFO_API: ${{ inputs.USER_INFO_API }}
-
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4

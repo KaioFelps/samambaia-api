@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { Alert } from "@/components/alert";
 import Dialog from "@/components/dialog";
 import { Input } from "@/components/form/input";
+import { appConfig } from "@/config/app";
 
 import { AuthenticationDialogProps } from "../userBox";
 
@@ -44,7 +45,7 @@ export function RegisterForm({
       return;
     }
 
-    fetch(`${import.meta.env.VITE_USER_INFO_API}${data.nickname}`)
+    fetch(`${appConfig.userInfoUrl}?user=${data.nickname}`)
       .then(res => res.json()
         .then(({ motto }) => {
           if (motto !== confirmationCode) {
