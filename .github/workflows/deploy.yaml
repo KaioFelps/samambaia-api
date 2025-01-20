@@ -32,11 +32,6 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
 
-      - name: Debug Env Variables
-        run: |
-          echo $RUST_ENV
-          echo $USER_INFO_API
-
       - name: Install Rust
         run: |
           rustup update stable
