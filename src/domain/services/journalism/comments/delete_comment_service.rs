@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct DeleteCommentParams {
@@ -19,7 +19,7 @@ impl<CommentRepository: CommentRepositoryTrait> DeleteCommentService<CommentRepo
         DeleteCommentService { comment_repository }
     }
 
-    pub async fn exec(&self, params: DeleteCommentParams) -> Result<(), DomainError> {
+    pub async fn exec(&self, params: DeleteCommentParams) -> Result<(), SamambaiaError> {
         let comment_on_db = self
             .comment_repository
             .find_by_id(params.comment_id)
@@ -32,7 +32,7 @@ impl<CommentRepository: CommentRepositoryTrait> DeleteCommentService<CommentRepo
             })?;
 
         if comment_on_db.is_none() {
-            return Err(DomainError::resource_not_found_err());
+            return Err(SamambaiaError::resource_not_found_err());
         }
 
         let comment = comment_on_db.unwrap();
@@ -42,7 +42,7 @@ impl<CommentRepository: CommentRepositoryTrait> DeleteCommentService<CommentRepo
             verify_role_has_permission(&params.staff_role, RolePermissions::DeleteComment);
 
         if !user_can_delete && comment.author_id() != params.user_id {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         self.comment_repository

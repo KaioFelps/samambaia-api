@@ -1,7 +1,11 @@
 import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
 
-import { generateReverseableAnimation, generateReverseableKeyFrame } from "./www/lib/tailwind";
+import {
+  generateReverseableAnimation,
+  generateReverseableKeyFrame,
+  textShadow,
+} from "./www/lib/tailwind";
 
 export const tailwindConfig = {
   content: ["./www/**/*.{html,ts,tsx,js}"],
@@ -29,6 +33,7 @@ export const tailwindConfig = {
         300: "#14FF48",
         500: "#27C13F",
         600: "#23AE39",
+        700: "#10A530",
       },
 
       purple: {
@@ -48,6 +53,7 @@ export const tailwindConfig = {
         400: "#FFD600",
         500: "#EFBA00",
         700: "#FFB800",
+        800: "#D3A200",
         900: "#9D4200",
       },
     },
@@ -62,6 +68,11 @@ export const tailwindConfig = {
         ...generateReverseableAnimation("slideUpAndFade", "400ms cubic-bezier(0.16, 1, 0.3, 1)"),
         ...generateReverseableAnimation("slideRightAndFade", "400ms cubic-bezier(0.16, 1, 0.3, 1)"),
         ...generateReverseableAnimation("slideDownAndFade", "400ms cubic-bezier(0.16, 1, 0.3, 1)"),
+        ...generateReverseableAnimation("scaleUpAndFade", "400ms cubic-bezier(0.16, 1, 0.3, 1)"),
+        ...generateReverseableAnimation(
+          "dialogScaleUpAndFade",
+          "400ms cubic-bezier(0.16, 1, 0.3, 1) both",
+        ),
       },
 
       keyframes: {
@@ -90,11 +101,20 @@ export const tailwindConfig = {
           from: { opacity: "0", transform: "translateX(-2px)" },
           to: { opacity: "1", transform: "translateX(0)" },
         }),
+        ...generateReverseableKeyFrame("scaleUpAndFade", {
+          from: { opacity: "0", transform: "scale(0.9)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        }),
+        ...generateReverseableKeyFrame("dialogScaleUpAndFade", {
+          from: { opacity: "0", transform: "translate(-50%, -50%) scale(0.9)" },
+          to: { opacity: "1", transform: "translate(-50%, -50%) scale(1)" },
+        }),
       },
     },
   },
   plugins: [
     typography(),
+    textShadow({ extras: 1 }),
   ],
 } satisfies Config;
 

@@ -50,6 +50,7 @@ export default function Index({ articles }: HomeProps) {
             )
           : (
             <Alert
+              className="mt-3"
               type="warning"
               message="Ups! Parece que ainda não há notícias."
             />

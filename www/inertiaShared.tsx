@@ -2,6 +2,7 @@ import { ReactElement, ReactNode } from "react";
 
 import { PublicLayout } from "./layouts/public";
 import { AnnouncementShort } from "./types/announcement";
+import { Auth } from "./types/auth";
 import { FeaturedUser } from "./types/featuredUsers";
 import { Pagination } from "./types/pagination";
 
@@ -11,9 +12,11 @@ export const resolveTitle = (title: string | undefined, defaultTitle: string): s
   ? `${defaultTitle} - ${title}`
   : defaultTitle);
 
-export type SharedProps = {
+export type SharedProps<T extends Record<string, string> = Record<string, string>> = {
+  auth?: Auth;
   announcements: { data: AnnouncementShort[]; paginationn: Pagination };
   featuredUsers: { data: FeaturedUser[]; pagination: Pagination };
+  flash: T;
 };
 
 export function resolvePageLayout(page: PageComponent) {

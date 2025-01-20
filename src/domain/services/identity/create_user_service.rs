@@ -2,7 +2,7 @@ use crate::domain::cryptography::hasher::HasherTrait;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 
 pub struct CreateUserParams {
@@ -24,7 +24,7 @@ impl<UserRepositoryType: UserRepositoryTrait, Hasher: HasherTrait>
         }
     }
 
-    pub async fn exec(&self, params: CreateUserParams) -> Result<User, DomainError> {
+    pub async fn exec(&self, params: CreateUserParams) -> Result<User, SamambaiaError> {
         self.create(params, Role::User).await
     }
 
@@ -32,12 +32,12 @@ impl<UserRepositoryType: UserRepositoryTrait, Hasher: HasherTrait>
         &self,
         params: CreateUserParams,
         role: Role,
-    ) -> Result<User, DomainError> {
+    ) -> Result<User, SamambaiaError> {
         self.create(params, role).await
     }
 
     #[inline]
-    async fn create(&self, params: CreateUserParams, role: Role) -> Result<User, DomainError> {
+    async fn create(&self, params: CreateUserParams, role: Role) -> Result<User, SamambaiaError> {
         let user_on_db = self
             .user_repository
             .find_by_nickname(&params.nickname)
@@ -50,7 +50,7 @@ impl<UserRepositoryType: UserRepositoryTrait, Hasher: HasherTrait>
             })?;
 
         if let Some(_user) = user_on_db {
-            return Err(DomainError::user_already_exists_err(&params.nickname));
+            return Err(SamambaiaError::user_already_exists_err(&params.nickname));
         }
 
         let hashed_password = self.hasher.hash(params.password);

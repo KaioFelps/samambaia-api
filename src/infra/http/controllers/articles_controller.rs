@@ -19,7 +19,7 @@ use crate::domain::services::journalism::articles::{
     },
     update_article_service::UpdateArticleParams,
 };
-use crate::infra::extensions::validator::IntoDomainError;
+use crate::error::IntoSamambaiaError;
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
 use crate::infra::http::dtos::list_articles::ListArticlesDto;
@@ -83,7 +83,7 @@ impl ArticlesController {
         body: web::Json<CreateArticleDto>,
         user: web::ReqData<ReqUser>,
     ) -> AppResponse {
-        body.validate().map_err(|err| err.into_domain_err())?;
+        body.validate().map_err(|err| err.into_samambaia_error())?;
 
         let body = body.into_inner();
         let auth_user = user.into_inner();
@@ -165,7 +165,7 @@ impl ArticlesController {
     ) -> AppResponse {
         let query_body = query
             .validate()
-            .map_err(|err| err.into_domain_err())
+            .map_err(|err| err.into_samambaia_error())
             .map(|_| query.into_inner())?;
 
         Self::get_list_of_articles(
@@ -186,7 +186,7 @@ impl ArticlesController {
         let query_body = query
             .validate()
             .map(|_| query.into_inner())
-            .map_err(|err| err.into_domain_err())?;
+            .map_err(|err| err.into_samambaia_error())?;
 
         Self::get_list_of_articles(
             &db_conn,
@@ -216,7 +216,7 @@ impl ArticlesController {
         } = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(|err| err.into_domain_err())?;
+            .map_err(|err| err.into_samambaia_error())?;
 
         let service = update_article_service_factory::exec(&db_conn);
 

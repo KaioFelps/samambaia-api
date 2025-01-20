@@ -4,7 +4,7 @@ use crate::{
     domain::repositories::{
         announcements_repository::AnnouncementRepositoryTrait, user_repository::UserRepositoryTrait,
     },
-    error::DomainError,
+    error::SamambaiaError,
     util::{generate_service_internal_error, verify_role_has_permission, RolePermissions},
 };
 
@@ -34,7 +34,7 @@ where
         }
     }
 
-    pub async fn exec(&self, params: DeleteAnnouncementParams<'_>) -> Result<(), DomainError> {
+    pub async fn exec(&self, params: DeleteAnnouncementParams<'_>) -> Result<(), SamambaiaError> {
         if !self
             .users_repository
             .find_by_id(params.user_id)
@@ -52,7 +52,7 @@ where
                 )
             })
         {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         self.announcements_repository

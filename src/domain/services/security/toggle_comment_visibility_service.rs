@@ -3,7 +3,7 @@ use uuid::Uuid;
 use crate::domain::domain_entities::comment::Comment;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct ToggleCommentVisibilityParams<'exec> {
@@ -23,12 +23,12 @@ impl<CommentRepository: CommentRepositoryTrait> ToggleCommentVisibilityService<C
     pub async fn exec(
         &self,
         params: ToggleCommentVisibilityParams<'_>,
-    ) -> Result<Comment, DomainError> {
+    ) -> Result<Comment, SamambaiaError> {
         let user_can_toggle_visibility =
             verify_role_has_permission(params.user_role, RolePermissions::InactivateComment);
 
         if !user_can_toggle_visibility {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let comment = self
@@ -43,7 +43,7 @@ impl<CommentRepository: CommentRepositoryTrait> ToggleCommentVisibilityService<C
             })?;
 
         if comment.is_none() {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let mut comment = comment.unwrap();

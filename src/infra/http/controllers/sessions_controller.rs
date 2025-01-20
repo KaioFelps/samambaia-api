@@ -1,4 +1,4 @@
-use actix_web::cookie::Cookie;
+use actix_web::cookie::{Cookie, SameSite};
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{DecodingKey, EncodingKey};
@@ -6,14 +6,14 @@ use log::info;
 use serde_json::json;
 use validator::Validate;
 
+use crate::configs::app::APP_CONFIG;
 use crate::domain::factories::identity::authenticate_user_service_factory;
 use crate::domain::services::identity::authenticate_user_service::AuthenticateUserParams;
-use crate::error::DomainError;
-use crate::infra::extensions::validator::IntoDomainError;
+use crate::error::IntoSamambaiaError;
+use crate::error::SamambaiaError;
 use crate::infra::http::dtos::login::LoginDto;
 use crate::infra::jwt::jwt_service::{DecodedToken, JwtService, MakeJwtResult};
 use crate::infra::sea::sea_service::SeaService;
-use crate::ENV_VARS;
 
 use super::controller::ControllerTrait;
 use super::AppResponse;
@@ -36,22 +36,39 @@ impl SessionsController {
         let LoginDto { nickname, password } = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
 
         let authenticate_service = authenticate_user_service_factory::exec(&db_conn);
+
+        let user = authenticate_service
+            .exec(AuthenticateUserParams {
+                nickname: nickname.unwrap(),
+                password: password.unwrap(),
+            })
+            .await?;
+
+        let jwt_service = JwtService {};
+
+        let jwt_token = jwt_service.make_jwt(
+            user.id(),
+            user.role().unwrap(),
+            EncodingKey::from_secret(APP_CONFIG.jwt_secret.as_ref()),
+        );
 
         let MakeJwtResult {
             access_token,
             refresh_token,
-        } = authenticate_service
-            .exec(AuthenticateUserParams { nickname, password })
-            .await?;
+        } = match jwt_token {
+            Ok(token) => token,
+            Err(_err) => return Err(SamambaiaError::internal_err()),
+        };
 
         let refresh_cookie = Cookie::build("refresh_token", refresh_token.token)
-            .domain(&ENV_VARS.domain)
+            .domain(APP_CONFIG.domain)
             .path("/")
             .secure(true)
             .http_only(true)
+            .same_site(SameSite::Strict)
             .finish();
 
         Ok(HttpResponse::Ok().cookie(refresh_cookie).json(json!({
@@ -64,7 +81,7 @@ impl SessionsController {
 
         if refresh_token.is_none() {
             info!("Refresh token is None; bad request.");
-            return Err(DomainError::bad_request_err());
+            return Err(SamambaiaError::bad_request_err());
         }
 
         let refresh_token = refresh_token.unwrap();
@@ -73,7 +90,7 @@ impl SessionsController {
         let jwt_service = JwtService {};
         let decoded_token = jwt_service.decode_jwt(
             refresh_token.into(),
-            DecodingKey::from_secret(ENV_VARS.jwt_secret.as_ref()),
+            DecodingKey::from_secret(APP_CONFIG.jwt_secret.as_ref()),
         );
 
         if let Err(err) = decoded_token {
@@ -89,11 +106,11 @@ impl SessionsController {
                 | ErrorKind::Json(_)
                 | ErrorKind::Utf8(_) => {
                     info!("Token decoding validation error; bad request.");
-                    DomainError::bad_request_err()
+                    SamambaiaError::bad_request_err()
                 }
                 _ => {
                     info!("Token decoding configuration error; internal server error.");
-                    DomainError::bad_request_err()
+                    SamambaiaError::bad_request_err()
                 }
             });
         }
@@ -104,18 +121,18 @@ impl SessionsController {
 
         if user_role.is_none() {
             info!("User role from decoded jwt token is None; bad request.");
-            return Err(DomainError::bad_request_err());
+            return Err(SamambaiaError::bad_request_err());
         }
 
         let tokens = jwt_service.make_jwt(
             user_id,
             user_role.unwrap(),
-            EncodingKey::from_secret(ENV_VARS.jwt_secret.as_ref()),
+            EncodingKey::from_secret(APP_CONFIG.jwt_secret.as_ref()),
         );
 
         if tokens.is_err() {
             info!("Failed to make new jwt token; internal server error.");
-            return Err(DomainError::internal_err());
+            return Err(SamambaiaError::internal_err());
         }
 
         let MakeJwtResult {
@@ -124,10 +141,11 @@ impl SessionsController {
         } = tokens.unwrap();
 
         let refresh_cookie = Cookie::build("refresh_token", refresh_token.token)
-            .domain(&ENV_VARS.domain)
+            .domain(APP_CONFIG.domain)
             .path("/")
             .secure(true)
             .http_only(true)
+            .same_site(SameSite::Strict)
             .finish();
 
         Ok(HttpResponse::Ok().cookie(refresh_cookie).json(json!({
@@ -137,10 +155,11 @@ impl SessionsController {
 
     async fn logout() -> impl Responder {
         let mut refresh_cookie = Cookie::build("refresh_token", "")
-            .domain(&ENV_VARS.domain)
+            .domain(APP_CONFIG.domain)
             .path("/")
             .secure(true)
             .http_only(true)
+            .same_site(SameSite::Strict)
             .finish();
 
         refresh_cookie.make_removal();

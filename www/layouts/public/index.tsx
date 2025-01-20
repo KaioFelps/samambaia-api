@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { ToastContainer } from "react-toastify";
 
 import { Footer } from "./footer";
 import { Header } from "./header";
@@ -27,6 +28,7 @@ export function RawPublicLayout({ children }: PublicLayoutProps) {
       <Header topBg={topBg} />
       {children}
       <Footer />
+      <ToastContainer />
     </>
   );
 }

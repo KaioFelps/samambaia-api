@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::team_user_repository::TeamUserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::RolePermissions::DeleteTeamUser;
 use crate::util::{generate_service_internal_error, verify_role_has_permission};
 
@@ -22,11 +22,11 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> DeleteTeamUserService<TeamUser
         }
     }
 
-    pub async fn exec(&self, params: DeleteTeamUserParams) -> Result<(), DomainError> {
+    pub async fn exec(&self, params: DeleteTeamUserParams) -> Result<(), SamambaiaError> {
         let staff_can_delete = verify_role_has_permission(&params.staff_role, DeleteTeamUser);
 
         if !staff_can_delete {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let team_user_on_db = self
@@ -39,7 +39,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> DeleteTeamUserService<TeamUser
             ))?;
 
         if team_user_on_db.is_none() {
-            return Err(DomainError::resource_not_found_err());
+            return Err(SamambaiaError::resource_not_found_err());
         }
 
         let team_user = team_user_on_db.unwrap();

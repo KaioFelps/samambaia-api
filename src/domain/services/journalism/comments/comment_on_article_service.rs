@@ -5,7 +5,7 @@ use crate::domain::domain_entities::comment::Comment;
 use crate::domain::repositories::{
     article_repository::ArticleRepositoryTrait, comment_repository::CommentRepositoryTrait,
 };
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::{LOG_SEP, R_EOL};
 
 pub struct CommentOnArticleParams {
@@ -31,16 +31,16 @@ impl<CR: CommentRepositoryTrait, AR: ArticleRepositoryTrait> CommentOnArticleSer
         }
     }
 
-    pub async fn exec(&self, params: CommentOnArticleParams) -> Result<Comment, DomainError> {
+    pub async fn exec(&self, params: CommentOnArticleParams) -> Result<Comment, SamambaiaError> {
         let article_on_db = self.article_repository.find_by_id(params.article_id).await;
 
         if article_on_db.is_err() {
             error!("{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while fetching article from db:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}", article_on_db.unwrap_err());
-            return Err(DomainError::internal_err());
+            return Err(SamambaiaError::internal_err());
         }
 
         if article_on_db.unwrap().is_none() {
-            return Err(DomainError::bad_request_err());
+            return Err(SamambaiaError::bad_request_err());
         }
 
         let comment = Comment::new(params.author_id, Some(params.article_id), params.content);
@@ -49,7 +49,7 @@ impl<CR: CommentRepositoryTrait, AR: ArticleRepositoryTrait> CommentOnArticleSer
 
         if response.is_err() {
             error!("{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while creating comment transaction:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}", response.unwrap_err());
-            return Err(DomainError::internal_err());
+            return Err(SamambaiaError::internal_err());
         }
 
         Ok(response.unwrap())

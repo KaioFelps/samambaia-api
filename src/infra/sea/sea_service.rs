@@ -1,4 +1,5 @@
-use crate::{ENV_VARS, LOG_SEP, R_EOL};
+use crate::configs::app::APP_CONFIG;
+use crate::{LOG_SEP, R_EOL};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
 use std::time::Duration;
 
@@ -8,7 +9,7 @@ pub struct SeaService {
 }
 
 async fn get_db_conn() -> Result<DatabaseConnection, DbErr> {
-    let mut db_opts: ConnectOptions = ConnectOptions::new(&ENV_VARS.database_url);
+    let mut db_opts: ConnectOptions = ConnectOptions::new(APP_CONFIG.database_url);
     db_opts
         .max_connections(15)
         .connect_timeout(Duration::from_secs(8))

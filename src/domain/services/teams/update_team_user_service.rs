@@ -1,7 +1,7 @@
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::team_user::TeamUser;
 use crate::domain::repositories::team_user_repository::TeamUserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission};
 use uuid::Uuid;
 
@@ -26,7 +26,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> UpdateTeamUserService<TeamUser
         }
     }
 
-    pub async fn exec(&self, params: UpdateTeamUserParams) -> Result<TeamUser, DomainError> {
+    pub async fn exec(&self, params: UpdateTeamUserParams) -> Result<TeamUser, SamambaiaError> {
         // verifying staff/user can perform this action
         let user_can_update_team_user = verify_role_has_permission(
             &params.staff_role,
@@ -34,7 +34,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> UpdateTeamUserService<TeamUser
         );
 
         if !user_can_update_team_user {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         // fetching team user from database
@@ -48,7 +48,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> UpdateTeamUserService<TeamUser
                     err,
                 )
             })? {
-            None => return Err(DomainError::resource_not_found_err()),
+            None => return Err(SamambaiaError::resource_not_found_err()),
             Some(user) => user,
         };
 

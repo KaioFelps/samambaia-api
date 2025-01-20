@@ -11,7 +11,7 @@ use crate::domain::services::teams::{
     fetch_many_team_users_service::FetchManyTeamUsersParams,
     update_team_user_service::UpdateTeamUserParams,
 };
-use crate::infra::extensions::validator::IntoDomainError;
+use crate::error::IntoSamambaiaError;
 use crate::infra::http::dtos::create_team_user::CreateTeamUserDto;
 use crate::infra::http::dtos::list_team_user::ListTeamUsersDto;
 use crate::infra::http::dtos::update_team_user::UpdateTeamUserDto;
@@ -66,7 +66,7 @@ impl TeamUsersController {
         let body = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
 
         let service = create_team_user_service_factory::exec(&db_conn);
 
@@ -135,7 +135,7 @@ impl TeamUsersController {
         let body = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
 
         let service = update_team_user_service_factory::exec(&db_conn);
 

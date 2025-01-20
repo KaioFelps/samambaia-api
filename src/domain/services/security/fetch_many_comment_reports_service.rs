@@ -1,6 +1,6 @@
 use crate::domain::domain_entities::comment_report::CommentReport;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 use uuid::Uuid;
 
@@ -9,7 +9,7 @@ use crate::domain::repositories::comment_report_repository::{
     CommentReportQueryType, CommentReportRepositoryTrait, FindManyCommentReportsResponse,
 };
 
-type Error = DomainError;
+type Error = SamambaiaError;
 
 pub enum CommentReportServiceQuery {
     /*
@@ -123,7 +123,7 @@ impl<
                     })?;
 
                     match user_id {
-                        None => Err(DomainError::resource_not_found_err()),
+                        None => Err(SamambaiaError::resource_not_found_err()),
                         Some(id) => Ok(Some(CommentReportQueryType::SolvedBy(id))),
                     }
                 }

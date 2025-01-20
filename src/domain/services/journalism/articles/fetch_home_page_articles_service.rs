@@ -1,5 +1,5 @@
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::infra::http::presenters::home_article::MappedHomeArticle;
 use crate::util::generate_service_internal_error;
 
@@ -12,7 +12,7 @@ impl<ArticleRepository: ArticleRepositoryTrait> FetchHomePageArticlesService<Art
         FetchHomePageArticlesService { article_repository }
     }
 
-    pub async fn exec(&self) -> Result<Vec<MappedHomeArticle>, DomainError> {
+    pub async fn exec(&self) -> Result<Vec<MappedHomeArticle>, SamambaiaError> {
         self.article_repository
             .get_home_articles()
             .await

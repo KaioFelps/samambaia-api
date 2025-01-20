@@ -3,7 +3,7 @@ use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::repositories::article_tag_repository::{
     ArticleTagQueryType, ArticleTagRepositoryTrait, FindManyArticleTagsResponse,
 };
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 
 pub struct FetchManyArticleTagsParams {
@@ -34,7 +34,7 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
     pub async fn exec(
         &self,
         params: FetchManyArticleTagsParams,
-    ) -> Result<FetchManyArticleTagsResponse, DomainError> {
+    ) -> Result<FetchManyArticleTagsResponse, SamambaiaError> {
         let per_page = params.per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
         let page = match params.page {
             None => 1,

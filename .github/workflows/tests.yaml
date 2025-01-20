@@ -18,6 +18,7 @@ jobs:
           - beta
     steps:
       - uses: actions/checkout@v4
+      - run: cp .env.test .env
       - run: rustup update ${{ matrix.toolchain }}
       - run: rustup default ${{ matrix.toolchain }}
       - run: cargo test --verbose --all-features

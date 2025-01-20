@@ -5,7 +5,7 @@ use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::{
     FindManyTeamRolesResponse, TeamRoleQueryType, TeamRoleRepositoryTrait,
 };
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 
 use crate::{LOG_SEP, R_EOL};
 
@@ -35,7 +35,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<Team
     pub async fn exec(
         &self,
         params: FetchManyTeamRolesParams,
-    ) -> Result<FetchManyTeamRolesResponse, DomainError> {
+    ) -> Result<FetchManyTeamRolesResponse, SamambaiaError> {
         let items_per_page = if params.per_page.is_some() {
             params.per_page.unwrap()
         } else {
@@ -68,7 +68,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<Team
                 response.as_ref().unwrap_err()
             );
 
-            return Err(DomainError::internal_err());
+            return Err(SamambaiaError::internal_err());
         }
 
         let response = response.unwrap();

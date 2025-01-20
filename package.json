@@ -16,6 +16,7 @@
     "@inertiajs/core": "2.0.0",
     "@inertiajs/react": "2.0.0",
     "@phosphor-icons/react": "2.1.7",
+    "@radix-ui/react-dialog": "1.1.4",
     "@radix-ui/react-dropdown-menu": "2.1.4",
     "@radix-ui/react-popover": "1.1.4",
     "@tailwindcss/typography": "0.5.16",
@@ -24,6 +25,7 @@
     "clsx": "2.1.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-toastify": "11.0.3",
     "swiper": "11.2.0"
   },
   "devDependencies": {

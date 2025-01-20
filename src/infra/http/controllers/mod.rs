@@ -1,6 +1,6 @@
 use actix_web::HttpResponse;
 
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 
 pub mod article_tags_controller;
 pub mod articles_controller;
@@ -13,7 +13,7 @@ pub mod team_roles_controller;
 pub mod team_users_controller;
 pub mod users_controller;
 
-pub type AppResponse = Result<HttpResponse, DomainError>;
+pub type AppResponse<T = HttpResponse> = Result<T, SamambaiaError>;
 pub mod announcements_controller;
 
 pub mod web;

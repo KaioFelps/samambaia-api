@@ -4,7 +4,7 @@ use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType, FindManyArticlesResponse, MockArticleRepositoryTrait,
 };
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::infra::http::presenters::home_article::HomeArticlePresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use std::sync::{Arc, Mutex};
@@ -119,7 +119,7 @@ pub fn get_article_repository() -> (LocalDb<Article>, LocalDb<User>, MockArticle
             }
 
             match index {
-                None => Err(Box::new(DomainError::resource_not_found_err())),
+                None => Err(Box::new(SamambaiaError::resource_not_found_err())),
                 Some(i) => {
                     articles_db_clone.lock().unwrap()[i] = param_article.clone();
                     Ok(param_article)
@@ -166,7 +166,7 @@ pub fn get_article_repository() -> (LocalDb<Article>, LocalDb<User>, MockArticle
             match user {
                 None => {
                     println!("Encountered an article that has no author: {:#?}", article);
-                    return Err(Box::new(DomainError::internal_err()));
+                    return Err(Box::new(SamambaiaError::internal_err()));
                 }
                 Some(user) => {
                     mapped_articles.push(HomeArticlePresenter::to_http((

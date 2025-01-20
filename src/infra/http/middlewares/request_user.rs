@@ -1,8 +1,9 @@
 use std::future::{ready, Future, Ready};
 use std::pin::Pin;
 
+use crate::configs::app::APP_CONFIG;
 use crate::infra::http::extractors::req_user::ReqUser;
-use crate::{ENV_VARS, LOG_SEP, R_EOL};
+use crate::{LOG_SEP, R_EOL};
 use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::{Error, HttpMessage};
 use jsonwebtoken::DecodingKey;
@@ -110,7 +111,7 @@ where
 
             let jwt_t = jwt_service.decode_jwt(
                 token,
-                DecodingKey::from_secret(ENV_VARS.jwt_secret.as_ref()),
+                DecodingKey::from_secret(APP_CONFIG.jwt_secret.as_ref()),
             );
 
             match jwt_t {

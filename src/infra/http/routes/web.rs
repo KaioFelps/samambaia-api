@@ -1,20 +1,30 @@
 use super::route::RouteTrait;
+use crate::configs::app::{APP_CONFIG, SESSION_FLASH_KEY};
+use crate::configs::env::RustEnv;
+use crate::configs::file_sessions::FileSessionStore;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::announcements::fetch_many_announcements_service_factory;
 use crate::domain::services::announcements::fetch_many_announcements_service::FetchManyAnnouncementsParams;
-use crate::env_config::RustEnv;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::web::home_controller::HomeController;
-use crate::infra::http::middlewares::RequestUserMiddleware;
+use crate::infra::http::controllers::web::sessions_controller::SessionsController;
+use crate::infra::http::middlewares::web::WebRequestUser;
+use crate::infra::http::middlewares::{
+    GarbageCollectorMiddleware, ReflashTemporarySessionMiddleware, WebRequestUserMiddleware,
+};
 use crate::infra::http::presenters::announcement::AnnouncementPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
-use crate::ENV_VARS;
+use actix_session::{SessionExt, SessionMiddleware};
 use actix_web::body::BoxBody;
+use actix_web::cookie::{Key, SameSite};
 use actix_web::dev::{ServiceRequest, ServiceResponse};
 use actix_web::http::StatusCode;
 use actix_web::middleware::{from_fn, Next};
 use actix_web::web::{self, Data};
+use actix_web::HttpMessage;
+use base64::prelude::BASE64_STANDARD;
+use base64::Engine;
 use inertia_rust::actix::InertiaMiddleware;
 use inertia_rust::{
     hashmap, prop_resolver, Inertia, InertiaFacade, InertiaProp, IntoInertiaError,
@@ -27,12 +37,39 @@ pub struct WebRoutes;
 
 impl RouteTrait for WebRoutes {
     fn register(cfg: &mut web::ServiceConfig) {
+        let key_bytes = BASE64_STANDARD
+            .decode(APP_CONFIG.app_key)
+            .expect("Invalid APP_KEY value.");
+
+        let key = Key::derive_from(key_bytes.as_slice());
+
+        let storage = FileSessionStore::default();
+
         cfg.service(
             web::scope("")
                 .wrap(from_fn(default_error_handler))
-                .wrap(RequestUserMiddleware)
+                .wrap(GarbageCollectorMiddleware)
                 .wrap(InertiaMiddleware::new().with_shared_props(Arc::new(|req| {
-                    let req = req.clone();
+                    let flash = req
+                        .get_session()
+                        .remove(SESSION_FLASH_KEY);
+
+                    let flash= flash.map(|map| serde_json::from_str::<serde_json::Map<_, _>>(&map).unwrap_or_default())
+                        .unwrap_or_default();
+
+                    let user = match req.extensions()
+                        .get::<WebRequestUser>()
+                        .cloned()
+                        {
+                            None => None,
+                            Some(user) => match user {
+                                WebRequestUser::Ghast => None,
+                                WebRequestUser::User(user) => Some(user),
+                            }
+                        };
+
+                    let user = InertiaProp::always(user);
+
                     let db_conn = req
                         .app_data::<Data<SeaService>>()
                         .expect("Could not find 'SeaService' struct in the server app data.")
@@ -57,6 +94,8 @@ impl RouteTrait for WebRoutes {
                                     DEFAULT_PER_PAGE,
                                 ).into_inertia_value()
                             })),
+                            "auth" => user,
+                            "flash" => InertiaProp::always(flash),
                             // TODO: adicionar o domínio de membros destaques 
                             "featuredUsers" => InertiaProp::data(json!({
                                 "data": [],
@@ -70,7 +109,17 @@ impl RouteTrait for WebRoutes {
                         ]
                     })
                 })))
+                .wrap(WebRequestUserMiddleware)
+                .wrap(ReflashTemporarySessionMiddleware)
+                .wrap(SessionMiddleware::builder(storage, key)
+                    .cookie_domain(Some(APP_CONFIG.domain.into()))
+                    .cookie_http_only(true)
+                    .cookie_same_site(SameSite::Strict)
+                    .cookie_name(APP_CONFIG.session_cookie.into())
+                    .cookie_secure(APP_CONFIG.rust_env == RustEnv::Production)
+                    .build())
                 .configure(HomeController::register)
+                .configure(SessionsController::register)
                 .configure(|cfg| {
                     // serves public assets directly from /path
                     // needs to be the last service because it's a wildcard
@@ -87,7 +136,13 @@ async fn default_error_handler(
     let res = next.call(req).await?;
     let status = res.status().as_u16();
 
-    if ENV_VARS.rust_env != RustEnv::Development && [503, 500, 404, 403].contains(&status) {
+    if [503, 500, 404, 403, 401].contains(&status) {
+        log::debug!("Request has fallen to default error handler.");
+
+        if APP_CONFIG.rust_env != RustEnv::Production {
+            log::debug!("{:#?}", res.response().body());
+        }
+
         let mut inertia_err_response = Inertia::render_with_props(
             res.request(),
             "Error".into(),

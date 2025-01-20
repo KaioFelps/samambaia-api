@@ -1,7 +1,7 @@
 use crate::domain::domain_entities::free_badge::FreeBadge;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::free_badge_repository::FreeBadgeRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
@@ -27,12 +27,12 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> UpdateFreeBadgeService<FreeB
         }
     }
 
-    pub async fn exec(&self, params: UpdateFreeBadgeParams) -> Result<FreeBadge, DomainError> {
+    pub async fn exec(&self, params: UpdateFreeBadgeParams) -> Result<FreeBadge, SamambaiaError> {
         let user_can_edit_free_badge =
             verify_role_has_permission(&params.user_role, RolePermissions::UpdateFreeBadge);
 
         if !user_can_edit_free_badge {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let mut free_badge = match self
@@ -46,7 +46,7 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> UpdateFreeBadgeService<FreeB
                 )
             })?
             {
-                None =>return Err(DomainError::bad_request_err()),
+                None =>return Err(SamambaiaError::bad_request_err()),
                 Some(badge) => badge,
             };
 

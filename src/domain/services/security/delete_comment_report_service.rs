@@ -1,5 +1,5 @@
 use crate::domain::domain_entities::role::Role;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
 use crate::util::generate_service_internal_error;
@@ -24,12 +24,12 @@ impl<CommentReportRepository: CommentReportRepositoryTrait>
         }
     }
 
-    pub async fn exec(&self, params: DeleteCommentReportParams) -> Result<(), DomainError> {
+    pub async fn exec(&self, params: DeleteCommentReportParams) -> Result<(), SamambaiaError> {
         let staff_can_delete =
             verify_role_has_permission(&params.staff_role, RolePermissions::DeleteReport);
 
         if !staff_can_delete {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let comm_report = self
@@ -41,7 +41,7 @@ impl<CommentReportRepository: CommentReportRepositoryTrait>
             ))?;
 
         if comm_report.is_none() {
-            return Err(DomainError::bad_request_err());
+            return Err(SamambaiaError::bad_request_err());
         }
 
         let comm_report = comm_report.unwrap();

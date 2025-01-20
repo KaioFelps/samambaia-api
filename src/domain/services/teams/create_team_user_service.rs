@@ -3,7 +3,7 @@ use uuid::Uuid;
 use crate::domain::domain_entities::{role::Role, team_user::TeamUser};
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
 use crate::domain::repositories::team_user_repository::TeamUserRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct CreateTeamUserParams {
@@ -37,7 +37,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait, TeamRoleRepository: TeamRoleRe
         }
     }
 
-    pub async fn exec(&self, params: CreateTeamUserParams) -> Result<TeamUser, DomainError> {
+    pub async fn exec(&self, params: CreateTeamUserParams) -> Result<TeamUser, SamambaiaError> {
         let team_user = TeamUser::new(
             params.nickname,
             params.user_function,
@@ -50,7 +50,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait, TeamRoleRepository: TeamRoleRe
             verify_role_has_permission(&params.staff_role, RolePermissions::CreateTeamUser);
 
         if !staff_can_add_team_user {
-            return Err(DomainError::unauthorized_err());
+            return Err(SamambaiaError::unauthorized_err());
         }
 
         let role_on_db = self
@@ -61,7 +61,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait, TeamRoleRepository: TeamRoleRe
             })?;
 
         if role_on_db.is_none() {
-            return Err(DomainError::bad_request_err());
+            return Err(SamambaiaError::bad_request_err());
         }
 
         self.team_user_repository

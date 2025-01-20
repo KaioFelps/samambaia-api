@@ -3,7 +3,7 @@ use crate::domain::domain_entities::team_user::TeamUser;
 use crate::domain::repositories::team_user_repository::{
     FindManyTeamUsersResponse, TeamUserQueryType, TeamUserRepositoryTrait,
 };
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 
 #[derive(Debug)]
@@ -32,7 +32,7 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> FetchManyTeamUsersService<Team
     pub async fn exec(
         &self,
         params: FetchManyTeamUsersParams,
-    ) -> Result<FetchManyTeamUsersResponse, DomainError> {
+    ) -> Result<FetchManyTeamUsersResponse, SamambaiaError> {
         let items_per_page = if params.per_page.is_some() {
             params.per_page.unwrap()
         } else {

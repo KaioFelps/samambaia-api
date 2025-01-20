@@ -11,7 +11,7 @@ use crate::domain::services::journalism::article_tags::{
     fetch_many_article_tags_service::FetchManyArticleTagsParams,
     update_article_tag_service::UpdateArticleTagParams,
 };
-use crate::infra::extensions::validator::IntoDomainError;
+use crate::error::IntoSamambaiaError;
 use crate::infra::http::dtos::create_article_tag::CreateArticleTagDto;
 use crate::infra::http::dtos::list_article_tags::ListArticleTagsDto;
 use crate::infra::http::dtos::update_article_tag::UpdateArticleTagDto;
@@ -65,7 +65,7 @@ impl ArticleTagsController {
         let body = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
 
         let service = create_article_tag_service_factory::exec(&db_conn);
 
@@ -94,7 +94,7 @@ impl ArticleTagsController {
         } = query
             .validate()
             .map(|_| query.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
 
         let service = fetch_many_article_tags_service_factory::exec(&db_conn);
 
@@ -123,7 +123,7 @@ impl ArticleTagsController {
         let body = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
 
         let service = update_article_tag_service_factory::exec(&db_conn);
 

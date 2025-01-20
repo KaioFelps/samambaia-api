@@ -5,7 +5,7 @@ use crate::domain::domain_entities::comment_report::CommentReport;
 use crate::domain::domain_entities::comment_report::DraftCommentReport;
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 
 use crate::{LOG_SEP, R_EOL};
 
@@ -33,7 +33,7 @@ impl<CR: CommentRepositoryTrait, CRR: CommentReportRepositoryTrait>
     pub async fn exec(
         &self,
         params: CreateCommentReportParams,
-    ) -> Result<CommentReport, DomainError> {
+    ) -> Result<CommentReport, SamambaiaError> {
         let comment_on_db = self.comment_repository.find_by_id(params.comment_id).await;
 
         if comment_on_db.is_err() {
@@ -42,13 +42,13 @@ impl<CR: CommentRepositoryTrait, CRR: CommentReportRepositoryTrait>
                 comment_on_db.as_ref().unwrap_err()
             );
 
-            return Err(DomainError::internal_err());
+            return Err(SamambaiaError::internal_err());
         }
 
         let comment_on_db = comment_on_db.unwrap();
 
         if comment_on_db.is_none() {
-            return Err(DomainError::bad_request_err());
+            return Err(SamambaiaError::bad_request_err());
         }
 
         let comment_on_db = comment_on_db.unwrap();
@@ -63,7 +63,7 @@ impl<CR: CommentRepositoryTrait, CRR: CommentReportRepositoryTrait>
                 "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create Comment Report Service, while creating the comment report:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
                 response.as_ref().unwrap_err()
             );
-            return Err(DomainError::internal_err());
+            return Err(SamambaiaError::internal_err());
         }
 
         Ok(response.unwrap())

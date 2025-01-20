@@ -3,7 +3,7 @@ use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::{
     FindManyUsersResponse, UserQueryType, UserRepositoryTrait,
 };
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 
 #[derive(Debug)]
@@ -30,7 +30,7 @@ impl<UserRepository: UserRepositoryTrait> FetchManyUsersService<UserRepository> 
     pub async fn exec(
         &self,
         params: FetchManyUsersParams,
-    ) -> Result<FetchManyUsersResponse, DomainError> {
+    ) -> Result<FetchManyUsersResponse, SamambaiaError> {
         let items_per_page = if params.per_page.is_some() {
             params.per_page.unwrap()
         } else {

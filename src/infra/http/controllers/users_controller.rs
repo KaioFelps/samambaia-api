@@ -16,7 +16,7 @@ use crate::domain::services::identity::{
     fetch_many_users_service::FetchManyUsersParams, get_user_service::GetUserServiceParams,
     update_user_service::UpdateUserParams,
 };
-use crate::infra::extensions::validator::IntoDomainError;
+use crate::error::IntoSamambaiaError;
 use crate::infra::http::dtos::change_password::ChangePasswordDto;
 use crate::infra::http::dtos::create_user::CreateUserDto;
 use crate::infra::http::dtos::list_users::ListUsersDto;
@@ -70,7 +70,7 @@ impl UsersController {
         let CreateUserDto { nickname, password } = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
         let create_user_service = create_user_service_factory::exec(&db_conn);
 
         let user = create_user_service
@@ -95,7 +95,7 @@ impl UsersController {
         } = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
 
         let update_user_service = update_user_service_factory::exec(&db_conn);
 
@@ -140,7 +140,7 @@ impl UsersController {
         } = body
             .validate()
             .map(|_| body.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
 
         let change_password_service = change_password_service_factory::exec(&db_conn);
 
@@ -177,7 +177,7 @@ impl UsersController {
         } = query
             .validate()
             .map(|_| query.into_inner())
-            .map_err(IntoDomainError::into_domain_err)?;
+            .map_err(IntoSamambaiaError::into_samambaia_error)?;
 
         let fetch_many_users_service = fetch_many_users_service_factory::exec(&db_conn);
 

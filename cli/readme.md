@@ -2,9 +2,9 @@
 
 Consider that the CLI expects few files to exist and some crates to be available on your application:
 ## Files
-- `crate::error::DomainError`: an enum or an struct that will be the `Err` variant from the services returns.
+- `crate::error::SamambaiaError`: an enum or an struct that will be the `Err` variant from the services returns.
 - `super::controller::ControllerTrait`: a trait that must be available in a `controller.rs` module in the same directory as your controllers output directory.
-- `crate::super::AppResponse`: a type alias to Result<HttpResponse, DomainError> that must be available in the `mod.rs` file from your controllers output directory.
+- `crate::super::AppResponse`: a type alias to Result<HttpResponse, SamambaiaError> that must be available in the `mod.rs` file from your controllers output directory.
 
 ## Crates
 - `mockall`: It's used in the repositories stubs;
@@ -29,7 +29,7 @@ samambaia generate service "service name lowercase splitten by spaces"
 
 This will generate a service just like:
 ```rust
-use crate::error::DomainError;
+use crate::error::SamambaiaError;
 
 pub struct ServiceNameParams {}
 
@@ -42,7 +42,7 @@ impl ServiceNameService {
         }
     }
 
-    pub async fn exec(&self, params: ServiceNameParams) -> Result<(), DomainError> {
+    pub async fn exec(&self, params: ServiceNameParams) -> Result<(), SamambaiaError> {
         Ok(())
     }
 }

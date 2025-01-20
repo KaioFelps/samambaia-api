@@ -1,5 +1,4 @@
 use core::panic;
-
 use dotenvy::dotenv;
 use serde::Deserialize;
 use serde_envfile::from_env as lib_from_env;
@@ -17,6 +16,7 @@ pub struct EnvConfig {
     pub database_url: String,
     pub domain: String,
     pub jwt_secret: String,
+    pub app_key: String,
     pub host: String,
     pub port: u16,
     pub https: bool,
