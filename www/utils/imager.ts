@@ -1,3 +1,5 @@
+import { appConfig } from "@/config/app";
+
 export interface ImagerParamsArguments {
   img_format: "png";
   direction: "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
@@ -8,14 +10,12 @@ export interface ImagerParamsArguments {
 }
 
 export abstract class Imager {
-  public static readonly ImagerURL = "https://habblive.in/imager.php";
-
   public static getUserImage(
     nickname: string,
     params: Partial<ImagerParamsArguments> = {},
   ) {
     const searchParams = new URLSearchParams(Object.entries({ ...params, user: nickname }));
 
-    return this.ImagerURL + "?" + searchParams.toString();
+    return appConfig.imagerUrl + "?" + searchParams.toString();
   }
 }

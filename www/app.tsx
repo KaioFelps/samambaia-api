@@ -4,9 +4,10 @@ import { colors } from "@crate/tailwind.config";
 import { createInertiaApp } from "@inertiajs/react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 
+import { appConfig } from "./config/app";
 import { type PageComponent, resolvePageLayout, resolveTitle } from "./inertiaShared";
 
-const appName = import.meta.env.VITE_APP_NAME ?? "Live Cosmic";
+const appName = appConfig.appName ?? "Live Cosmic";
 const production = import.meta.env.VITE_RUST_ENV === "PRODUCTION";
 
 createInertiaApp({

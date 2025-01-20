@@ -2,9 +2,10 @@ import { createInertiaApp } from "@inertiajs/react";
 import createServer from "@inertiajs/react/server";
 import ReactDOMServer from "react-dom/server";
 
+import { appConfig } from "./config/app";
 import { type PageComponent, resolvePageLayout, resolveTitle } from "./inertiaShared";
 
-const appName = process.env.APP_NAME ?? "Live Cosmic";
+const appName = appConfig.appName ?? "Live Cosmic";
 
 createServer(page =>
   createInertiaApp({
