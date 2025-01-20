@@ -3,6 +3,7 @@ use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Tr
 use actix_web::Error;
 use actix_web::HttpMessage;
 use actix_web_lab::__reexports::futures_util::future::LocalBoxFuture;
+use inertia_rust::actix::is_inertia_response;
 use inertia_rust::{actix::SessionErrors, InertiaSessionToReflash, InertiaTemporarySession};
 use log::error;
 use serde_json::Map;
@@ -87,13 +88,8 @@ where
             let session = req.get_session();
 
             // If it's not a Inertia neither redirect response, it might be assets response
-            let is_valid_request =
-                res.headers().get("x-inertia").is_some() || res.headers().get("location").is_some();
-
-            // if it's not an Inertia response,
-            // e.g.: assets requests,
-            // then reflash everything
-            let (prev_url, curr_url, optional_errors) = if !is_valid_request {
+            // then, reflash everything
+            let (prev_url, curr_url, optional_errors) = if !is_inertia_response(&res) {
                 if let Some(flash_messages) = session.remove(SESSION_FLASH_KEY) {
                     if let Ok(flash_messages) =
                         serde_json::from_str::<HashMap<String, String>>(&flash_messages)
