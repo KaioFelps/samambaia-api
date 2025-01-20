@@ -21,13 +21,20 @@ export function LoginForm({
 }: AuthenticationDialogProps) {
   const props = usePage<SharedProps<{ loginSuccess?: string }>>().props;
 
-  const { post, setData, data, errors, clearErrors, reset } = useForm<LoginFormData>();
+  const { post, setData, data, errors, clearErrors, reset, processing } = useForm<LoginFormData>();
 
   function handleFormSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    clearErrors();
+
     post("/sessions/login", {
       errorBag: "login",
+      onSuccess() {
+        setTimeout(() => {
+          setOpen(false);
+        }, 1000);
+      },
     });
   }
 
@@ -107,8 +114,11 @@ export function LoginForm({
             <button
               className="btn-success btn-lg"
               type="submit"
+              disabled={processing}
             >
-              Logar
+              {processing
+                ? "Logando..."
+                : "Logar"}
             </button>
           </div>
         </form>

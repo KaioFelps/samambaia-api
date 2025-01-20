@@ -26,7 +26,16 @@ export function RegisterForm({
   setOpen,
 }: AuthenticationDialogProps) {
   const props = usePage<SharedProps<{ registerSuccess?: string }>>().props;
-  const { post, errors, reset, clearErrors, data, setData, setError } = useForm<RegisterFormData>();
+  const {
+    post,
+    errors,
+    reset,
+    clearErrors,
+    data,
+    setData,
+    setError,
+    processing,
+  } = useForm<RegisterFormData>();
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,11 +52,19 @@ export function RegisterForm({
           if (motto !== confirmationCode) {
             setError(
               "verification_code",
-          `Mude sua missão para ${confirmationCode} para registrar-se (atual: "${motto}").`,
+              `Mude sua missão para ${confirmationCode} para registrar-se (atual: "${motto}").`,
             );
-          } else {
-            post("/sessions/register");
+            return;
           }
+
+          post("/sessions/register", {
+            errorBag: "register",
+            onSuccess() {
+              setTimeout(() => {
+                setOpen(false);
+              }, 1000);
+            },
+          });
         }));
   }
 
@@ -163,7 +180,14 @@ export function RegisterForm({
             >
               Já tenho conta
             </button>
-            <button className="btn-success btn-lg">Registre-me</button>
+            <button
+              className="btn-success btn-lg"
+              disabled={processing}
+            >
+              {processing
+                ? "Registrando..."
+                : "Registre-me"}
+            </button>
           </div>
         </form>
       </Dialog.Content>
