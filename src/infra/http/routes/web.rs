@@ -1,5 +1,5 @@
 use super::route::RouteTrait;
-use crate::configs::app::{APP_CONFIG, SESSION_FLASH_KEY, SESSION_USER_KEY};
+use crate::configs::app::{APP_CONFIG, SESSION_FLASH_KEY};
 use crate::configs::env::RustEnv;
 use crate::configs::file_sessions::FileSessionStore;
 use crate::core::pagination::DEFAULT_PER_PAGE;
@@ -10,8 +10,7 @@ use crate::infra::http::controllers::web::home_controller::HomeController;
 use crate::infra::http::controllers::web::sessions_controller::SessionsController;
 use crate::infra::http::middlewares::web::WebRequestUser;
 use crate::infra::http::middlewares::{
-    GarbageCollectorMiddleware, ReflashTemporarySessionMiddleware, WebAuthUserMiddleware,
-    WebRequestUserMiddleware,
+    GarbageCollectorMiddleware, ReflashTemporarySessionMiddleware, WebRequestUserMiddleware,
 };
 use crate::infra::http::presenters::announcement::AnnouncementPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
@@ -50,8 +49,6 @@ impl RouteTrait for WebRoutes {
             web::scope("")
                 .wrap(GarbageCollectorMiddleware)
                 .wrap(from_fn(default_error_handler))
-                .wrap(WebAuthUserMiddleware)
-                .wrap(WebRequestUserMiddleware)
                 .wrap(InertiaMiddleware::new().with_shared_props(Arc::new(|req| {
                     let flash = req
                         .get_session()
@@ -63,9 +60,18 @@ impl RouteTrait for WebRoutes {
 
                     // let req = req.clone();
 
-                    let user = if let Some(WebRequestUser::User(user)) = req.extensions()
+                    let user = match req.extensions()
                         .get::<WebRequestUser>()
-                        .cloned() { Some(user) } else { None };
+                        .cloned()
+                        {
+                            None => None,
+                            Some(user) => match user {
+                                WebRequestUser::Ghast => None,
+                                WebRequestUser::User(user) => Some(user),
+                            }
+                        };
+
+                        println!("{:#?}", user);
 
                     let user = InertiaProp::always(user);
 
@@ -108,6 +114,7 @@ impl RouteTrait for WebRoutes {
                         ]
                     })
                 })))
+                .wrap(WebRequestUserMiddleware)
                 .wrap(ReflashTemporarySessionMiddleware)
                 .wrap(SessionMiddleware::builder(storage, key)
                     .cookie_domain(Some(APP_CONFIG.domain.into()))

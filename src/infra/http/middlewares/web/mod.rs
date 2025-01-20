@@ -10,13 +10,13 @@ use crate::{
 pub mod web_auth_user;
 pub mod web_request_user;
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, Debug)]
 pub struct WebAuthUser {
     pub user: MappedUser,
     pub permissions: Vec<RolePermissions>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum WebRequestUser {
     Ghast,
     User(WebAuthUser),

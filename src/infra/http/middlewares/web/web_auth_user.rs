@@ -51,14 +51,13 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        let auth_user = req
-            .extensions()
-            .get::<WebRequestUser>()
-            .cloned()
-            .map(|user| match user {
+        let auth_user = match req.extensions().get::<WebRequestUser>().cloned() {
+            None => None,
+            Some(user) => match user {
                 WebRequestUser::Ghast => None,
                 WebRequestUser::User(user) => Some(user),
-            });
+            },
+        };
 
         match auth_user {
             None => {
