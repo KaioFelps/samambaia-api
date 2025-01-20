@@ -1,10 +1,9 @@
-import { useForm, usePage } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import { type FormEvent, useEffect } from "react";
 
 import { Alert } from "@/components/alert";
 import Dialog from "@/components/dialog";
 import { Input } from "@/components/form/input";
-import type { SharedProps } from "@/inertiaShared";
 
 import type { AuthenticationDialogProps } from "../userBox";
 
@@ -19,8 +18,6 @@ export function LoginForm({
   setDialog,
   children: trigger,
 }: AuthenticationDialogProps) {
-  const props = usePage<SharedProps<{ loginSuccess?: string }>>().props;
-
   const { post, setData, data, errors, clearErrors, reset, processing } = useForm<LoginFormData>();
 
   function handleFormSubmit(e: FormEvent<HTMLFormElement>) {
@@ -30,11 +27,6 @@ export function LoginForm({
 
     post("/sessions/login", {
       errorBag: "login",
-      onSuccess() {
-        setTimeout(() => {
-          setOpen(false);
-        }, 1000);
-      },
     });
   }
 
@@ -60,14 +52,6 @@ export function LoginForm({
           title="Login"
           description="Acesse sua conta na Live Cosmic."
         />
-
-        {props.flash.loginSuccess && (
-          <Alert
-            type="success"
-            message={props.flash.loginSuccess}
-            className="mb-4"
-          />
-        )}
 
         {(errors as Record<string, string>)["error"] && (
           <Alert

@@ -1,5 +1,6 @@
 import { router, usePage } from "@inertiajs/react";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import { Sprite } from "@/components/sprite";
 import { SharedProps } from "@/inertiaShared";
@@ -8,6 +9,7 @@ import { LoginForm } from "./forms/login";
 import { RegisterForm } from "./forms/register";
 
 type AuthenticationDialog = "login" | "register";
+type SuccessfulAuthenticationPossibleFlash = { loginSuccess?: string; registerSuccess?: string };
 
 export type AuthenticationDialogProps = {
   setDialog: (_: AuthenticationDialog) => void;
@@ -17,8 +19,19 @@ export type AuthenticationDialogProps = {
 };
 
 export function UserBox() {
-  const { auth } = usePage<SharedProps>().props;
+  const { auth, flash } = usePage<SharedProps<SuccessfulAuthenticationPossibleFlash>>().props;
   const [dialog, setDialog] = useState<AuthenticationDialog>();
+
+  useEffect(() => {
+    if (flash.loginSuccess || flash.registerSuccess) {
+      toast(flash.loginSuccess ?? flash.registerSuccess, {
+        type: "success",
+      });
+
+      delete flash.loginSuccess;
+      delete flash.registerSuccess;
+    }
+  }, [flash]);
 
   return auth
     ? Logged()

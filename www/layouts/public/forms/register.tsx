@@ -1,11 +1,10 @@
-import { useForm, usePage } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import { FormEvent, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { Alert } from "@/components/alert";
 import Dialog from "@/components/dialog";
 import { Input } from "@/components/form/input";
-import { SharedProps } from "@/inertiaShared";
 
 import { AuthenticationDialogProps } from "../userBox";
 
@@ -25,7 +24,6 @@ export function RegisterForm({
   setDialog,
   setOpen,
 }: AuthenticationDialogProps) {
-  const props = usePage<SharedProps<{ registerSuccess?: string }>>().props;
   const {
     post,
     errors,
@@ -59,11 +57,6 @@ export function RegisterForm({
 
           post("/sessions/register", {
             errorBag: "register",
-            onSuccess() {
-              setTimeout(() => {
-                setOpen(false);
-              }, 1000);
-            },
           });
         }));
   }
@@ -89,14 +82,6 @@ export function RegisterForm({
           title="Registre-se"
           description="Crie sua própria conta na Live Cosmic de graça!"
         />
-
-        {props.flash.registerSuccess && (
-          <Alert
-            type="success"
-            message={props.flash.registerSuccess}
-            className="mb-4"
-          />
-        )}
 
         {errors.error && (
           <Alert
