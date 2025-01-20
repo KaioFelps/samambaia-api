@@ -6,7 +6,10 @@ use actix_web_lab::__reexports::futures_util::future::LocalBoxFuture;
 use inertia_rust::{actix::SessionErrors, InertiaSessionToReflash, InertiaTemporarySession};
 use log::error;
 use serde_json::Map;
+use std::collections::HashMap;
 use std::future::{ready, Ready};
+
+use crate::configs::app::SESSION_FLASH_KEY;
 
 pub struct ReflashTemporarySessionMiddleware;
 
@@ -70,7 +73,7 @@ where
         // ---
 
         let temporary_session = InertiaTemporarySession {
-            errors,
+            errors: errors.clone(),
             prev_req_url: prev_url.clone(),
         };
 
@@ -83,16 +86,35 @@ where
             let req = res.request();
             let session = req.get_session();
 
-            let inertia_session = req.extensions_mut().remove::<InertiaSessionToReflash>();
+            // If it's not a Inertia neither redirect response, it might be assets response
+            let is_valid_request =
+                res.headers().get("x-inertia").is_some() || res.headers().get("location").is_some();
 
-            // if it needs to reflash a temporary flash session, then
-            // replace data from inertia session middleware with the same as before,
-            // so that the further request generates the same InertiaTemporarySession,
-            // containing the exactly same errors, previous url, and current url.
-            //
-            // otherwise, gets the previous request's URI and stores the current one's as the next
-            // request "previous", moving the navigation history
-            let (prev_url, curr_url, optional_errors) =
+            // if it's not an Inertia response,
+            // e.g.: assets requests,
+            // then reflash everything
+            let (prev_url, curr_url, optional_errors) = if !is_valid_request {
+                if let Some(flash_messages) = session.remove(SESSION_FLASH_KEY) {
+                    if let Ok(flash_messages) =
+                        serde_json::from_str::<HashMap<String, String>>(&flash_messages)
+                    {
+                        if let Err(err) = session.insert(SESSION_FLASH_KEY, flash_messages) {
+                            error!("Failed to reflash flash messages: {}", err);
+                        };
+                    }
+                }
+
+                (before_prev_url, prev_url, errors)
+            } else {
+                let inertia_session = req.extensions_mut().remove::<InertiaSessionToReflash>();
+
+                // if it needs to reflash a temporary flash session, then
+                // replace data from inertia session middleware with the same as before,
+                // so that the further request generates the same InertiaTemporarySession,
+                // containing the exactly same errors, previous url, and current url.
+                //
+                // otherwise, gets the previous request's URI and stores the current one's as the next
+                // request "previous", moving the navigation history
                 if let Some(InertiaSessionToReflash(inertia_session)) = inertia_session {
                     (
                         before_prev_url,
@@ -106,7 +128,8 @@ where
                         .map(|SessionErrors(errors)| errors);
 
                     (prev_url, req.uri().to_string(), errors)
-                };
+                }
+            };
 
             if let Err(err) = session.insert(ERRORS_KEY, optional_errors.unwrap_or_default()) {
                 error!("Failed to add errors to session: {}", err);
