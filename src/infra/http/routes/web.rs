@@ -47,8 +47,6 @@ impl RouteTrait for WebRoutes {
 
         cfg.service(
             web::scope("")
-                .wrap(GarbageCollectorMiddleware)
-                .wrap(from_fn(default_error_handler))
                 .wrap(InertiaMiddleware::new().with_shared_props(Arc::new(|req| {
                     let flash = req
                         .get_session()
@@ -112,6 +110,8 @@ impl RouteTrait for WebRoutes {
                         ]
                     })
                 })))
+                .wrap(from_fn(default_error_handler))
+                .wrap(GarbageCollectorMiddleware)
                 .wrap(WebRequestUserMiddleware)
                 .wrap(ReflashTemporarySessionMiddleware)
                 .wrap(SessionMiddleware::builder(storage, key)
@@ -139,7 +139,9 @@ async fn default_error_handler(
     let res = next.call(req).await?;
     let status = res.status().as_u16();
 
-    if APP_CONFIG.rust_env != RustEnv::Development && [503, 500, 404, 403].contains(&status) {
+    log::debug!("Falled to default error handler.");
+
+    if APP_CONFIG.rust_env != RustEnv::Development && [503, 500, 404, 403, 401].contains(&status) {
         let mut inertia_err_response = Inertia::render_with_props(
             res.request(),
             "Error".into(),
