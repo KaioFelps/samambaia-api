@@ -8,7 +8,10 @@ use crate::{
     domain::factories::journalism::articles::fetch_home_page_articles_service_factory,
     error::IntoSamambaiaError,
     infra::{
-        http::controllers::{controller::ControllerTrait, AppResponse},
+        http::{
+            controllers::{controller::ControllerTrait, AppResponse},
+            middlewares::WebAuthUserMiddleware,
+        },
         sea::sea_service::SeaService,
     },
 };
@@ -18,7 +21,7 @@ pub struct HomeController;
 impl ControllerTrait for HomeController {
     fn register(cfg: &mut web::ServiceConfig) {
         cfg.route("/", web::get().to(Self::home));
-        cfg.route("foo", web::get().to(Self::foo));
+        cfg.route("foo", web::get().to(Self::foo).wrap(WebAuthUserMiddleware));
     }
 }
 
