@@ -28,8 +28,6 @@ createInertiaApp({
               .querySelector("meta[name='ssr']")
               ?.getAttribute("content") === "true";
 
-    console.log(isSSR);
-
     if (isSSR) {
       hydrateRoot(
         el,
