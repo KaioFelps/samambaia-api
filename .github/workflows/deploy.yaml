@@ -25,8 +25,8 @@ jobs:
     name: Deploy
     runs-on: ubuntu-22.04
     env:
-      RUST_ENV: ${{ inputs.RUST_ENV }}
-      USER_INFO_API: ${{ inputs.USER_INFO_API }}
+      VITE_RUST_ENV: ${{ inputs.RUST_ENV }}
+      VITE_USER_INFO_API: ${{ inputs.USER_INFO_API }}
 
     steps:
       - name: Checkout the repository
