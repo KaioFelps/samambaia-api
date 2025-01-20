@@ -29,6 +29,8 @@ impl SessionHelpers for Session {
 
     #[inline]
     fn flash_silently<T: ToString>(req: &HttpRequest, key: &str, msg: T) {
-        let _ = Self::flash(req, key, msg);
+        if let Err(err) = Self::flash(req, key, msg) {
+            log::warn!("Failed to flash message: {}", err);
+        };
     }
 }
