@@ -9,6 +9,7 @@ use crate::infra::extensions::sessions::SessionHelpers;
 use crate::infra::http::controllers::{controller::ControllerTrait, AppResponse};
 use crate::infra::http::dtos::create_user::CreateUserDto;
 use crate::infra::http::dtos::login::LoginDto;
+use crate::infra::http::middlewares::WebAuthUserMiddleware;
 use crate::infra::sea::sea_service::SeaService;
 
 use actix_session::{Session, SessionExt};
@@ -25,7 +26,11 @@ impl ControllerTrait for SessionsController {
         cfg.service(
             web::scope("/sessions")
                 .route("/login", web::post().to(Self::login))
-                .route("/register", web::post().to(Self::register_user)),
+                .route("/register", web::post().to(Self::register_user))
+                .route(
+                    "/logout",
+                    web::post().to(Self::logout).wrap(WebAuthUserMiddleware),
+                ),
         );
     }
 }
@@ -64,7 +69,7 @@ impl SessionsController {
 
             return Ok(Inertia::back_with_errors(
                 &req,
-                hashmap!["loginErr" => "Failed to login. Please, try again later.".into()],
+                hashmap!["error" => "Não foi possível te autenticar. Tente denovo mais tarde.".into()],
             ));
         };
 
@@ -112,7 +117,7 @@ impl SessionsController {
 
             return Inertia::back_with_errors(
                 &req,
-                hashmap!["loginErr" => "Failed to login. Please, try again later.".into()],
+                hashmap!["error" => "Failed to login. Please, try again later.".into()],
             );
         };
 
@@ -125,6 +130,11 @@ impl SessionsController {
             ),
         );
 
+        Inertia::back(&req)
+    }
+
+    async fn logout(req: HttpRequest) -> Redirect {
+        let _ = req.get_session().remove(SESSION_USER_KEY);
         Inertia::back(&req)
     }
 }
