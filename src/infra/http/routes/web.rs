@@ -71,8 +71,6 @@ impl RouteTrait for WebRoutes {
                             }
                         };
 
-                        println!("{:#?}", user);
-
                     let user = InertiaProp::always(user);
 
                     let db_conn = req
