@@ -92,15 +92,17 @@ export function RegisterForm({
 
         {props.flash.registerSuccess && (
           <Alert
-            type="warning"
+            type="success"
             message={props.flash.registerSuccess}
+            className="mb-4"
           />
         )}
 
         {errors.error && (
           <Alert
-            type="warning"
+            type="error"
             message={errors.error}
+            className="mb-4"
           />)}
 
         <form onSubmit={handleFormSubmit}>

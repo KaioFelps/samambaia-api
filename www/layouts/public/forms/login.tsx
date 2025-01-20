@@ -63,15 +63,17 @@ export function LoginForm({
 
         {props.flash.loginSuccess && (
           <Alert
-            type="warning"
+            type="success"
             message={props.flash.loginSuccess}
+            className="mb-4"
           />
         )}
 
         {(errors as Record<string, string>)["error"] && (
           <Alert
-            type="warning"
+            type="error"
             message={(errors as Record<string, string>)["error"]}
+            className="mb-4"
           />)}
 
         <form onSubmit={handleFormSubmit}>
