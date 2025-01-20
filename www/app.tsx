@@ -7,8 +7,7 @@ import { createRoot, hydrateRoot } from "react-dom/client";
 import { appConfig } from "./config/app";
 import { type PageComponent, resolvePageLayout, resolveTitle } from "./inertiaShared";
 
-const appName = appConfig.appName ?? "Live Cosmic";
-const production = import.meta.env.VITE_RUST_ENV === "PRODUCTION";
+const appName = appConfig.appName;
 
 createInertiaApp({
   progress: { color: colors.purple[500], includeCSS: true },
@@ -24,7 +23,14 @@ createInertiaApp({
   },
 
   setup({ el, App, props }) {
-    if (production) {
+    const isSSR =
+            document.head
+              .querySelector("meta[name='ssr']")
+              ?.getAttribute("content") === "true";
+
+    console.log(isSSR);
+
+    if (isSSR) {
       hydrateRoot(
         el,
         <App {...props} />,
