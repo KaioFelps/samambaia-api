@@ -2121,9 +2121,9 @@ dependencies = [
 
 [[package]]
 name = "inertia-rust"
-version = "2.3.6"
+version = "2.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e375225ac46f12eba220e7e4fbab2703b52389d2575494ddc82fffde8b6e5ed8"
+checksum = "08111f3bbd556fe5d57abb04e5c5ed4e9a9da5f0eda21b7d8e3263ff09cd0513"
 dependencies = [
  "actix-web",
  "async-trait",
