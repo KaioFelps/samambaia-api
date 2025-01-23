@@ -101,8 +101,8 @@ impl SamambaiaError {
         Self::UserAlreadyExists(format!("Já existe um user com o apelido '{}'.", nickname))
     }
 
-    pub fn validation_err<'b>(
-        errors_map: &'b HashMap<&'b str, &Vec<validator::ValidationError>>,
+    pub fn validation_err<T: ToString>(
+        errors_map: &HashMap<T, &Vec<validator::ValidationError>>,
     ) -> Self {
         let mut _errors_map = errors_map
             .iter()

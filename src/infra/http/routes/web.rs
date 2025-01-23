@@ -50,25 +50,21 @@ impl RouteTrait for WebRoutes {
                 .wrap(from_fn(default_error_handler))
                 .wrap(GarbageCollectorMiddleware)
                 .wrap(InertiaMiddleware::new().with_shared_props(Arc::new(|req| {
-                    let flash = req
-                        .get_session()
-                        .remove(SESSION_FLASH_KEY);
+                    let flash = req.get_session().remove(SESSION_FLASH_KEY);
 
-                    let flash= flash.map(|map| serde_json::from_str::<serde_json::Map<_, _>>(&map).unwrap_or_default())
+                    let flash = flash
+                        .map(|map| {
+                            serde_json::from_str::<serde_json::Map<_, _>>(&map).unwrap_or_default()
+                        })
                         .unwrap_or_default();
 
-                    let user = match req.extensions()
-                        .get::<WebRequestUser>()
-                        .cloned()
-                        {
-                            None => None,
-                            Some(user) => match user {
-                                WebRequestUser::Ghast => None,
-                                WebRequestUser::User(user) => Some(user),
-                            }
-                        };
-
-                    let user = InertiaProp::always(user);
+                    let user = match req.extensions().get::<WebRequestUser>().cloned() {
+                        None => None,
+                        Some(user) => match user {
+                            WebRequestUser::Ghast => None,
+                            WebRequestUser::User(user) => Some(user),
+                        },
+                    };
 
                     let db_conn = req
                         .app_data::<Data<SeaService>>()
@@ -77,7 +73,7 @@ impl RouteTrait for WebRoutes {
 
                     Box::pin(async move {
                         hashmap![
-                            "announcements" => InertiaProp::lazy(prop_resolver!(let db_conn_clone = db_conn.clone(); {
+                            "announcements" => InertiaProp::demand(prop_resolver!(let db_conn_clone = db_conn.clone(); {
                                 let service = fetch_many_announcements_service_factory::exec(&db_conn_clone);
                                 let announcements = service
                                     .exec(FetchManyAnnouncementsParams {
@@ -94,9 +90,9 @@ impl RouteTrait for WebRoutes {
                                     DEFAULT_PER_PAGE,
                                 ).into_inertia_value()
                             })),
-                            "auth" => user,
+                            "auth" => InertiaProp::always(user),
                             "flash" => InertiaProp::always(flash),
-                            // TODO: adicionar o domínio de membros destaques 
+                            // TODO: adicionar o domínio de membros destaques
                             "featuredUsers" => InertiaProp::data(json!({
                                 "data": [],
                                 "pagination": {
@@ -111,13 +107,15 @@ impl RouteTrait for WebRoutes {
                 })))
                 .wrap(WebRequestUserMiddleware)
                 .wrap(ReflashTemporarySessionMiddleware)
-                .wrap(SessionMiddleware::builder(storage, key)
-                    .cookie_domain(Some(APP_CONFIG.domain.into()))
-                    .cookie_http_only(true)
-                    .cookie_same_site(SameSite::Strict)
-                    .cookie_name(APP_CONFIG.session_cookie.into())
-                    .cookie_secure(APP_CONFIG.rust_env == RustEnv::Production)
-                    .build())
+                .wrap(
+                    SessionMiddleware::builder(storage, key)
+                        .cookie_domain(Some(APP_CONFIG.domain.into()))
+                        .cookie_http_only(true)
+                        .cookie_same_site(SameSite::Strict)
+                        .cookie_name(APP_CONFIG.session_cookie.into())
+                        .cookie_secure(APP_CONFIG.rust_env == RustEnv::Production)
+                        .build(),
+                )
                 .configure(HomeController::register)
                 .configure(SessionsController::register)
                 .configure(|cfg| {

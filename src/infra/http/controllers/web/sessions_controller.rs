@@ -1,5 +1,5 @@
 use crate::configs::app::SESSION_USER_KEY;
-use crate::configs::inertia::{InertiaValidateOrRedirect, IntoInertiaRedirect};
+use crate::configs::inertia::IntoInertiaRedirect;
 use crate::domain::factories::identity::{
     authenticate_user_service_factory, create_user_service_factory,
 };
@@ -17,6 +17,7 @@ use actix_web::{
     web::{self, Redirect},
     HttpRequest,
 };
+use inertia_rust::validators::InertiaValidateOrRedirect;
 use inertia_rust::{hashmap, Inertia, InertiaFacade};
 
 pub struct SessionsController;
