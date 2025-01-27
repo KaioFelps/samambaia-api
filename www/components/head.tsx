@@ -1,5 +1,5 @@
 import { Head as InertiaHead } from "@inertiajs/react";
-import React, { useMemo } from "react";
+import React from "react";
 
 import { appConfig } from "@/config/app";
 import { resolveTitle } from "@/inertiaShared";
