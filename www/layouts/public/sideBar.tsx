@@ -118,7 +118,7 @@ export function SideBar() {
                     text-2xl font-black leading-loose text-white highlight-member-name-stroke mb-1
                     "
                   >
-                    Parmesan
+                    {nickname}
                   </span>
                   <p className="text-sm">
                     {cause}
