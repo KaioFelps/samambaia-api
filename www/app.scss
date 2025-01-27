@@ -123,10 +123,10 @@
     .btn-black {
         @apply
             bg-gray-800 rounded-md px-7 py-3 flex items-center gap-2 border-2 border-black
-            text-green-500 font-bold text-shadow-black/40 text-shadow-extra-1-green-300/25
+            text-white font-bold text-shadow-black/40 text-shadow-extra-1-white/25
             from-white/25 to-black/25 transition-all duration-150 will-change-[shadow]
             hover:brightness-95 active:brightness-90
-            outline-none ring-0 focus-visible:ring-4 ring-green-500/40;
+            outline-none ring-0 focus-visible:ring-4 ring-purple-100/40;
 
         text-shadow: 0 -2px 0 var(--tw-text-shadow-color), 0 2px 0 var(--tw-text-shadow-color-extra-1);
 

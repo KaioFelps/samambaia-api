@@ -49,11 +49,11 @@ export function SideBar() {
                 </button>
               </Popover.Trigger>
 
-              <Popover.Content
-                title="Espera aí!"
-                side="right"
-              >
-                Essa seção ainda está em desenvolvimento!
+              <Popover.Content side="right">
+                <Popover.Header title="Espera aí!" />
+                <Popover.ContentContainer>
+                  Essa seção ainda está em desenvolvimento!
+                </Popover.ContentContainer>
               </Popover.Content>
             </Popover.Root>
             <button
@@ -118,7 +118,7 @@ export function SideBar() {
                     text-2xl font-black leading-loose text-white highlight-member-name-stroke mb-1
                     "
                   >
-                    Parmesan
+                    {nickname}
                   </span>
                   <p className="text-sm">
                     {cause}

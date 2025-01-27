@@ -1,3 +1,5 @@
+import clsx from "clsx";
+
 import iconsSprite from "../assets/icons-sprite.png";
 
 export type SpriteProps = {
@@ -6,9 +8,10 @@ export type SpriteProps = {
   y: number;
   width: number;
   height: number;
+  className?: string;
 };
 
-export function Sprite({ height, width, x, y, spriteUrl = iconsSprite }: SpriteProps) {
+export function Sprite({ height, width, x, y, spriteUrl = iconsSprite, className }: SpriteProps) {
   return (
     <span
       style={{
@@ -18,7 +21,7 @@ export function Sprite({ height, width, x, y, spriteUrl = iconsSprite }: SpriteP
         minWidth: width,
         minHeight: height,
       }}
-      className="block pixelated"
+      className={clsx("block pixelated", className && className)}
     />
   );
 }

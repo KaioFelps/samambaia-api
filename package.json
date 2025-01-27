@@ -13,7 +13,6 @@
   "author": "Kaio Felps",
   "license": "GPL-3.0-only",
   "dependencies": {
-    "@inertiajs/core": "2.0.3",
     "@inertiajs/react": "2.0.3",
     "@phosphor-icons/react": "2.1.7",
     "@radix-ui/react-dialog": "1.1.4",
@@ -29,6 +28,7 @@
     "swiper": "11.2.0"
   },
   "devDependencies": {
+    "@inertiajs/core": "2.0.3",
     "@rocketseat/eslint-config": "3.0.12",
     "@stylistic/eslint-plugin-ts": "2.12.1",
     "@types/node": "22.10.5",

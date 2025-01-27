@@ -57,10 +57,15 @@ export const tailwindConfig = {
         900: "#9D4200",
       },
     },
+    fontFamily: {
+      default: ["Kanit", "ui-sans-serif", "system-ui"],
+      rowdies: ["Rowdies", "Kanit", "ui-sans-serif", "system-ui"],
+    },
     extend: {
       screens: {
         main: "1392px",
       },
+
       animation: {
         "top-bg": "topBgKeyframe 50s linear infinite",
         ...generateReverseableAnimation("slideDownAndFade", "400ms cubic-bezier(0.16, 1, 0.3, 1)"),
