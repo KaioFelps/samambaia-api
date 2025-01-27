@@ -27,6 +27,9 @@ export function LoginForm({
 
     post("/sessions/login", {
       errorBag: "login",
+      onSuccess() {
+        setOpen(false);
+      },
     });
   }
 
