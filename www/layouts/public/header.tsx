@@ -1,5 +1,6 @@
 import { colors } from "@crate/tailwind.config";
 import { Link } from "@inertiajs/react";
+import { memo } from "react";
 
 import Dropdown from "@/components/dropdown";
 
@@ -12,7 +13,7 @@ type HeaderProps = {
   topBg: string;
 };
 
-export function Header({ topBg }: HeaderProps) {
+export const Header = memo(({ topBg }: HeaderProps) => {
   return (
     <header className="mb-2">
       <div
@@ -129,4 +130,4 @@ export function Header({ topBg }: HeaderProps) {
       </div>
     </header>
   );
-}
+});

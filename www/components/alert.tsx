@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { memo, useMemo } from "react";
 
 import { Sprite, SpriteProps } from "./sprite";
 
@@ -8,8 +9,8 @@ type AlertProps = {
   className?: string;
 };
 
-export function Alert({ message, type, className }: AlertProps) {
-  const sprites: Record<AlertProps["type"], SpriteProps> = {
+export const Alert = memo(({ message, type, className }: AlertProps) => {
+  const sprites: Record<AlertProps["type"], SpriteProps> = useMemo(() => ({
     warning: {
       x: -431,
       y: -5,
@@ -28,7 +29,7 @@ export function Alert({ message, type, className }: AlertProps) {
       x: -81,
       y: -128,
     },
-  };
+  }), []);
 
   return (
     <div className={clsx(
@@ -52,4 +53,4 @@ export function Alert({ message, type, className }: AlertProps) {
       {message}
     </div>
   );
-}
+});

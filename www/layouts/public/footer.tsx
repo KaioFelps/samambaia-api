@@ -1,11 +1,12 @@
 import { colors } from "@crate/tailwind.config";
 import { Link } from "@inertiajs/react";
 import { Code } from "@phosphor-icons/react/dist/ssr/Code";
+import { memo } from "react";
 
 import { Sprite } from "@/components/sprite";
 import { colorWithOpacity } from "@/lib/tailwind";
 
-export function Footer() {
+export const Footer = memo(() => {
   return (
     <footer
       style={{
@@ -120,4 +121,4 @@ export function Footer() {
       </div>
     </footer>
   );
-}
+});

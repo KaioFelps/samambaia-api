@@ -1,4 +1,5 @@
 import { usePage } from "@inertiajs/react";
+import { memo } from "react";
 
 import iconsSprite from "@/assets/icons-sprite.png";
 import Popover from "@/components/popover";
@@ -8,7 +9,7 @@ import { Imager } from "@/utils/imager";
 
 import { AnnouncementsSlider } from "./announcementsSlider";
 
-export function SideBar() {
+export const SideBar = memo(() => {
   const { featuredUsers } = usePage<SharedProps>().props;
 
   return (
@@ -32,30 +33,7 @@ export function SideBar() {
           </label>
 
           <div className="flex items-center gap-3 justify-end">
-            <Popover.Root>
-
-              <Popover.Trigger asChild>
-                <button className="
-                  p-0.5 rounded-full outline-0 ring-0 ring-blue-500/25 focus-visible:ring-4
-                  transition-all duration-100 will-change-[box-shadow]
-                  "
-                >
-                  <Sprite
-                    x={-64}
-                    y={-96}
-                    width={18}
-                    height={19}
-                  />
-                </button>
-              </Popover.Trigger>
-
-              <Popover.Content side="right">
-                <Popover.Header title="Espera aí!" />
-                <Popover.ContentContainer>
-                  Essa seção ainda está em desenvolvimento!
-                </Popover.ContentContainer>
-              </Popover.Content>
-            </Popover.Root>
+            <ReclameAquiInfo />
             <button
               disabled
               className="btn flex items-center gap-2.5"
@@ -131,4 +109,30 @@ export function SideBar() {
       )}
     </aside>
   );
-}
+});
+
+const ReclameAquiInfo = memo(() => (
+  <Popover.Root>
+    <Popover.Trigger asChild>
+      <button className="
+        p-0.5 rounded-full outline-0 ring-0 ring-blue-500/25 focus-visible:ring-4
+        transition-all duration-100 will-change-[box-shadow]
+        "
+      >
+        <Sprite
+          x={-64}
+          y={-96}
+          width={18}
+          height={19}
+        />
+      </button>
+    </Popover.Trigger>
+
+    <Popover.Content side="right">
+      <Popover.Header title="Espera aí!" />
+      <Popover.ContentContainer>
+        Essa seção ainda está em desenvolvimento!
+      </Popover.ContentContainer>
+    </Popover.Content>
+  </Popover.Root>
+));
