@@ -1,26 +1,18 @@
 import { colors } from "@crate/tailwind.config";
 import * as Popover from "@radix-ui/react-popover";
-import { JSX, ReactNode } from "react";
+import clsx from "clsx";
+import { ReactNode } from "react";
 
 import { colorWithOpacity } from "@/lib/tailwind";
 
-import { Sprite } from "../sprite";
-
-export type PopoverContentProps = Omit<Popover.PopoverContentProps, "className"> & {
-  title: string;
-  container?: (_props: { children: ReactNode }) => JSX.Element;
-};
+export type PopoverContentProps = Omit<Popover.PopoverContentProps, "className">;
 
 export function PopoverContent({
   children,
-  title,
   sideOffset = 4,
   style,
-  container,
   ...rest
 }: PopoverContentProps) {
-  const Container = container ?? ContentContainer;
-
   return (
     <Popover.Portal>
       <Popover.Content
@@ -47,26 +39,8 @@ export function PopoverContent({
             z-20 bg-gray-800 rounded-lg text-gray-200
             "
       >
-        <header className="
-            flex items-center justify-between px-3 py-1 mb-2 font-bold text-white
-            border-b-2 border-black shadow-white/10 shadow-[0_2px_0_0]
-            "
-        >
-          <span>{title}</span>
 
-          <Popover.Close>
-            <Sprite
-              x={-160}
-              y={-63}
-              width={20}
-              height={20}
-            />
-          </Popover.Close>
-        </header>
-
-        <Container>
-          {children}
-        </Container>
+        {children}
 
         <Popover.Arrow
           className="group-data-[side=bottom]:fill-[#4f4f55] fill-gray-800"
@@ -83,9 +57,10 @@ export function PopoverContent({
   );
 }
 
-function ContentContainer({ children }: { children: ReactNode }) {
+type PopoverContentContainerProps = { children: ReactNode; className?: string };
+export function PopoverContentContainer({ children, className }: PopoverContentContainerProps) {
   return (
-    <div className="px-3 pb-3 text-sm">
+    <div className={clsx("px-3 pb-3 text-sm", className && className)}>
       {children}
     </div>
   );
