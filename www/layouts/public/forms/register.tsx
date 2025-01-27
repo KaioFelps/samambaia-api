@@ -58,6 +58,9 @@ export function RegisterForm({
 
           post("/sessions/register", {
             errorBag: "register",
+            onSuccess() {
+              setOpen(false);
+            },
           });
         }));
   }

@@ -3,7 +3,7 @@ import "swiper/css";
 import { colors } from "@crate/tailwind.config";
 import type { Page } from "@inertiajs/core";
 import { Link, router, usePage } from "@inertiajs/react";
-import { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -11,7 +11,7 @@ import { SharedProps } from "@/inertiaShared";
 import { colorWithOpacity } from "@/lib/tailwind";
 import { AnnouncementShort } from "@/types/announcement";
 
-export function AnnouncementsSlider() {
+export const AnnouncementsSlider = memo(() => {
   const page = usePage<SharedProps>();
   const [announcements, setAnnouncements] = useState<AnnouncementShort[]>();
   const [isLoading, setIsLoading] = useState(true);
@@ -32,29 +32,16 @@ export function AnnouncementsSlider() {
         },
       });
     }, 10);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (isLoading) return AnnouncementsSliderSkeleton();
+  if (isLoading) return <AnnouncementsSliderSkeleton />;
 
   if (!announcements || !announcements?.length) return null;
 
   return (
-    <Swiper
-      spaceBetween={0}
-      slidesPerView={1}
-      loop
-      modules={[Autoplay]}
-      autoplay={{
-        disableOnInteraction: false,
-        delay: 5000,
-        pauseOnMouseEnter: true,
-      }}
-      className="
-        w-full bg-purple-700 aspect-square rounded-lg border-2 border-black
-        shadow-black/25 shadow-[0_2px_0_0]
-        "
-    >
+    <MemoizedSwiper>
       {announcements.map(({ id, description, external, image, url }) => {
         const Anchor = external
           ? "a"
@@ -92,16 +79,34 @@ export function AnnouncementsSlider() {
 
         );
       })}
-    </Swiper>
+    </MemoizedSwiper>
   );
-}
+});
 
-function AnnouncementsSliderSkeleton() {
-  return (
-    <div className="
-      w-full bg-purple-700 aspect-square rounded-lg border-2 border-black
-      shadow-black/25 shadow-[0_2px_0_0] animate-pulse
-      "
-    />
-  );
-}
+const AnnouncementsSliderSkeleton = memo(() => (
+  <div className="
+    w-full bg-purple-700 aspect-square rounded-lg border-2 border-black
+    shadow-black/25 shadow-[0_2px_0_0] animate-pulse
+    "
+  />
+));
+
+const MemoizedSwiper = memo(({ children }: React.PropsWithChildren) => (
+  <Swiper
+    spaceBetween={0}
+    slidesPerView={1}
+    loop
+    modules={[Autoplay]}
+    autoplay={{
+      disableOnInteraction: false,
+      delay: 5000,
+      pauseOnMouseEnter: true,
+    }}
+    className="
+        w-full bg-purple-700 aspect-square rounded-lg border-2 border-black
+        shadow-black/25 shadow-[0_2px_0_0]
+        "
+  >
+    {children}
+  </Swiper>
+));
