@@ -21,7 +21,7 @@ export function NavDropdownContent({ children, ...rest }: NavDropdownContentProp
       className="z-20 bg-gray-800 border-2 border-black rounded-lg text-white font-bold"
       {...rest}
     >
-      <div className="max-w-full max-h-full overflow-hidden flex flex-col min-w-48 select-none">
+      <div className="max-w-full max-h-full overflow-hidden flex flex-col min-w-52 select-none">
         {children}
       </div>
       <DropdownMenu.Arrow
