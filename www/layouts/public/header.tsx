@@ -58,7 +58,7 @@ export function Header({ topBg }: HeaderProps) {
             </Link>
 
             <Dropdown.Root>
-              <Dropdown.Trigger className="navbar-item">
+              <Dropdown.Trigger className="navbar-item group">
                 <span className="block size-[40px]">
                   <Sprite
                     x={-128}
@@ -68,6 +68,8 @@ export function Header({ topBg }: HeaderProps) {
                   />
                 </span>
                 Cosmic
+
+                <NavBarDropdownIndicator />
               </Dropdown.Trigger>
 
               <NavDropdownContent>
@@ -126,5 +128,17 @@ export function Header({ topBg }: HeaderProps) {
 
       </div>
     </header>
+  );
+}
+
+function NavBarDropdownIndicator() {
+  return (
+    <Sprite
+      x={-184}
+      y={-63}
+      height={19}
+      width={14}
+      className="rotate-90 group-data-[state=open]:-rotate-90 transition-[transform] duration-150"
+    />
   );
 }
