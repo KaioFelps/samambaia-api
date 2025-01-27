@@ -49,11 +49,11 @@ export function SideBar() {
                 </button>
               </Popover.Trigger>
 
-              <Popover.Content
-                title="Espera aí!"
-                side="right"
-              >
-                Essa seção ainda está em desenvolvimento!
+              <Popover.Content side="right">
+                <Popover.Header title="Espera aí!" />
+                <Popover.ContentContainer>
+                  Essa seção ainda está em desenvolvimento!
+                </Popover.ContentContainer>
               </Popover.Content>
             </Popover.Root>
             <button
