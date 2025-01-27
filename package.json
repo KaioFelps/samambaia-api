@@ -28,6 +28,7 @@
     "swiper": "11.2.0"
   },
   "devDependencies": {
+    "@million/lint": "1.0.14",
     "@inertiajs/core": "2.0.3",
     "@rocketseat/eslint-config": "3.0.12",
     "@stylistic/eslint-plugin-ts": "2.12.1",
