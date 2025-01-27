@@ -105,6 +105,36 @@ Samambaia CLI (Samambaia Command Line Interface) é uma linha de comandos (em pr
 
 Para mais informações sobre como utilizar a Samambaia CLI acesse sua própria [documentação](cli/readme.md).
 
+# Contribuindo
+Siga o seguinte padrão de commits:
+```bash
+git commit -m "[categoria*]([escopo?]): detalhes*"
+# exemplos
+git commit -m "fix(Sea Article Repository): article id aren't being correctly serialized"
+git commit -m "remove: changelog.old.md"
+```
+
+- categoria (obrigatório): a categoria mais adequada para as mudanças realizadas (vide o tópico a seguir para mais detalhes);
+- escopo (opcional): indica o escopo do commit (o que ele afeta), podendo ser domínios inteiros ou algum arquivo específico;
+- detalhes (obrigatório): uma mensagem com mais detalhes sobre o que o commit realiza quando "mergeado".
+
+Todos os commits devem ser feitos em inglês.
+
+## Categorias
+- summary: um resumo das mudanças realizadas num Pull Request (elas devem ser categorizadas e explicadas em detalhes no corpo
+    do PR);
+- feat: um novo recurso adicionado;
+- fix: correção de um bug;
+- style: mudanças de css (em arquivos `.css` ou em classes de componentes);
+- chore: mudanças feitas em arquivos/configurações que não afetam a aplicação em produção;
+- build: mudanças que afetam a aplicação em produção (crates, libs, assets, workflows);
+- refactor: mudança em funções que não afetam seu algoritmo;
+- perf: mudanças que melhoram a performance do sistema;
+- docs: mudanças em arquivos de documentação;
+- change: mudanças arbitrárias e bobas que não se encaixam nas categorias acima;
+- typo: correções ortográficas;
+- remove: remoção de algum recurso, asset, arquivo.
+
 ---
 
 Obs.: todos os arquivos, com exceção deste, estão disponíveis somente em inglês.
