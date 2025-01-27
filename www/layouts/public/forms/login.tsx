@@ -1,5 +1,5 @@
 import { useForm } from "@inertiajs/react";
-import { type FormEvent, useEffect } from "react";
+import { type FormEvent, memo, useEffect } from "react";
 
 import { Alert } from "@/components/alert";
 import Dialog from "@/components/dialog";
@@ -12,12 +12,12 @@ type LoginFormData = {
   password: string;
 };
 
-export function LoginForm({
+export const LoginForm = memo(({
   open,
   setOpen,
   setDialog,
   children: trigger,
-}: AuthenticationDialogProps) {
+}: AuthenticationDialogProps) => {
   const { post, setData, data, errors, clearErrors, reset, processing } = useForm<LoginFormData>();
 
   function handleFormSubmit(e: FormEvent<HTMLFormElement>) {
@@ -114,4 +114,4 @@ export function LoginForm({
       </Dialog.Content>
     </Dialog.Root>
   );
-}
+});
