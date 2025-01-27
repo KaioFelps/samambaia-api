@@ -43,49 +43,50 @@ function Unlogged({ dialog, setDialog }: {
   setDialog: (_: AuthenticationDialog | undefined) => void;
 }) {
   return (
-    <>
-      <div className="flex items-center gap-2">
-        <RegisterForm
-          open={dialog === "register"}
-          setDialog={setDialog}
-          setOpen={(v) => setDialog(v
-            ? "register"
-            : undefined,
-          )}
+    <div className="flex items-center gap-2">
+      <RegisterForm
+        open={dialog === "register"}
+        setDialog={setDialog}
+        setOpen={(v) => setDialog(v
+          ? "register"
+          : undefined,
+        )}
+      >
+        <button className="
+          btn-black text-green-500 text-shadow-extra-1-green-300/25 ring-green-500/40
+          "
         >
-          <button className="btn-black">
-            <Sprite
-              x={-66}
-              y={-64}
-              width={13}
-              height={16}
-            />
-            Registrar
-          </button>
+          <Sprite
+            x={-66}
+            y={-64}
+            width={13}
+            height={16}
+          />
+          Registrar
+        </button>
 
-        </RegisterForm>
+      </RegisterForm>
 
-        <LoginForm
-          open={dialog === "login"}
-          setDialog={setDialog}
-          setOpen={(v) => setDialog(v
-            ? "login"
-            : undefined,
-          )}
-        >
-          <button className="btn-success btn-lg border-black to-black/25">
-            <Sprite
-              x={-32}
-              y={-65}
-              width={15}
-              height={15}
-            />
+      <LoginForm
+        open={dialog === "login"}
+        setDialog={setDialog}
+        setOpen={(v) => setDialog(v
+          ? "login"
+          : undefined,
+        )}
+      >
+        <button className="btn-success btn-lg border-black to-black/25">
+          <Sprite
+            x={-32}
+            y={-65}
+            width={15}
+            height={15}
+          />
 
-            Login
-          </button>
-        </LoginForm>
-      </div>
-    </>
+          Login
+        </button>
+      </LoginForm>
+    </div>
   );
 }
 
