@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { memo } from "react";
 
 import iconsSprite from "../assets/icons-sprite.png";
 
@@ -11,7 +12,14 @@ export type SpriteProps = {
   className?: string;
 };
 
-export function Sprite({ height, width, x, y, spriteUrl = iconsSprite, className }: SpriteProps) {
+export const Sprite = memo(({
+  height,
+  width,
+  x,
+  y,
+  spriteUrl = iconsSprite,
+  className,
+}: SpriteProps) => {
   return (
     <span
       style={{
@@ -24,4 +32,4 @@ export function Sprite({ height, width, x, y, spriteUrl = iconsSprite, className
       className={clsx("block pixelated", className && className)}
     />
   );
-}
+});

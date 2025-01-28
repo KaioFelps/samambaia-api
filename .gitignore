@@ -9,3 +9,5 @@ __package.zip
 /public/bundle
 /public/hot
 build.sh
+# Million Lint
+.million

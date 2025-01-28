@@ -1,5 +1,5 @@
 import { useForm } from "@inertiajs/react";
-import { FormEvent, useEffect } from "react";
+import { FormEvent, memo, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { Alert } from "@/components/alert";
@@ -19,12 +19,12 @@ type RegisterFormData = {
   error?: string;
 };
 
-export function RegisterForm({
+export const RegisterForm = memo(({
   children: trigger,
   open,
   setDialog,
   setOpen,
-}: AuthenticationDialogProps) {
+}: AuthenticationDialogProps) => {
   const {
     post,
     errors,
@@ -184,4 +184,4 @@ export function RegisterForm({
       </Dialog.Content>
     </Dialog.Root>
   );
-}
+});

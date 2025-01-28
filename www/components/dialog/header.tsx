@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import clsx from "clsx";
-import { JSX } from "react";
+import { JSX, memo } from "react";
 
 import { Sprite } from "@/components/sprite";
 
@@ -12,13 +12,13 @@ export type DialogHeaderProps = {
   customClose?: JSX.Element;
 };
 
-export function DialogHeader({
+export const DialogHeader = memo(({
   title,
   description,
   className,
   noCloseButton = false,
   customClose: CustomClose,
-}: DialogHeaderProps) {
+}: DialogHeaderProps) => {
   const CloseButton = noCloseButton
     ? null
     : CustomClose ?? (
@@ -49,4 +49,4 @@ export function DialogHeader({
       {CloseButton}
     </header>
   );
-}
+});

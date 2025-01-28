@@ -1,3 +1,4 @@
+import MillionLint from "@million/lint";
 import react from "@vitejs/plugin-react";
 import laravel from "laravel-vite-plugin";
 import path from "path";
@@ -34,6 +35,7 @@ export default {
       ssrOutputDirectory: "dist/ssr",
       ssr: "www/ssr.tsx",
     }),
+    MillionLint.vite(),
   ],
   publicDir: "/public",
   resolve: {

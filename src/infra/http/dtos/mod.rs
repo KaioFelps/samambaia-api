@@ -1,6 +1,7 @@
 pub mod announcements;
 pub mod change_password;
 pub mod comment_on_article;
+pub mod controllers;
 pub mod create_article;
 pub mod create_article_tag;
 pub mod create_comment_report;

@@ -150,6 +150,16 @@
             
     }
 
+    /* arrow buttons */
+    .btn-arrow-green {
+        @apply 
+            grid place-items-center size-7 rounded-md border-2 border-black transition-[background] duration-100
+            bg-green-500 shadow-white/40 shadow-[inset_0_0_0_2px]
+            enabled:hover:bg-green-600 enabled:active:bg-green-700 enabled:active:brightness-95
+            outline-none ring-0 focus:ring-4 ring-green-300
+            disabled:saturate-0
+    }
+
     .text-input {
         @apply block w-full bg-white px-4 py-3 rounded-md border-2 border-gray-400 text-sm placeholder:text-gray-700
         text-gray-800 outline-none ring-0 enabled:shadow-black/10 enabled:shadow-[inset_0_2px__0_0]

@@ -15,9 +15,9 @@ createInertiaApp({
   title: (title) => resolveTitle(title, appName),
 
   resolve: async (name) => {
-    const pages = import.meta.glob("./pages/**/*.tsx", { eager: false });
-    const page = pages[`./pages/${name}.tsx`] as () => Promise<PageComponent>;
-    const resolvedPage = resolvePageLayout(await page());
+    const pages = import.meta.glob("./pages/**/*.tsx", { eager: true });
+    const page = pages[`./pages/${name}.tsx`] as PageComponent;
+    const resolvedPage = resolvePageLayout(page);
 
     return resolvedPage;
   },
