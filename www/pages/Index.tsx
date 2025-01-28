@@ -21,14 +21,14 @@ export default function Index({ articles }: HomeProps) {
       </Head>
 
       <main className="flex-1 flex flex-col gap-2">
-        <MemoizedArticlesSection articles={articles} />
+        <ArticlesSection articles={articles} />
       </main>
     </>
 
   );
 }
 
-const MemoizedArticlesSection = memo(({ articles }: { articles: Article[] }) => (
+const ArticlesSection = memo(({ articles }: { articles: Article[] }) => (
   <section className="card w-full">
     <header className="section-header blue flex gap-3 items-center justify-between mb-3">
       <h1>
