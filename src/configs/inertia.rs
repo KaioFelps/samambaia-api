@@ -7,7 +7,7 @@ use crate::{
 use super::vite::initialize_vite;
 use actix_web::{web::Redirect, HttpRequest};
 use inertia_rust::{
-    hashmap, template_resolvers::ViteTemplateResolver, Inertia, InertiaConfig, InertiaError,
+    hashmap, template_resolvers::ViteHBSTemplateResolver, Inertia, InertiaConfig, InertiaError,
     InertiaFacade, InertiaVersion, IntoInertiaError,
 };
 use std::io;
@@ -15,7 +15,13 @@ use std::io;
 pub async fn initialize_inertia() -> Result<Inertia, io::Error> {
     let vite = initialize_vite().await;
     let version = vite.get_hash().unwrap_or("development").to_string();
-    let resolver = ViteTemplateResolver::new(vite);
+
+    let resolver = ViteHBSTemplateResolver::builder()
+        .set_vite(vite)
+        .set_dev_mode(APP_CONFIG.rust_env.eq(&RustEnv::Development))
+        .set_template_path("www/root.hbs")
+        .build()
+        .map_err(InertiaError::to_io_error)?;
 
     let url = Box::leak(
         format!(
@@ -30,7 +36,6 @@ pub async fn initialize_inertia() -> Result<Inertia, io::Error> {
     let mut inertia_config = InertiaConfig::builder()
         .set_url(url)
         .set_version(InertiaVersion::Literal(version))
-        .set_template_path("www/root.html")
         .set_template_resolver(Box::new(resolver))
         .build();
 
