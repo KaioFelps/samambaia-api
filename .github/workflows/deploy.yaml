@@ -57,7 +57,7 @@ jobs:
           cp package.json __package
           cp Cargo.toml __package
           cp Cargo.lock __package
-          cp www/root.html __package/www
+          cp www/root.hbs __package/www
 
       - name: Setup Square Cloud
         uses: squarecloudofc/github-action@v2
