@@ -10,6 +10,7 @@ export function DropdownContent({ children, className, ...rest }: DropdownConten
   return (
     <Dropdown.Portal>
       <Dropdown.Content
+        collisionPadding={24}
         {...rest}
         className={clsx("will-change-[opacity,transform]",
           "data-[state=open]:data-[side=bottom]:animate-slideDownAndFade",

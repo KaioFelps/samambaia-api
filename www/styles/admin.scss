@@ -1,13 +1,28 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @layer components {
-    .btn-admin {
-        @apply 
+    .admin-btn {
+        @apply
+            select-none
             flex items-center p-2 gap-2 rounded-lg border border-black/20 leading-none
             text-sm bg-transparent transition-all duration-100
             hover:bg-gray-400/15 active:bg-gray-700/10
             outline-none ring-0 focus-visible:ring-4 ring-purple-500/40 focus-visible:border-purple-700
+    }
+
+    .admin-dropdown-content {
+        @apply
+            bg-purple-100 rounded-lg border border-gray-400 shadow-black/10 shadow-md;
+
+        &.individual-focus {
+            @apply
+                [&_.admin-dropdown-content-clickable]:has-[.admin-dropdown-content-clickable:hover]:blur-[1px]
+                hover:[&_.admin-dropdown-content-clickable]:!blur-none;
+        }
+    }
+
+    .admin-dropdown-content-clickable {
+        @apply
+            flex items-center gap-2
+            px-3 py-0.5 transition-all duration-75 rounded-md hover:bg-purple-500/20 active:bg-purple-500/40
+            cursor-default active:cursor-pointer
     }
 }
