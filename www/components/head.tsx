@@ -2,7 +2,7 @@ import { Head as InertiaHead } from "@inertiajs/react";
 import React from "react";
 
 import { appConfig } from "@/config/app";
-import { resolveTitle } from "@/inertiaShared";
+import { resolveTitle } from "@/lib/inertia";
 
 type HeadProps = {
   title?: string;

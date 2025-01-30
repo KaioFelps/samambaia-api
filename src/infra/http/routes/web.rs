@@ -5,6 +5,7 @@ use crate::configs::file_sessions::FileSessionStore;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::announcements::fetch_many_announcements_service_factory;
 use crate::domain::services::announcements::fetch_many_announcements_service::FetchManyAnnouncementsParams;
+use crate::infra::http::controllers::admin::admin_home_controller::AdminHomeController;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::web::home_controller::HomeController;
 use crate::infra::http::controllers::web::sessions_controller::SessionsController;
@@ -118,6 +119,7 @@ impl RouteTrait for WebRoutes {
                 )
                 .configure(HomeController::register)
                 .configure(SessionsController::register)
+                .configure(AdminHomeController::register)
                 .configure(|cfg| {
                     // serves public assets directly from /path
                     // needs to be the last service because it's a wildcard

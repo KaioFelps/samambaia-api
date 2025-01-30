@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .btn-admin {
+        @apply 
+            flex items-center p-2 gap-2 rounded-lg border border-black/20 leading-none
+            text-sm bg-transparent transition-all duration-100
+            hover:bg-gray-400/15 active:bg-gray-700/10
+            outline-none ring-0 focus-visible:ring-4 ring-purple-500/40 focus-visible:border-purple-700
+    }
+}

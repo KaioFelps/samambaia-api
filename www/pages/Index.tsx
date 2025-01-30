@@ -7,13 +7,12 @@ import { Alert } from "@/components/alert";
 import { ArticleCard } from "@/components/articleCard";
 import { BadgeCard } from "@/components/badgeCard";
 import { Sprite } from "@/components/sprite";
-import { type SharedProps } from "@/inertiaShared";
 import { colorWithOpacity } from "@/lib/tailwind";
 import { Article } from "@/types/article";
 import { FreeBadge } from "@/types/freeBadge";
 import { Pagination } from "@/types/pagination";
 
-type HomeProps = SharedProps & {
+type HomeProps = {
   articles: Article[];
   freeBadges: { data: FreeBadge[]; pagination: Pagination };
 };

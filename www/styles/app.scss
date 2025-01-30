@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "./public.scss";
+@import "./admin.scss";
+
+@layer utilities {
+    .pixelated {
+        image-rendering: pixelated;
+    }
+
+    .font-kanis {
+        font-family: Kanit, sans-serif;
+    }
+
+    .font-rowdies {
+        font-family: Rowdies, Kanit, sans-serif;
+    }
+
+    @supports (-webkit-text-stroke: 2px black) {
+        .highlight-member-name-stroke {
+            -webkit-text-stroke: 2px black;
+            -webkit-text-fill-color: white;
+        }
+    }
+}
+
+@layer base {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        @apply font-kanis
+    }
+
+    #app {
+        @apply h-full;
+    }
+}

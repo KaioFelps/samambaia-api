@@ -3,28 +3,25 @@ import { Link } from "@inertiajs/react";
 import { memo } from "react";
 
 import Dropdown from "@/components/dropdown";
+import { appConfig } from "@/config/app";
 
 import { Sprite } from "../../components/sprite";
 import { colorWithOpacity } from "../../lib/tailwind";
 import { NavDropdownContent, NavDropdownItem } from "./navDropDownContent";
 import { UserBox } from "./userBox";
 
-type HeaderProps = {
-  topBg: string;
-};
-
-export const Header = memo(({ topBg }: HeaderProps) => {
+export const Header = memo(() => {
   return (
     <header className="mb-2">
       <div
-        style={{ backgroundImage: `url("${topBg}")` }}
+        style={{ backgroundImage: `url("${appConfig.assets.topBg}")` }}
         className="
             pixelated w-full h-[292px] bg-center animate-top-bg grid place-items-center
           "
       >
         <Link href="/">
           <img
-            src="https://i.imgur.com/C7Lz4qH.png"
+            src={appConfig.assets.logo}
             alt="Live Cosmic"
             className="pixelated"
           />

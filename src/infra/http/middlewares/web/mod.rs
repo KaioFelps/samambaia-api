@@ -7,6 +7,7 @@ use crate::{
     error::SamambaiaError, infra::http::presenters::user::MappedUser, util::RolePermissions,
 };
 
+pub mod has_permission;
 pub mod web_auth_user;
 pub mod web_request_user;
 
