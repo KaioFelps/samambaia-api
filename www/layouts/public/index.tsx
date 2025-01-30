@@ -24,8 +24,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 }
 
 export function RawPublicLayout({ children }: PublicLayoutProps) {
-  const topBg = "https://i.imgur.com/bBw1X5C.png";
-
   return (
     <>
       <Head>
@@ -102,7 +100,7 @@ export function RawPublicLayout({ children }: PublicLayoutProps) {
           content={appConfig.meta.cover}
         />
       </Head>
-      <Header topBg={topBg} />
+      <Header />
       {children}
       <Footer />
       <ToastContainer />

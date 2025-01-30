@@ -7,6 +7,12 @@ export const appConfig = {
   imagerUrl: "https://habblive.in/imager.php",
   userInfoUrl: "https://habblive.in/api/userinfo.php",
 
+  assets: {
+    topBg: "https://i.imgur.com/bBw1X5C.png",
+    logo: "https://i.imgur.com/C7Lz4qH.png",
+    adminLogo: "https://i.imgur.com/83zCYQD.png",
+  },
+
   meta: {
     appURL: "https://live-cosmic-staging.squareweb.app/",
     title: appName,
