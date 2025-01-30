@@ -3,7 +3,7 @@ import createServer from "@inertiajs/react/server";
 import ReactDOMServer from "react-dom/server";
 
 import { appConfig } from "./config/app";
-import { type PageComponent, resolvePageLayout, resolveTitle } from "./inertiaShared";
+import { pageResolver, resolveTitle } from "./lib/inertia";
 
 const appName = appConfig.appName ?? "Live Cosmic";
 
@@ -15,12 +15,7 @@ createServer(page =>
 
     render: ReactDOMServer.renderToString,
 
-    resolve: name => {
-      const pages = import.meta.glob("./pages/**/*.tsx", { eager: true });
-      const page = resolvePageLayout(pages[`./pages/${name}.tsx`] as PageComponent);
-
-      return page;
-    },
+    resolve: pageResolver,
 
     setup: ({ App, props }) => <App {...props} />,
   }),
