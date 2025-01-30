@@ -1,4 +1,4 @@
-import "./app.scss";
+import "@/styles/app.scss";
 
 import { colors } from "@crate/tailwind.config";
 import { createInertiaApp } from "@inertiajs/react";
