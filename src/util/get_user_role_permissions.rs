@@ -3,6 +3,8 @@ use serde::Serialize;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 pub enum RolePermissions {
+    AccessDashboard,
+
     UpdateUser,
     ChangeUserPassword,
 
@@ -47,6 +49,8 @@ impl RolePermissions {
 
         let perms_user = vec![];
         let perms_writer = vec![
+            AccessDashboard,
+            //
             CreateArticle,
             //
             CreateFreeBadge,
