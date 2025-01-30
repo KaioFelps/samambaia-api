@@ -13,6 +13,7 @@ export const tailwindConfig = {
     colors: {
       black: "#000000",
       white: "#ffffff",
+      transparent: "transparent",
 
       gray: {
         100: "#F6F6F6",
