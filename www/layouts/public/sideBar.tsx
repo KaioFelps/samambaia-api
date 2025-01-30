@@ -4,13 +4,12 @@ import { memo } from "react";
 import iconsSprite from "@/assets/icons-sprite.png";
 import Popover from "@/components/popover";
 import { Sprite } from "@/components/sprite";
-import { SharedProps } from "@/inertiaShared";
 import { Imager } from "@/utils/imager";
 
 import { AnnouncementsSlider } from "./announcementsSlider";
 
 export const SideBar = memo(() => {
-  const { featuredUsers } = usePage<SharedProps>().props;
+  const { featuredUsers } = usePage().props;
 
   return (
     <aside className="flex-1 max-w-[336px] flex flex-col gap-2">

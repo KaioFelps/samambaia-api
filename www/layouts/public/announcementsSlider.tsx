@@ -7,12 +7,11 @@ import React, { memo, useEffect, useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { SharedProps } from "@/inertiaShared";
 import { colorWithOpacity } from "@/lib/tailwind";
 import { AnnouncementShort } from "@/types/announcement";
 
 export const AnnouncementsSlider = memo(() => {
-  const page = usePage<SharedProps>();
+  const page = usePage();
   const [announcements, setAnnouncements] = useState<AnnouncementShort[]>();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,7 +23,7 @@ export const AnnouncementsSlider = memo(() => {
         onStart: () => { setIsLoading(true); },
         onFinish: () => { setIsLoading(false); },
         onSuccess(_page) {
-          const page = _page as Page<SharedProps>;
+          const page = _page as Page;
           setAnnouncements(page.props.announcements.data);
         },
         onError(_errors) {

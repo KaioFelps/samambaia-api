@@ -1,3 +1,4 @@
+import type { PageProps as DefaultPageProps } from "@inertiajs/core/types";
 import { ReactElement, ReactNode } from "react";
 
 import { PublicLayout } from "./layouts/public";
@@ -12,13 +13,6 @@ export const resolveTitle = (title: string | undefined, defaultTitle: string): s
   ? `${defaultTitle} - ${title}`
   : defaultTitle);
 
-export type SharedProps<T extends Record<string, string> = Record<string, string>> = {
-  auth?: Auth;
-  announcements: { data: AnnouncementShort[]; paginationn: Pagination };
-  featuredUsers: { data: FeaturedUser[]; pagination: Pagination };
-  flash: T;
-};
-
 export function resolvePageLayout(page: PageComponent) {
   const defaultLayout = (page: ReactNode) => <PublicLayout>{page}</PublicLayout>;
 
@@ -31,4 +25,13 @@ export function resolvePageLayout(page: PageComponent) {
   }
 
   return page;
+}
+
+declare module "@inertiajs/core/types" {
+  export interface PageProps extends DefaultPageProps {
+    auth?: Auth;
+    announcements: { data: AnnouncementShort[]; paginationn: Pagination };
+    featuredUsers: { data: FeaturedUser[]; pagination: Pagination };
+    flash: Record<string, string>;
+  }
 }

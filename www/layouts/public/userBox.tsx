@@ -1,17 +1,16 @@
+import { PageProps } from "@inertiajs/core/types";
 import { Link, router, usePage } from "@inertiajs/react";
 import { ReactNode, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import Popover from "@/components/popover";
 import { Sprite } from "@/components/sprite";
-import { SharedProps } from "@/inertiaShared";
 import { FaceGesture, Imager } from "@/utils/imager";
 
 import { LoginForm } from "./forms/login";
 import { RegisterForm } from "./forms/register";
 
 type AuthenticationDialog = "login" | "register";
-type SuccessfulAuthenticationPossibleFlash = { loginSuccess?: string; registerSuccess?: string };
 
 export type AuthenticationDialogProps = {
   setDialog: (_: AuthenticationDialog) => void;
@@ -21,7 +20,7 @@ export type AuthenticationDialogProps = {
 };
 
 export function UserBox() {
-  const { auth, flash } = usePage<SharedProps<SuccessfulAuthenticationPossibleFlash>>().props;
+  const { auth, flash } = usePage().props;
   const [dialog, setDialog] = useState<AuthenticationDialog>();
 
   useEffect(() => {
@@ -96,7 +95,7 @@ function Unlogged({ dialog, setDialog }: {
 }
 
 type LoggedProps = {
-  user: Exclude<SharedProps["auth"], undefined>["user"];
+  user: Exclude<PageProps["auth"], undefined>["user"];
 };
 
 function Logged({ user }: LoggedProps) {
