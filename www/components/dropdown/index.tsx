@@ -1,6 +1,6 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
-import { DroppableIndicator } from "../droppableIndicator";
+import { DroppableIndicator } from "../droppable-indicator";
 import { DropdownContent } from "./content";
 import { DropdownTrigger } from "./trigger";
 

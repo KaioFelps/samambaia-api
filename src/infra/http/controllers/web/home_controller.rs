@@ -40,7 +40,7 @@ impl ControllerTrait for HomeController {
 
 impl HomeController {
     async fn foo(req: HttpRequest) -> AppResponse {
-        Inertia::render(&req, "Foo".into())
+        Inertia::render(&req, "foo".into())
             .await
             .map_err(IntoSamambaiaError::into_samambaia_error)
     }
@@ -72,7 +72,7 @@ impl HomeController {
 
         Inertia::render_with_props(
             &req,
-            "Index".into(),
+            "index".into(),
             hashmap![
                 "articles" => InertiaProp::data(articles),
                 "freeBadges" => InertiaProp::data(free_badge)

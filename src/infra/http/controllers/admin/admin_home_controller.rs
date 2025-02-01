@@ -26,7 +26,7 @@ impl ControllerTrait for AdminHomeController {
 
 impl AdminHomeController {
     async fn home(req: HttpRequest) -> AppResponse {
-        Inertia::render(&req, "Admin/Index".into())
+        Inertia::render(&req, "admin/index".into())
             .await
             .map_err(IntoSamambaiaError::into_samambaia_error)
     }

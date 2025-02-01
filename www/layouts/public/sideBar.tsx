@@ -6,7 +6,7 @@ import Popover from "@/components/popover";
 import { Sprite } from "@/components/sprite";
 import { Imager } from "@/utils/imager";
 
-import { AnnouncementsSlider } from "./announcementsSlider";
+import { AnnouncementsSlider } from "./announcements-slider";
 
 export const SideBar = memo(() => {
   const { featuredUsers } = usePage().props;
