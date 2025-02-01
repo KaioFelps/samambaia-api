@@ -1,9 +1,6 @@
-import { colors } from "@crate/tailwind.config";
 import { Link } from "@inertiajs/react";
-import { ArrowSquareOut } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import clsx from "clsx";
 
-import { colorWithOpacity } from "@/lib/tailwind";
 import { Article } from "@/types/article";
 
 import { Sprite } from "./sprite";
