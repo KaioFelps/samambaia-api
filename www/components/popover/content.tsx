@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 
 import { colorWithOpacity } from "@/lib/tailwind";
 
-import { publicDroppableArrowProps } from "../droppable-arrow";
+import { PublicDroppableArrow } from "../droppable-arrow";
 
 export type PopoverContentProps = Omit<Popover.PopoverContentProps, "className">;
 
@@ -42,7 +42,7 @@ export function PopoverContent({
         )}
       >
         {children}
-        <Popover.Arrow {...publicDroppableArrowProps} />
+        <PublicDroppableArrow component="popover" />
       </Popover.Content>
     </Popover.Portal>
   );

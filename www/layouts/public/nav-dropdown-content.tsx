@@ -1,12 +1,11 @@
 import { colors } from "@crate/tailwind.config";
 import { Link } from "@inertiajs/react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import clsx from "clsx";
 import { ReactNode } from "react";
 
 import Dropdown from "@/components/dropdown";
 import { DropdownContentProps } from "@/components/dropdown/content";
-import { publicDroppableArrowProps } from "@/components/droppable-arrow";
+import { PublicDroppableArrow } from "@/components/droppable-arrow";
 import { colorWithOpacity } from "@/lib/tailwind";
 
 type NavDropdownContentProps = Omit<DropdownContentProps, "className">;
@@ -26,7 +25,8 @@ export function NavDropdownContent({ children, ...rest }: NavDropdownContentProp
       <div className="max-w-full max-h-full overflow-hidden flex flex-col min-w-52 select-none">
         {children}
       </div>
-      <DropdownMenu.Arrow {...publicDroppableArrowProps} />
+
+      <PublicDroppableArrow component="dropdown" />
     </Dropdown.Content>
   );
 };

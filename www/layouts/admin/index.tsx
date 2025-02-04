@@ -7,13 +7,12 @@ import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Scroll } from "@phosphor-icons/react/dist/ssr/Scroll";
 import { SignOut } from "@phosphor-icons/react/dist/ssr/SignOut";
 import { Users } from "@phosphor-icons/react/dist/ssr/Users";
-import { Arrow } from "@radix-ui/react-dropdown-menu";
 import clsx from "clsx";
 import { memo, ReactNode, useCallback, useMemo } from "react";
 import { ToastContainer } from "react-toastify";
 
 import Dropdown from "@/components/dropdown";
-import { adminDroppableArrowProps } from "@/components/droppable-arrow";
+import { AdminDroppableArrow } from "@/components/droppable-arrow";
 import { AdminDroppableIndicator } from "@/components/droppable-indicator";
 import { Head } from "@/components/head";
 import { Sprite } from "@/components/sprite";
@@ -99,7 +98,7 @@ const CreateShortcutsDropdown = memo(() => {
           Anúncio
         </Link>
 
-        <Arrow {...adminDroppableArrowProps} />
+        <AdminDroppableArrow component="dropdown" />
       </Dropdown.Content>
     </Dropdown.Root>
   );
@@ -152,7 +151,7 @@ const UserDropdown = memo(({ nickname }:{ nickname: string }) => {
           />
           Logout
         </button>
-        <Arrow {...adminDroppableArrowProps} />
+        <AdminDroppableArrow component="dropdown" />
       </Dropdown.Content>
     </Dropdown.Root>
   );
