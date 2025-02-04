@@ -12,7 +12,8 @@ export function DropdownContent({ children, className, ...rest }: DropdownConten
       <Dropdown.Content
         collisionPadding={24}
         {...rest}
-        className={clsx("will-change-[opacity,transform]",
+        className={clsx(
+          "group will-change-[opacity,transform]",
           "data-[state=open]:data-[side=bottom]:animate-slideDownAndFade",
           "data-[state=closed]:data-[side=bottom]:animate-slideDownAndFadeReverse",
           //
