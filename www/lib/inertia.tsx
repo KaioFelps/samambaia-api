@@ -1,12 +1,12 @@
 import { PageResolver } from "@inertiajs/core/types";
 import type { ReactElement } from "react";
 
-import { AdminLayout } from "../layouts/admin";
-import { PublicLayout } from "../layouts/public";
-import { AnnouncementShort } from "../types/announcement";
-import { Auth } from "../types/auth";
-import { FeaturedUser } from "../types/featuredUsers";
-import { Pagination } from "../types/pagination";
+import { AdminLayout } from "@/layouts/admin";
+import { PublicLayout } from "@/layouts/public";
+import { AnnouncementShort } from "@/types/announcement";
+import { Auth } from "@/types/auth";
+import { FeaturedUser } from "@/types/featured-users";
+import { Pagination } from "@/types/pagination";
 
 type PageComponent = ReactElement & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,7 +23,7 @@ export const pageResolver: PageResolver = (name) => {
 
   if (!page) throw new Error(`Não foi possível encontrar a página ${name}.`);
 
-  const isAdmin = name.startsWith("Admin/");
+  const isAdmin = name.startsWith("admin/");
 
   page.default.layout ??= (page) =>
     isAdmin

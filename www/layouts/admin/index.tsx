@@ -13,8 +13,8 @@ import { memo, ReactNode, useCallback, useMemo } from "react";
 import { ToastContainer } from "react-toastify";
 
 import Dropdown from "@/components/dropdown";
-import { adminDroppableArrowProps } from "@/components/droppableArrow";
-import { AdminDroppableIndicator } from "@/components/droppableIndicator";
+import { adminDroppableArrowProps } from "@/components/droppable-arrow";
+import { AdminDroppableIndicator } from "@/components/droppable-indicator";
 import { Head } from "@/components/head";
 import { Sprite } from "@/components/sprite";
 import { appConfig } from "@/config/app";
@@ -64,7 +64,7 @@ const CreateShortcutsDropdown = memo(() => {
       <Dropdown.Content
         align="end"
         className={clsx(
-          "admin-dropdown-content p-1 flex flex-col gap-1 min-w-48 text-sm individual-focus",
+          "admin-dropdown-content p-1 flex flex-col min-w-48 text-sm individual-focus",
         )}
       >
         <Link

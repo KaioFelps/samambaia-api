@@ -5,6 +5,24 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        text-decoration: wavy;
+    }
+
+    :root {
+        @apply font-kanis
+    }
+
+    #app {
+        @apply h-full;
+    }
+}
+
+
 @layer utilities {
     .pixelated {
         image-rendering: pixelated;
@@ -23,21 +41,5 @@
             -webkit-text-stroke: 2px black;
             -webkit-text-fill-color: white;
         }
-    }
-}
-
-@layer base {
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    :root {
-        @apply font-kanis
-    }
-
-    #app {
-        @apply h-full;
     }
 }

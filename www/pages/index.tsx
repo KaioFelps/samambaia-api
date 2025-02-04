@@ -4,12 +4,12 @@ import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { memo, useCallback } from "react";
 
 import { Alert } from "@/components/alert";
-import { ArticleCard } from "@/components/articleCard";
-import { BadgeCard } from "@/components/badgeCard";
+import { ArticleCard } from "@/components/article-card";
+import { BadgeCard } from "@/components/badge-card";
 import { Sprite } from "@/components/sprite";
 import { colorWithOpacity } from "@/lib/tailwind";
 import { Article } from "@/types/article";
-import { FreeBadge } from "@/types/freeBadge";
+import { FreeBadge } from "@/types/free-badge";
 import { Pagination } from "@/types/pagination";
 
 type HomeProps = {

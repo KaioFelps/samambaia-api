@@ -1,6 +1,6 @@
 import * as Popover from "@radix-ui/react-popover";
 
-import { DroppableIndicator } from "../droppableIndicator";
+import { DroppableIndicator } from "../droppable-indicator";
 import { PopoverContent, PopoverContentContainer } from "./content";
 import { PopoverHeader } from "./header";
 

@@ -145,7 +145,7 @@ async fn default_error_handler(
 
         let mut inertia_err_response = Inertia::render_with_props(
             res.request(),
-            "Error".into(),
+            "error".into(),
             hashmap![ "status" => InertiaProp::data(status) ],
         )
         .await?;

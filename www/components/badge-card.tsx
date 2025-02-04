@@ -2,7 +2,7 @@ import { Link } from "@inertiajs/react";
 import clsx from "clsx";
 import { useMemo } from "react";
 
-import { FreeBadge } from "@/types/freeBadge";
+import { FreeBadge } from "@/types/free-badge";
 
 export function BadgeCard({ id, image, link, linkIsExternal, code, availableUntil }: FreeBadge) {
   const isActive = useMemo(() => {

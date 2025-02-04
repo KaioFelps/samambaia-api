@@ -7,7 +7,7 @@ import { appConfig } from "@/config/app";
 
 import { Sprite } from "../../components/sprite";
 import { colorWithOpacity } from "../../lib/tailwind";
-import { NavDropdownContent, NavDropdownItem } from "./navDropDownContent";
+import { NavDropdownContent, NavDropdownItem } from "./nav-dropdown-content";
 import { UserBox } from "./userBox";
 
 export const Header = memo(() => {
