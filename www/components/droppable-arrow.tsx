@@ -1,23 +1,46 @@
+import * as Dropdown from "@radix-ui/react-dropdown-menu";
+import * as Popover from "@radix-ui/react-popover";
 import clsx from "clsx";
 
-export const adminDroppableArrowProps = {
-  className: "fill-purple-100 shadow-gray-400",
-  width: 20,
-  height: 10,
-  style: {
-    filter: "drop-shadow(0 1px 0 var(--tw-shadow-color))",
-  },
-};
-
-export const publicDroppableArrowProps = {
+const adminDroppableArrowProps = {
   className: clsx(
-    "fill-gray-800 group-data-[side=bottom]:fill-[#4f4f55]",
-    "group-data-[side=bottom]:drop-shadow-[0_2px_0_black]",
-    "public-droppable-arrow-bottom-drop-shadow",
-    "group-data-[side=top]:drop-shadow-[0_2px_0_black]",
-    "group-data-[side=right]:drop-shadow-[0_2px_0_black]",
-    "group-data-[side=left]:drop-shadow-[0_2px_0_black]",
+    "fill-purple-100 shadow-gray-400",
+    "[filter:_drop-shadow(0_1px_0_var(--tw-shadow-color))]",
+    "admin-droppable-arrow-bottom-drop-shadow",
   ),
   width: 20,
   height: 10,
 };
+
+const publicDroppableArrowProps = {
+  className: clsx(
+    "fill-gray-800 group-data-[side=bottom]:fill-[#4f4f55]",
+    "drop-shadow-[0_2px_0_black] public-droppable-arrow-bottom-drop-shadow",
+  ),
+  width: 20,
+  height: 10,
+};
+
+type DroppableComponent = "dropdown" | "popover";
+
+export function AdminDroppableArrow({ component }: {
+  component: DroppableComponent;
+}) {
+  const Arrow = {
+    dropdown: Dropdown.Arrow,
+    popover: Popover.Arrow,
+  }[component];
+
+  return <Arrow {...adminDroppableArrowProps} />;
+}
+
+export function PublicDroppableArrow({ component }: {
+  component: DroppableComponent;
+}) {
+  const Arrow = {
+    dropdown: Dropdown.Arrow,
+    popover: Popover.Arrow,
+  }[component];
+
+  return <Arrow {...publicDroppableArrowProps} />;
+}

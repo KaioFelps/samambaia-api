@@ -7,17 +7,17 @@ import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Scroll } from "@phosphor-icons/react/dist/ssr/Scroll";
 import { SignOut } from "@phosphor-icons/react/dist/ssr/SignOut";
 import { Users } from "@phosphor-icons/react/dist/ssr/Users";
-import { Arrow } from "@radix-ui/react-dropdown-menu";
 import clsx from "clsx";
 import { memo, ReactNode, useCallback, useMemo } from "react";
 import { ToastContainer } from "react-toastify";
 
 import Dropdown from "@/components/dropdown";
-import { adminDroppableArrowProps } from "@/components/droppable-arrow";
+import { AdminDroppableArrow } from "@/components/droppable-arrow";
 import { AdminDroppableIndicator } from "@/components/droppable-indicator";
 import { Head } from "@/components/head";
 import { Sprite } from "@/components/sprite";
 import { appConfig } from "@/config/app";
+import { SidebarMenu } from "@/ui/admin/sidebar";
 import { FaceGesture, Imager } from "@/utils/imager";
 
 export function AdminLayout({ children, props }: { children: ReactNode; props: PageProps }) {
@@ -25,18 +25,21 @@ export function AdminLayout({ children, props }: { children: ReactNode; props: P
     <>
       <Head title="Administração" />
       <header className={clsx(
-        "bg-gray-100 px-6 py-2 flex items-center justify-between border-b border-gray-250")}
+        "bg-gray-100 px-6 py-2 flex items-center justify-between border-b border-gray-250",
+      )}
       >
         <Link href="/gremio"><img src={appConfig.assets.adminLogo} /></Link>
         <div className="flex gap-2">
           <CreateShortcutsDropdown />
-
           <UserDropdown nickname={props.auth!.user.nickname} />
         </div>
       </header>
 
-      <aside />
-      {children}
+      {/* <div className="relative w-full-mx max-w-screen-main my-6 mx-auto"> */}
+      <div className="w-full-mx max-w-screen-main my-6 mx-auto flex gap-6 text-sm">
+        <SidebarMenu />
+        {children}
+      </div>
       <footer />
       <ToastContainer />
     </>
@@ -99,7 +102,7 @@ const CreateShortcutsDropdown = memo(() => {
           Anúncio
         </Link>
 
-        <Arrow {...adminDroppableArrowProps} />
+        <AdminDroppableArrow component="dropdown" />
       </Dropdown.Content>
     </Dropdown.Root>
   );
@@ -152,7 +155,7 @@ const UserDropdown = memo(({ nickname }:{ nickname: string }) => {
           />
           Logout
         </button>
-        <Arrow {...adminDroppableArrowProps} />
+        <AdminDroppableArrow component="dropdown" />
       </Dropdown.Content>
     </Dropdown.Root>
   );

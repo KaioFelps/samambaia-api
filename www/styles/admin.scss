@@ -26,3 +26,11 @@
             cursor-default active:cursor-pointer
     }
 }
+
+@layer utilities {
+    @-moz-document url-prefix() {
+        .admin-droppable-arrow-bottom-drop-shadow {
+            @apply  group-data-[side=bottom]:!drop-shadow-[0_-1px_0_var(--tw-shadow-color)]
+        }
+    }
+}
