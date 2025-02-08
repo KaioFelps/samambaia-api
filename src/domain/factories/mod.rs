@@ -1,3 +1,4 @@
+pub mod analytics;
 pub mod announcements;
 pub mod identity;
 pub mod journalism;
