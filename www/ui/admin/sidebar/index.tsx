@@ -20,121 +20,124 @@ import { SidebarSectionTitle } from "./sidebarSectionTitle";
 
 export const SidebarMenu = memo(() => {
   return (
-    <Accordion.Root
-      type="multiple"
-      asChild
+    <aside className={clsx(
+      "[grid-area:_aside] ml-6 w-80",
+    )}
     >
-      <aside className={clsx(
-        "w-80 shrink-0 flex flex-col gap-2 sticky left-0 top-0",
-      )}
-      >
-        <SidebarMenuLink
-          icon={House}
-          href="/gremio"
-          label="Home"
-        />
-
-        {/* region: --- Conteúdo */}
-        <SidebarSectionTitle title="Conteúdo" />
-
-        <SidebarMenuSection
-          label="Notícias"
-          icon={Newspaper}
-          requires={{
-            permissions: ["CreateArticle", "DeleteArticle", "UpdateArticle", "ApproveArticle"],
-          }}
+      <div className="sticky top-6 max-h-full">
+        <Accordion.Root
+          type="multiple"
+          className="flex flex-col gap-2"
         >
-          <SidebarMenuItem
-            href="/gremio/noticias"
-            label="Gerenciar notícias"
+
+          <SidebarMenuLink
+            icon={House}
+            href="/gremio"
+            label="Home"
           />
-          <SidebarMenuItem
-            href="/gremio/noticias/nova"
-            label="Nova notícia"
-            requires="CreateArticle"
-          />
-        </SidebarMenuSection>
 
-        <SidebarMenuSection
-          label="Formulários"
-          icon={Table}
-        >
-          <Todo />
-        </SidebarMenuSection>
+          {/* region: --- Conteúdo */}
+          <SidebarSectionTitle title="Conteúdo" />
 
-        <SidebarMenuSection
-          label="Emblemas grátis"
-          icon={Gift}
-        >
-          <Todo />
-        </SidebarMenuSection>
+          <SidebarMenuSection
+            label="Notícias"
+            icon={Newspaper}
+            requires={{
+              permissions: ["CreateArticle", "DeleteArticle", "UpdateArticle", "ApproveArticle"],
+            }}
+          >
+            <SidebarMenuItem
+              href="/gremio/noticias"
+              label="Gerenciar notícias"
+            />
+            <SidebarMenuItem
+              href="/gremio/noticias/nova"
+              label="Nova notícia"
+              requires="CreateArticle"
+            />
+          </SidebarMenuSection>
 
-        <SidebarMenuSection
-          label="Moderação"
-          icon={Gavel}
-        >
-          <Todo />
-        </SidebarMenuSection>
+          <SidebarMenuSection
+            label="Formulários"
+            icon={Table}
+          >
+            <Todo />
+          </SidebarMenuSection>
 
-        {/* region: --- Gerenciamento do site */}
-        <SidebarSectionTitle title="Gerenciamento do site" />
+          <SidebarMenuSection
+            label="Emblemas grátis"
+            icon={Gift}
+          >
+            <Todo />
+          </SidebarMenuSection>
 
-        <SidebarMenuSection
-          label="Membros destaque"
-          icon={Trophy}
-        >
-          <Todo />
-        </SidebarMenuSection>
+          <SidebarMenuSection
+            label="Moderação"
+            icon={Gavel}
+          >
+            <Todo />
+          </SidebarMenuSection>
 
-        <SidebarMenuSection
-          label="Acervo"
-          icon={ClipboardText}
-        >
-          <Todo />
-        </SidebarMenuSection>
+          {/* region: --- Gerenciamento do site */}
+          <SidebarSectionTitle title="Gerenciamento do site" />
 
-        <SidebarMenuSection
-          label="Equipe"
-          icon={UsersThree}
-        >
-          <Todo />
-        </SidebarMenuSection>
+          <SidebarMenuSection
+            label="Membros destaque"
+            icon={Trophy}
+          >
+            <Todo />
+          </SidebarMenuSection>
 
-        <SidebarMenuSection
-          label="CMS"
-          icon={Star}
-        >
-          <Todo />
-        </SidebarMenuSection>
+          <SidebarMenuSection
+            label="Acervo"
+            icon={ClipboardText}
+          >
+            <Todo />
+          </SidebarMenuSection>
 
-        {/* region: --- Administração */}
-        <SidebarSectionTitle title="Administração" />
+          <SidebarMenuSection
+            label="Equipe"
+            icon={UsersThree}
+          >
+            <Todo />
+          </SidebarMenuSection>
 
-        <SidebarMenuSection
-          label="Usuários"
-          icon={UsersThree}
-        >
-          <Todo />
-        </SidebarMenuSection>
+          <SidebarMenuSection
+            label="CMS"
+            icon={Star}
+          >
+            <Todo />
+          </SidebarMenuSection>
 
-        {/* region: --- Promotoria */}
-        <SidebarSectionTitle title="Promotoria" />
+          {/* region: --- Administração */}
+          <SidebarSectionTitle title="Administração" />
 
-        <SidebarMenuSection
-          label="Relatórios"
-          icon={ClipboardText}
-        >
-          <Todo />
-        </SidebarMenuSection>
+          <SidebarMenuSection
+            label="Usuários"
+            icon={UsersThree}
+          >
+            <Todo />
+          </SidebarMenuSection>
 
-        <SidebarMenuSection
-          label="Pendências"
-          icon={Wrench}
-        >
-          <Todo />
-        </SidebarMenuSection>
-      </aside>
-    </Accordion.Root>
+          {/* region: --- Promotoria */}
+          <SidebarSectionTitle title="Promotoria" />
+
+          <SidebarMenuSection
+            label="Relatórios"
+            icon={ClipboardText}
+          >
+            <Todo />
+          </SidebarMenuSection>
+
+          <SidebarMenuSection
+            label="Pendências"
+            icon={Wrench}
+          >
+            <Todo />
+          </SidebarMenuSection>
+        </Accordion.Root>
+      </div>
+    </aside>
   );
 });
 

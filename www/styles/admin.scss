@@ -25,6 +25,33 @@
             px-3 py-0.5 transition-all duration-75 rounded-md hover:bg-purple-500/20 active:bg-purple-500/40
             cursor-default active:cursor-pointer
     }
+
+    .admin-layout {
+        width: 100%;
+        min-height: 100%;
+        height: auto;
+        display: grid;
+        align-content: start;
+        grid-template-areas:
+            "header header"
+            "aside main"
+            "footer footer";
+        grid-template-columns: max-content 1fr;
+        grid-template-rows: min-content 1fr min-content;
+        gap: 2rem;
+    }
+
+    .admin-main-container {
+        grid-area: main;
+        margin-right: 1.5rem;
+        justify-self: center;
+        align-self: start;
+        width: fill-available;
+        width: -webkit-fill-available;
+        width: -moz-available;
+        @apply
+            max-w-screen-main
+    }
 }
 
 @layer utilities {
