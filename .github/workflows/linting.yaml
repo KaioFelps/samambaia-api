@@ -32,5 +32,5 @@ jobs:
       - uses: actions/checkout@v4
       - run: rustup update nightly
       - run: rustup default nightly
-      - run: rustup component add rustfmt
+      - run: rustup component add rustfmt --toolchain nightly
       - run: cargo +nightly fmt --all -- --check
