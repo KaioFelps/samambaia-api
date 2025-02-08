@@ -3399,6 +3399,7 @@ dependencies = [
  "serde",
  "serde-envfile",
  "serde_json",
+ "sqlx",
  "tokio",
  "unicode-normalization",
  "uuid",
