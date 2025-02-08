@@ -3,3 +3,4 @@ mod extensions;
 pub mod http;
 pub mod jwt;
 pub mod sea;
+pub mod sqlx;
