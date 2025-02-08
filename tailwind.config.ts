@@ -79,6 +79,10 @@ export const tailwindConfig = {
           "dialogScaleUpAndFade",
           "400ms cubic-bezier(0.16, 1, 0.3, 1) both",
         ),
+        ...generateReverseableAnimation(
+          "radixAccordionSlide",
+          "300ms cubic-bezier(0.87, 0, 0.13, 1)",
+        ),
       },
 
       keyframes: {
@@ -114,6 +118,10 @@ export const tailwindConfig = {
         ...generateReverseableKeyFrame("dialogScaleUpAndFade", {
           from: { opacity: "0", transform: "translate(-50%, -50%) scale(0.9)" },
           to: { opacity: "1", transform: "translate(-50%, -50%) scale(1)" },
+        }),
+        ...generateReverseableKeyFrame("radixAccordionSlide", {
+          from: { height: "0px" },
+          to: { height: "var(--radix-accordion-content-height)" },
         }),
       },
     },
