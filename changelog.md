@@ -3,7 +3,19 @@ This file contains the most notable changes of each released version, starting f
 has been introduced.
 
 ## Unreleased
-- nothing.
+- added deploy workflow;
+- changed rustfmt workflow to use nightly rust toolchain;
+- setup inertia-rust + vite-rust;
+- setup front-end strucutre;
+- added home page (`page/index.tsx`);
+- added admin home page (`page/admin/index.tsx`);
+- added public layout;
+- added admin layout;
+- introduced **Summary** domain:
+    - added `CountSummary` value object;
+    - added `SummaryRepository` trait;
+    - added `SeaSummaryRepository` repository;
+    - added `GetSummaryService` + factory.
 
 ## Samambaia@0.5.0
 ### Added
