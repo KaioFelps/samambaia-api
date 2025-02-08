@@ -24,6 +24,10 @@
 
 
 @layer utilities {
+    .w-full-mx {
+        width: calc(100% - 48px);
+    }
+
     .pixelated {
         image-rendering: pixelated;
     }
