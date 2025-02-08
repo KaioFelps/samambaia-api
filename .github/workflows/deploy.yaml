@@ -39,8 +39,6 @@ jobs:
           npm install
           npm run build
 
-      
-
       - name: Make __package directory
         run: mkdir -p __package/www
 

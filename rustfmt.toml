@@ -1,0 +1,7 @@
+imports_granularity = "Module"
+imports_layout = "HorizontalVertical"
+group_imports = "StdExternalCrate"
+merge_derives = true
+fn_params_layout = "Tall"
+tab_spaces = 4
+reorder_imports = true
