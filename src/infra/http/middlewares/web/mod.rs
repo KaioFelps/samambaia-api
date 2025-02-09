@@ -1,11 +1,12 @@
-use std::{future::Future, pin::Pin};
+use std::future::Future;
+use std::pin::Pin;
 
 use actix_web::{FromRequest, HttpMessage};
 use serde::Serialize;
 
-use crate::{
-    error::SamambaiaError, infra::http::presenters::user::MappedUser, util::RolePermissions,
-};
+use crate::error::SamambaiaError;
+use crate::infra::http::presenters::user::MappedUser;
+use crate::util::RolePermissions;
 
 pub mod has_permission;
 pub mod web_auth_user;

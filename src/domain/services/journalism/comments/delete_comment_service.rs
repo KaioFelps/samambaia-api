@@ -60,11 +60,11 @@ impl<CommentRepository: CommentRepositoryTrait> DeleteCommentService<CommentRepo
 #[cfg(test)]
 mod test {
     use std::sync::{Arc, Mutex};
+
     use tokio;
     use uuid::Uuid;
 
     use super::{DeleteCommentParams, DeleteCommentService};
-
     use crate::domain::domain_entities::comment::Comment;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;

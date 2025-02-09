@@ -1,12 +1,9 @@
 use uuid::Uuid;
 
-use crate::{
-    domain::repositories::{
-        announcements_repository::AnnouncementRepositoryTrait, user_repository::UserRepositoryTrait,
-    },
-    error::SamambaiaError,
-    util::{generate_service_internal_error, verify_role_has_permission, RolePermissions},
-};
+use crate::domain::repositories::announcements_repository::AnnouncementRepositoryTrait;
+use crate::domain::repositories::user_repository::UserRepositoryTrait;
+use crate::error::SamambaiaError;
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct DeleteAnnouncementParams<'a> {
     pub user_id: &'a Uuid,
@@ -67,13 +64,11 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        domain::domain_entities::{announcement::Announcement, role::Role, user::User},
-        tests::repositories::{
-            announcements_repository::get_announcements_repository,
-            users_repository::get_user_repository,
-        },
-    };
+    use crate::domain::domain_entities::announcement::Announcement;
+    use crate::domain::domain_entities::role::Role;
+    use crate::domain::domain_entities::user::User;
+    use crate::tests::repositories::announcements_repository::get_announcements_repository;
+    use crate::tests::repositories::users_repository::get_user_repository;
 
     #[tokio::test]
     async fn test_delete_announcement_service() {

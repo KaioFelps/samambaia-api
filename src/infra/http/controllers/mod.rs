@@ -1,5 +1,6 @@
-use crate::error::SamambaiaError;
 use actix_web::HttpResponse;
+
+use crate::error::SamambaiaError;
 
 pub type AppResponse<T = HttpResponse> = Result<T, SamambaiaError>;
 

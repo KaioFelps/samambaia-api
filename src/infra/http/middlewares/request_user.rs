@@ -1,15 +1,15 @@
 use std::future::{ready, Future, Ready};
 use std::pin::Pin;
 
-use crate::configs::app::APP_CONFIG;
-use crate::infra::http::extractors::req_user::ReqUser;
-use crate::{LOG_SEP, R_EOL};
 use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::{Error, HttpMessage};
 use jsonwebtoken::DecodingKey;
 use log::error;
 
+use crate::configs::app::APP_CONFIG;
+use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::jwt::jwt_service::JwtService;
+use crate::{LOG_SEP, R_EOL};
 
 /**
 # Request User Middleware

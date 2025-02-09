@@ -1,12 +1,10 @@
 use log::error;
 use uuid::Uuid;
 
-use crate::domain::domain_entities::comment_report::CommentReport;
-use crate::domain::domain_entities::comment_report::DraftCommentReport;
+use crate::domain::domain_entities::comment_report::{CommentReport, DraftCommentReport};
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
 use crate::error::SamambaiaError;
-
 use crate::{LOG_SEP, R_EOL};
 
 pub struct CreateCommentReportParams {
@@ -72,15 +70,13 @@ impl<CR: CommentRepositoryTrait, CRR: CommentReportRepositoryTrait>
 
 #[cfg(test)]
 mod test {
-    use std::sync::Arc;
-    use std::sync::Mutex;
+    use std::sync::{Arc, Mutex};
 
     use uuid::Uuid;
 
     use super::{CommentReport, CreateCommentReportParams};
     use crate::domain::domain_entities::comment::Comment;
-    use crate::domain::domain_entities::comment_report::CommentReportTrait;
-    use crate::domain::domain_entities::comment_report::DraftCommentReport;
+    use crate::domain::domain_entities::comment_report::{CommentReportTrait, DraftCommentReport};
     use crate::domain::repositories::comment_report_repository::MockCommentReportRepositoryTrait;
     use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
     use crate::libs::time::TimeHelper;

@@ -1,8 +1,7 @@
 use crate::domain::domain_entities::role::Role;
-use crate::error::SamambaiaError;
-
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
+use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct CreateTeamRoleParams {
@@ -52,12 +51,13 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> CreateTeamRoleService<TeamRole
 
 #[cfg(test)]
 mod test {
-    use crate::domain::domain_entities::role::Role;
-    use crate::domain::repositories::team_role_repository::MockTeamRoleRepositoryTrait;
+    use std::sync::{Arc, Mutex};
+
+    use tokio;
 
     use super::*;
-    use std::sync::{Arc, Mutex};
-    use tokio;
+    use crate::domain::domain_entities::role::Role;
+    use crate::domain::repositories::team_role_repository::MockTeamRoleRepositoryTrait;
 
     #[tokio::test]
     async fn test() {

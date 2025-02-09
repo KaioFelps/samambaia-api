@@ -1,16 +1,10 @@
 use uuid::Uuid;
 
-use crate::{
-    domain::{
-        domain_entities::announcement::Announcement,
-        repositories::{
-            announcements_repository::AnnouncementRepositoryTrait,
-            user_repository::UserRepositoryTrait,
-        },
-    },
-    error::SamambaiaError,
-    util::{generate_service_internal_error, verify_role_has_permission, RolePermissions},
-};
+use crate::domain::domain_entities::announcement::Announcement;
+use crate::domain::repositories::announcements_repository::AnnouncementRepositoryTrait;
+use crate::domain::repositories::user_repository::UserRepositoryTrait;
+use crate::error::SamambaiaError;
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct CreateAnnouncementParams {
     pub url: String,
@@ -90,14 +84,11 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        domain::domain_entities::{role::Role, user::User},
-        error::SamambaiaError,
-        tests::repositories::{
-            announcements_repository::get_announcements_repository,
-            users_repository::get_user_repository,
-        },
-    };
+    use crate::domain::domain_entities::role::Role;
+    use crate::domain::domain_entities::user::User;
+    use crate::error::SamambaiaError;
+    use crate::tests::repositories::announcements_repository::get_announcements_repository;
+    use crate::tests::repositories::users_repository::get_user_repository;
 
     #[tokio::test]
     async fn test_create_announcement_service() {

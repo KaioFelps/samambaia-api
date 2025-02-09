@@ -1,18 +1,25 @@
+use actix_web::middleware::from_fn;
+use actix_web::{web, HttpResponse};
+use serde_json::json;
+use uuid::Uuid;
+use validator::Validate;
+
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::security::{
-    create_comment_report_service_factory, delete_comment_report_service_factory,
-    fetch_many_comment_reports_service_factory, solve_comment_report_service_factory,
+    create_comment_report_service_factory,
+    delete_comment_report_service_factory,
+    fetch_many_comment_reports_service_factory,
+    solve_comment_report_service_factory,
 };
-use crate::domain::services::security::{
-    create_comment_report_service::CreateCommentReportParams,
-    delete_comment_report_service::DeleteCommentReportParams,
-    fetch_many_comment_reports_service::{
-        CommentReportServiceQuery, FetchManyCommentReportsParams,
-    },
-    solve_comment_report_service::SolveCommentReportParams,
+use crate::domain::services::security::create_comment_report_service::CreateCommentReportParams;
+use crate::domain::services::security::delete_comment_report_service::DeleteCommentReportParams;
+use crate::domain::services::security::fetch_many_comment_reports_service::{
+    CommentReportServiceQuery,
+    FetchManyCommentReportsParams,
 };
+use crate::domain::services::security::solve_comment_report_service::SolveCommentReportParams;
 use crate::error::IntoSamambaiaError;
 use crate::infra::http::dtos::create_comment_report::CreateCommentReportDto;
 use crate::infra::http::dtos::list_comment_reports::ListCommentReportsDto;
@@ -21,10 +28,6 @@ use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::comment_report::CommentReportPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
-use actix_web::{middleware::from_fn, web, HttpResponse};
-use serde_json::json;
-use uuid::Uuid;
-use validator::Validate;
 
 pub struct CommentReportsController;
 

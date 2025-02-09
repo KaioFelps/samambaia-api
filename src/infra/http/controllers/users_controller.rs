@@ -1,21 +1,27 @@
+use std::str::FromStr;
+
 use actix_web::{web, HttpResponse};
 use serde_json::json;
-use std::str::FromStr;
 use uuid::Uuid;
 use validator::Validate;
 
+use super::controller::ControllerTrait;
+use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::factories::identity::{
-    change_password_service_factory, create_user_service_factory, fetch_many_users_service_factory,
-    get_user_service_factory, update_user_service_factory,
+    change_password_service_factory,
+    create_user_service_factory,
+    fetch_many_users_service_factory,
+    get_user_service_factory,
+    update_user_service_factory,
 };
 use crate::domain::repositories::user_repository::UserQueryType;
-use crate::domain::services::identity::{
-    change_password_service::ChangePasswordParams, create_user_service::CreateUserParams,
-    fetch_many_users_service::FetchManyUsersParams, get_user_service::GetUserServiceParams,
-    update_user_service::UpdateUserParams,
-};
+use crate::domain::services::identity::change_password_service::ChangePasswordParams;
+use crate::domain::services::identity::create_user_service::CreateUserParams;
+use crate::domain::services::identity::fetch_many_users_service::FetchManyUsersParams;
+use crate::domain::services::identity::get_user_service::GetUserServiceParams;
+use crate::domain::services::identity::update_user_service::UpdateUserParams;
 use crate::error::IntoSamambaiaError;
 use crate::infra::http::dtos::change_password::ChangePasswordDto;
 use crate::infra::http::dtos::create_user::CreateUserDto;
@@ -27,9 +33,6 @@ use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::http::presenters::user::{MappedUser, UserPresenter};
 use crate::infra::sea::sea_service::SeaService;
-
-use super::controller::ControllerTrait;
-use super::AppResponse;
 
 pub struct UsersController;
 

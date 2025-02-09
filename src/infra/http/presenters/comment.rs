@@ -1,9 +1,11 @@
-use crate::domain::domain_entities::comment::Comment;
-use crate::domain::domain_entities::{comment_with_author::CommentWithAuthor, role::Role};
-use crate::infra::http::presenters::presenter::PresenterTrait;
 use chrono::NaiveDateTime as DateTime;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+use crate::domain::domain_entities::comment::Comment;
+use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
+use crate::domain::domain_entities::role::Role;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 
 #[derive(Serialize, Deserialize)]
 struct MappedCommentAuthor {

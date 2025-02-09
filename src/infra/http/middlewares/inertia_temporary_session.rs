@@ -1,14 +1,14 @@
-use actix_session::SessionExt;
-use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
-use actix_web::Error;
-use actix_web::HttpMessage;
-use actix_web_lab::__reexports::futures_util::future::LocalBoxFuture;
-use inertia_rust::actix::is_inertia_response;
-use inertia_rust::{actix::SessionErrors, InertiaSessionToReflash, InertiaTemporarySession};
-use log::error;
-use serde_json::Map;
 use std::collections::HashMap;
 use std::future::{ready, Ready};
+
+use actix_session::SessionExt;
+use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
+use actix_web::{Error, HttpMessage};
+use actix_web_lab::__reexports::futures_util::future::LocalBoxFuture;
+use inertia_rust::actix::{is_inertia_response, SessionErrors};
+use inertia_rust::{InertiaSessionToReflash, InertiaTemporarySession};
+use log::error;
+use serde_json::Map;
 
 use crate::configs::app::SESSION_FLASH_KEY;
 

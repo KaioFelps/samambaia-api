@@ -3,7 +3,9 @@ use uuid::Uuid;
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::comment::Comment;
 use crate::domain::repositories::article_comment_repository::{
-    ArticleCommentRepositoryTrait, CommentQueryType, FindManyCommentsResponse,
+    ArticleCommentRepositoryTrait,
+    CommentQueryType,
+    FindManyCommentsResponse,
 };
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;
@@ -161,10 +163,10 @@ impl<
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use http::StatusCode;
     use tokio;
 
+    use super::*;
     use crate::domain::domain_entities::article::Article;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;

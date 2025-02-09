@@ -1,9 +1,8 @@
-use crate::{
-    domain::domain_entities::announcement::Announcement,
-    infra::http::presenters::presenter::PresenterTrait,
-};
 use serde::Serialize;
 use uuid::Uuid;
+
+use crate::domain::domain_entities::announcement::Announcement;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 
 #[derive(Serialize)]
 pub struct MappedAnnouncement {

@@ -1,8 +1,10 @@
+use std::sync::{Arc, Mutex};
+
 use crate::domain::domain_entities::free_badge::FreeBadge;
 use crate::domain::repositories::free_badge_repository::{
-    FindManyFreeBadgesResponse, MockFreeBadgeRepositoryTrait,
+    FindManyFreeBadgesResponse,
+    MockFreeBadgeRepositoryTrait,
 };
-use std::sync::{Arc, Mutex};
 
 pub fn get_free_badge_repository() -> (Arc<Mutex<Vec<FreeBadge>>>, MockFreeBadgeRepositoryTrait) {
     let db: Arc<Mutex<Vec<FreeBadge>>> = Arc::new(Mutex::new(Vec::new()));

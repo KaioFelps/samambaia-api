@@ -1,13 +1,12 @@
-use async_trait::async_trait;
 use std::error::Error;
-use uuid::Uuid;
 
+use async_trait::async_trait;
 #[cfg(test)]
 use mockall::automock;
+use uuid::Uuid;
 
-use crate::{
-    core::pagination::PaginationParameters, domain::domain_entities::announcement::Announcement,
-};
+use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::announcement::Announcement;
 
 #[derive(Clone)]
 pub enum AnnouncementQueryType {

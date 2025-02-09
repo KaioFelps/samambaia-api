@@ -1,11 +1,9 @@
-use entities::user::ActiveModel as UserActiveModel;
-use entities::user::Model as UserModel;
+use entities::user::{ActiveModel as UserActiveModel, Model as UserModel};
 use sea_orm::IntoActiveValue;
-
-use crate::domain::domain_entities::user::User;
 
 use super::sea_role_mapper::SeaRoleMapper;
 use super::SeaMapper;
+use crate::domain::domain_entities::user::User;
 
 pub struct SeaUserMapper;
 

@@ -1,11 +1,11 @@
 use std::error::Error;
 
-use crate::core::pagination::PaginationParameters;
-use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
 use async_trait::async_trait;
-
 #[cfg(test)]
 use mockall::automock;
+
+use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
 
 #[derive(Debug)]
 pub struct FindManyArticleTagsResponse(pub Vec<ArticleTag>, pub u64);

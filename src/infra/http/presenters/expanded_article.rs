@@ -1,18 +1,15 @@
-use super::{
-    comment::{CommentPresenter, MappedComment},
-    pagination::{MappedPagination, PaginationPresenter},
-    user::{MappedUser, UserPresenter},
-};
-use crate::infra::http::presenters::presenter::PresenterTrait;
-use crate::{
-    core::pagination::PaginationResponse,
-    domain::domain_entities::{
-        article::Article, comment_with_author::CommentWithAuthor, user::User,
-    },
-};
 use chrono::NaiveDateTime as DateTime;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+use super::comment::{CommentPresenter, MappedComment};
+use super::pagination::{MappedPagination, PaginationPresenter};
+use super::user::{MappedUser, UserPresenter};
+use crate::core::pagination::PaginationResponse;
+use crate::domain::domain_entities::article::Article;
+use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
+use crate::domain::domain_entities::user::User;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 
 #[derive(Serialize, Deserialize)]
 pub struct MappedExpandedArticle {

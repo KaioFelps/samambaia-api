@@ -1,16 +1,20 @@
+use actix_web::middleware::from_fn;
+use actix_web::{web, HttpResponse};
+use validator::Validate;
+
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::journalism::article_tags::{
-    create_article_tag_service_factory, delete_article_tag_service_factory,
-    fetch_many_article_tags_service_factory, update_article_tag_service_factory,
+    create_article_tag_service_factory,
+    delete_article_tag_service_factory,
+    fetch_many_article_tags_service_factory,
+    update_article_tag_service_factory,
 };
-use crate::domain::services::journalism::article_tags::{
-    create_article_tag_service::CreateArticleTagParams,
-    delete_article_tag_service::DeleteArticleTagParams,
-    fetch_many_article_tags_service::FetchManyArticleTagsParams,
-    update_article_tag_service::UpdateArticleTagParams,
-};
+use crate::domain::services::journalism::article_tags::create_article_tag_service::CreateArticleTagParams;
+use crate::domain::services::journalism::article_tags::delete_article_tag_service::DeleteArticleTagParams;
+use crate::domain::services::journalism::article_tags::fetch_many_article_tags_service::FetchManyArticleTagsParams;
+use crate::domain::services::journalism::article_tags::update_article_tag_service::UpdateArticleTagParams;
 use crate::error::IntoSamambaiaError;
 use crate::infra::http::dtos::create_article_tag::CreateArticleTagDto;
 use crate::infra::http::dtos::list_article_tags::ListArticleTagsDto;
@@ -20,8 +24,6 @@ use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::article_tag::ArticleTagPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
 use crate::infra::sea::sea_service::SeaService;
-use actix_web::{middleware::from_fn, web, HttpResponse};
-use validator::Validate;
 
 pub struct ArticleTagsController;
 

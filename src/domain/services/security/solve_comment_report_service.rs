@@ -3,9 +3,7 @@ use uuid::Uuid;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::generate_service_internal_error;
-use crate::util::verify_role_has_permission;
-use crate::util::RolePermissions;
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct SolveCommentReportParams {
     pub staff_id: Uuid,
@@ -62,17 +60,19 @@ impl<CommentReportRepository: CommentReportRepositoryTrait>
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use std::sync::{Arc, Mutex};
 
+    use tokio;
+
+    use super::*;
     use crate::domain::domain_entities::comment_report::{
-        CommentReport, CommentReportIdTrait, CommentReportTrait,
+        CommentReport,
+        CommentReportIdTrait,
+        CommentReportTrait,
     };
     use crate::domain::domain_entities::role::Role;
     use crate::domain::repositories::comment_report_repository::MockCommentReportRepositoryTrait;
     use crate::libs::time::TimeHelper;
-
-    use tokio;
 
     #[tokio::test]
     async fn test() {

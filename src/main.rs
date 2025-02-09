@@ -1,13 +1,14 @@
-use actix_web::{middleware, web::Data, HttpServer};
+use actix_web::web::Data;
+use actix_web::{middleware, HttpServer};
 use dotenvy::dotenv;
 use env_logger::{self, Target};
 use log::{error, info};
 use migration::{Migrator, MigratorTrait};
-use samambaia::{
-    configs::{app::APP_CONFIG, env::RustEnv, inertia::initialize_inertia},
-    infra::sea::sea_service::SeaService,
-    server::ServerFactory,
-};
+use samambaia::configs::app::APP_CONFIG;
+use samambaia::configs::env::RustEnv;
+use samambaia::configs::inertia::initialize_inertia;
+use samambaia::infra::sea::sea_service::SeaService;
+use samambaia::server::ServerFactory;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

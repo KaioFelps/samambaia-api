@@ -1,7 +1,8 @@
 use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
 use crate::domain::domain_entities::free_badge::FreeBadge;
 use crate::domain::repositories::free_badge_repository::{
-    FindManyFreeBadgesResponse, FreeBadgeRepositoryTrait,
+    FindManyFreeBadgesResponse,
+    FreeBadgeRepositoryTrait,
 };
 use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;

@@ -1,10 +1,8 @@
-use entities::team_user::ActiveModel as TeamUserActiveModel;
-use entities::team_user::Model as TeamUserModel;
+use entities::team_user::{ActiveModel as TeamUserActiveModel, Model as TeamUserModel};
 use sea_orm::IntoActiveValue;
 
-use crate::domain::domain_entities::team_user::TeamUser;
-
 use super::SeaMapper;
+use crate::domain::domain_entities::team_user::TeamUser;
 
 pub struct SeaTeamUserMapper;
 

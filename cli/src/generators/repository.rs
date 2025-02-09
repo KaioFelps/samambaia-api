@@ -1,14 +1,11 @@
 use std::path::Path;
 
-use crate::{
-    error::SamambaiaCliError,
-    helpers::{
-        generate_names::extract_formatted_names, resolve_dir_path::resolve_dir_path,
-        save_artifact::save_artifact,
-    },
-    templates::get_repository_flat_template,
-    DEFAULT_REPOSITORIES_DIR,
-};
+use crate::error::SamambaiaCliError;
+use crate::helpers::generate_names::extract_formatted_names;
+use crate::helpers::resolve_dir_path::resolve_dir_path;
+use crate::helpers::save_artifact::save_artifact;
+use crate::templates::get_repository_flat_template;
+use crate::DEFAULT_REPOSITORIES_DIR;
 
 pub fn generate_repository(args: &[String], current_dir: &Path) -> Result<(), SamambaiaCliError> {
     let repository_name = extract_formatted_names(args, "repository", true)?;

@@ -1,10 +1,13 @@
+use std::sync::{Arc, Mutex};
+
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::repositories::article_tag_repository::{
-    ArticleTagQueryType, FindManyArticleTagsResponse, MockArticleTagRepositoryTrait,
+    ArticleTagQueryType,
+    FindManyArticleTagsResponse,
+    MockArticleTagRepositoryTrait,
 };
 use crate::error::SamambaiaError;
-use std::sync::{Arc, Mutex};
 
 pub fn get_article_tag_repository() -> (Arc<Mutex<Vec<ArticleTag>>>, MockArticleTagRepositoryTrait)
 {

@@ -1,10 +1,7 @@
 use crate::domain::domain_entities::role::Role;
-use crate::error::SamambaiaError;
-
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
-use crate::util::generate_service_internal_error;
-use crate::util::verify_role_has_permission;
-use crate::util::RolePermissions;
+use crate::error::SamambaiaError;
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct DeleteCommentReportParams {
     pub staff_role: Role,
@@ -58,15 +55,15 @@ impl<CommentReportRepository: CommentReportRepositoryTrait>
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use std::sync::{Arc, Mutex};
-
-    use crate::domain::domain_entities::comment_report::{CommentReport, CommentReportIdTrait};
-    use crate::domain::repositories::comment_report_repository::MockCommentReportRepositoryTrait;
-    use crate::libs::time::TimeHelper;
 
     use tokio;
     use uuid::Uuid;
+
+    use super::*;
+    use crate::domain::domain_entities::comment_report::{CommentReport, CommentReportIdTrait};
+    use crate::domain::repositories::comment_report_repository::MockCommentReportRepositoryTrait;
+    use crate::libs::time::TimeHelper;
 
     #[tokio::test]
     async fn test() {

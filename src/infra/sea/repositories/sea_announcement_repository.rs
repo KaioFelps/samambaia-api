@@ -1,20 +1,30 @@
+use std::error::Error;
+
 use async_trait::async_trait;
-use entities::announcement::Column as AnnouncementColumn;
-use entities::announcement::Entity as AnnouncementEntity;
+use entities::announcement::{Column as AnnouncementColumn, Entity as AnnouncementEntity};
 use migration::extension::postgres::PgExpr;
 use sea_orm::{
-    ActiveModelTrait, EntityTrait, IntoSimpleExpr, PaginatorTrait, QueryFilter, QueryOrder,
-    QuerySelect, QueryTrait, Select,
+    ActiveModelTrait,
+    EntityTrait,
+    IntoSimpleExpr,
+    PaginatorTrait,
+    QueryFilter,
+    QueryOrder,
+    QuerySelect,
+    QueryTrait,
+    Select,
 };
-use std::error::Error;
 use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::announcement::Announcement;
 use crate::domain::repositories::announcements_repository::{
-    AnnouncementQueryType, AnnouncementRepositoryTrait, FindManyAnnouncementsResponse,
+    AnnouncementQueryType,
+    AnnouncementRepositoryTrait,
+    FindManyAnnouncementsResponse,
 };
-use crate::infra::sea::mappers::{sea_announcement_mapper::SeaAnnouncementMapper, SeaMapper};
+use crate::infra::sea::mappers::sea_announcement_mapper::SeaAnnouncementMapper;
+use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaAnnouncementRepository<'a> {

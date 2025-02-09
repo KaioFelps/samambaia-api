@@ -1,10 +1,10 @@
+use std::future::{ready, Ready};
+
 use actix_web::body::EitherBody;
 use actix_web::dev::{self, Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::middleware::Next;
-use actix_web::HttpMessage;
-use actix_web::{Error, ResponseError};
+use actix_web::{Error, HttpMessage, ResponseError};
 use actix_web_lab::__reexports::futures_util::future::LocalBoxFuture;
-use std::future::{ready, Ready};
 
 use crate::error::SamambaiaError;
 use crate::infra::http::extractors::req_user::ReqUser;

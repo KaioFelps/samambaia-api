@@ -1,6 +1,7 @@
+use serde::{Deserialize, Serialize};
+
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::infra::http::presenters::presenter::PresenterTrait;
-use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct MappedArticleTag {

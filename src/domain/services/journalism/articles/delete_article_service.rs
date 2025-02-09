@@ -101,11 +101,11 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRep
 #[cfg(test)]
 mod test {
     use std::sync::Arc;
+
     use tokio;
     use uuid::Uuid;
 
     use super::{DeleteArticleParams, DeleteArticleService};
-
     use crate::domain::domain_entities::article::Article;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;

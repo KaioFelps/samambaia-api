@@ -1,17 +1,25 @@
+use actix_web::middleware::from_fn;
+use actix_web::{web, HttpResponse};
+use serde_json::json;
+use uuid::Uuid;
+
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::journalism::comments::{
-    comment_on_article_service_factory, delete_comment_service_factory,
-    fetch_many_comments_service_factory, fetch_many_comments_with_author_service_factory,
+    comment_on_article_service_factory,
+    delete_comment_service_factory,
+    fetch_many_comments_service_factory,
+    fetch_many_comments_with_author_service_factory,
 };
 use crate::domain::factories::security::toggle_comment_visibility_service_factory;
-use crate::domain::services::journalism::comments::{
-    comment_on_article_service::CommentOnArticleParams,
-    delete_comment_service::DeleteCommentParams,
-    fetch_many_comments_service::{FetchManyCommentsParams, ServiceCommentQueryType},
-    fetch_many_comments_with_author_service::FetchManyArticleCommentsWithAuthorParams,
+use crate::domain::services::journalism::comments::comment_on_article_service::CommentOnArticleParams;
+use crate::domain::services::journalism::comments::delete_comment_service::DeleteCommentParams;
+use crate::domain::services::journalism::comments::fetch_many_comments_service::{
+    FetchManyCommentsParams,
+    ServiceCommentQueryType,
 };
+use crate::domain::services::journalism::comments::fetch_many_comments_with_author_service::FetchManyArticleCommentsWithAuthorParams;
 use crate::domain::services::security::toggle_comment_visibility_service::ToggleCommentVisibilityParams;
 use crate::infra::http::dtos::comment_on_article::CommentOnArticleDto;
 use crate::infra::http::dtos::list_comments::ListCommentsDto;
@@ -22,9 +30,6 @@ use crate::infra::http::presenters::comment::{CommentPresenter, MappedComment, M
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
-use actix_web::{middleware::from_fn, web, HttpResponse};
-use serde_json::json;
-use uuid::Uuid;
 
 pub struct CommentsController;
 

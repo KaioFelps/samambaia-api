@@ -1,14 +1,13 @@
-use async_trait::async_trait;
 use std::error::Error;
-use uuid::Uuid;
 
-use crate::{
-    core::pagination::PaginationParameters,
-    domain::domain_entities::{role::Role, user::User},
-};
-
+use async_trait::async_trait;
 #[cfg(test)]
 use mockall::automock;
+use uuid::Uuid;
+
+use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::role::Role;
+use crate::domain::domain_entities::user::User;
 
 #[derive(Debug)]
 pub struct FindManyUsersResponse(pub Vec<User>, pub u64);

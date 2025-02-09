@@ -2,10 +2,8 @@ use chrono::NaiveDateTime as DateTime;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::{
-    domain::domain_entities::home_article::HomeArticle,
-    infra::http::presenters::presenter::PresenterTrait,
-};
+use crate::domain::domain_entities::home_article::HomeArticle;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 
 #[derive(Serialize)]
 pub struct MappedHomeArticleAuthor {

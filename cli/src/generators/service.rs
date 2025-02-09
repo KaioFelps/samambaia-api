@@ -1,14 +1,11 @@
 use std::path::Path;
 
-use crate::{
-    error::SamambaiaCliError,
-    helpers::{
-        generate_names::extract_formatted_names, resolve_dir_path::resolve_dir_path,
-        save_artifact::save_artifact,
-    },
-    templates::get_service_template,
-    DEFAULT_SERVICES_DIR,
-};
+use crate::error::SamambaiaCliError;
+use crate::helpers::generate_names::extract_formatted_names;
+use crate::helpers::resolve_dir_path::resolve_dir_path;
+use crate::helpers::save_artifact::save_artifact;
+use crate::templates::get_service_template;
+use crate::DEFAULT_SERVICES_DIR;
 
 pub fn generate_service(args: &[String], current_dir: &Path) -> Result<(), SamambaiaCliError> {
     let service_name = extract_formatted_names(args, "service", false)?;

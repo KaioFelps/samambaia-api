@@ -1,7 +1,8 @@
+use password_auth::{generate_hash, verify_password};
+
 use crate::domain::cryptography::both::HasherAndComparerTrait;
-use crate::domain::cryptography::{comparer::ComparerTrait, hasher::HasherTrait};
-use password_auth::generate_hash;
-use password_auth::verify_password;
+use crate::domain::cryptography::comparer::ComparerTrait;
+use crate::domain::cryptography::hasher::HasherTrait;
 
 pub struct PasswordAuthHasherAndVerifier;
 

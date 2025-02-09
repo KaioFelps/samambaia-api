@@ -1,5 +1,6 @@
-use crate::domain::domain_entities::article::Article;
 use chrono::NaiveDateTime;
+
+use crate::domain::domain_entities::article::Article;
 
 pub struct ArticlePolitics;
 

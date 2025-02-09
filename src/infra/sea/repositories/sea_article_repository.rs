@@ -1,16 +1,27 @@
-use async_trait::async_trait;
-
-use migration::{Expr, Func};
-use sea_orm::{ActiveModelTrait, EntityTrait, QueryFilter};
-use sea_orm::{ColumnTrait, PaginatorTrait, QueryOrder, QuerySelect, QueryTrait};
 use std::error::Error;
+
+use async_trait::async_trait;
+use entities::article::{Column as ArticleColumn, Entity as ArticleEntity};
+use migration::{Expr, Func};
+use sea_orm::{
+    ActiveModelTrait,
+    ColumnTrait,
+    EntityTrait,
+    PaginatorTrait,
+    QueryFilter,
+    QueryOrder,
+    QuerySelect,
+    QueryTrait,
+};
 use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::slug::Slug;
 use crate::domain::repositories::article_repository::{
-    ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse,
+    ArticleQueryType,
+    ArticleRepositoryTrait,
+    FindManyArticlesResponse,
 };
 use crate::error::SamambaiaError;
 use crate::infra::http::presenters::home_article::{HomeArticlePresenter, MappedHomeArticle};
@@ -19,9 +30,6 @@ use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
 use crate::infra::sea::mappers::sea_user_mapper::SeaUserMapper;
 use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
-
-use entities::article::Column as ArticleColumn;
-use entities::article::Entity as ArticleEntity;
 
 pub struct SeaArticleRepository<'a> {
     sea_service: &'a SeaService,

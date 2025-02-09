@@ -1,10 +1,8 @@
-use entities::team_role::ActiveModel as TeamRoleActiveModel;
-use entities::team_role::Model as TeamRoleModel;
+use entities::team_role::{ActiveModel as TeamRoleActiveModel, Model as TeamRoleModel};
 use sea_orm::IntoActiveValue;
 
-use crate::domain::domain_entities::team_role::TeamRole;
-
 use super::SeaMapper;
+use crate::domain::domain_entities::team_role::TeamRole;
 
 pub struct SeaTeamRoleMapper;
 

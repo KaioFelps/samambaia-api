@@ -1,8 +1,8 @@
 use std::error::Error;
 
 use async_trait::async_trait;
-use sea_orm::EntityTrait;
-use sea_orm::{ActiveModelTrait, ModelTrait};
+use entities::comment::Entity as CommentEntity;
+use sea_orm::{ActiveModelTrait, EntityTrait, ModelTrait};
 use uuid::Uuid;
 
 use crate::domain::domain_entities::comment::Comment;
@@ -10,8 +10,6 @@ use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
 use crate::infra::sea::mappers::sea_comment_mapper::SeaCommentMapper;
 use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
-
-use entities::comment::Entity as CommentEntity;
 
 pub struct SeaCommentRepository<'a> {
     sea_service: &'a SeaService,

@@ -1,13 +1,15 @@
-use crate::domain::domain_entities::comment_report::CommentReport;
-use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::error::SamambaiaError;
-use crate::util::generate_service_internal_error;
 use uuid::Uuid;
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
+use crate::domain::domain_entities::comment_report::CommentReport;
 use crate::domain::repositories::comment_report_repository::{
-    CommentReportQueryType, CommentReportRepositoryTrait, FindManyCommentReportsResponse,
+    CommentReportQueryType,
+    CommentReportRepositoryTrait,
+    FindManyCommentReportsResponse,
 };
+use crate::domain::repositories::user_repository::UserRepositoryTrait;
+use crate::error::SamambaiaError;
+use crate::util::generate_service_internal_error;
 
 type Error = SamambaiaError;
 
@@ -146,23 +148,17 @@ impl<
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        domain::{
-            domain_entities::{comment_report::CommentReportTrait, user::User},
-            repositories::{
-                comment_report_repository::MockCommentReportRepositoryTrait,
-                user_repository::MockUserRepositoryTrait,
-            },
-        },
-        libs::time::TimeHelper,
-    };
-
-    use super::*;
-
     use std::sync::{Arc, Mutex};
 
     use tokio;
     use uuid::Uuid;
+
+    use super::*;
+    use crate::domain::domain_entities::comment_report::CommentReportTrait;
+    use crate::domain::domain_entities::user::User;
+    use crate::domain::repositories::comment_report_repository::MockCommentReportRepositoryTrait;
+    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
+    use crate::libs::time::TimeHelper;
 
     #[tokio::test]
     async fn test() {

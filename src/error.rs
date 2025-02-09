@@ -1,8 +1,6 @@
-use std::{
-    collections::HashMap,
-    error::Error,
-    fmt::{self, Debug, Display, Formatter},
-};
+use std::collections::HashMap;
+use std::error::Error;
+use std::fmt::{self, Debug, Display, Formatter};
 
 use http::StatusCode;
 use validator::ValidationError;

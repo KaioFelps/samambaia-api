@@ -1,7 +1,9 @@
+use std::time::Duration;
+
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
+
 use crate::configs::app::APP_CONFIG;
 use crate::{LOG_SEP, R_EOL};
-use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
-use std::time::Duration;
 
 // #[derive(Clone)]
 pub struct SeaService {

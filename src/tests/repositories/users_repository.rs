@@ -1,9 +1,12 @@
+use std::sync::{Arc, Mutex};
+
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::{
-    FindManyUsersResponse, MockUserRepositoryTrait, UserQueryType,
+    FindManyUsersResponse,
+    MockUserRepositoryTrait,
+    UserQueryType,
 };
-use std::sync::{Arc, Mutex};
 
 pub fn get_user_repository() -> (Arc<Mutex<Vec<User>>>, MockUserRepositoryTrait) {
     let db = Arc::new(Mutex::new(vec![]));

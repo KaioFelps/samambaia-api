@@ -1,23 +1,29 @@
 use std::error::Error;
 
 use async_trait::async_trait;
+use entities::team_role::{Column as TeamRoleColumn, Entity as TeamRoleEntity};
 use migration::{Expr, Func};
 use sea_orm::{
-    ActiveModelTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait,
+    ActiveModelTrait,
+    EntityTrait,
+    PaginatorTrait,
+    QueryFilter,
+    QueryOrder,
+    QuerySelect,
+    QueryTrait,
 };
 use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::{
-    FindManyTeamRolesResponse, TeamRoleQueryType, TeamRoleRepositoryTrait,
+    FindManyTeamRolesResponse,
+    TeamRoleQueryType,
+    TeamRoleRepositoryTrait,
 };
 use crate::infra::sea::mappers::sea_team_role_mapper::SeaTeamRoleMapper;
 use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
-
-use entities::team_role::Column as TeamRoleColumn;
-use entities::team_role::Entity as TeamRoleEntity;
 
 pub struct SeaTeamRoleRepository<'a> {
     sea_service: &'a SeaService,

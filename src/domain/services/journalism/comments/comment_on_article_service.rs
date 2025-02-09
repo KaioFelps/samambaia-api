@@ -2,9 +2,8 @@ use log::error;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::comment::Comment;
-use crate::domain::repositories::{
-    article_repository::ArticleRepositoryTrait, comment_repository::CommentRepositoryTrait,
-};
+use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
+use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
 use crate::error::SamambaiaError;
 use crate::{LOG_SEP, R_EOL};
 
@@ -58,10 +57,9 @@ impl<CR: CommentRepositoryTrait, AR: ArticleRepositoryTrait> CommentOnArticleSer
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use std::sync::Arc;
-    use std::sync::Mutex;
+    use std::sync::{Arc, Mutex};
 
+    use super::*;
     use crate::domain::domain_entities::article::Article;
     use crate::domain::domain_entities::slug::Slug;
     use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;

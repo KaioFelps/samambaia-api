@@ -1,22 +1,33 @@
-use async_trait::async_trait;
-use migration::{Expr, Func};
-use sea_orm::{ActiveModelTrait, EntityTrait};
-use sea_orm::{ColumnTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait};
 use std::error::Error;
 
+use async_trait::async_trait;
+use entities::comment_report::{Column as CommentReportColumn, Entity as CommentReportEntity};
+use migration::{Expr, Func};
+use sea_orm::{
+    ActiveModelTrait,
+    ColumnTrait,
+    EntityTrait,
+    PaginatorTrait,
+    QueryFilter,
+    QueryOrder,
+    QuerySelect,
+    QueryTrait,
+};
+
 use crate::core::pagination::PaginationParameters;
-use crate::domain::domain_entities::comment_report::CommentReport;
-use crate::domain::domain_entities::comment_report::CommentReportIdTrait;
-use crate::domain::domain_entities::comment_report::DraftCommentReport;
+use crate::domain::domain_entities::comment_report::{
+    CommentReport,
+    CommentReportIdTrait,
+    DraftCommentReport,
+};
 use crate::domain::repositories::comment_report_repository::{
-    CommentReportQueryType, CommentReportRepositoryTrait, FindManyCommentReportsResponse,
+    CommentReportQueryType,
+    CommentReportRepositoryTrait,
+    FindManyCommentReportsResponse,
 };
 use crate::infra::sea::mappers::sea_comment_report_mapper::SeaCommentReportMapper;
 use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
-
-use entities::comment_report::Column as CommentReportColumn;
-use entities::comment_report::Entity as CommentReportEntity;
 
 pub struct SeaCommentReportRepository<'a> {
     sea_service: &'a SeaService,

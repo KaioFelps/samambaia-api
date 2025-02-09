@@ -54,10 +54,11 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> DeleteTeamRoleService<TeamRole
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use std::sync::{Arc, Mutex};
+
     use tokio;
 
+    use super::*;
     use crate::domain::domain_entities::team_role::TeamRole;
     use crate::domain::repositories::team_role_repository::MockTeamRoleRepositoryTrait;
 

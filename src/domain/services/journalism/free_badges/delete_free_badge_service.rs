@@ -1,8 +1,9 @@
+use uuid::Uuid;
+
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::free_badge_repository::FreeBadgeRepositoryTrait;
 use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
-use uuid::Uuid;
 
 pub struct DeleteFreeBadgeParams {
     pub user_role: Role,

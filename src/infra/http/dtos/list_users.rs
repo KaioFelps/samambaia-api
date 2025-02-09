@@ -1,6 +1,7 @@
-use crate::libs::custom_validators::validate_user_role;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+
+use crate::libs::custom_validators::validate_user_role;
 
 #[derive(Serialize, Deserialize, Validate)]
 pub struct ListUsersDto {

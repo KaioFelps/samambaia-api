@@ -1,10 +1,8 @@
-use entities::article_tag::ActiveModel as ArticleTagActiveModel;
-use entities::article_tag::Model as ArticleTagModel;
+use entities::article_tag::{ActiveModel as ArticleTagActiveModel, Model as ArticleTagModel};
 use sea_orm::IntoActiveValue;
 
-use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
-
 use super::SeaMapper;
+use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
 
 pub struct SeaArticleTagMapper;
 

@@ -2,7 +2,8 @@ use chrono::NaiveDateTime as DateTime;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::domain::domain_entities::{role::Role, user::User};
+use crate::domain::domain_entities::role::Role;
+use crate::domain::domain_entities::user::User;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[allow(non_snake_case)]

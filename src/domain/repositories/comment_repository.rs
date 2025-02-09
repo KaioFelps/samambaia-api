@@ -1,11 +1,11 @@
-use async_trait::async_trait;
 use std::error::Error;
+
+use async_trait::async_trait;
+#[cfg(test)]
+use mockall::automock;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::comment::Comment;
-
-#[cfg(test)]
-use mockall::automock;
 
 #[cfg_attr(test, automock)]
 #[async_trait]

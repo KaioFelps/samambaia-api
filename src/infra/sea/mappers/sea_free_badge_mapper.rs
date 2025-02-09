@@ -1,10 +1,8 @@
-use entities::free_badge::ActiveModel as FreeBadgeActiveModel;
-use entities::free_badge::Model as FreeBadgeModel;
+use entities::free_badge::{ActiveModel as FreeBadgeActiveModel, Model as FreeBadgeModel};
 use sea_orm::IntoActiveValue;
 
-use crate::domain::domain_entities::free_badge::FreeBadge;
-
 use super::SeaMapper;
+use crate::domain::domain_entities::free_badge::FreeBadge;
 
 pub struct SeaFreeBadgeMapper;
 

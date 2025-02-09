@@ -1,10 +1,8 @@
-use entities::comment::ActiveModel as CommentActiveModel;
-use entities::comment::Model as CommentModel;
+use entities::comment::{ActiveModel as CommentActiveModel, Model as CommentModel};
 use sea_orm::IntoActiveValue;
 
-use crate::domain::domain_entities::comment::Comment;
-
 use super::SeaMapper;
+use crate::domain::domain_entities::comment::Comment;
 
 pub struct SeaCommentMapper;
 

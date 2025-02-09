@@ -66,13 +66,13 @@ impl<CommentRepository: CommentRepositoryTrait> ToggleCommentVisibilityService<C
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use std::sync::{Arc, Mutex};
 
+    use tokio;
+
+    use super::*;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
-
-    use std::sync::{Arc, Mutex};
-    use tokio;
 
     #[tokio::test]
     async fn test() {

@@ -1,14 +1,14 @@
-use async_trait::async_trait;
 use std::error::Error;
+
+use async_trait::async_trait;
+#[cfg(test)]
+use mockall::automock;
 use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::slug::Slug;
 use crate::infra::http::presenters::home_article::MappedHomeArticle;
-
-#[cfg(test)]
-use mockall::automock;
 
 #[derive(Debug)]
 pub struct FindManyArticlesResponse(pub Vec<Article>, pub u64);

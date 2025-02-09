@@ -1,13 +1,7 @@
-use crate::{
-    domain::services::announcements::delete_announcement_service::DeleteAnnouncementService,
-    infra::sea::{
-        repositories::{
-            sea_announcement_repository::SeaAnnouncementRepository,
-            sea_user_repository::SeaUserRepository,
-        },
-        sea_service::SeaService,
-    },
-};
+use crate::domain::services::announcements::delete_announcement_service::DeleteAnnouncementService;
+use crate::infra::sea::repositories::sea_announcement_repository::SeaAnnouncementRepository;
+use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
+use crate::infra::sea::sea_service::SeaService;
 
 pub fn exec(
     db_conn: &SeaService,
