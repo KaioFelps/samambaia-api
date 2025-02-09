@@ -3,7 +3,6 @@ use uuid::Uuid;
 use crate::domain::cryptography::both::HasherAndComparerTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;
-
 use crate::util::generate_service_internal_error;
 
 pub struct ChangePasswordParams {
@@ -73,14 +72,15 @@ impl<UserRepositoryType: UserRepositoryTrait, HasherAndComparer: HasherAndCompar
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::domain::{
-        cryptography::{comparer::ComparerTrait, hasher::HasherTrait},
-        domain_entities::{role::Role, user::User},
-        repositories::user_repository::MockUserRepositoryTrait,
-    };
-    use crate::infra::cryptography::MockedAuthHasherAndVerifier;
     use std::sync::{Arc, Mutex};
+
+    use super::*;
+    use crate::domain::cryptography::comparer::ComparerTrait;
+    use crate::domain::cryptography::hasher::HasherTrait;
+    use crate::domain::domain_entities::role::Role;
+    use crate::domain::domain_entities::user::User;
+    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
+    use crate::infra::cryptography::MockedAuthHasherAndVerifier;
 
     #[tokio::test]
     async fn test() {

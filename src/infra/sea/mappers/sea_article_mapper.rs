@@ -1,11 +1,9 @@
-use entities::article::ActiveModel as ArticleActiveModel;
-use entities::article::Model as ArticleModel;
+use entities::article::{ActiveModel as ArticleActiveModel, Model as ArticleModel};
 use sea_orm::IntoActiveValue;
 
+use super::SeaMapper;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::slug::Slug;
-
-use super::SeaMapper;
 
 pub struct SeaArticleMapper;
 

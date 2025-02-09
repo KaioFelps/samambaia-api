@@ -2,12 +2,12 @@ use log::error;
 use uuid::Uuid;
 
 use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
+use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::repositories::comment_user_article_repository::{
-    CommentUserArticleRepositoryTrait, FindManyCommentsWithAuthorResponse,
+    CommentUserArticleRepositoryTrait,
+    FindManyCommentsWithAuthorResponse,
 };
 use crate::error::SamambaiaError;
-
-use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::{LOG_SEP, R_EOL};
 
 pub struct FetchManyArticleCommentsWithAuthorParams {
@@ -98,9 +98,9 @@ impl<CommentUserArticleRepository: CommentUserArticleRepositoryTrait>
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use tokio;
 
+    use super::*;
     use crate::domain::domain_entities::article::Article;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;

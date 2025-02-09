@@ -1,7 +1,9 @@
 use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
 use crate::domain::domain_entities::team_user::TeamUser;
 use crate::domain::repositories::team_user_repository::{
-    FindManyTeamUsersResponse, TeamUserQueryType, TeamUserRepositoryTrait,
+    FindManyTeamUsersResponse,
+    TeamUserQueryType,
+    TeamUserRepositoryTrait,
 };
 use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
@@ -72,12 +74,13 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> FetchManyTeamUsersService<Team
 
 #[cfg(test)]
 mod test {
-    use crate::domain::domain_entities::team_role::TeamRole;
-    use crate::domain::repositories::team_user_repository::MockTeamUserRepositoryTrait;
+    use std::sync::{Arc, Mutex};
+
+    use tokio;
 
     use super::*;
-    use std::sync::{Arc, Mutex};
-    use tokio;
+    use crate::domain::domain_entities::team_role::TeamRole;
+    use crate::domain::repositories::team_user_repository::MockTeamUserRepositoryTrait;
 
     #[tokio::test]
     async fn test() {

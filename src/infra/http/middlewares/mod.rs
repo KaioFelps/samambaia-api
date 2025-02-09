@@ -4,8 +4,7 @@ mod inertia_temporary_session;
 mod request_user;
 pub mod web;
 
-pub use authentication::authentication_middleware;
-pub use authentication::AuthenticationMiddleware;
+pub use authentication::{authentication_middleware, AuthenticationMiddleware};
 pub use gargabe_collector::GarbageCollectorMiddleware;
 pub use inertia_temporary_session::ReflashTemporarySessionMiddleware;
 pub use request_user::RequestUserMiddleware;

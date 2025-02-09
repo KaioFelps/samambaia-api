@@ -1,16 +1,22 @@
-use crate::{
-    configs::app::APP_CONFIG,
-    configs::env::RustEnv,
-    error::{IntoSamambaiaError, SamambaiaError},
+use std::io;
+
+use actix_web::web::Redirect;
+use actix_web::HttpRequest;
+use inertia_rust::template_resolvers::ViteHBSTemplateResolver;
+use inertia_rust::{
+    hashmap,
+    Inertia,
+    InertiaConfig,
+    InertiaError,
+    InertiaFacade,
+    InertiaVersion,
+    IntoInertiaError,
 };
 
 use super::vite::initialize_vite;
-use actix_web::{web::Redirect, HttpRequest};
-use inertia_rust::{
-    hashmap, template_resolvers::ViteHBSTemplateResolver, Inertia, InertiaConfig, InertiaError,
-    InertiaFacade, InertiaVersion, IntoInertiaError,
-};
-use std::io;
+use crate::configs::app::APP_CONFIG;
+use crate::configs::env::RustEnv;
+use crate::error::{IntoSamambaiaError, SamambaiaError};
 
 pub async fn initialize_inertia() -> Result<Inertia, io::Error> {
     let vite = initialize_vite().await;

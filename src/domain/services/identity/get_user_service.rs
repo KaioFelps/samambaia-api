@@ -33,12 +33,11 @@ impl<UserRepository: UserRepositoryTrait> GetUserService<UserRepository> {
 
 #[cfg(test)]
 mod test {
-    use crate::domain::domain_entities::role::Role;
-    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
+    use std::sync::{Arc, Mutex};
 
     use super::*;
-    use std::sync::Arc;
-    use std::sync::Mutex;
+    use crate::domain::domain_entities::role::Role;
+    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
 
     #[tokio::test]
     async fn test_get_user_service() {

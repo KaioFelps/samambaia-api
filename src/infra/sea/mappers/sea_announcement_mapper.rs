@@ -1,8 +1,8 @@
+use entities::announcement::{ActiveModel as AnnouncementActiveModel, Model as AnnouncementModel};
+use sea_orm::IntoActiveValue;
+
 use super::SeaMapper;
 use crate::domain::domain_entities::announcement::Announcement;
-use entities::announcement::ActiveModel as AnnouncementActiveModel;
-use entities::announcement::Model as AnnouncementModel;
-use sea_orm::IntoActiveValue;
 
 pub struct SeaAnnouncementMapper;
 

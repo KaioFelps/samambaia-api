@@ -69,10 +69,8 @@ impl<UserRepositoryType: UserRepositoryTrait, Hasher: HasherTrait>
 #[cfg(test)]
 mod test {
     use super::{CreateUserParams, User};
-    use crate::domain::{
-        cryptography::hasher::MockHasherTrait,
-        repositories::user_repository::MockUserRepositoryTrait,
-    };
+    use crate::domain::cryptography::hasher::MockHasherTrait;
+    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
 
     #[tokio::test]
     async fn test() {

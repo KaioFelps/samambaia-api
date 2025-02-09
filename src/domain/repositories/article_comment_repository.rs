@@ -1,12 +1,13 @@
-use crate::core::pagination::PaginationParameters;
-use async_trait::async_trait;
 use std::error::Error;
-use uuid::Uuid;
 
-use crate::domain::domain_entities::{article::Article, comment::Comment};
-
+use async_trait::async_trait;
 #[cfg(test)]
 use mockall::automock;
+use uuid::Uuid;
+
+use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::article::Article;
+use crate::domain::domain_entities::comment::Comment;
 
 #[derive(Debug)]
 pub struct FindManyCommentsResponse(

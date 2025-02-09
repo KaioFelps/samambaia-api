@@ -1,12 +1,18 @@
+use actix_web::web::Data;
+use actix_web::{web, HttpRequest};
+use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
+
+use crate::domain::factories::analytics::get_summary_service_factory;
 use crate::error::IntoSamambaiaError;
-use crate::infra::http::controllers::{controller::ControllerTrait, AppResponse};
+use crate::infra::http::controllers::controller::ControllerTrait;
+use crate::infra::http::controllers::AppResponse;
 use crate::infra::http::middlewares::web::has_permission::{
-    PermissionComparisonMode, WebHasPermissionMiddleware,
+    PermissionComparisonMode,
+    WebHasPermissionMiddleware,
 };
 use crate::infra::http::middlewares::WebAuthUserMiddleware;
+use crate::infra::sea::sea_service::SeaService;
 use crate::util::RolePermissions;
-use actix_web::{web, HttpRequest};
-use inertia_rust::{Inertia, InertiaFacade};
 
 pub struct AdminHomeController;
 
@@ -25,9 +31,17 @@ impl ControllerTrait for AdminHomeController {
 }
 
 impl AdminHomeController {
-    async fn home(req: HttpRequest) -> AppResponse {
-        Inertia::render(&req, "admin/index".into())
-            .await
-            .map_err(IntoSamambaiaError::into_samambaia_error)
+    async fn home(req: HttpRequest, sea_service: Data<SeaService>) -> AppResponse {
+        let summary_service = get_summary_service_factory::exec(&sea_service);
+
+        let summary = summary_service.exec().await?;
+
+        Inertia::render_with_props(
+            &req,
+            "admin/index".into(),
+            hashmap!["summary" => InertiaProp::data(summary)],
+        )
+        .await
+        .map_err(IntoSamambaiaError::into_samambaia_error)
     }
 }

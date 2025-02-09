@@ -1,25 +1,29 @@
 use std::error::Error;
 
 use async_trait::async_trait;
-use uuid::Uuid;
-
-use migration::Expr;
-use migration::Func;
+use entities::team_user::{Column as TeamUserColumn, Entity as TeamUserEntity};
+use migration::{Expr, Func};
 use sea_orm::{
-    ActiveModelTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait,
+    ActiveModelTrait,
+    EntityTrait,
+    PaginatorTrait,
+    QueryFilter,
+    QueryOrder,
+    QuerySelect,
+    QueryTrait,
 };
+use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::team_user::TeamUser;
-use crate::domain::repositories::team_user_repository::FindManyTeamUsersResponse;
-use crate::domain::repositories::team_user_repository::TeamUserQueryType;
-use crate::domain::repositories::team_user_repository::TeamUserRepositoryTrait;
+use crate::domain::repositories::team_user_repository::{
+    FindManyTeamUsersResponse,
+    TeamUserQueryType,
+    TeamUserRepositoryTrait,
+};
 use crate::infra::sea::mappers::sea_team_user_mapper::SeaTeamUserMapper;
 use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
-
-use entities::team_user::Column as TeamUserColumn;
-use entities::team_user::Entity as TeamUserEntity;
 
 pub struct SeaTeamUserRepository<'a> {
     sea_service: &'a SeaService,

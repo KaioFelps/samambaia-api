@@ -1,9 +1,8 @@
 use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
 
-use crate::libs::time::TimeHelper;
-
 use super::slug::Slug;
+use crate::libs::time::TimeHelper;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Article {

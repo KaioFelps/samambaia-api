@@ -1,8 +1,8 @@
-use crate::libs::time::TimeHelper;
 use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
 
 use super::role::Role;
+use crate::libs::time::TimeHelper;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct User {

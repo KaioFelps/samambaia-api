@@ -1,18 +1,19 @@
-use crate::core::pagination::PaginationParameters;
-use crate::core::pagination::PaginationResponse;
-use crate::core::pagination::DEFAULT_PER_PAGE;
+use uuid::Uuid;
+
+use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::slug::Slug;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
-use crate::domain::repositories::comment_user_article_repository::CommentUserArticleRepositoryTrait;
-use crate::domain::repositories::comment_user_article_repository::FindManyCommentsWithAuthorResponse;
+use crate::domain::repositories::comment_user_article_repository::{
+    CommentUserArticleRepositoryTrait,
+    FindManyCommentsWithAuthorResponse,
+};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
-use uuid::Uuid;
 
 pub struct GetExpandedArticleParams<'exec> {
     pub article_slug: Slug,
@@ -155,15 +156,17 @@ impl<
 
 #[cfg(test)]
 mod test {
-    use super::*;
-
     use std::sync::{Arc, Mutex};
+
     use tokio;
     use uuid::Uuid;
 
-    use crate::domain::domain_entities::{comment_with_author::CommentWithAuthor, role::Role};
+    use super::*;
+    use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
+    use crate::domain::domain_entities::role::Role;
     use crate::domain::repositories::comment_user_article_repository::{
-        CommentWithAuthorQueryType, MockCommentUserArticleRepositoryTrait,
+        CommentWithAuthorQueryType,
+        MockCommentUserArticleRepositoryTrait,
     };
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
     use crate::libs::time::TimeHelper;

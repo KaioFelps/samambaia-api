@@ -1,11 +1,12 @@
-use crate::core::pagination::PaginationParameters;
-use crate::domain::domain_entities::free_badge::FreeBadge;
-use async_trait::async_trait;
 use std::error::Error;
 
+use async_trait::async_trait;
 #[cfg(test)]
 use mockall::automock;
 use uuid::Uuid;
+
+use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::free_badge::FreeBadge;
 
 #[derive(Debug)]
 pub struct FindManyFreeBadgesResponse(pub Vec<FreeBadge>, pub u64);

@@ -1,14 +1,11 @@
-use crate::{
-    core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE},
-    domain::{
-        domain_entities::announcement::Announcement,
-        repositories::announcements_repository::{
-            AnnouncementQueryType, AnnouncementRepositoryTrait,
-        },
-    },
-    error::SamambaiaError,
-    util::generate_service_internal_error,
+use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
+use crate::domain::domain_entities::announcement::Announcement;
+use crate::domain::repositories::announcements_repository::{
+    AnnouncementQueryType,
+    AnnouncementRepositoryTrait,
 };
+use crate::error::SamambaiaError;
+use crate::util::generate_service_internal_error;
 
 pub struct FetchManyAnnouncementsParams {
     pub per_page: Option<u32>,
@@ -64,10 +61,9 @@ impl<AR: AnnouncementRepositoryTrait> FetchManyAnnouncementsService<AR> {
 mod test {
     use uuid::Uuid;
 
-    use crate::{
-        core::pagination::PaginationResponse, domain::domain_entities::announcement::Announcement,
-        tests::repositories::announcements_repository::get_announcements_repository,
-    };
+    use crate::core::pagination::PaginationResponse;
+    use crate::domain::domain_entities::announcement::Announcement;
+    use crate::tests::repositories::announcements_repository::get_announcements_repository;
 
     #[tokio::test]
     #[allow(clippy::await_holding_lock)]

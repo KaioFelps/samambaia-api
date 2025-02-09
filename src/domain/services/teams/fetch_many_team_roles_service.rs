@@ -3,10 +3,11 @@ use log::error;
 use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::{
-    FindManyTeamRolesResponse, TeamRoleQueryType, TeamRoleRepositoryTrait,
+    FindManyTeamRolesResponse,
+    TeamRoleQueryType,
+    TeamRoleRepositoryTrait,
 };
 use crate::error::SamambaiaError;
-
 use crate::{LOG_SEP, R_EOL};
 
 pub struct FetchManyTeamRolesParams {
@@ -83,11 +84,12 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<Team
 
 #[cfg(test)]
 mod test {
-    use crate::domain::repositories::team_role_repository::MockTeamRoleRepositoryTrait;
+    use std::sync::{Arc, Mutex};
+
+    use tokio;
 
     use super::*;
-    use std::sync::{Arc, Mutex};
-    use tokio;
+    use crate::domain::repositories::team_role_repository::MockTeamRoleRepositoryTrait;
 
     #[tokio::test]
     async fn test() {

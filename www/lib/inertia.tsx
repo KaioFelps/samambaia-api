@@ -1,12 +1,12 @@
-import { PageResolver } from "@inertiajs/core/types";
+import type { PageResolver } from "@inertiajs/core/types";
 import type { ReactElement } from "react";
 
 import { AdminLayout } from "@/layouts/admin";
 import { PublicLayout } from "@/layouts/public";
-import { AnnouncementShort } from "@/types/announcement";
-import { Auth } from "@/types/auth";
-import { FeaturedUser } from "@/types/featured-users";
-import { Pagination } from "@/types/pagination";
+import type { AnnouncementShort } from "@/types/announcement";
+import type { Auth } from "@/types/auth";
+import type { FeaturedUser } from "@/types/featured-users";
+import type { Pagination } from "@/types/pagination";
 
 type PageComponent = ReactElement & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

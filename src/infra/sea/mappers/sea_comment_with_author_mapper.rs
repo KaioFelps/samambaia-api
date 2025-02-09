@@ -1,10 +1,9 @@
-use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
-
 use entities::comment::Model as CommentModel;
 use entities::user::Model as UserModel;
 
 use super::sea_user_mapper::SeaUserMapper;
 use super::SeaMapper;
+use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 
 pub struct SeaCommentWithAuthorMapper;
 

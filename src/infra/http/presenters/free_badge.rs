@@ -1,8 +1,9 @@
-use crate::domain::domain_entities::free_badge::FreeBadge;
-use crate::infra::http::presenters::presenter::PresenterTrait;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+use crate::domain::domain_entities::free_badge::FreeBadge;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 
 #[derive(Serialize, Deserialize)]
 pub struct MappedFreeBadge {

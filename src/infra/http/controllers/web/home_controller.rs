@@ -1,33 +1,22 @@
-use actix_web::{
-    web::{self, Data},
-    HttpRequest,
-};
+use actix_web::web::{self, Data};
+use actix_web::HttpRequest;
 use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
 
-use crate::{
-    domain::{
-        factories::journalism::{
-            articles::fetch_home_page_articles_service_factory,
-            free_badges::fetch_many_free_badges_service_factory,
-        },
-        services::journalism::free_badges::fetch_many_free_badges_service::{
-            FetchManyFreeBadgesParams, FetchManyFreeBadgesResponse,
-        },
-    },
-    error::IntoSamambaiaError,
-    infra::{
-        http::{
-            controllers::{controller::ControllerTrait, AppResponse},
-            dtos::controllers::home::HomeQueryDto,
-            middlewares::WebAuthUserMiddleware,
-            presenters::{
-                free_badge::FreeBadgePresenter, home_article::MappedHomeArticle,
-                presenter::PresenterTrait,
-            },
-        },
-        sea::sea_service::SeaService,
-    },
+use crate::domain::factories::journalism::articles::fetch_home_page_articles_service_factory;
+use crate::domain::factories::journalism::free_badges::fetch_many_free_badges_service_factory;
+use crate::domain::services::journalism::free_badges::fetch_many_free_badges_service::{
+    FetchManyFreeBadgesParams,
+    FetchManyFreeBadgesResponse,
 };
+use crate::error::IntoSamambaiaError;
+use crate::infra::http::controllers::controller::ControllerTrait;
+use crate::infra::http::controllers::AppResponse;
+use crate::infra::http::dtos::controllers::home::HomeQueryDto;
+use crate::infra::http::middlewares::WebAuthUserMiddleware;
+use crate::infra::http::presenters::free_badge::FreeBadgePresenter;
+use crate::infra::http::presenters::home_article::MappedHomeArticle;
+use crate::infra::http::presenters::presenter::PresenterTrait;
+use crate::infra::sea::sea_service::SeaService;
 
 pub struct HomeController;
 

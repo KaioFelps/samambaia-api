@@ -24,23 +24,62 @@ export function AdminLayout({ children, props }: { children: ReactNode; props: P
   return (
     <>
       <Head title="Administração" />
-      <header className={clsx(
-        "bg-gray-100 px-6 py-2 flex items-center justify-between border-b border-gray-250",
-      )}
-      >
-        <Link href="/gremio"><img src={appConfig.assets.adminLogo} /></Link>
-        <div className="flex gap-2">
-          <CreateShortcutsDropdown />
-          <UserDropdown nickname={props.auth!.user.nickname} />
-        </div>
-      </header>
+      <div className="admin-layout">
+        <header className={clsx(
+          "[grid-area:_header]",
+          "bg-gray-100 px-6 py-2 flex items-center justify-between border-b border-gray-250",
+        )}
+        >
+          <Link href="/gremio"><img src={appConfig.assets.adminLogo} /></Link>
+          <div className="flex gap-2">
+            <CreateShortcutsDropdown />
+            <UserDropdown nickname={props.auth!.user.nickname} />
+          </div>
+        </header>
 
-      {/* <div className="relative w-full-mx max-w-screen-main my-6 mx-auto"> */}
-      <div className="w-full-mx max-w-screen-main my-6 mx-auto flex gap-6 text-sm">
         <SidebarMenu />
         {children}
+
+        <footer className={clsx(
+          "[grid-area:_footer] h-10 bg-black/5 flex items-center justify-between gap-3",
+          "p-6 py-12 rounded-lg mx-6 mb-6",
+        )}
+        >
+          <div className="font-light text-gray-800 leading-4">
+            <span>Cosmic CMS 2.0. Todos os direitos reservados.</span>
+            <br />
+            <span>Desenvolvido por <strong>Floricultor</strong></span>
+          </div>
+
+          <div className={clsx(
+            "flex items-center gap-3",
+            "prose-a:text-blue-500 hover:prose-a:underline active:prose-a:text-blue-700",
+            "prose-a:cursor-default active:prose-a:cursor-pointer",
+          )}
+          >
+            <a
+              href=""
+              target="_blank"
+            >
+              Discord da equipe
+            </a>
+
+            <a
+              href=""
+              target="_blank"
+            >
+              Twitter do fã-site
+            </a>
+
+            <a
+              href=""
+              target="_blank"
+            >
+              Home do fã-site
+            </a>
+          </div>
+        </footer>
       </div>
-      <footer />
       <ToastContainer />
     </>
   );

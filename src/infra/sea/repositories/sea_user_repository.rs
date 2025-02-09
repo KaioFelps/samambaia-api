@@ -1,22 +1,32 @@
 use std::error::Error;
 
-use crate::core::pagination::PaginationParameters;
-use crate::domain::domain_entities::user::User;
-use crate::domain::repositories::user_repository::{FindManyUsersResponse, UserRepositoryTrait};
-use crate::infra::sea::mappers::sea_role_mapper::SeaRoleMapper;
-use crate::infra::sea::mappers::sea_user_mapper::SeaUserMapper;
-use crate::infra::sea::mappers::SeaMapper;
-use crate::{
-    domain::repositories::user_repository::UserQueryType, infra::sea::sea_service::SeaService,
-};
 use async_trait::async_trait;
 use entities::user::{Column as UserColumn, Entity as UserEntity};
 use migration::{Alias, Expr, Func};
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, IntoSimpleExpr, PaginatorTrait, QueryFilter,
-    QueryOrder, QuerySelect, QueryTrait,
+    ActiveModelTrait,
+    ColumnTrait,
+    EntityTrait,
+    IntoSimpleExpr,
+    PaginatorTrait,
+    QueryFilter,
+    QueryOrder,
+    QuerySelect,
+    QueryTrait,
 };
 use uuid::Uuid;
+
+use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::user::User;
+use crate::domain::repositories::user_repository::{
+    FindManyUsersResponse,
+    UserQueryType,
+    UserRepositoryTrait,
+};
+use crate::infra::sea::mappers::sea_role_mapper::SeaRoleMapper;
+use crate::infra::sea::mappers::sea_user_mapper::SeaUserMapper;
+use crate::infra::sea::mappers::SeaMapper;
+use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaUserRepository<'a> {
     pub sea_service: &'a SeaService,

@@ -53,6 +53,7 @@ actix-session = "0.10"
 anyhow = "1.0.95"
 rand = "0.8.5"
 base64 = "0.22.1"
+sqlx = "0.8"
 
 [dev-dependencies]
 mockall = "0.13.0"

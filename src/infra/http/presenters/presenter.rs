@@ -1,9 +1,8 @@
-use crate::{
-    core::pagination::PaginationResponse, infra::http::presenters::pagination::MappedPagination,
-};
 use serde::{Deserialize, Serialize};
 
 use super::pagination::PaginationPresenter;
+use crate::core::pagination::PaginationResponse;
+use crate::infra::http::presenters::pagination::MappedPagination;
 
 pub trait PresenterTrait<Entity, MappedEntity> {
     #[allow(clippy::wrong_self_convention)]

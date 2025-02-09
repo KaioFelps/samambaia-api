@@ -1,11 +1,11 @@
-use crate::domain::repositories::announcements_repository::{
-    FindManyAnnouncementsResponse, MockAnnouncementRepositoryTrait,
-};
-use crate::domain::{
-    domain_entities::announcement::Announcement,
-    repositories::announcements_repository::AnnouncementQueryType,
-};
 use std::sync::{Arc, Mutex};
+
+use crate::domain::domain_entities::announcement::Announcement;
+use crate::domain::repositories::announcements_repository::{
+    AnnouncementQueryType,
+    FindManyAnnouncementsResponse,
+    MockAnnouncementRepositoryTrait,
+};
 
 pub fn get_announcements_repository() -> (
     Arc<Mutex<Vec<Announcement>>>,

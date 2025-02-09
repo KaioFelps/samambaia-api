@@ -2,6 +2,13 @@ use std::future::{ready, Future, Ready};
 use std::pin::Pin;
 use std::rc::Rc;
 
+use actix_session::SessionExt;
+use actix_web::body::EitherBody;
+use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
+use actix_web::{web, Error, HttpMessage, ResponseError};
+use uuid::Uuid;
+
+use super::{WebAuthUser, WebRequestUser};
 use crate::configs::app::SESSION_USER_KEY;
 use crate::domain::factories::identity::get_user_service_factory;
 use crate::domain::services::identity::get_user_service::GetUserServiceParams;
@@ -10,13 +17,6 @@ use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::http::presenters::user::UserPresenter;
 use crate::infra::sea::sea_service::SeaService;
 use crate::util::RolePermissions;
-use actix_session::SessionExt;
-use actix_web::body::EitherBody;
-use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
-use actix_web::{web, Error, HttpMessage, ResponseError};
-use uuid::Uuid;
-
-use super::{WebAuthUser, WebRequestUser};
 
 /**
 # Web Request User Middleware

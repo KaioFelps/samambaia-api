@@ -1,8 +1,9 @@
-use std::{fs::OpenOptions, io::Write, path::Path};
-
-use crate::error::SamambaiaCliError;
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::path::Path;
 
 use super::generate_names::FormattedNames;
+use crate::error::SamambaiaCliError;
 
 pub fn save_artifact(
     artifact: &str,

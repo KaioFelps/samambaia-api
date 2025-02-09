@@ -5,8 +5,7 @@ use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::generate_service_internal_error;
-use crate::util::{verify_role_has_permission, RolePermissions};
+use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
 pub struct CreateArticleParams {
     pub staff_id: Uuid,
@@ -116,15 +115,15 @@ impl<
 
 #[cfg(test)]
 mod test {
+    use std::sync::{Arc, Mutex};
+
     use super::CreateArticleParams;
     use crate::domain::domain_entities::article_tag::ArticleTag;
+    use crate::domain::domain_entities::role::Role;
+    use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::article_tag_repository::MockArticleTagRepositoryTrait;
-    use crate::domain::{
-        domain_entities::{role::Role, user::User},
-        repositories::user_repository::MockUserRepositoryTrait,
-    };
+    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
     use crate::tests::repositories::article_repository::get_article_repository;
-    use std::sync::{Arc, Mutex};
 
     #[tokio::test]
     async fn test() {

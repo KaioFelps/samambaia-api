@@ -1,12 +1,15 @@
+use uuid::Uuid;
+
 use crate::domain::cryptography::hasher::HasherTrait;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::generate_service_internal_error;
-use crate::util::verify_role_has_permission;
-use crate::util::verify_role_hierarchy_matches;
-use uuid::Uuid;
+use crate::util::{
+    generate_service_internal_error,
+    verify_role_has_permission,
+    verify_role_hierarchy_matches,
+};
 
 pub struct UpdateUserParams {
     pub staff_id: Uuid,

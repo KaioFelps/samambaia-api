@@ -1,7 +1,9 @@
 use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::user_repository::{
-    FindManyUsersResponse, UserQueryType, UserRepositoryTrait,
+    FindManyUsersResponse,
+    UserQueryType,
+    UserRepositoryTrait,
 };
 use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
@@ -76,12 +78,13 @@ impl<UserRepository: UserRepositoryTrait> FetchManyUsersService<UserRepository> 
 
 #[cfg(test)]
 mod test {
-    use crate::domain::domain_entities::role::Role;
-    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
+    use std::sync::{Arc, Mutex};
+
+    use tokio;
 
     use super::*;
-    use std::sync::{Arc, Mutex};
-    use tokio;
+    use crate::domain::domain_entities::role::Role;
+    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
 
     #[tokio::test]
     async fn test() {

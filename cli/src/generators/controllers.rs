@@ -1,14 +1,11 @@
 use std::path::Path;
 
-use crate::{
-    error::SamambaiaCliError,
-    helpers::{
-        generate_names::extract_formatted_names, resolve_dir_path::resolve_dir_path,
-        save_artifact::save_artifact,
-    },
-    templates::get_controller_template,
-    DEFAULT_CONTROLLERS_DIR,
-};
+use crate::error::SamambaiaCliError;
+use crate::helpers::generate_names::extract_formatted_names;
+use crate::helpers::resolve_dir_path::resolve_dir_path;
+use crate::helpers::save_artifact::save_artifact;
+use crate::templates::get_controller_template;
+use crate::DEFAULT_CONTROLLERS_DIR;
 
 pub fn generate_controller(args: &[String], current_dir: &Path) -> Result<(), SamambaiaCliError> {
     let controller_name = extract_formatted_names(args, "controller", true)?;

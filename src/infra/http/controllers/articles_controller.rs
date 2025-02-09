@@ -1,24 +1,32 @@
-use actix_web::{middleware::from_fn, web, HttpResponse};
+use actix_web::middleware::from_fn;
+use actix_web::{web, HttpResponse};
 use serde_json::json;
 use uuid::Uuid;
 use validator::Validate;
 
+use super::controller::ControllerTrait;
+use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::slug::Slug;
 use crate::domain::factories::journalism::articles::{
-    create_article_service_factory, delete_article_service_factory,
-    fetch_many_articles_service_factory, get_expanded_article_service_factory,
+    create_article_service_factory,
+    delete_article_service_factory,
+    fetch_many_articles_service_factory,
+    get_expanded_article_service_factory,
     update_article_service_factory,
 };
-use crate::domain::services::journalism::articles::{
-    create_article_service::CreateArticleParams,
-    delete_article_service::DeleteArticleParams,
-    fetch_many_articles_service::{FetchManyArticlesParams, ServiceArticleQueryType},
-    get_expanded_article_service::{
-        FetchManyCommentsWithAuthorResponse, GetExpandedArticleParams, GetExpandedArticleResponse,
-    },
-    update_article_service::UpdateArticleParams,
+use crate::domain::services::journalism::articles::create_article_service::CreateArticleParams;
+use crate::domain::services::journalism::articles::delete_article_service::DeleteArticleParams;
+use crate::domain::services::journalism::articles::fetch_many_articles_service::{
+    FetchManyArticlesParams,
+    ServiceArticleQueryType,
 };
+use crate::domain::services::journalism::articles::get_expanded_article_service::{
+    FetchManyCommentsWithAuthorResponse,
+    GetExpandedArticleParams,
+    GetExpandedArticleResponse,
+};
+use crate::domain::services::journalism::articles::update_article_service::UpdateArticleParams;
 use crate::error::IntoSamambaiaError;
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
@@ -26,16 +34,11 @@ use crate::infra::http::dtos::list_articles::ListArticlesDto;
 use crate::infra::http::dtos::update_article::UpdateArticleDto;
 use crate::infra::http::extractors::req_user::ReqUser;
 use crate::infra::http::middlewares::authentication_middleware;
-use crate::infra::http::presenters::article::MappedArticle;
+use crate::infra::http::presenters::article::{ArticlePresenter, MappedArticle};
+use crate::infra::http::presenters::expanded_article::ExpandedArticlePresenter;
 use crate::infra::http::presenters::pagination::PaginationPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
-use crate::infra::http::presenters::{
-    article::ArticlePresenter, expanded_article::ExpandedArticlePresenter,
-};
 use crate::infra::sea::sea_service::SeaService;
-
-use super::controller::ControllerTrait;
-use super::AppResponse;
 
 pub struct ArticlesController;
 

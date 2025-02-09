@@ -1,6 +1,7 @@
 use uuid::Uuid;
 
-use crate::domain::domain_entities::{role::Role, team_user::TeamUser};
+use crate::domain::domain_entities::role::Role;
+use crate::domain::domain_entities::team_user::TeamUser;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
 use crate::domain::repositories::team_user_repository::TeamUserRepositoryTrait;
 use crate::error::SamambaiaError;
@@ -78,18 +79,15 @@ impl<TeamUserRepository: TeamUserRepositoryTrait, TeamRoleRepository: TeamRoleRe
 
 #[cfg(test)]
 mod test {
-    use crate::domain::{
-        domain_entities::team_role::TeamRole,
-        repositories::{
-            team_role_repository::MockTeamRoleRepositoryTrait,
-            team_user_repository::MockTeamUserRepositoryTrait,
-        },
-    };
+    use std::sync::{Arc, Mutex};
+
+    use http::StatusCode;
+    use tokio;
 
     use super::*;
-    use http::StatusCode;
-    use std::sync::{Arc, Mutex};
-    use tokio;
+    use crate::domain::domain_entities::team_role::TeamRole;
+    use crate::domain::repositories::team_role_repository::MockTeamRoleRepositoryTrait;
+    use crate::domain::repositories::team_user_repository::MockTeamUserRepositoryTrait;
 
     #[tokio::test]
     async fn test() {

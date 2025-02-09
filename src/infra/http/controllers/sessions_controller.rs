@@ -6,17 +6,15 @@ use log::info;
 use serde_json::json;
 use validator::Validate;
 
+use super::controller::ControllerTrait;
+use super::AppResponse;
 use crate::configs::app::APP_CONFIG;
 use crate::domain::factories::identity::authenticate_user_service_factory;
 use crate::domain::services::identity::authenticate_user_service::AuthenticateUserParams;
-use crate::error::IntoSamambaiaError;
-use crate::error::SamambaiaError;
+use crate::error::{IntoSamambaiaError, SamambaiaError};
 use crate::infra::http::dtos::login::LoginDto;
 use crate::infra::jwt::jwt_service::{DecodedToken, JwtService, MakeJwtResult};
 use crate::infra::sea::sea_service::SeaService;
-
-use super::controller::ControllerTrait;
-use super::AppResponse;
 
 pub struct SessionsController;
 

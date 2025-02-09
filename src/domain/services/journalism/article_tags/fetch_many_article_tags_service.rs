@@ -1,7 +1,9 @@
 use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::repositories::article_tag_repository::{
-    ArticleTagQueryType, ArticleTagRepositoryTrait, FindManyArticleTagsResponse,
+    ArticleTagQueryType,
+    ArticleTagRepositoryTrait,
+    FindManyArticleTagsResponse,
 };
 use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;

@@ -1,6 +1,7 @@
-use crate::core::NICKNAME_REGX;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+
+use crate::core::NICKNAME_REGX;
 
 #[derive(Serialize, Deserialize, Validate)]
 pub struct CreateUserDto {

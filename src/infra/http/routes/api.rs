@@ -1,3 +1,5 @@
+use actix_web::web;
+
 use crate::infra::http::controllers::announcements_controller::AnnouncementsController;
 use crate::infra::http::controllers::article_tags_controller::ArticleTagsController;
 use crate::infra::http::controllers::articles_controller::ArticlesController;
@@ -11,7 +13,6 @@ use crate::infra::http::controllers::team_users_controller::TeamUsersController;
 use crate::infra::http::controllers::users_controller::UsersController;
 use crate::infra::http::middlewares::RequestUserMiddleware;
 use crate::infra::http::routes::route::RouteTrait;
-use actix_web::web;
 
 pub struct ApiRoutes;
 

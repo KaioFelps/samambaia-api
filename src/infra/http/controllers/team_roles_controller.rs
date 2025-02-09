@@ -1,16 +1,22 @@
+use actix_web::middleware::from_fn;
+use actix_web::{web, HttpResponse};
+use uuid::Uuid;
+use validator::Validate;
+
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::teams::{
-    create_team_role_service_factory, delete_team_role_service_factory,
-    fetch_many_team_roles_service_factory, update_team_role_service_factory,
+    create_team_role_service_factory,
+    delete_team_role_service_factory,
+    fetch_many_team_roles_service_factory,
+    update_team_role_service_factory,
 };
 use crate::domain::repositories::team_role_repository::TeamRoleQueryType;
-use crate::domain::services::teams::{
-    create_team_role_service::CreateTeamRoleParams, delete_team_role_service::DeleteTeamRoleParams,
-    fetch_many_team_roles_service::FetchManyTeamRolesParams,
-    update_team_role_service::UpdateTeamRoleParams,
-};
+use crate::domain::services::teams::create_team_role_service::CreateTeamRoleParams;
+use crate::domain::services::teams::delete_team_role_service::DeleteTeamRoleParams;
+use crate::domain::services::teams::fetch_many_team_roles_service::FetchManyTeamRolesParams;
+use crate::domain::services::teams::update_team_role_service::UpdateTeamRoleParams;
 use crate::error::IntoSamambaiaError;
 use crate::infra::http::dtos::create_team_role::CreateTeamRoleDto;
 use crate::infra::http::dtos::list_team_role::ListTeamRoleDto;
@@ -20,9 +26,6 @@ use crate::infra::http::middlewares::authentication_middleware;
 use crate::infra::http::presenters::presenter::{JsonWrappedEntity, PresenterTrait};
 use crate::infra::http::presenters::team_role::TeamRolePresenter;
 use crate::infra::sea::sea_service::SeaService;
-use actix_web::{middleware::from_fn, web, HttpResponse};
-use uuid::Uuid;
-use validator::Validate;
 
 pub struct TeamRolesController;
 

@@ -1,17 +1,19 @@
+use std::error::Error;
+
+use async_trait::async_trait;
+use entities::free_badge::{Column as FreeBadgeColumn, Entity as FreeBadgeEntity};
+use sea_orm::{ActiveModelTrait, EntityTrait, PaginatorTrait, QueryOrder, QuerySelect};
+use uuid::Uuid;
+
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::free_badge::FreeBadge;
 use crate::domain::repositories::free_badge_repository::{
-    FindManyFreeBadgesResponse, FreeBadgeRepositoryTrait,
+    FindManyFreeBadgesResponse,
+    FreeBadgeRepositoryTrait,
 };
 use crate::infra::sea::mappers::sea_free_badge_mapper::SeaFreeBadgeMapper;
 use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
-use async_trait::async_trait;
-use entities::free_badge::Column as FreeBadgeColumn;
-use entities::free_badge::Entity as FreeBadgeEntity;
-use sea_orm::{ActiveModelTrait, EntityTrait, PaginatorTrait, QueryOrder, QuerySelect};
-use std::error::Error;
-use uuid::Uuid;
 
 pub struct SeaFreeBadgeRepository<'a> {
     sea_service: &'a SeaService,

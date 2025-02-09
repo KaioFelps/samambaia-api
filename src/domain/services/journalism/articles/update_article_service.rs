@@ -174,13 +174,14 @@ impl<
 
 #[cfg(test)]
 mod test {
+    use http::StatusCode;
+    use uuid::Uuid;
+
     use super::{Article, UpdateArticleParams};
     use crate::domain::domain_entities::article_tag::ArticleTag;
     use crate::domain::domain_entities::role::Role;
     use crate::tests::repositories::article_repository::get_article_repository;
     use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
-    use http::StatusCode;
-    use uuid::Uuid;
 
     #[tokio::test]
     async fn test() {

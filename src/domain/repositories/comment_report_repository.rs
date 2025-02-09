@@ -1,12 +1,12 @@
-use async_trait::async_trait;
 use std::error::Error;
+
+use async_trait::async_trait;
+#[cfg(test)]
+use mockall::automock;
 use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::comment_report::{CommentReport, DraftCommentReport};
-
-#[cfg(test)]
-use mockall::automock;
 
 #[derive(Debug)]
 pub struct FindManyCommentReportsResponse(pub Vec<CommentReport>, pub u64);

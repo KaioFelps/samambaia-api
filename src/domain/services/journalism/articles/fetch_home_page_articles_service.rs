@@ -27,12 +27,13 @@ impl<ArticleRepository: ArticleRepositoryTrait> FetchHomePageArticlesService<Art
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::{
-        domain::domain_entities::{article::Article, role::Role, user::User},
-        tests::repositories::article_repository::get_article_repository,
-    };
     use tokio;
+
+    use super::*;
+    use crate::domain::domain_entities::article::Article;
+    use crate::domain::domain_entities::role::Role;
+    use crate::domain::domain_entities::user::User;
+    use crate::tests::repositories::article_repository::get_article_repository;
 
     #[tokio::test]
     async fn test() {

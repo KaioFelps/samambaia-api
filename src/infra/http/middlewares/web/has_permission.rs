@@ -1,13 +1,13 @@
 use std::future::{ready, Future, Ready};
 use std::pin::Pin;
 
-use crate::error::SamambaiaError;
-use crate::util::RolePermissions;
 use actix_web::body::EitherBody;
 use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
 use actix_web::{Error, HttpMessage, ResponseError};
 
 use super::WebAuthUser;
+use crate::error::SamambaiaError;
+use crate::util::RolePermissions;
 
 #[derive(Clone)]
 pub enum PermissionComparisonMode {

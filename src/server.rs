@@ -1,9 +1,11 @@
-use crate::infra::http::routes::web::WebRoutes;
-use crate::infra::http::routes::{api::ApiRoutes, route::RouteTrait};
-use crate::infra::sea::sea_service::SeaService;
 use actix_web::dev::{ServiceFactory, ServiceRequest, ServiceResponse};
 use actix_web::{middleware, web, App, HttpResponse};
 use serde_json::json;
+
+use crate::infra::http::routes::api::ApiRoutes;
+use crate::infra::http::routes::route::RouteTrait;
+use crate::infra::http::routes::web::WebRoutes;
+use crate::infra::sea::sea_service::SeaService;
 
 pub struct ServerFactory;
 

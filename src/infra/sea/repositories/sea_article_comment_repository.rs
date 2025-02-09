@@ -1,28 +1,36 @@
-use async_trait::async_trait;
-use migration::{Expr, Func};
-use sea_orm::{
-    ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
-    QuerySelect, QueryTrait, TransactionTrait, Value,
-};
 use std::error::Error;
 use std::future::Future;
+
+use async_trait::async_trait;
+use entities::article::Entity as ArticleEntity;
+use entities::comment::{Column as CommentColumn, Entity as CommentEntity};
+use migration::{Expr, Func};
+use sea_orm::{
+    ColumnTrait,
+    ConnectionTrait,
+    EntityTrait,
+    PaginatorTrait,
+    QueryFilter,
+    QueryOrder,
+    QuerySelect,
+    QueryTrait,
+    TransactionTrait,
+    Value,
+};
 use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment::Comment;
 use crate::domain::repositories::article_comment_repository::{
-    ArticleCommentRepositoryTrait, CommentQueryType, FindManyCommentsResponse,
+    ArticleCommentRepositoryTrait,
+    CommentQueryType,
+    FindManyCommentsResponse,
 };
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
 use crate::infra::sea::mappers::sea_comment_mapper::SeaCommentMapper;
 use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
-
-use entities::comment::Column as CommentColumn;
-use entities::comment::Entity as CommentEntity;
-
-use entities::article::Entity as ArticleEntity;
 
 pub struct SeaArticleCommentRepository<'a> {
     sea_service: &'a SeaService,

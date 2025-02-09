@@ -1,6 +1,8 @@
-use crate::error::SamambaiaError;
-use actix_web::{http::StatusCode, HttpResponse, HttpResponseBuilder, ResponseError};
+use actix_web::http::StatusCode;
+use actix_web::{HttpResponse, HttpResponseBuilder, ResponseError};
 use serde_json::json;
+
+use crate::error::SamambaiaError;
 
 impl ResponseError for SamambaiaError {
     fn status_code(&self) -> StatusCode {

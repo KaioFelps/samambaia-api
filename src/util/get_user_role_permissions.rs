@@ -1,5 +1,6 @@
-use crate::domain::domain_entities::role::Role;
 use serde::Serialize;
+
+use crate::domain::domain_entities::role::Role;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 pub enum RolePermissions {

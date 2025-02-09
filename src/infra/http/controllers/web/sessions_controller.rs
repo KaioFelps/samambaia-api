@@ -1,24 +1,24 @@
+use actix_session::{Session, SessionExt};
+use actix_web::web::{self, Redirect};
+use actix_web::HttpRequest;
+use inertia_rust::validators::InertiaValidateOrRedirect;
+use inertia_rust::{hashmap, Inertia, InertiaFacade};
+
 use crate::configs::app::SESSION_USER_KEY;
 use crate::configs::inertia::IntoInertiaRedirect;
 use crate::domain::factories::identity::{
-    authenticate_user_service_factory, create_user_service_factory,
+    authenticate_user_service_factory,
+    create_user_service_factory,
 };
 use crate::domain::services::identity::authenticate_user_service::AuthenticateUserParams;
 use crate::domain::services::identity::create_user_service::CreateUserParams;
 use crate::infra::extensions::sessions::SessionHelpers;
-use crate::infra::http::controllers::{controller::ControllerTrait, AppResponse};
+use crate::infra::http::controllers::controller::ControllerTrait;
+use crate::infra::http::controllers::AppResponse;
 use crate::infra::http::dtos::create_user::CreateUserDto;
 use crate::infra::http::dtos::login::LoginDto;
 use crate::infra::http::middlewares::WebAuthUserMiddleware;
 use crate::infra::sea::sea_service::SeaService;
-
-use actix_session::{Session, SessionExt};
-use actix_web::{
-    web::{self, Redirect},
-    HttpRequest,
-};
-use inertia_rust::validators::InertiaValidateOrRedirect;
-use inertia_rust::{hashmap, Inertia, InertiaFacade};
 
 pub struct SessionsController;
 

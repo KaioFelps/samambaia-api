@@ -1,13 +1,16 @@
+use std::sync::{Arc, Mutex};
+
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::{
-    ArticleQueryType, FindManyArticlesResponse, MockArticleRepositoryTrait,
+    ArticleQueryType,
+    FindManyArticlesResponse,
+    MockArticleRepositoryTrait,
 };
 use crate::error::SamambaiaError;
 use crate::infra::http::presenters::home_article::HomeArticlePresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
-use std::sync::{Arc, Mutex};
 
 type LocalDb<T> = Arc<Mutex<Vec<T>>>;
 

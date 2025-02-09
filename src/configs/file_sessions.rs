@@ -1,14 +1,18 @@
-use std::{collections::HashMap, io, str::FromStr};
+use std::collections::HashMap;
+use std::io;
+use std::str::FromStr;
 
 use actix_session::storage::{
-    generate_session_key, LoadError, SaveError, SessionKey, SessionStore, UpdateError,
+    generate_session_key,
+    LoadError,
+    SaveError,
+    SessionKey,
+    SessionStore,
+    UpdateError,
 };
 use chrono::{DateTime, Duration, Utc};
-
-use tokio::{
-    fs::{read_dir, read_to_string, remove_file, DirBuilder, DirEntry, File},
-    io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
-};
+use tokio::fs::{read_dir, read_to_string, remove_file, DirBuilder, DirEntry, File};
+use tokio::io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt};
 
 use super::app::APP_CONFIG;
 pub struct FileSessionStore<'a> {
@@ -331,15 +335,15 @@ async fn file_should_be_cleaned(file: &DirEntry) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{inner_clean_expired_sessions, FileSessionStore};
+    use std::collections::HashMap;
+
     use actix_session::storage::{generate_session_key, LoadError, SessionStore};
     use actix_web::cookie::time;
     use inertia_rust::hashmap;
-    use std::collections::HashMap;
-    use tokio::{
-        fs::{read_dir, remove_dir_all, File},
-        io::AsyncWriteExt,
-    };
+    use tokio::fs::{read_dir, remove_dir_all, File};
+    use tokio::io::AsyncWriteExt;
+
+    use super::{inner_clean_expired_sessions, FileSessionStore};
 
     async fn write_session(session_key: &str, content: &str, store: &FileSessionStore<'_>) {
         store.maybe_create_session_directory().await;

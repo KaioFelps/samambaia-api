@@ -1,7 +1,9 @@
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::{
-    ArticleQueryType, ArticleRepositoryTrait, FindManyArticlesResponse,
+    ArticleQueryType,
+    ArticleRepositoryTrait,
+    FindManyArticlesResponse,
 };
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;
@@ -129,10 +131,10 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use http::StatusCode;
     use tokio;
 
+    use super::*;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;

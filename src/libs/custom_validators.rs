@@ -1,4 +1,5 @@
 use std::str::FromStr;
+
 use validator::ValidationError;
 
 use crate::domain::domain_entities::role::Role;

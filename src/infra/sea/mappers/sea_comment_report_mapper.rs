@@ -1,13 +1,16 @@
-use entities::comment_report::ActiveModel as CommentReportActiveModel;
-use entities::comment_report::Model as CommentReportModel;
+use entities::comment_report::{
+    ActiveModel as CommentReportActiveModel,
+    Model as CommentReportModel,
+};
 use sea_orm::IntoActiveValue;
 
-use crate::domain::domain_entities::comment_report::CommentReport;
-use crate::domain::domain_entities::comment_report::CommentReportIdTrait;
-use crate::domain::domain_entities::comment_report::CommentReportTrait;
-use crate::domain::domain_entities::comment_report::DraftCommentReport;
-
 use super::SeaMapper;
+use crate::domain::domain_entities::comment_report::{
+    CommentReport,
+    CommentReportIdTrait,
+    CommentReportTrait,
+    DraftCommentReport,
+};
 
 pub struct SeaCommentReportMapper;
 

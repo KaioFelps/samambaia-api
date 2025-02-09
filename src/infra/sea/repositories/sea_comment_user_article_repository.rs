@@ -1,25 +1,29 @@
 use std::error::Error;
 
 use async_trait::async_trait;
+use entities::comment::{Column as CommentColumn, Entity as CommentEntity};
+use entities::user::Entity as UserEntity;
 use migration::{Expr, Func};
 use sea_orm::{
-    ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, QueryTrait,
+    ColumnTrait,
+    EntityTrait,
+    PaginatorTrait,
+    QueryFilter,
+    QueryOrder,
+    QuerySelect,
+    QueryTrait,
 };
 use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::repositories::comment_user_article_repository::{
-    CommentUserArticleRepositoryTrait, CommentWithAuthorQueryType,
+    CommentUserArticleRepositoryTrait,
+    CommentWithAuthorQueryType,
     FindManyCommentsWithAuthorResponse,
 };
 use crate::infra::sea::mappers::sea_comment_with_author_mapper::SeaCommentWithAuthorMapper;
 use crate::infra::sea::sea_service::SeaService;
-
-use entities::comment::Column as CommentColumn;
-use entities::comment::Entity as CommentEntity;
-
-use entities::user::Entity as UserEntity;
 
 pub struct SeaCommentUserArticleRepository<'a> {
     sea_service: &'a SeaService,
