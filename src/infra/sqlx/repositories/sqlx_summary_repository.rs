@@ -23,8 +23,7 @@ impl<'a> SqlxSummaryRepository<'a> {
 #[async_trait]
 impl SummaryRepositoryTrait for SqlxSummaryRepository<'_> {
     async fn get_table_summary(&self) -> Result<CountSummary, Box<dyn Error>> {
-        sqlx::query_as!(
-            CountSummary,
+        sqlx::query_as(
             r#"SELECT
                 (SELECT COUNT(id) FROM "user") AS "users!: i32",
                 (SELECT COUNT(id) FROM "article") AS "articles!: i32",
