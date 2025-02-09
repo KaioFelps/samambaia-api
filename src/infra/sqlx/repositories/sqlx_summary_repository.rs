@@ -25,10 +25,10 @@ impl SummaryRepositoryTrait for SqlxSummaryRepository<'_> {
     async fn get_table_summary(&self) -> Result<CountSummary, Box<dyn Error>> {
         sqlx::query_as(
             r#"SELECT
-                (SELECT COUNT(id) FROM "user") AS "users!: i32",
-                (SELECT COUNT(id) FROM "article") AS "articles!: i32",
-                (SELECT COUNT(id) FROM "comment") AS "comments!: i32",
-                (SELECT COUNT(id) FROM "user" where not "user"."role" = 'User') AS "team_users!: i32";"#
+                (SELECT COUNT(id)::Int4 FROM "user") AS users,
+                (SELECT COUNT(id)::Int4 FROM "article") AS articles,
+                (SELECT COUNT(id)::Int4 FROM "comment") AS comments,
+                (SELECT COUNT(id)::Int4 FROM "user" WHERE NOT "user"."role" = 'User') AS team_users;"#,
         )
         .fetch_one(self.sea_service.db.get_postgres_connection_pool())
         .await
