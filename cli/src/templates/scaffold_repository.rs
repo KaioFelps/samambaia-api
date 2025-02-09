@@ -3,7 +3,7 @@ pub fn get_repository_flat_template(
     entity_file_name: &String,
 ) -> String {
     return format!(
-r#"use async_trait::async_trait;
+        r#"use async_trait::async_trait;
 use std::error::Error;
 
 use crate::domain::domain_entities::{entity_file_name}::{capitalized_entity};
