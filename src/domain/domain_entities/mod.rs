@@ -4,6 +4,7 @@ pub mod article_tag;
 pub mod comment;
 pub mod comment_report;
 pub mod comment_with_author;
+pub mod council_alert;
 pub mod free_badge;
 pub mod home_article;
 pub mod role;
