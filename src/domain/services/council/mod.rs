@@ -1,1 +1,2 @@
+pub mod create_council_alert_service;
 pub mod find_all_council_alerts_service;
