@@ -9,7 +9,7 @@ pub struct CouncilAlertDraft {
     created_at: NaiveDateTime,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct CouncilAlert {
     id: usize,
     pinned: bool,
