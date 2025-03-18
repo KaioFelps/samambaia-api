@@ -42,6 +42,11 @@ pub enum RolePermissions {
     CreateAnnouncement,
     UpdateAnnouncement,
     DeleteAnnouncement,
+
+    CreateCouncilAlert,
+    UpdateCouncilAlert,
+    DeleteCouncilAlert,
+    SeeCouncilAlerts,
 }
 
 impl RolePermissions {
@@ -57,6 +62,8 @@ impl RolePermissions {
             CreateFreeBadge,
             UpdateFreeBadge,
             DeleteFreeBadge,
+            //
+            SeeCouncilAlerts,
         ];
         let perms_editor = [
             &perms_writer[..],
@@ -99,6 +106,10 @@ impl RolePermissions {
                 CreateAnnouncement,
                 UpdateAnnouncement,
                 DeleteAnnouncement,
+                //
+                CreateCouncilAlert,
+                UpdateCouncilAlert,
+                DeleteCouncilAlert,
             ],
         ]
         .concat();
