@@ -41,6 +41,7 @@ use crate::infra::http::middlewares::{
 };
 use crate::infra::http::presenters::announcement::AnnouncementPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
+use crate::infra::http::presenters::web_auth_user::WebAuthUserPresenter;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct WebRoutes;
@@ -74,7 +75,7 @@ impl RouteTrait for WebRoutes {
                             WebRequestUser::Ghast => None,
                             WebRequestUser::User(user) => Some(user),
                         },
-                    };
+                    }.map(WebAuthUserPresenter::to_http);
 
                     let db_conn = req
                         .app_data::<Data<SeaService>>()

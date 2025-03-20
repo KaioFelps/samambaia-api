@@ -2,19 +2,18 @@ use std::future::Future;
 use std::pin::Pin;
 
 use actix_web::{FromRequest, HttpMessage};
-use serde::Serialize;
 
+use crate::domain::domain_entities::user::User;
 use crate::error::SamambaiaError;
-use crate::infra::http::presenters::user::MappedUser;
 use crate::util::RolePermissions;
 
 pub mod has_permission;
 pub mod web_auth_user;
 pub mod web_request_user;
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct WebAuthUser {
-    pub user: MappedUser,
+    pub user: User,
     pub permissions: Vec<RolePermissions>,
 }
 
