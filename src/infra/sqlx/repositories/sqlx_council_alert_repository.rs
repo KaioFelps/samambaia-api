@@ -23,7 +23,7 @@ impl CouncilAlertRepositoryTrait for SqlxCouncilAlertRepository<'_> {
         council_alert: CouncilAlertDraft,
     ) -> Result<CouncilAlert, Box<dyn Error>> {
         let (id,): (i32,) = sqlx::query_as(
-            r#"INSERT INTO "council_alerts"
+            r#"INSERT INTO "council_alert"
             (title, content, pinned, created_at)
             VALUES ($1, $2, $3, $4)
             RETURNING id
@@ -43,7 +43,7 @@ impl CouncilAlertRepositoryTrait for SqlxCouncilAlertRepository<'_> {
     async fn find_all(&self) -> Result<Vec<CouncilAlert>, Box<dyn Error>> {
         sqlx::query_as(
             r#"SELECT id, pinned, title, content, created_at
-            FROM "council_alerts"
+            FROM "council_alert"
             "#,
         )
         .fetch_all(self.sea_service.db.get_postgres_connection_pool())
