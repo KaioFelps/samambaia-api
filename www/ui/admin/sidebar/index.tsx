@@ -16,7 +16,7 @@ import { memo } from "react";
 import { SidebarMenuItem } from "./item";
 import { SidebarMenuLink } from "./link";
 import { SidebarMenuSection } from "./section";
-import { SidebarSectionTitle } from "./sidebarSectionTitle";
+import { SidebarSectionTitle } from "./sidebar-section-title";
 
 export const SidebarMenu = memo(() => {
   return (
