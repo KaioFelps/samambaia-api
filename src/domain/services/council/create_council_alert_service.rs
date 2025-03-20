@@ -45,7 +45,7 @@ impl<CAR: CouncilAlertRepositoryTrait> CreateCouncilAlertService<CAR> {
             .await
             .map_err(|error| {
                 generate_service_internal_error(
-                    "Error occurred on Create Council Alert Service, while creating council alert.",
+                    "Error occurred on Create Council Alert Service, while creating council alert",
                     error,
                 )
             })

@@ -37,7 +37,7 @@ impl<CAR: CouncilAlertRepositoryTrait> FindAllCouncilAlertsService<CAR> {
             .await
             .map_err(|error| {
                 generate_service_internal_error(
-                    "Failed to fetch council alerts on fetching them from database.",
+                    "Failed to fetch council alerts on fetching them from database",
                     error,
                 )
             })
