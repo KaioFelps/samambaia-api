@@ -3,6 +3,8 @@ use actix_web::{web, HttpRequest};
 use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
 
 use crate::domain::factories::analytics::get_summary_service_factory;
+use crate::domain::factories::council::find_all_council_alerts_service_factory;
+use crate::domain::services::council::find_all_council_alerts_service::GetCouncilAlertsParams;
 use crate::error::IntoSamambaiaError;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::AppResponse;
@@ -10,7 +12,10 @@ use crate::infra::http::middlewares::web::has_permission::{
     PermissionComparisonMode,
     WebHasPermissionMiddleware,
 };
+use crate::infra::http::middlewares::web::WebAuthUser;
 use crate::infra::http::middlewares::WebAuthUserMiddleware;
+use crate::infra::http::presenters::council_alert::CouncilAlertPresenter;
+use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
 use crate::util::RolePermissions;
 
@@ -31,15 +36,29 @@ impl ControllerTrait for AdminHomeController {
 }
 
 impl AdminHomeController {
-    async fn home(req: HttpRequest, sea_service: Data<SeaService>) -> AppResponse {
+    async fn home(
+        req: HttpRequest,
+        sea_service: Data<SeaService>,
+        auth_user: WebAuthUser,
+    ) -> AppResponse {
         let summary_service = get_summary_service_factory::exec(&sea_service);
+        let find_all_council_alerts_service =
+            find_all_council_alerts_service_factory::exec(&sea_service);
 
-        let summary = summary_service.exec().await?;
+        let (summary, council_alerts) = tokio::try_join!(
+            summary_service.exec(),
+            find_all_council_alerts_service.exec(GetCouncilAlertsParams {
+                user: &auth_user.user
+            })
+        )?;
 
         Inertia::render_with_props(
             &req,
             "admin/index".into(),
-            hashmap!["summary" => InertiaProp::data(summary)],
+            hashmap![
+                "summary" => InertiaProp::data(summary),
+                "councilAlerts" => InertiaProp::data(council_alerts.into_iter().map(CouncilAlertPresenter::to_http).collect::<Vec<_>>()),
+            ],
         )
         .await
         .map_err(IntoSamambaiaError::into_samambaia_error)
