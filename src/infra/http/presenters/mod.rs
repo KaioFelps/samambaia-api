@@ -3,6 +3,7 @@ pub mod article;
 pub mod article_tag;
 pub mod comment;
 pub mod comment_report;
+pub mod council_alert;
 pub mod expanded_article;
 pub mod free_badge;
 pub mod home_article;
