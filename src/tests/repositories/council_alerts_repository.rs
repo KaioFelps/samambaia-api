@@ -30,7 +30,7 @@ pub fn get_council_alerts_repository() -> (
     let db_clone = db.clone();
     repository.expect_create().returning(move |draft| {
         let mut db = db_clone.lock().unwrap();
-        let council_alert = draft.into_council_alert(db.len() + 1);
+        let council_alert = draft.into_council_alert(db.len() as i32 + 1);
         db.push(council_alert.clone());
         Ok(council_alert)
     });
