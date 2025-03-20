@@ -13,8 +13,6 @@ use crate::configs::app::SESSION_USER_KEY;
 use crate::domain::factories::identity::get_user_service_factory;
 use crate::domain::services::identity::get_user_service::GetUserServiceParams;
 use crate::error::SamambaiaError;
-use crate::infra::http::presenters::presenter::PresenterTrait;
-use crate::infra::http::presenters::user::UserPresenter;
 use crate::infra::sea::sea_service::SeaService;
 use crate::util::RolePermissions;
 
@@ -126,7 +124,6 @@ async fn get_session_user(req: &mut ServiceRequest) -> Result<WebRequestUser, Sa
     };
 
     let permissions = RolePermissions::get_from_role(&user.role().unwrap());
-    let user = UserPresenter::to_http(user);
 
     Ok(WebRequestUser::User(WebAuthUser { user, permissions }))
 }

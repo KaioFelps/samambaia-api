@@ -11,3 +11,4 @@ pub mod presenter;
 pub mod team_role;
 pub mod team_user;
 pub mod user;
+pub mod web_auth_user;
