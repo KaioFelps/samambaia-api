@@ -1,4 +1,5 @@
 use chrono::NaiveDateTime;
+use sqlx::prelude::FromRow;
 
 use crate::libs::time::TimeHelper;
 
@@ -9,9 +10,9 @@ pub struct CouncilAlertDraft {
     created_at: NaiveDateTime,
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, FromRow)]
 pub struct CouncilAlert {
-    id: usize,
+    id: i32,
     pinned: bool,
     title: String,
     content: String,
@@ -29,7 +30,7 @@ impl CouncilAlertDraft {
         }
     }
 
-    pub fn into_council_alert(self, id: usize) -> CouncilAlert {
+    pub fn into_council_alert(self, id: i32) -> CouncilAlert {
         CouncilAlert::new_from_existing(id, self.title, self.content, self.pinned, self.created_at)
     }
 
@@ -48,6 +49,22 @@ impl CouncilAlertDraft {
     pub fn set_content(&mut self, content: String) {
         self.content = content;
     }
+
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+
+    pub fn content(&self) -> &str {
+        &self.content
+    }
+
+    pub fn pinned(&self) -> bool {
+        self.pinned
+    }
+
+    pub fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
 }
 
 impl CouncilAlert {
@@ -56,7 +73,7 @@ impl CouncilAlert {
     }
 
     pub fn new_from_existing(
-        id: usize,
+        id: i32,
         title: String,
         content: String,
         pinned: bool,
@@ -71,7 +88,7 @@ impl CouncilAlert {
         }
     }
 
-    pub fn id(&self) -> usize {
+    pub fn id(&self) -> i32 {
         self.id
     }
 
