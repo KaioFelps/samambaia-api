@@ -1,16 +1,13 @@
 import clsx from "clsx";
 import { memo, useMemo } from "react";
 
-import { Sprite, SpriteProps } from "./sprite";
+import { Sprite, SpriteProps } from "../sprite";
+import { BaseAlertProps } from ".";
 
-type AlertProps = {
-  type: "warning" | "error" | "success";
-  message: string;
-  className?: string;
-};
+export type PublicAlertProps = BaseAlertProps;
 
-export const Alert = memo(({ message, type, className }: AlertProps) => {
-  const sprites: Record<AlertProps["type"], SpriteProps> = useMemo(() => ({
+export const PublicAlert = memo(({ message, type, className }: PublicAlertProps) => {
+  const sprites: Record<PublicAlertProps["type"], SpriteProps> = useMemo(() => ({
     warning: {
       x: -431,
       y: -5,
