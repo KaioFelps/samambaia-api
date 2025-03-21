@@ -28,9 +28,9 @@ export const Header = memo(() => {
 
       <div
         style={{
-          boxShadow: `inset 0 2px 0 0 var(--colors-black),
+          boxShadow: `inset 0 2px 0 0 var(--color-black),
             inset 0 4px 0 0 color-mix(in oklab, var(--color-white) 15%, transparent),
-            inset 0 -2px 0 0 var(--colors-black),
+            inset 0 -2px 0 0 var(--color-black),
             0 2px 0 0 color-mix(in oklab, var(--color-black) 20%, transparent)`,
         }}
         className="bg-gray-800 text-white"
