@@ -14,16 +14,16 @@ export function DropdownContent({ children, className, ...rest }: DropdownConten
         {...rest}
         className={clsx(
           "group will-change-[opacity,transform]",
-          "data-[state=open]:data-[side=bottom]:animate-slideDownAndFade",
-          "data-[state=closed]:data-[side=bottom]:animate-slideDownAndFadeReverse",
+          "data-[state=open]:data-[side=bottom]:animate-slide-down-and-fade",
+          "data-[state=closed]:data-[side=bottom]:animate-slide-down-and-fade-reverse",
           //
-          "data-[state=open]:data-[side=left]:animate-slideLeftAndFade",
-          "data-[state=closed]:data-[side=left]:animate-slideLeftAndFadeReverse",
-          "data-[state=open]:data-[side=right]:animate-slideRightAndFade",
-          "data-[state=closed]:data-[side=right]:animate-slideRightAndFadeReverse",
+          "data-[state=open]:data-[side=left]:animate-slide-left-and-fade",
+          "data-[state=closed]:data-[side=left]:animate-slide-left-and-fade-reverse",
+          "data-[state=open]:data-[side=right]:animate-slide-right-and-fade",
+          "data-[state=closed]:data-[side=right]:animate-slide-right-and-fade-reverse",
           //
-          "data-[state=open]:data-[side=top]:animate-slideUpAndFade",
-          "data-[state=closed]:data-[side=top]:animate-slideUpAndFadeReverse",
+          "data-[state=open]:data-[side=top]:animate-slide-up-and-fade",
+          "data-[state=closed]:data-[side=top]:animate-slide-up-and-fade-reverse",
           className && className,
         )}
       >
