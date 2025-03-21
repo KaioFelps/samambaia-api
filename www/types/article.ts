@@ -1,9 +1,6 @@
 export type Article = {
   id: string;
-  author: {
-    id: string;
-    nickname: string;
-  };
+  authorId: string;
   coverUrl: string;
   title: string;
   content: string;
