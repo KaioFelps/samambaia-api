@@ -1,8 +1,10 @@
-use actix_web::HttpResponse;
+use actix_web::web::Redirect;
+use actix_web::{Either, HttpResponse};
 
 use crate::error::SamambaiaError;
 
 pub type AppResponse<T = HttpResponse> = Result<T, SamambaiaError>;
+pub type AppResponseRedirect = Result<Either<HttpResponse, Redirect>, SamambaiaError>;
 
 pub mod announcements_controller;
 pub mod article_tags_controller;
