@@ -1,7 +1,13 @@
 import { PageProps } from "@inertiajs/core/types";
 import { useMemo } from "react";
 
+import { Alert } from "@/components/alert";
+import Button from "@/components/button";
+import Header from "@/components/header";
+import { CouncilAlertCard } from "@/ui/admin/council-alert-card";
 import { SummaryCard, SummaryCardProps } from "@/ui/admin/summary-card";
+
+import { CouncilAlert } from "./www/types/council-alert";
 
 type Summary = {
   users: number;
@@ -10,17 +16,12 @@ type Summary = {
   team_users: number;
 };
 
-type SummaryCardProps = {
-  label: string;
-  count: number;
-  spriteCoords: SpriteProps;
-};
-
 type AdminHomeProps = PageProps & {
   summary: Summary;
+  councilAlerts: CouncilAlert[];
 };
 
-export default function AdminHome({ auth, summary: _summary }: AdminHomeProps) {
+export default function AdminHome({ summary: _summary, councilAlerts }: AdminHomeProps) {
   const summary: SummaryCardProps[] = useMemo(() => [
     {
       label: "notícias",
@@ -53,8 +54,37 @@ export default function AdminHome({ auth, summary: _summary }: AdminHomeProps) {
         {summary.map(SummaryCard)}
       </section>
 
-      <h1>Bem-vindo ao painel do cosmic, {auth?.user.nickname}!</h1>
-    </main>
+      <section>
+        <Header.Root className="mb-6">
+          <Header.Title heading="h2">Avisos do Grêmio</Header.Title>
+          <Header.Divisor />
+          <Header.Actions>
+            <Button
+              admin
+              asLink
+              href=""
+            >
+              Adicionar novo aviso
+            </Button>
+          </Header.Actions>
+        </Header.Root>
 
+        <div className="flex flex-col gap-6">
+          {councilAlerts.length
+            ? councilAlerts.map((alert) => (
+              <CouncilAlertCard
+                key={`council-alert-card-${alert.id}`}
+                {...alert}
+              />))
+            : (
+              <Alert
+                admin
+                type="info"
+                message="Não há nenhum aviso do grêmio."
+              />
+              )}
+        </div>
+      </section>
+    </main>
   );
 }
