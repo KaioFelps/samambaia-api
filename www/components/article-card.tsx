@@ -1,7 +1,7 @@
 import { Link } from "@inertiajs/react";
 import clsx from "clsx";
 
-import { Article } from "@/types/article";
+import { ArticlePreview } from "@/types/article-preview";
 
 import { Sprite } from "./sprite";
 
@@ -13,7 +13,7 @@ export function ArticleCard({
   coverUrl,
   createdAt,
   description,
-}: Article) {
+}: ArticlePreview) {
   return (
     <div
       key={"article-card-" + id}
