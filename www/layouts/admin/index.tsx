@@ -53,8 +53,8 @@ export function AdminLayout({ children, props }: { children: ReactNode; props: P
 
           <div className={clsx(
             "flex items-center gap-3",
-            "prose-a:text-blue-500 hover:prose-a:underline active:prose-a:text-blue-700",
-            "prose-a:cursor-default active:prose-a:cursor-pointer",
+            "prose-a:text-blue-500 prose-a:hover:underline prose-a:active:text-blue-700",
+            "prose-a:cursor-default prose-a:active:cursor-pointer",
           )}
           >
             <a

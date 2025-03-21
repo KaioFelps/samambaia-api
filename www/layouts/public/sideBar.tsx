@@ -61,8 +61,8 @@ export const SideBar = memo(() => {
             {featuredUsers.data.map(({ nickname, cause }) => (
               <div
                 className="
-                flex gap-3 [&:not(:last-child)]:overflow-hidden
-                [&:not(:last-child)]:border-b-2 border-black/15
+                flex gap-3 not-last:overflow-hidden
+                not-last:border-b-2 border-black/15
                 "
                 key={"live-cosmic-featured-user-" + nickname}
               >

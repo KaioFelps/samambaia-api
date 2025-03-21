@@ -1,7 +1,268 @@
-@import "./public.scss";
-@import "./admin.scss";
+@import './public.css';
+@import './admin.css';
 
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@theme {
+  --color-*: initial;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+
+  --color-gray-100: #f6f6f6;
+  --color-gray-200: #efefef;
+  --color-gray-250: #e0e0e0;
+  --color-gray-300: #dddddd;
+  --color-gray-400: #c0c0c0;
+  --color-gray-700: #555555;
+  --color-gray-800: #303037;
+
+  --color-blue-200: #e6f8ff;
+  --color-blue-500: #0997e8;
+  --color-blue-700: #0075ff;
+
+  --color-green-300: #14ff48;
+  --color-green-500: #27c13f;
+  --color-green-600: #23ae39;
+  --color-green-700: #10a530;
+
+  --color-purple-100: #f5eaf9;
+  --color-purple-300: #e942e9;
+  --color-purple-500: #bc36d8;
+  --color-purple-700: #8e2eb8;
+
+  --color-red-700: #ca5757;
+  --color-red-800: #942d46;
+
+  --color-yellow-200: #fcff7e;
+  --color-yellow-400: #ffd600;
+  --color-yellow-500: #efba00;
+  --color-yellow-700: #ffb800;
+  --color-yellow-800: #d3a200;
+  --color-yellow-900: #9d4200;
+
+  --font-*: initial;
+  --font-default: Kanit, ui-sans-serif, system-ui;
+  --font-rowdies: Rowdies, Kanit, ui-sans-serif, system-ui;
+
+  --breakpoint-main: 1392px;
+
+  --animate-top-bg: topBgKeyframe 50s linear infinite;
+  --animate-slide-down-and-fade: slideDownAndFade 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-down-and-fade-reverse: slideDownAndFadeReverse 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-left-and-fade: slideLeftAndFade 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-left-and-fade-reverse: slideLeftAndFadeReverse 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up-and-fade: slideUpAndFade 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up-and-fade-reverse: slideUpAndFadeReverse 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-right-and-fade: slideRightAndFade 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-right-and-fade-reverse: slideRightAndFadeReverse 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-up-and-fade: scaleUpAndFade 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-up-and-fade-reverse: scaleUpAndFadeReverse 400ms
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-dialog-scale-up-and-fade: dialogScaleUpAndFade 400ms
+    cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-dialog-scale-up-and-fade-reverse: dialogScaleUpAndFadeReverse 400ms
+    cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-radix-accordion-slide: radixAccordionSlide 300ms
+    cubic-bezier(0.87, 0, 0.13, 1);
+  --animate-radix-accordion-slide-reverse: radixAccordionSlideReverse 300ms
+    cubic-bezier(0.87, 0, 0.13, 1);
+
+  @keyframes topBgKeyframe {
+    0% {
+      background-position-x: 0px;
+    }
+    100% {
+      background-position-x: 1366px;
+    }
+  }
+  @keyframes slideDownAndFade {
+    from {
+      opacity: 0;
+      transform: translateY(-2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes slideDownAndFadeReverse {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-2px);
+    }
+  }
+  @keyframes slideLeftAndFade {
+    from {
+      opacity: 0;
+      transform: translateX(2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes slideLeftAndFadeReverse {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(2px);
+    }
+  }
+  @keyframes slideUpAndFade {
+    from {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes slideUpAndFadeReverse {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+  }
+  @keyframes slideRightAndFade {
+    from {
+      opacity: 0;
+      transform: translateX(-2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes slideRightAndFadeReverse {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-2px);
+    }
+  }
+  @keyframes scaleUpAndFade {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes scaleUpAndFadeReverse {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
+  @keyframes dialogScaleUpAndFade {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+  @keyframes dialogScaleUpAndFadeReverse {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
+  @keyframes radixAccordionSlide {
+    from {
+      height: 0px;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes radixAccordionSlideReverse {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0px;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@utility w-full-mx {
+  width: calc(100% - 48px);
+}
+
+@utility pixelated {
+  image-rendering: pixelated;
+}
+
+@utility font-kanis {
+  font-family: Kanit, sans-serif;
+}
+
+@utility font-rowdies {
+  font-family: Rowdies, Kanit, sans-serif;
+}
+
+@utility highlight-member-name-stroke {
+  @supports (-webkit-text-stroke: 2px black) {
+    -webkit-text-stroke: 2px black;
+    -webkit-text-fill-color: white;
+  }
+}
 
 @layer base {
     * {
@@ -17,31 +278,5 @@
 
     #app {
         @apply h-full;
-    }
-}
-
-
-@layer utilities {
-    .w-full-mx {
-        width: calc(100% - 48px);
-    }
-
-    .pixelated {
-        image-rendering: pixelated;
-    }
-
-    .font-kanis {
-        font-family: Kanit, sans-serif;
-    }
-
-    .font-rowdies {
-        font-family: Rowdies, Kanit, sans-serif;
-    }
-
-    @supports (-webkit-text-stroke: 2px black) {
-        .highlight-member-name-stroke {
-            -webkit-text-stroke: 2px black;
-            -webkit-text-fill-color: white;
-        }
     }
 }

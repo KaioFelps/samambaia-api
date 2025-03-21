@@ -20,7 +20,7 @@ export const CouncilAlertCard = memo(({ content, pinned, title }: CouncilAlert) 
         className={clsx(
           "py-3 flex flex-col gap-3",
           "[&*]:text-sm [&*]:font-light prose-p:leading-5",
-          "prose-a:text-blue-500 hover:prose-a:text-blue-700",
+          "prose-a:text-blue-500 prose-a:hover:text-blue-700",
           "prose-headings:font-bold prose-headings:mb-5 prose-headings:text-base prose-h1:text-lg",
         )}
         dangerouslySetInnerHTML={{ __html: content }}
