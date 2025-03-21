@@ -34,8 +34,8 @@ export const SidebarMenuSectionTrigger = ({ title, icon: I }: SidebarMenuTrigger
         weight="bold"
         className={clsx(
           "absolute right-2 top-1/2 -translate-y-1/2 h-0 group-data-[state=open]:h-4",
-          "group-hover:group-data-[state=closed]:h-4 transition-[height,transform] duration-300",
-          "group-data-[state=open]:rotate-180",
+          "group-hover:group-data-[state=closed]:h-4 transition-[height,transform,rotate]",
+          "group-data-[state=open]:rotate-180 duration-300",
         )}
       />
     </Trigger>
