@@ -1,4 +1,5 @@
 import MillionLint from "@million/lint";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import laravel from "laravel-vite-plugin";
 import path from "path";
@@ -27,6 +28,7 @@ const tsconfigPathAliases = Object.fromEntries(
 
 export default {
   plugins: [
+    tailwindcss(),
     react(),
     laravel({
       input: ["www/app.tsx"],
