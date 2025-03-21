@@ -9,7 +9,7 @@ import { pageResolver, resolveTitle } from "./lib/inertia";
 const appName = appConfig.appName;
 
 createInertiaApp({
-  progress: { color: "var(--color-purple-500", includeCSS: true },
+  progress: { color: "var(--color-purple-500)", includeCSS: true },
 
   title: (title) => resolveTitle(title, appName),
 
