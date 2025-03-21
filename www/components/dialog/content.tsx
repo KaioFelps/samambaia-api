@@ -21,8 +21,8 @@ export function DialogContent({ children, className }: DialogContentProps) {
           "fixed z-20 top-1/2 left-1/2",
           "bg-purple-100 p-4 rounded-lg border-2 border-black w-[calc(100%_-_48px)]",
           "max-w-(--breakpoint-sm)",
-          "data-[state=open]:animate-dialogScaleUpAndFade",
-          "data-[state=closed]:animate-dialogScaleUpAndFadeReverse",
+          "data-[state=open]:animate-dialog-scale-up-and-fade",
+          "data-[state=closed]:animate-dialog-scale-up-and-fade-reverse",
           className && className,
         )}
       >

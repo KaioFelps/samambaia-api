@@ -29,8 +29,8 @@ export const SidebarMenuSection = ({ label, icon, requires, children }: SidebarM
       />
       <Accordion.Content className={clsx(
         "overflow-hidden",
-        "data-[state=open]:animate-radixAccordionSlide",
-        "data-[state=closed]:animate-radixAccordionSlideReverse",
+        "data-[state=open]:animate-radix-accordion-slide",
+        "data-[state=closed]:animate-radix-accordion-slide-reverse",
       )}
       >
         {children}
