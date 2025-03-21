@@ -1,9 +1,7 @@
 @use "./public.scss";
 @use "./admin.scss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
     * {
