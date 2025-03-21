@@ -1,4 +1,4 @@
-import { PushPin } from "@phosphor-icons/react/dist/ssr";
+import { PushPin } from "@phosphor-icons/react/dist/ssr/PushPin";
 import clsx from "clsx";
 import { memo } from "react";
 

@@ -1,4 +1,4 @@
-import { Info } from "@phosphor-icons/react/dist/ssr";
+import { Info } from "@phosphor-icons/react/dist/ssr/Info";
 import clsx from "clsx";
 import { memo, useMemo } from "react";
 
