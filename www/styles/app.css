@@ -1,5 +1,5 @@
-@use "./public.scss";
-@use "./admin.scss";
+@import "./public.scss";
+@import "./admin.scss";
 
 @import "tailwindcss";
 
