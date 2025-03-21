@@ -14,7 +14,7 @@ export function SummaryCard({ count, label, spriteCoords }: SummaryCardProps) {
       key={`summary-card-${label}`}
       className={clsx(
         "rounded-lg shadow-purple-700/30 shadow-lg flex gap-3 p-6 flex-1",
-        "from-purple-300 to-purple-700 bg-gradient-to-br ring-inset ring-2 ring-yellow-200/30",
+        "from-purple-300 to-purple-700 bg-linear-to-br ring-inset ring-2 ring-yellow-200/30",
       )}
     >
       <Sprite

@@ -34,7 +34,7 @@ export const SidebarMenuItem = ({
 
       <ArrowRight className={clsx(
         "absolute right-2 top-1/2 -translate-y-1/2 w-0 transition-[width] duration-300",
-        "group-data-[active=false]:group-hover:w-5",
+        "group-hover:group-data-[active=false]:w-5",
       )}
       />
     </Link>

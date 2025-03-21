@@ -135,7 +135,7 @@ const FreeBadgeSection = memo(({ badges, currentPage }: FreeBadgeSectionProps) =
       {badges.length > 0
         ? (
 
-          <div className="grid grid-cols-[repeat(13,_minmax(0,_1fr))] grid-flow-row gap-1">
+          <div className="grid grid-cols-[repeat(13,minmax(0,1fr))] grid-flow-row gap-1">
             {badges.map(BadgeCard)}
           </div>
           )
