@@ -4,7 +4,6 @@ import { AdminAlert, AdminAlertProps } from "./admin-alert";
 import { PublicAlert, PublicAlertProps } from "./public-alert";
 
 export type BaseAlertProps = {
-  type: "warning" | "error" | "success";
   message: string;
   className?: string;
 };
