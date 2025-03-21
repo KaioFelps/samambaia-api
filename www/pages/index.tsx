@@ -1,4 +1,3 @@
-import { colors } from "@crate/tailwind.config";
 import { Head, Link, router } from "@inertiajs/react";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { memo, useCallback } from "react";
@@ -7,7 +6,6 @@ import { Alert } from "@/components/alert";
 import { ArticleCard } from "@/components/article-card";
 import { BadgeCard } from "@/components/badge-card";
 import { Sprite } from "@/components/sprite";
-import { colorWithOpacity } from "@/lib/tailwind";
 import { Article } from "@/types/article";
 import { FreeBadge } from "@/types/free-badge";
 import { Pagination } from "@/types/pagination";
@@ -47,8 +45,8 @@ const ArticlesSection = memo(({ articles }: { articles: Article[] }) => (
         href="/"
         style={{
           boxShadow: `
-            0 2px 0 0 ${colorWithOpacity(colors.white, 25)},
-            inset 0 2px 0 0 ${colorWithOpacity(colors.white, 50)}`,
+            0 2px 0 0 color-mix(in oklab, var(--color-white) 25%, transparent),
+            inset 0 2px 0 0 color-mix(in oklab, var(--color-white) 50%, transparent)`,
         }}
         className="
           flex items-center gap-1 text-white text-sm font-medium
