@@ -44,7 +44,9 @@ impl CouncilAlertRepositoryTrait for SqlxCouncilAlertRepository<'_> {
         sqlx::query_as(
             r#"SELECT id, pinned, title, content, created_at
             FROM "council_alert"
-            "#,
+            ORDER BY
+                pinned DESC,
+                created_at DESC"#,
         )
         .fetch_all(self.sea_service.db.get_postgres_connection_pool())
         .await
