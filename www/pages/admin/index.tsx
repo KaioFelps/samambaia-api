@@ -4,10 +4,9 @@ import { useMemo } from "react";
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
 import Header from "@/components/header";
+import { CouncilAlert } from "@/types/council-alert";
 import { CouncilAlertCard } from "@/ui/admin/council-alert-card";
 import { SummaryCard, SummaryCardProps } from "@/ui/admin/summary-card";
-
-import { CouncilAlert } from "./www/types/council-alert";
 
 type Summary = {
   users: number;

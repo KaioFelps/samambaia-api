@@ -2,7 +2,7 @@ import { PushPin } from "@phosphor-icons/react/dist/ssr/PushPin";
 import clsx from "clsx";
 import { memo } from "react";
 
-import { CouncilAlert } from "@/pages/admin/www/types/council-alert";
+import { CouncilAlert } from "@/types/council-alert";
 
 export const CouncilAlertCard = memo(({ content, pinned, title }: CouncilAlert) => {
   return (
