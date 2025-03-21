@@ -11,7 +11,7 @@ export function DroppableIndicator({ className }: { className?: string }) {
       height={20}
       width={14}
       className={clsx(
-        "rotate-90 group-data-[state=open]:-rotate-90 transition-[transform] duration-150",
+        "rotate-90 group-data-[state=open]:-rotate-90 transition-[rotate] duration-150",
         className && className,
       )}
     />
@@ -24,7 +24,7 @@ export function AdminDroppableIndicator({ className }: { className?: string }) {
       size={14}
       weight="bold"
       className={clsx(
-        "group-data-[state=open]:-rotate-180 transition-[transform] duration-150",
+        "group-data-[state=open]:-rotate-180 transition-[rotate] duration-150",
         "text-gray-700",
         className && className,
       )}
