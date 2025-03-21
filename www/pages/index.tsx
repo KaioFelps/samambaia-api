@@ -6,12 +6,12 @@ import { Alert } from "@/components/alert";
 import { ArticleCard } from "@/components/article-card";
 import { BadgeCard } from "@/components/badge-card";
 import { Sprite } from "@/components/sprite";
-import { Article } from "@/types/article";
+import { ArticlePreview } from "@/types/article-preview";
 import { FreeBadge } from "@/types/free-badge";
 import { Pagination } from "@/types/pagination";
 
 type HomeProps = {
-  articles: Article[];
+  articles: ArticlePreview[];
   freeBadges: { data: FreeBadge[]; pagination: Pagination };
 };
 
@@ -34,7 +34,7 @@ export default function Index({ articles, freeBadges }: HomeProps) {
   );
 }
 
-const ArticlesSection = memo(({ articles }: { articles: Article[] }) => (
+const ArticlesSection = memo(({ articles }: { articles: ArticlePreview[] }) => (
   <section className="card w-full">
     <header className="section-header blue flex gap-3 items-center justify-between mb-3">
       <h1>
