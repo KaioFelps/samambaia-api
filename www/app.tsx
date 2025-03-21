@@ -1,6 +1,5 @@
-import "@/styles/app.scss";
+import "@/styles/app.css";
 
-import { colors } from "@crate/tailwind.config";
 import { createInertiaApp } from "@inertiajs/react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 
@@ -10,7 +9,7 @@ import { pageResolver, resolveTitle } from "./lib/inertia";
 const appName = appConfig.appName;
 
 createInertiaApp({
-  progress: { color: colors.purple[500], includeCSS: true },
+  progress: { color: "var(--color-purple-500", includeCSS: true },
 
   title: (title) => resolveTitle(title, appName),
 
