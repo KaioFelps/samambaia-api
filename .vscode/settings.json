@@ -5,5 +5,7 @@
     },
     "eslint.useFlatConfig": true,
     "scss.lint.unknownAtRules": "ignore",
-    "rust-analyzer.rustfmt.extraArgs": ["+nightly"]
+    "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
+    "tailwindCSS.experimental.configFile": "./www/styles/app.css",
+    "tailwindCSS.classFunctions": ["tw", "clsx"]
 }
