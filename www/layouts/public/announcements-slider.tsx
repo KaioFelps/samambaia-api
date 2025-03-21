@@ -1,13 +1,11 @@
 import "swiper/css";
 
-import { colors } from "@crate/tailwind.config";
 import type { Page } from "@inertiajs/core";
 import { Link, router, usePage } from "@inertiajs/react";
 import React, { memo, useEffect, useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { colorWithOpacity } from "@/lib/tailwind";
 import { AnnouncementShort } from "@/types/announcement";
 
 export const AnnouncementsSlider = memo(() => {
@@ -65,7 +63,9 @@ export const AnnouncementsSlider = memo(() => {
                 : undefined}
             >
               <span
-                style={{ textShadow: `0 3px 0 ${colorWithOpacity(colors.black, 25)}` }}
+                style={{
+                  textShadow: "0 3px 0 color-mix(in oklab, var(--color-black) 25%, transparent)",
+                }}
                 className="
                 px-6 py-1 font-bold bg-gray-800 rounded-full text-white text-2xl
                 text-center text-balance shadow-black/25 shadow-[0_2px_0_0]

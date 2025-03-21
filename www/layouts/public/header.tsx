@@ -1,4 +1,3 @@
-import { colors } from "@crate/tailwind.config";
 import { Link } from "@inertiajs/react";
 import { memo } from "react";
 
@@ -6,7 +5,6 @@ import Dropdown from "@/components/dropdown";
 import { appConfig } from "@/config/app";
 
 import { Sprite } from "../../components/sprite";
-import { colorWithOpacity } from "../../lib/tailwind";
 import { NavDropdownContent, NavDropdownItem } from "./nav-dropdown-content";
 import { UserBox } from "./userBox";
 
@@ -30,10 +28,10 @@ export const Header = memo(() => {
 
       <div
         style={{
-          boxShadow: `inset 0 2px 0 0 ${colorWithOpacity(colors.black)},
-            inset 0 4px 0 0 ${colorWithOpacity(colors.white, 15)},
-            inset 0 -2px 0 0 ${colorWithOpacity(colors.black)},
-            0 2px 0 0 ${colorWithOpacity(colors.black, 20)}`,
+          boxShadow: `inset 0 2px 0 0 var(--colors-black),
+            inset 0 4px 0 0 color-mix(in oklab, var(--color-white) 15%, transparent),
+            inset 0 -2px 0 0 var(--colors-black),
+            0 2px 0 0 color-mix(in oklab, var(--color-black) 20%, transparent)`,
         }}
         className="bg-gray-800 text-white"
       >

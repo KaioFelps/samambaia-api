@@ -22,10 +22,12 @@ export function SummaryCard({ count, label, spriteCoords }: SummaryCardProps) {
         className="shadow-purple-100 [filter:_drop-shadow(4px_4px_10px_var(--tw-shadow-color))]"
       />
       <div>
-        <strong className={clsx(
-          "font-black text-4xl leading-none text-purple-100 text-shadow-purple-700/20",
-          "[text-shadow:1px_1px_10px_var(--tw-text-shadow-color)]",
-        )}
+        <strong
+          style={{
+            textShadow:
+              "1px 1px 10px color-mix(in oklab, var(--color-purple-700) 20%, transparent)",
+          }}
+          className="font-black text-4xl leading-none text-purple-100"
         >
           {count}
         </strong>
