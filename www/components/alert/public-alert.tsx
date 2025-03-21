@@ -4,7 +4,9 @@ import { memo, useMemo } from "react";
 import { Sprite, SpriteProps } from "../sprite";
 import { BaseAlertProps } from ".";
 
-export type PublicAlertProps = BaseAlertProps;
+export type PublicAlertProps = BaseAlertProps & {
+  type: "warning" | "error" | "success";
+};
 
 export const PublicAlert = memo(({ message, type, className }: PublicAlertProps) => {
   const sprites: Record<PublicAlertProps["type"], SpriteProps> = useMemo(() => ({
