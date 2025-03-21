@@ -33,7 +33,7 @@ export function BadgeCard({ id, image, link, linkIsExternal, code, availableUnti
       className={clsx(
         "aspect-square flex-1 grid place-items-center rounded-lg bg-gray-250",
         "border-2 border-black transition-all duration-75",
-        "outline-none ring-green-500/50 ring-0 data-[active=true]:focus:ring-4",
+        "outline-hidden ring-green-500/50 ring-0 data-[active=true]:focus:ring-4",
         "data-[active=false]:saturate-0 data-[active=false]:cursor-not-allowed",
         "data-[active=false]:opacity-50 data-[active=false]:pointer-events-none",
         "data-[active=true]:hover:bg-green-500 data-[active=true]:active:bg-green-600",

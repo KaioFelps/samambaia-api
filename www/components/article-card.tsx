@@ -55,7 +55,7 @@ export function ArticleCard({
         <div className="block">
           <h3 className="font-bold leading-4 mb-1 line-clamp-2 text-ellipsis text-gray-800">
             <Link
-              className="transition-colors group-hover:text-blue-500 hover:!text-blue-700"
+              className="transition-colors group-hover:text-blue-500 hover:text-blue-700!"
               href={`/noticias/${slug}`}
             >
               {title}
