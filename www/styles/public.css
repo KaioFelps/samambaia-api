@@ -80,7 +80,7 @@
 
 @utility btn-success {
   @apply rounded-md bg-green-500 from-green-300 to-green-600 flex items-center
-            text-white border-2 border-green-700 text-shadow-black/10 text-shadow-extra-1-white/30
+            text-white border-2 border-green-700 
             px-5 py-2 gap-2 font-medium text-base transition-all duration-150 will-change-[shadow,_filter]
             hover:brightness-95 active:brightness-90
             outline-hidden ring-green-500/40 ring-0 focus-visible:ring-4;
@@ -91,8 +91,8 @@
 
   &:enabled {
     text-shadow:
-      0 -2px 0 var(--tw-text-shadow-color),
-      0 2px 0 var(--tw-text-shadow-color-extra-1);
+      0 -2px 0 color-mix(in oklab, var(--color-black), 10%, transparent),
+      0 2px 0 color-mix(in oklab, var(--color-white), 30%, transparent);
   }
 
   &:disabled {
@@ -111,14 +111,13 @@
 
 @utility btn-black {
   @apply bg-gray-800 rounded-md px-7 py-3 flex items-center gap-2 border-2 border-black
-            text-white font-bold text-shadow-black/40 text-shadow-extra-1-white/25
-            from-white/25 to-black/25 transition-all duration-150 will-change-[shadow]
+            text-white font-bold from-white/25 to-black/25 transition-all duration-150 will-change-[shadow]
             hover:brightness-95 active:brightness-90
             outline-hidden ring-0 focus-visible:ring-4 ring-purple-100/40;
 
   text-shadow:
-    0 -2px 0 var(--tw-text-shadow-color),
-    0 2px 0 var(--tw-text-shadow-color-extra-1);
+    0 -2px 0 color-mix(in oklab, var(--color-black), 40%, transparent),
+    0 2px 0 color-mix(in oklab, var(--color-white), 25%, transparent);
 
   &,
   &:focus-visible {
