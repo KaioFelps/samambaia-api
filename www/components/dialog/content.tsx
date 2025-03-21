@@ -15,7 +15,7 @@ export function DialogContent({ children, className }: DialogContentProps) {
         style={{
           boxShadow:
             `inset 0 0 0 4px var(--color-white),
-            0 2px 0 0 color-mix(in oklab, var(--color-black, 25%, transparent)`,
+            0 2px 0 0 color-mix(in oklab, var(--color-black) 25%, transparent)`,
         }}
         className={clsx(
           "fixed z-20 top-1/2 left-1/2",

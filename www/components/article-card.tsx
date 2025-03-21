@@ -47,10 +47,10 @@ export function ArticleCard({
 
       <div
         style={{ textShadow: "0px 2px var(--tw-shadow-color)" }}
-        className="
-            flex flex-col justify-between w-full shadow-white group-hover:shadow-white/50
-            transition-[text-shadow] duration-100 relative
-            "
+        className={clsx(
+          "flex flex-col justify-between w-full shadow-white group-hover:shadow-white/50",
+          "transition-[text-shadow] duration-100 relative",
+        )}
       >
         <div className="block">
           <h3 className="font-bold leading-4 mb-1 line-clamp-2 text-ellipsis text-gray-800">

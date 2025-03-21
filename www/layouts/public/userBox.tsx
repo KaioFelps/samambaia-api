@@ -1,5 +1,6 @@
 import { PageProps } from "@inertiajs/core/types";
 import { Link, router, usePage } from "@inertiajs/react";
+import clsx from "clsx";
 import { ReactNode, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -56,9 +57,13 @@ function Unlogged({ dialog, setDialog }: {
           : undefined,
         )}
       >
-        <button className="
-          btn-black text-green-500 text-shadow-extra-1-green-300/25 ring-green-500/40
-          "
+        <button
+          style={{
+            "--btn-black-down-text-shadow": "var(--color-green-300)",
+          }}
+          className={clsx(
+            "btn-black text-green-500 ring-green-500/40",
+          )}
         >
           <Sprite
             x={-66}

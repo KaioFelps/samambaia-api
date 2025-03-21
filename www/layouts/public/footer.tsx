@@ -1,19 +1,17 @@
-import { colors } from "@crate/tailwind.config";
 import { Link } from "@inertiajs/react";
 import { Code } from "@phosphor-icons/react/dist/ssr/Code";
 import { memo } from "react";
 
 import { Sprite } from "@/components/sprite";
-import { colorWithOpacity } from "@/lib/tailwind";
 
 export const Footer = memo(() => {
   return (
     <footer
       style={{
         boxShadow: `
-          inset 0 2px 0 0 ${colorWithOpacity(colors.black, 25)},
-          inset 0 4px 0 0 ${colorWithOpacity(colors.white)},
-          0 2px 0 0 ${colorWithOpacity(colors.black, 15)}
+          inset 0 2px 0 0 color-mix(in oklab, var(--color-black) 25%, transparent),
+          inset 0 4px 0 0 --color-white,
+          0 2px 0 0 color-mix(in oklab, var(--color-black) 15%, transparent)
         `,
       }}
       className="mt-2 bg-gray-200 h-fit"

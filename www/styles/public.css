@@ -91,8 +91,8 @@
 
   &:enabled {
     text-shadow:
-      0 -2px 0 color-mix(in oklab, var(--color-black), 10%, transparent),
-      0 2px 0 color-mix(in oklab, var(--color-white), 30%, transparent);
+      0 -2px 0 color-mix(in oklab, var(--color-black) 10%, transparent),
+      0 2px 0 color-mix(in oklab, var(--color-white) 30%, transparent);
   }
 
   &:disabled {
@@ -115,9 +115,12 @@
             hover:brightness-95 active:brightness-90
             outline-hidden ring-0 focus-visible:ring-4 ring-purple-100/40;
 
+  --btn-black-up-text-shadow: var(--color-black);
+  --btn-black-down-text-shadow: var(--color-white);
+
   text-shadow:
-    0 -2px 0 color-mix(in oklab, var(--color-black), 40%, transparent),
-    0 2px 0 color-mix(in oklab, var(--color-white), 25%, transparent);
+    0 -2px 0 color-mix(in oklab, var(--btn-black-up-text-shadow) 40%, transparent),
+    0 2px 0 color-mix(in oklab, var(--btn-black-down-text-shadow) 25%, transparent);
 
   &,
   &:focus-visible {

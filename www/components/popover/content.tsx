@@ -1,9 +1,6 @@
-import { colors } from "@crate/tailwind.config";
 import * as Popover from "@radix-ui/react-popover";
 import clsx from "clsx";
 import { ReactNode } from "react";
-
-import { colorWithOpacity } from "@/lib/tailwind";
 
 import { PublicDroppableArrow } from "../droppable-arrow";
 
@@ -21,9 +18,9 @@ export function PopoverContent({
         sideOffset={sideOffset}
         {...rest}
         style={{
-          boxShadow: `inset 0px 2px 0 0 ${colorWithOpacity(colors.white, 15)},
-                    0 2px 0 0 ${colorWithOpacity(colors.black, 20)},
-                    0 0 0 2px black`,
+          boxShadow: `inset 0px 2px 0 0 color-mix(in oklab, var(--color-white) 15%, transparent),
+                    0 2px 0 0 color-mix(in oklab, var(--color-black) 20%, transparent),
+                    0 0 0 2px var(--color-black)`,
           ...style,
         }}
         className={clsx(
