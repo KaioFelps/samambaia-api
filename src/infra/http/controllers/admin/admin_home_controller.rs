@@ -8,30 +8,16 @@ use crate::domain::services::council::find_all_council_alerts_service::GetCounci
 use crate::error::IntoSamambaiaError;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::AppResponse;
-use crate::infra::http::middlewares::web::has_permission::{
-    PermissionComparisonMode,
-    WebHasPermissionMiddleware,
-};
 use crate::infra::http::middlewares::web::WebAuthUser;
-use crate::infra::http::middlewares::WebAuthUserMiddleware;
 use crate::infra::http::presenters::council_alert::CouncilAlertPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
-use crate::util::RolePermissions;
 
 pub struct AdminHomeController;
 
 impl ControllerTrait for AdminHomeController {
     fn register(cfg: &mut web::ServiceConfig) {
-        cfg.service(
-            web::scope("/gremio")
-                .wrap(WebHasPermissionMiddleware::new(
-                    vec![RolePermissions::AccessDashboard],
-                    PermissionComparisonMode::All,
-                ))
-                .wrap(WebAuthUserMiddleware)
-                .route("", web::get().to(Self::home)),
-        );
+        cfg.service(web::scope("").route("", web::get().to(Self::home)));
     }
 }
 

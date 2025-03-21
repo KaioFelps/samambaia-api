@@ -29,20 +29,27 @@ use crate::configs::file_sessions::FileSessionStore;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::announcements::fetch_many_announcements_service_factory;
 use crate::domain::services::announcements::fetch_many_announcements_service::FetchManyAnnouncementsParams;
+use crate::infra::http::controllers::admin::admin_articles_controller::AdminArticlesController;
 use crate::infra::http::controllers::admin::admin_home_controller::AdminHomeController;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::web::home_controller::HomeController;
 use crate::infra::http::controllers::web::sessions_controller::SessionsController;
+use crate::infra::http::middlewares::web::has_permission::{
+    PermissionComparisonMode,
+    WebHasPermissionMiddleware,
+};
 use crate::infra::http::middlewares::web::WebRequestUser;
 use crate::infra::http::middlewares::{
     GarbageCollectorMiddleware,
     ReflashTemporarySessionMiddleware,
+    WebAuthUserMiddleware,
     WebRequestUserMiddleware,
 };
 use crate::infra::http::presenters::announcement::AnnouncementPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::http::presenters::web_auth_user::WebAuthUserPresenter;
 use crate::infra::sea::sea_service::SeaService;
+use crate::util::RolePermissions;
 
 pub struct WebRoutes;
 
@@ -129,13 +136,21 @@ impl RouteTrait for WebRoutes {
                 )
                 .configure(HomeController::register)
                 .configure(SessionsController::register)
-                .configure(AdminHomeController::register)
                 .configure(|cfg| {
-                    // serves public assets directly from /path
-                    // needs to be the last service because it's a wildcard
-                    cfg.service(actix_files::Files::new("/", "./public/").prefer_utf8(true));
-                }),
-        );
+                    cfg.service(web::scope("/gremio")
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![RolePermissions::AccessDashboard],
+                            PermissionComparisonMode::All,
+                        ))
+                        .wrap(WebAuthUserMiddleware)
+                        .configure(AdminArticlesController::register)
+                        // needs to be the last, since captures everything else by having "" in its scope.
+                        .configure(AdminHomeController::register)
+                    );
+                })
+            );
+
+        cfg.service(actix_files::Files::new("/", "./public/").prefer_utf8(true));
     }
 }
 
