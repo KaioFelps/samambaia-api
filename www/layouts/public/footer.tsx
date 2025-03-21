@@ -10,7 +10,7 @@ export const Footer = memo(() => {
       style={{
         boxShadow: `
           inset 0 2px 0 0 color-mix(in oklab, var(--color-black) 25%, transparent),
-          inset 0 4px 0 0 --color-white,
+          inset 0 4px 0 0 var(--color-white),
           0 2px 0 0 color-mix(in oklab, var(--color-black) 15%, transparent)
         `,
       }}
