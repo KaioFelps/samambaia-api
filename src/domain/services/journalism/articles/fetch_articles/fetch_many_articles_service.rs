@@ -1,7 +1,7 @@
+use super::params::FetchArticlesParams;
 use crate::core::pagination::{PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::{
-    ArticleQueryType,
     ArticleRepositoryTrait,
     FindManyArticlesResponse,
 };
@@ -10,19 +10,6 @@ use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
 
 type Error = SamambaiaError;
-
-#[derive(PartialEq, Eq, Debug, Clone)]
-pub enum ServiceArticleQueryType {
-    Title(String),
-    Author(String),
-}
-
-pub struct FetchManyArticlesParams {
-    pub page: Option<u32>,
-    pub per_page: Option<u32>,
-    pub query: Option<ServiceArticleQueryType>,
-    pub approved_state: Option<bool>,
-}
 
 pub struct FetchManyArticlesService<ArticleRepository, UserRepository>
 where
@@ -52,7 +39,7 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
 
     pub async fn exec(
         &self,
-        params: FetchManyArticlesParams,
+        params: FetchArticlesParams,
     ) -> Result<FetchManyArticlesResponse, Error> {
         let default_items_per_page = 9;
         let default_page = 1;
@@ -74,7 +61,7 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
             default_page
         };
 
-        let query = self.parse_query(params.query).await?;
+        let query = super::parse_article_fetch_query(&self.user_repository, params.query).await?;
 
         let FindManyArticlesResponse(articles, total_items) = self
             .article_repository
@@ -99,34 +86,6 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
             pagination: PaginationResponse::new(page, total_items, items_per_page),
         })
     }
-
-    async fn parse_query(
-        &self,
-        query: Option<ServiceArticleQueryType>,
-    ) -> Result<Option<ArticleQueryType>, Error> {
-        if query.is_none() {
-            return Ok(None);
-        }
-
-        match query.unwrap() {
-            ServiceArticleQueryType::Author(content) => {
-                let user = self.user_repository.find_by_nickname(&content).await;
-
-                if user.is_err() {
-                    return Err(SamambaiaError::internal_err());
-                }
-
-                let user = user.unwrap();
-
-                if user.is_none() {
-                    return Err(SamambaiaError::resource_not_found_err());
-                }
-
-                Ok(Some(ArticleQueryType::Author(user.unwrap().id())))
-            }
-            ServiceArticleQueryType::Title(content) => Ok(Some(ArticleQueryType::Title(content))),
-        }
-    }
 }
 
 #[cfg(test)]
@@ -138,6 +97,7 @@ mod test {
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
+    use crate::domain::services::journalism::articles::fetch_articles::params::FetchArticleQuery;
     use crate::tests::repositories::article_repository::get_article_repository;
 
     #[tokio::test]
@@ -189,10 +149,10 @@ mod test {
             FetchManyArticlesService::new(mocked_article_repo, mocked_user_repo);
 
         let query_by_title_request = fetch_many_articles_service
-            .exec(FetchManyArticlesParams {
+            .exec(FetchArticlesParams {
                 page: Some(2),
                 per_page: Some(1),
-                query: Some(ServiceArticleQueryType::Title("article".to_string())),
+                query: Some(FetchArticleQuery::Title("article".to_string())),
                 approved_state: None,
             })
             .await
@@ -218,7 +178,7 @@ mod test {
         );
 
         let no_query_request = fetch_many_articles_service
-            .exec(FetchManyArticlesParams {
+            .exec(FetchArticlesParams {
                 page: None,
                 per_page: None,
                 query: None,
@@ -245,10 +205,10 @@ mod test {
 
         // make a request querying by nickname that does not exist
         let failing_query_by_unexisting_nickname_request = fetch_many_articles_service
-            .exec(FetchManyArticlesParams {
+            .exec(FetchArticlesParams {
                 page: None,
                 per_page: None,
-                query: Some(ServiceArticleQueryType::Author("Vamp".to_string())),
+                query: Some(FetchArticleQuery::Author("Vamp".to_string())),
                 approved_state: None,
             })
             .await
@@ -261,10 +221,10 @@ mod test {
 
         // make a request querying by nickname that exists
         let query_by_nickname_request = fetch_many_articles_service
-            .exec(FetchManyArticlesParams {
+            .exec(FetchArticlesParams {
                 page: None,
                 per_page: None,
-                query: Some(ServiceArticleQueryType::Author("Floricultor".to_string())),
+                query: Some(FetchArticleQuery::Author("Floricultor".to_string())),
                 approved_state: None,
             })
             .await
@@ -281,7 +241,7 @@ mod test {
         );
 
         let query_approved_only_articles_request = fetch_many_articles_service
-            .exec(FetchManyArticlesParams {
+            .exec(FetchArticlesParams {
                 page: None,
                 per_page: None,
                 query: None,
