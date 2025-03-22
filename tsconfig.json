@@ -6,7 +6,7 @@
       "DOM.Iterable",
       "esnext"
     ],
-    "types": ["node", "vite/client"],
+    "types": ["node", "vite/client", "vitest/globals"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -30,7 +30,10 @@
   "include": [
     "./www/**/*.js",
     "./www/**/*.ts",
-    "./www/**/*.tsx"
+    "./www/**/*.tsx",
+    "./tests/www/**/*.js",
+    "./tests/www/**/*.ts",
+    "./tests/www/**/*.tsx"
   ],
   "exclude": [
     "./dist/**",
@@ -41,7 +44,6 @@
     "./migration/**",
     "./entities/**",
     "./cli/**",
-    "./target/**",
-    "./tests/**"
+    "./target/**"
   ]
 }
