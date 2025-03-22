@@ -1,6 +1,6 @@
 import { Head, Link, router } from "@inertiajs/react";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect } from "react";
 
 import { Alert } from "@/components/alert";
 import { ArticleCard } from "@/components/article-card";
@@ -8,11 +8,11 @@ import { BadgeCard } from "@/components/badge-card";
 import { Sprite } from "@/components/sprite";
 import { ArticlePreview } from "@/types/article-preview";
 import { FreeBadge } from "@/types/free-badge";
-import { Pagination } from "@/types/pagination";
+import { Paginated } from "@/types/pagination";
 
 type HomeProps = {
-  articles: ArticlePreview[];
-  freeBadges: { data: FreeBadge[]; pagination: Pagination };
+  articles: Paginated<ArticlePreview[]>;
+  freeBadges: Paginated<FreeBadge[]>;
 };
 
 export default function Index({ articles, freeBadges }: HomeProps) {
@@ -23,7 +23,7 @@ export default function Index({ articles, freeBadges }: HomeProps) {
       </Head>
 
       <main className="flex-1 flex flex-col gap-2">
-        <ArticlesSection articles={articles} />
+        <ArticlesSection articles={articles.data} />
         <FreeBadgeSection
           badges={freeBadges.data}
           currentPage={freeBadges.pagination.currentPage}

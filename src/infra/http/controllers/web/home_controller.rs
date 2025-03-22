@@ -2,8 +2,11 @@ use actix_web::web::{self, Data};
 use actix_web::HttpRequest;
 use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
 
-use crate::domain::factories::journalism::articles::fetch_home_page_articles_service_factory;
+use crate::core::pagination::DEFAULT_PER_PAGE;
+use crate::domain::factories::journalism::articles::fetch_articles_previews_service_factory;
 use crate::domain::factories::journalism::free_badges::fetch_many_free_badges_service_factory;
+use crate::domain::services::journalism::articles::fetch_articles_previews_service::FetchArticlesPreviewsResponse;
+use crate::domain::services::journalism::articles::fetch_articles_services::FetchArticlesParams;
 use crate::domain::services::journalism::free_badges::fetch_many_free_badges_service::{
     FetchManyFreeBadgesParams,
     FetchManyFreeBadgesResponse,
@@ -13,8 +16,8 @@ use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::AppResponse;
 use crate::infra::http::dtos::controllers::home::HomeQueryDto;
 use crate::infra::http::middlewares::WebAuthUserMiddleware;
+use crate::infra::http::presenters::article_preview::ArticlePreviewPresenter;
 use crate::infra::http::presenters::free_badge::FreeBadgePresenter;
-use crate::infra::http::presenters::home_article::MappedHomeArticle;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
 
@@ -41,22 +44,34 @@ impl HomeController {
     ) -> AppResponse {
         const FREE_BADGES_PER_PAGE: u8 = 26;
 
-        let articles_service = fetch_home_page_articles_service_factory::exec(&db_conn);
+        let articles_service = fetch_articles_previews_service_factory::exec(&db_conn);
         let free_badges_service = fetch_many_free_badges_service_factory::exec(&db_conn);
 
-        let articles_future = articles_service.exec();
+        let articles_future = articles_service.exec(FetchArticlesParams {
+            page: None,
+            per_page: None,
+            approved_state: Some(true),
+            query: None,
+        });
+
         let free_badge_future = free_badges_service.exec(FetchManyFreeBadgesParams {
             per_page: Some(FREE_BADGES_PER_PAGE as u32),
             page: query.free_badges_page,
         });
 
-        let (articles, free_badge): (Vec<MappedHomeArticle>, FetchManyFreeBadgesResponse) =
+        let (articles, free_badge): (FetchArticlesPreviewsResponse, FetchManyFreeBadgesResponse) =
             tokio::try_join!(articles_future, free_badge_future)?;
 
         let free_badge = FreeBadgePresenter::to_json_paginated_wrapper(
             free_badge.data,
             free_badge.pagination,
             FREE_BADGES_PER_PAGE,
+        );
+
+        let articles = ArticlePreviewPresenter::to_json_paginated_wrapper(
+            articles.data,
+            articles.pagination,
+            DEFAULT_PER_PAGE,
         );
 
         Inertia::render_with_props(
