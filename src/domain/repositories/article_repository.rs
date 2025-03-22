@@ -7,11 +7,12 @@ use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
+use crate::domain::domain_entities::article_preview::ArticlePreview;
 use crate::domain::domain_entities::slug::Slug;
-use crate::infra::http::presenters::home_article::MappedHomeArticle;
 
 #[derive(Debug)]
 pub struct FindManyArticlesResponse(pub Vec<Article>, pub u64);
+pub struct FindManyArticlesPreviewsResponse(pub Vec<ArticlePreview>, pub u64);
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ArticleQueryType {
@@ -35,7 +36,11 @@ pub trait ArticleRepositoryTrait {
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesResponse, Box<dyn Error>>;
 
-    async fn get_home_articles(&self) -> Result<Vec<MappedHomeArticle>, Box<dyn Error>>;
+    async fn find_many_previews(
+        &self,
+        params: PaginationParameters<ArticleQueryType>,
+        show_only_approved_state: Option<bool>,
+    ) -> Result<FindManyArticlesPreviewsResponse, Box<dyn Error>>;
 
     async fn save(&self, article: Article) -> Result<Article, Box<dyn Error>>;
 }

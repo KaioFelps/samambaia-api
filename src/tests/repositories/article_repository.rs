@@ -2,15 +2,19 @@ use std::sync::{Arc, Mutex};
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
+use crate::domain::domain_entities::article_preview::{
+    ArticlePreview,
+    ArticlePreviewAuthor,
+    ArticlePreviewTag,
+};
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType,
+    FindManyArticlesPreviewsResponse,
     FindManyArticlesResponse,
     MockArticleRepositoryTrait,
 };
 use crate::error::SamambaiaError;
-use crate::infra::http::presenters::home_article::HomeArticlePresenter;
-use crate::infra::http::presenters::presenter::PresenterTrait;
 
 type LocalDb<T> = Arc<Mutex<Vec<T>>>;
 
@@ -148,40 +152,64 @@ pub fn get_article_repository() -> (LocalDb<Article>, LocalDb<User>, MockArticle
 
     let articles_db_clone = Arc::clone(&articles_db);
     let users_db_clone = Arc::clone(&users_db);
-    repository.expect_get_home_articles().returning(move || {
-        let mut articles = articles_db_clone.lock().unwrap().clone();
-        let users = users_db_clone.lock().unwrap().clone();
+    repository
+        .expect_find_many_previews()
+        .returning(move |params, only_approved| {
+            let mut articles = articles_db_clone.lock().unwrap().to_vec();
+            let users = users_db_clone.lock().unwrap().to_vec();
 
-        articles.sort_by(|a, b| b.created_at().partial_cmp(&a.created_at()).unwrap());
+            articles.sort_by(|a, b| b.created_at().partial_cmp(&a.created_at()).unwrap());
 
-        let articles = articles
-            .iter()
-            .take(6)
-            .map(|article| {
-                let user = users.iter().find(|user| user.id().eq(&article.author_id()));
-                (article, user)
-            })
-            .collect::<Vec<_>>();
+            let mut parsed_articles = vec![];
 
-        let mut mapped_articles = vec![];
-
-        for (article, user) in articles {
-            match user {
-                None => {
-                    println!("Encountered an article that has no author: {:#?}", article);
-                    return Err(Box::new(SamambaiaError::internal_err()));
+            for article in articles {
+                if let Some(approved) = only_approved {
+                    if article.approved() != approved {
+                        continue;
+                    }
                 }
-                Some(user) => {
-                    mapped_articles.push(HomeArticlePresenter::to_http((
-                        article.clone(),
-                        user.clone(),
+
+                let author = match users.iter().find(|user| user.id().eq(&article.author_id())) {
+                    None => continue,
+                    Some(author) => author,
+                };
+
+                if article.tag_id().is_some() ^ article.tag_value().is_some() {
+                    return Err(Box::new(SamambaiaError::internal_err().with_message(
+                        "Found a article with a tag which doesn't have either id or value",
                     )));
                 }
-            }
-        }
 
-        Ok(mapped_articles)
-    });
+                let author = ArticlePreviewAuthor::new(author.id(), author.nickname().to_owned());
+
+                let tag = article.tag_id().map(|id| {
+                    ArticlePreviewTag::new(id, article.tag_value().as_ref().unwrap().to_owned())
+                });
+
+                parsed_articles.push(ArticlePreview::new(
+                    article.id(),
+                    article.cover_url().to_owned(),
+                    article.title().to_owned(),
+                    article.description().to_owned(),
+                    article.approved(),
+                    tag,
+                    author,
+                    article.created_at(),
+                    article.slug().to_owned(),
+                ));
+            }
+
+            let count = parsed_articles.len() as u64;
+
+            let offset = ((params.page - 1) * params.items_per_page) as usize;
+            let articles = parsed_articles
+                .into_iter()
+                .skip(offset)
+                .take(params.items_per_page as usize)
+                .collect::<Vec<_>>();
+
+            Ok(FindManyArticlesPreviewsResponse(articles, count))
+        });
 
     (articles_db, users_db, repository)
 }
