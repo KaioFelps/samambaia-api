@@ -17,9 +17,9 @@ use crate::domain::factories::journalism::articles::{
 };
 use crate::domain::services::journalism::articles::create_article_service::CreateArticleParams;
 use crate::domain::services::journalism::articles::delete_article_service::DeleteArticleParams;
-use crate::domain::services::journalism::articles::fetch_many_articles_service::{
-    FetchManyArticlesParams,
-    ServiceArticleQueryType,
+use crate::domain::services::journalism::articles::fetch_articles_services::{
+    FetchArticleQuery,
+    FetchArticlesParams,
 };
 use crate::domain::services::journalism::articles::get_expanded_article_service::{
     FetchManyCommentsWithAuthorResponse,
@@ -275,14 +275,14 @@ impl ArticlesController {
 
         let query = {
             if let Some(title) = title {
-                Some(ServiceArticleQueryType::Title(title))
+                Some(FetchArticleQuery::Title(title))
             } else {
-                author.map(ServiceArticleQueryType::Author)
+                author.map(FetchArticleQuery::Author)
             }
         };
 
         service
-            .exec(FetchManyArticlesParams {
+            .exec(FetchArticlesParams {
                 page,
                 per_page: per_page.map(|pp| pp as u32),
                 query,
