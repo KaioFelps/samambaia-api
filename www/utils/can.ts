@@ -3,14 +3,20 @@ import { TPermission } from "@/types/auth";
 export type CanMode = "some" | "every";
 
 export function can(
-  userPermissions: TPermission[],
-  required: TPermission[],
+  userPermissions: TPermission[] | undefined,
+  required: TPermission | TPermission[],
   mode: CanMode = "some",
 ): boolean {
+  if (!userPermissions) return false;
+
+  const requiredPerms = Array.isArray(required)
+    ? required
+    : [required];
+
   switch (mode) {
     case "every":
-      return required.every(requiredPermission => userPermissions.includes(requiredPermission));
+      return requiredPerms.every(requiredPerm => userPermissions.includes(requiredPerm));
     case "some":
-      return required.some(requiredPermission => userPermissions.includes(requiredPermission));
+      return requiredPerms.some(requiredPerm => userPermissions.includes(requiredPerm));
   }
 }
