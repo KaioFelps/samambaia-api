@@ -23,7 +23,7 @@ pub async fn parse_article_fetch_query<UR: UserRepositoryTrait>(
                     generate_service_internal_error("Failed to fetch user from repository while parsing article fetch service query", err)
                 })?
                 .map(|user| Some(ArticleQueryType::Author(user.id()))) {
-                    None => return Err(SamambaiaError::resource_not_found_err()),
+                    None => Err(SamambaiaError::resource_not_found_err()),
                     Some(author_query) => Ok(author_query)
                 }
             }

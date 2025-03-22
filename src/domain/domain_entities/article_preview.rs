@@ -58,6 +58,7 @@ pub struct ArticlePreview {
 }
 
 impl ArticlePreview {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         id: Uuid,
         cover_url: String,
@@ -111,7 +112,7 @@ impl ArticlePreview {
     }
 
     pub fn created_at(&self) -> NaiveDateTime {
-        self.created_at.clone()
+        self.created_at
     }
 
     pub fn slug(&self) -> &Slug {
