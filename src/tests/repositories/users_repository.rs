@@ -8,8 +8,10 @@ use crate::domain::repositories::user_repository::{
     UserQueryType,
 };
 
-pub fn get_user_repository() -> (Arc<Mutex<Vec<User>>>, MockUserRepositoryTrait) {
-    let db = Arc::new(Mutex::new(vec![]));
+pub fn get_user_repository(
+    db: Option<Arc<Mutex<Vec<User>>>>,
+) -> (Arc<Mutex<Vec<User>>>, MockUserRepositoryTrait) {
+    let db = db.unwrap_or(Arc::new(Mutex::new(vec![])));
     let mut repository = MockUserRepositoryTrait::new();
 
     let db_c = db.clone();

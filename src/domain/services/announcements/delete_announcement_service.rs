@@ -72,7 +72,7 @@ mod test {
 
     #[tokio::test]
     async fn test_delete_announcement_service() {
-        let (user_db, users_repository) = get_user_repository();
+        let (user_db, users_repository) = get_user_repository(None);
         let (announcement_db, announcements_repository) = get_announcements_repository();
 
         let unauthorized_user = User::new("John Doe".into(), "123".into(), Some(Role::Admin));

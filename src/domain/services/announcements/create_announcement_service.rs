@@ -93,7 +93,7 @@ mod test {
     #[tokio::test]
     async fn test_create_announcement_service() {
         let (announcements_db, announcements_repository) = get_announcements_repository();
-        let (users_db, users_repository) = get_user_repository();
+        let (users_db, users_repository) = get_user_repository(None);
 
         let unauthorized_user = User::new("JohnDoe".into(), "foo".into(), Some(Role::User));
         let authorized_user = User::new("Carmin".into(), "123".into(), Some(Role::Principal));

@@ -118,7 +118,7 @@ mod test {
     #[tokio::test]
     #[allow(clippy::await_holding_lock)]
     async fn test_update_announcement_service() {
-        let (users_db, users_repository) = get_user_repository();
+        let (users_db, users_repository) = get_user_repository(None);
         let (announcements_db, announcements_repository) = get_announcements_repository();
 
         let unauthorized_user = User::new("Foo".into(), "123".into(), Some(Role::Admin));
