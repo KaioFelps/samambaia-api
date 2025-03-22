@@ -1,9 +1,10 @@
 use std::fmt::Display;
 
+use serde::Deserialize;
 use unicode_normalization::UnicodeNormalization;
 use uuid::Uuid;
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 pub struct Slug {
     value: String,
 }
