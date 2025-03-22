@@ -1,3 +1,5 @@
+import { ArticleTag } from "./article-tag";
+
 export type ArticlePreview = {
   id: string;
   slug: string;
@@ -7,4 +9,5 @@ export type ArticlePreview = {
   approved: boolean;
   createdAt: Date | string;
   description: string;
+  tag: ArticleTag | null;
 };

@@ -4,3 +4,5 @@ export type Pagination = {
   totalPages: number;
   itemsPerPage: number;
 };
+
+export type Paginated<T> = { data: T; pagination: Pagination };
