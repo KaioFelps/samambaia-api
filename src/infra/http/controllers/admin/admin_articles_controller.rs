@@ -5,13 +5,13 @@ use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::user::User;
-use crate::domain::factories::journalism::articles::fetch_many_articles_service_factory;
+use crate::domain::factories::journalism::articles::fetch_articles_previews_service_factory;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
-use crate::domain::services::journalism::articles::fetch_many_articles_service::{
-    FetchManyArticlesParams,
-    FetchManyArticlesService,
-    ServiceArticleQueryType,
+use crate::domain::services::journalism::articles::fetch_articles_previews_service::FetchArticlesPreviewsService;
+use crate::domain::services::journalism::articles::fetch_articles_services::{
+    FetchArticleQuery,
+    FetchArticlesParams,
 };
 use crate::error::{IntoSamambaiaError, SamambaiaError};
 use crate::infra::http::controllers::controller::ControllerTrait;
@@ -22,8 +22,10 @@ use crate::infra::http::middlewares::web::has_permission::{
     WebHasPermissionMiddleware,
 };
 use crate::infra::http::middlewares::web::WebAuthUser;
-use crate::infra::http::presenters::article::{ArticlePresenter, MappedArticle};
-use crate::infra::http::presenters::pagination::PaginationPresenter;
+use crate::infra::http::presenters::article_preview::{
+    ArticlePreviewPresenter,
+    MappedArticlePreview,
+};
 use crate::infra::http::presenters::presenter::{JsonWrappedPaginatedEntity, PresenterTrait};
 use crate::infra::sea::sea_service::SeaService;
 use crate::util::{verify_role_has_permission, RolePermissions};
@@ -65,7 +67,7 @@ impl AdminArticlesController {
             Err(redirect_back) => return Ok(redirect_back),
         };
 
-        let find_articles_service = fetch_many_articles_service_factory::exec(&db_conn);
+        let find_articles_service = fetch_articles_previews_service_factory::exec(&db_conn);
 
         let articles = Self::get_mapped_articles(find_articles_service, &auth.user, query).await?;
 
@@ -84,47 +86,39 @@ impl AdminArticlesController {
 
 impl AdminArticlesController {
     async fn get_mapped_articles<AR: ArticleRepositoryTrait, UR: UserRepositoryTrait>(
-        service: FetchManyArticlesService<AR, UR>,
+        service: FetchArticlesPreviewsService<AR, UR>,
         user: &User,
         query: AdminListArticlesDto,
-    ) -> Result<JsonWrappedPaginatedEntity<MappedArticle>, SamambaiaError> {
+    ) -> Result<JsonWrappedPaginatedEntity<MappedArticlePreview>, SamambaiaError> {
         let user_can_see_unnaproved_articles = verify_role_has_permission(
             user.role().as_ref().unwrap(),
             RolePermissions::SeeUnapprovedArticle,
         );
 
+        let per_page = query.per_page.unwrap_or(DEFAULT_PER_PAGE);
+
         service
-            .exec(FetchManyArticlesParams {
+            .exec(FetchArticlesParams {
                 page: query.page,
-                per_page: query.per_page.map(|pp| pp as u32),
+                per_page: Some(per_page as u32),
                 approved_state: if user_can_see_unnaproved_articles {
                     query.approved_state
                 } else {
                     Some(false)
                 },
                 query: if let Some(author) = query.author {
-                    Some(ServiceArticleQueryType::Author(author))
+                    Some(FetchArticleQuery::Author(author))
                 } else {
-                    query.title.map(ServiceArticleQueryType::Title)
+                    query.title.map(FetchArticleQuery::Title)
                 },
             })
             .await
             .map(|articles| {
-                let mapped_articles = articles
-                    .data
-                    .into_iter()
-                    .map(ArticlePresenter::to_http)
-                    .collect::<Vec<_>>();
-
-                let mapped_pagination = PaginationPresenter::to_http(
+                ArticlePreviewPresenter::to_json_paginated_wrapper(
+                    articles.data,
                     articles.pagination,
-                    query.per_page.unwrap_or(DEFAULT_PER_PAGE),
-                );
-
-                JsonWrappedPaginatedEntity {
-                    data: mapped_articles,
-                    pagination: mapped_pagination,
-                }
+                    per_page,
+                )
             })
     }
 }
