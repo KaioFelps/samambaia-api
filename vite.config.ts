@@ -7,7 +7,7 @@ import type { UserConfig } from "vite";
 
 import tsconfig from "./tsconfig.json";
 
-const tsconfigPathAliases = Object.fromEntries(
+export const tsconfigPathAliases = Object.fromEntries(
   Object.entries(tsconfig.compilerOptions.paths).map(([key, values]) => {
     let value = values[0];
     if (key.endsWith("/*")) {

@@ -1,6 +1,7 @@
 import config from "@rocketseat/eslint-config/react.mjs";
 import stylisticTs from "@stylistic/eslint-plugin-ts";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
+import vitest from "eslint-plugin-vitest";
 
 export default [
   ...config,
@@ -9,9 +10,11 @@ export default [
       "@stylistic/ts": stylisticTs,
       ...config.plugins,
       "simple-import-sort": simpleImportSort,
+      vitest,
     },
     rules: {
       ...config.rules,
+      ...vitest.configs.recommended.rules,
       "simple-import-sort/imports": "error",
       "@stylistic/jsx-closing-bracket-location": "error",
       "@stylistic/jsx-closing-tag-location": "error",
@@ -41,6 +44,16 @@ export default [
         },
         multilineDetection: "brackets",
       }],
+    },
+    settings: {
+      vitest: {
+        typecheck: true,
+      },
+    },
+    languageOptions: {
+      globals: {
+        ...vitest.environments.env.globals,
+      },
     },
   },
 ];
