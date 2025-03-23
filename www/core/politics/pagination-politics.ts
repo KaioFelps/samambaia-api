@@ -65,8 +65,6 @@ export class PaginationPolitics {
       maxLeft -= bypassed;
     }
 
-    console.log(maxLeft, maxRight);
-
     return { maxLeft, maxRight };
   }
 }
