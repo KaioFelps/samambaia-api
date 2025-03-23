@@ -33,6 +33,7 @@
     "@million/lint": "1.0.14",
     "@rocketseat/eslint-config": "3.0.12",
     "@stylistic/eslint-plugin-ts": "2.12.1",
+    "@swc/core": "1.11.11",
     "@tailwindcss/typography": "0.5.16",
     "@tailwindcss/vite": "4.0.15",
     "@types/node": "22.10.5",
