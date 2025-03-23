@@ -240,6 +240,14 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
+
+  button,
+  [role=button] {
+    cursor: default;
+    &:active {
+      cursor: pointer;
+    }
+  }
 }
 
 @utility w-full-mx {
