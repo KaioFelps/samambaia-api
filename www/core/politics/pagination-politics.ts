@@ -1,3 +1,5 @@
+export type SearchRecord = Record<string, string | number | undefined>;
+
 export type GetVisibleButtonsParams = {
   currentPage: number;
   lastPage: number;
@@ -68,5 +70,28 @@ export class PaginationPolitics {
     if (maxLeft < 1) maxLeft = 1;
 
     return { maxLeft, maxRight };
+  }
+
+  public static getQueryObjectFromUrl(url: string, args: SearchRecord = {}) {
+    let queryString = url;
+
+    if (queryString.indexOf("?") === -1) {
+      return {};
+    }
+
+    queryString = queryString.substring(queryString.indexOf("?") + 1);
+
+    return Object.assign(Object.fromEntries(new URLSearchParams(queryString)), args);
+  }
+
+  public static getQueryStringFromObject(args: SearchRecord = {}) {
+    const params = Object.entries(args).map(([key, value]) => {
+      if (value) return `${key}=${value}`;
+      return key;
+    });
+
+    const queryString = "?" + params.join("&");
+
+    return queryString;
   }
 }

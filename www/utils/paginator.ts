@@ -1,7 +1,9 @@
-import { GetVisibleButtonsParams, PaginationPolitics } from "@/core/politics/pagination-politics";
+import {
+  GetVisibleButtonsParams,
+  PaginationPolitics,
+  SearchRecord,
+} from "@/core/politics/pagination-politics";
 import { IllegalArgumentException } from "@/exceptions/illegal-argument-exception";
-
-export type SearchParameters = Record<string, string | number | undefined>;
 
 const events = ["next-page", "previous-page", "page-change"] as const;
 Object.freeze(events);
@@ -10,7 +12,7 @@ type PaginatorEvent = typeof events[number];
 type PaginationLink = { page: number; link: string };
 export type GetPaginationParams = {
   queryString?: string;
-  extraArgs?: SearchParameters;
+  extraArgs?: SearchRecord;
 };
 export type PaginatorConstructorArgs = {
   url: string;
@@ -217,42 +219,19 @@ export class Paginator {
 
   private getPaginationQueryString(
     queryString: string | undefined,
-    extraArgs: SearchParameters | undefined,
+    extraArgs: SearchRecord | undefined,
   ) {
-    let searchParameters: SearchParameters = {};
+    let searchParameters: SearchRecord = {};
 
     if (queryString) {
-      searchParameters = this.getQueryObjectFromUrl(queryString, searchParameters);
+      searchParameters = PaginationPolitics.getQueryObjectFromUrl(queryString, searchParameters);
     }
 
     if (extraArgs) searchParameters = { ...searchParameters, ...extraArgs };
 
     if (this.pageQuery in searchParameters) delete searchParameters[this.pageQuery];
 
-    return this.getQueryStringFromArgs(searchParameters);
-  }
-
-  private getQueryObjectFromUrl(url: string, args: SearchParameters = {}) {
-    let queryString = url;
-
-    if (queryString.indexOf("?") === -1) {
-      return {};
-    }
-
-    queryString = queryString.substring(queryString.indexOf("?") + 1);
-
-    return Object.assign(Object.fromEntries(new URLSearchParams(queryString)), args);
-  }
-
-  private getQueryStringFromArgs(args: SearchParameters = {}) {
-    const params = Object.entries(args).map(([key, value]) => {
-      if (value) return `${key}=${value}`;
-      return key;
-    });
-
-    const queryString = "?" + params.join("&");
-
-    return queryString;
+    return PaginationPolitics.getQueryStringFromObject(searchParameters);
   }
 
   private preparePaginationLink(queryString: string, page: number): string {
