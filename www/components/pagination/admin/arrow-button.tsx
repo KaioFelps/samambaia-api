@@ -4,7 +4,8 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import clsx from "clsx";
 import { JSXElementConstructor, memo, useContext, useEffect, useMemo, useState } from "react";
 
-import { Paginator, SearchParameters } from "@/utils/paginator";
+import { SearchRecord } from "@/core/politics/pagination-politics";
+import { Paginator } from "@/utils/paginator";
 
 import { PaginationArrowButtonProps } from "..";
 import { PaginationContext } from "../context";
@@ -12,7 +13,7 @@ import { PaginationContext } from "../context";
 function getDirectionButtonProps(
   direction: PaginationArrowButtonProps["direction"],
   paginator: Paginator,
-  params: SearchParameters = {},
+  params: SearchRecord = {},
 ) {
   let disabled;
 
