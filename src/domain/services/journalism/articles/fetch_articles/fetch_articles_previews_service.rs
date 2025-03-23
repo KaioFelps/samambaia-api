@@ -39,7 +39,20 @@ where
         let items_per_page = params.per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
         let page = params.page.unwrap_or(1).max(1);
 
-        let query = super::parse_article_fetch_query(&self.user_repository, params.query).await?;
+        let query =
+            match super::parse_article_fetch_query(&self.user_repository, params.query).await {
+                Ok(query) => query,
+                Err(err) => {
+                    if let SamambaiaError::ResourceNotFound(_) = err {
+                        return Ok(FetchArticlesPreviewsResponse {
+                            data: Vec::with_capacity(0),
+                            pagination: PaginationResponse::new(page, 0, items_per_page),
+                        });
+                    }
+
+                    return Err(err);
+                }
+            };
 
         self.article_repository
             .find_many_previews(PaginationParameters { page, items_per_page, query }, params.approved_state)
