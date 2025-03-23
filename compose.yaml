@@ -3,7 +3,7 @@ name: "samambaia-api"
 services:
   postgres:
     container_name: rust-clean-postgres
-    mem_reservation: "512mb"
+    mem_reservation: "100mb"
     image: postgres
     ports:
       - 5433:5432
