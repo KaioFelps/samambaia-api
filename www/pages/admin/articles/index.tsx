@@ -1,70 +1,118 @@
+import { router } from "@inertiajs/react";
+import { useState } from "react";
+
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
+import { Head } from "@/components/head";
 import Header from "@/components/header";
 import Pagination from "@/components/pagination";
 import { useMemoizedPaginatorParameters } from "@/hooks/pagination";
+import { useCanSee } from "@/hooks/useCanSee";
 import { ArticlePreview } from "@/types/article-preview";
+import { Permission } from "@/types/auth";
 import { Paginated } from "@/types/pagination";
 import { ArticleListCard } from "@/ui/admin/article-list-card";
+import TableHeader from "@/ui/admin/paginated-table-header";
 
 type AdminArticleHomeProps = {
   articles: Paginated<ArticlePreview[]>;
 };
 
 export default function AdminArticleHome({ articles }: AdminArticleHomeProps) {
+  const [filterIsLoading, setFilterIsLoading] = useState(false);
+  const userCanCreateArticle = useCanSee(Permission.CreateArticle);
+
+  function handleFilter({ filter, query }: { filter?: string; query?: string }) {
+    const destination = (!filter || !query)
+      ? "?"
+      : `?${filter}=${query}`;
+
+    router.visit(destination, {
+      only: ["articles"],
+      onStart: () => setFilterIsLoading(true),
+      onFinish: () => setFilterIsLoading(false),
+    });
+  };
+
   return (
-    <main className="admin-main-container">
-      <Header.Root className="mb-8">
-        <Header.Title>Notícias publicadas</Header.Title>
-        <Header.Divisor />
-        <Header.Actions>
-          <Button
-            admin
-            variant="default"
-          >
-            Criar notícia
-          </Button>
-        </Header.Actions>
-      </Header.Root>
-
-      {articles.pagination.totalItems > 0
-        ? (
-          <div className="flex flex-col gap-1">
-            {articles.data.map((article) => (
-              <ArticleListCard
-                key={`admin-article-list-${article.id}`}
-                {...article}
-              />),
+    <>
+      <Head
+        admin
+        title="Notícias"
+      />
+      <main className="admin-main-container">
+        <Header.Root className="mb-8">
+          <Header.Title>Notícias publicadas</Header.Title>
+          <Header.Divisor />
+          <Header.Actions>
+            {userCanCreateArticle && (
+              <Button
+                admin
+                variant="default"
+              >
+                Criar notícia
+              </Button>
             )}
-          </div>
-          )
-        : (
-          <Alert
-            admin
-            type="info"
-            message="Não há notícias publicadas."
-          />
-          )}
+          </Header.Actions>
+        </Header.Root>
 
-      <Pagination.Root
-        paginator={useMemoizedPaginatorParameters({
-          lastPage: articles.pagination.totalPages,
-          visibleButtons: 7,
-          currentPage: articles.pagination.currentPage,
-          align: "left",
-        })!}
-        className="mt-8 justify-end"
-      >
-        <Pagination.ArrowButton
-          admin
-          direction="backward"
-        />
-        <Pagination.Buttons admin />
-        <Pagination.ArrowButton
-          admin
-          direction="forward"
-        />
-      </Pagination.Root>
-    </main>
+        <TableHeader.Root className="mb-4">
+          <TableHeader.Count
+            currentPage={articles.pagination.currentPage}
+            itemsInCurrentPage={articles.data.length}
+            itemsPerPage={articles.pagination.itemsPerPage}
+            totalItems={articles.pagination.totalItems}
+            subject="notícias"
+          />
+          <TableHeader.Filter
+            filters={[
+              { label: "Título", value: "title" },
+              { label: "Autor", value: "author" },
+            ]}
+            handleFilter={handleFilter}
+            loading={filterIsLoading}
+          />
+        </TableHeader.Root>
+
+        {articles.pagination.totalItems > 0
+          ? (
+            <div className="flex flex-col gap-1">
+              {articles.data.map((article) => (
+                <ArticleListCard
+                  key={`admin-article-list-${article.id}`}
+                  {...article}
+                />),
+              )}
+            </div>
+            )
+          : (
+            <Alert
+              admin
+              type="info"
+              message="Não há notícias publicadas."
+            />
+            )}
+
+        <Pagination.Root
+          paginator={useMemoizedPaginatorParameters({
+            lastPage: articles.pagination.totalPages,
+            visibleButtons: 7,
+            currentPage: articles.pagination.currentPage,
+            align: "left",
+          })!}
+          className="mt-8 justify-end"
+        >
+          <Pagination.ArrowButton
+            admin
+            direction="backward"
+          />
+          <Pagination.Buttons admin />
+          <Pagination.ArrowButton
+            admin
+            direction="forward"
+          />
+        </Pagination.Root>
+      </main>
+    </>
   );
 };
