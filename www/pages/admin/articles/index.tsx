@@ -1,15 +1,13 @@
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
 import Header from "@/components/header";
+import Pagination from "@/components/pagination";
 import { ArticlePreview } from "@/types/article-preview";
-import { Pagination } from "@/types/pagination";
+import { Paginated } from "@/types/pagination";
 import { ArticleListCard } from "@/ui/admin/article-list-card";
 
 type AdminArticleHomeProps = {
-  articles: {
-    data: ArticlePreview[];
-    pagination: Pagination;
-  };
+  articles: Paginated<ArticlePreview[]>;
 };
 
 export default function AdminArticleHome({ articles }: AdminArticleHomeProps) {
@@ -46,6 +44,26 @@ export default function AdminArticleHome({ articles }: AdminArticleHomeProps) {
             message="Não há notícias publicadas."
           />
           )}
+
+      <Pagination.Root
+        paginator={{
+          lastPage: articles.pagination.totalPages,
+          visibleButtons: 7,
+          currentPage: articles.pagination.currentPage,
+          align: "left",
+        }}
+        className="mt-8 justify-end"
+      >
+        <Pagination.ArrowButton
+          admin
+          direction="backward"
+        />
+        <Pagination.Buttons admin />
+        <Pagination.ArrowButton
+          admin
+          direction="forward"
+        />
+      </Pagination.Root>
     </main>
   );
-}
+};
