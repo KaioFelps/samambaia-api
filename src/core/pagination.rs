@@ -10,7 +10,7 @@ impl PaginationResponse {
         Self {
             current_page,
             total_items: items_count,
-            total_pages: (items_count as f64 / per_page as f64).ceil() as u32,
+            total_pages: ((items_count as f64 / per_page as f64).ceil() as u32).max(1),
         }
     }
 }
