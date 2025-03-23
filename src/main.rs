@@ -31,14 +31,15 @@ async fn main() -> std::io::Result<()> {
     }
 
     let sea_service = actix_web::web::Data::new(sea_service);
+    let sea_service_clone = sea_service.clone();
 
     let inertia = initialize_inertia().await?;
     let inertia = Data::new(inertia);
-    let inertia_data = inertia.clone();
+    let inertia_clone = inertia.clone();
 
     let server = HttpServer::new(move || {
-        ServerFactory::exec_with_sea(sea_service.clone())
-            .app_data(inertia_data.clone())
+        ServerFactory::exec_with_sea(sea_service_clone.clone())
+            .app_data(inertia_clone.clone())
             .wrap(middleware::Logger::default())
     })
     .bind((APP_CONFIG.host, APP_CONFIG.port))?
@@ -59,6 +60,8 @@ async fn main() -> std::io::Result<()> {
             info!("Inertia SSR server has shutdown.");
         }
     }
+
+    sea_service.db.get_postgres_connection_pool().close().await;
 
     info!("Shutting down the application.");
     server
