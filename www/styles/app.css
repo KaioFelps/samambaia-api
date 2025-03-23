@@ -241,8 +241,8 @@
     border-color: var(--color-gray-200, currentColor);
   }
 
-  button,
-  [role=button] {
+  button:not(disabled),
+  [role=button]:not(disabled) {
     cursor: default;
     &:active {
       cursor: pointer;
