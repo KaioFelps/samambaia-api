@@ -56,10 +56,16 @@ export class PaginationPolitics {
     lastPage: number,
     visibleButtons: number,
   ) {
-    const maxLeft = 0;
+    let maxLeft = currentPage;
     let maxRight = currentPage + visibleButtons;
 
-    if (maxRight > lastPage) maxRight = lastPage;
+    if (maxRight > lastPage) {
+      const bypassed = maxRight - lastPage;
+      maxRight = lastPage;
+      maxLeft -= bypassed;
+    }
+
+    console.log(maxLeft, maxRight);
 
     return { maxLeft, maxRight };
   }
