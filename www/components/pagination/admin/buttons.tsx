@@ -4,11 +4,15 @@ import { PaginationContext } from "../context";
 import { AdminPaginationButton } from "./button";
 
 export const AdminPaginationButtons = memo(() => {
-  const { paginator } = useContext(PaginationContext)!;
+  const paginationContext = useContext(PaginationContext)!;
+
+  if (!paginationContext) return null;
+
+  const { paginator, ...getPaginationArgs } = paginationContext;
 
   return (
     <div className="flex items-center gap-1">
-      {paginator.getPagination().map(({ link, page }) =>
+      {paginator.getPagination(getPaginationArgs).map(({ link, page }) =>
         <AdminPaginationButton
           key={"pagination-btn-" + link}
           link={link}

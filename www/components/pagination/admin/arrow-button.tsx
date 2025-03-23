@@ -40,27 +40,34 @@ function getDirectionButtonProps(
 
 export const AdminPaginationArrowButton = memo(({
   direction,
-  extraArgs,
 }: PaginationArrowButtonProps) => {
-  const { paginator } = useContext(PaginationContext)!;
+  const paginationContext = useContext(PaginationContext);
 
   const [Button, setButton] = useState<JSXElementConstructor<InertiaLinkProps> | "div">("div");
   const [disabled, setDisabled] = useState(true);
   const [href, setHref] = useState<string | null>(null);
 
   useEffect(() => {
-    const { disabled, pagination } = getDirectionButtonProps(direction, paginator, extraArgs);
+    if (!paginationContext) return;
+
+    const { disabled, pagination } = getDirectionButtonProps(
+      direction,
+      paginationContext.paginator,
+      paginationContext.extraArgs,
+    );
 
     setDisabled(disabled);
     setHref(pagination && pagination.link);
     setButton(disabled
       ? "div"
       : Link);
-  }, [direction, extraArgs, paginator]);
+  }, [direction, paginationContext]);
 
   const Icon = useMemo(() => direction === "backward"
     ? ArrowLeft
     : ArrowRight, [direction]);
+
+  if (!paginationContext) return null;
 
   return (
     <Button

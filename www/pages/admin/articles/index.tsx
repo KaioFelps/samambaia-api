@@ -2,6 +2,7 @@ import { Alert } from "@/components/alert";
 import Button from "@/components/button";
 import Header from "@/components/header";
 import Pagination from "@/components/pagination";
+import { useMemoizedPaginatorParameters } from "@/hooks/pagination";
 import { ArticlePreview } from "@/types/article-preview";
 import { Paginated } from "@/types/pagination";
 import { ArticleListCard } from "@/ui/admin/article-list-card";
@@ -46,12 +47,12 @@ export default function AdminArticleHome({ articles }: AdminArticleHomeProps) {
           )}
 
       <Pagination.Root
-        paginator={{
+        paginator={useMemoizedPaginatorParameters({
           lastPage: articles.pagination.totalPages,
           visibleButtons: 7,
           currentPage: articles.pagination.currentPage,
           align: "left",
-        }}
+        })!}
         className="mt-8 justify-end"
       >
         <Pagination.ArrowButton
