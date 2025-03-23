@@ -25,7 +25,11 @@ export const ArticleListCard = memo(({
   const auth = usePage().props.auth;
 
   return (
-    <article className="flex items-center gap-12 py-2 border-b border-gray-300">
+    <article className={clsx(
+      "flex items-center gap-12 py-2 px-5 border-b border-gray-300",
+      "hover:bg-white/30",
+    )}
+    >
       <span className="flex-1/2 text-sm line-clamp-1 text-gray-800">{title}</span>
 
       <div className="flex gap-2 items-center justify-end grow">
