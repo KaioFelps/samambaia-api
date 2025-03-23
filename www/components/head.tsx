@@ -6,6 +6,7 @@ import { resolveTitle } from "@/lib/inertia";
 
 type HeadProps = {
   title?: string;
+  admin?: boolean;
   description?: string;
 };
 
@@ -13,7 +14,16 @@ type HeadProps = {
     A wrapper around Inertia's Head component that handles more meta tags for provided title and
     description.
 */
-export function Head({ title, description, children }: React.PropsWithChildren<HeadProps>) {
+export function Head({
+  title: _title,
+  description,
+  admin = false,
+  children,
+}: React.PropsWithChildren<HeadProps>) {
+  const title = admin
+    ? "Grêmio :: " + _title
+    : _title;
+
   const resolvedTitle = resolveTitle(title, appConfig.meta.title);
 
   return (
