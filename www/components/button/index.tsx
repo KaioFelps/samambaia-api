@@ -1,5 +1,5 @@
 import { InertiaLinkProps } from "@inertiajs/react";
-import { ButtonHTMLAttributes, memo } from "react";
+import React, { ButtonHTMLAttributes, ForwardedRef, ReactElement } from "react";
 
 import { AdminButton, AdminButtonProps } from "./admin-button";
 import { PublicButton, PublicButtonProps } from "./public-button";
@@ -10,10 +10,19 @@ export type BaseButtonProps =
 
 type ButtonProps = { admin: true } & AdminButtonProps | { admin?: false } & PublicButtonProps;
 
-const Button = memo(({ admin = false, ...buttonProps }: ButtonProps) => {
+const Button = React.forwardRef((
+  { admin = false, ...buttonProps }: ButtonProps,
+  ref: ForwardedRef<HTMLButtonElement | ReactElement>,
+) => {
   return admin
-    ? <AdminButton {...buttonProps as AdminButtonProps} />
-    : <PublicButton {...buttonProps as PublicButtonProps} />;
+    ? <AdminButton
+        {...buttonProps as AdminButtonProps}
+        ref={ref}
+      />
+    : <PublicButton
+        {...buttonProps as PublicButtonProps}
+        ref={ref as ForwardedRef<PublicButtonProps>}
+      />;
 });
 
 export default Button;
