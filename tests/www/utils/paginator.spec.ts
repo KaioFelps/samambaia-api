@@ -56,7 +56,7 @@ describe("Paginator Specifications", () => {
     paginator.setCurrentPage(7);
   });
 
-  it("should be able to keep a left-aligned paginatio", () => {
+  it("should be able to keep a left-aligned pagination", () => {
     const paginator = new Paginator({ url: fakeUrl, lastPage: 10, align: "left" });
     paginator.setVisibleButtons(6);
 
@@ -103,6 +103,17 @@ describe("Paginator Specifications", () => {
         .link)
         .toMatch(`${fakeUrl}?foo=baz&user=john&page=1`);
     });
+
+  it("shouldn't render visible buttons if there are not enough pages on left align", () => {
+    const paginator = new Paginator({
+      url: fakeUrl,
+      lastPage: 1,
+      align: "left",
+      visibleButtons: 10,
+    });
+
+    expect(paginator.getPagination().length).toBe(1);
+  });
 
   it("should let it change page query parameter key", () => {
     const paginator = new Paginator({ url: fakeUrl, lastPage: 10 });
