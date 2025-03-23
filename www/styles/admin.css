@@ -17,8 +17,9 @@
 
 @utility admin-dropdown-content-clickable {
   @apply flex items-center gap-2
-            px-3 py-0.5 transition-all duration-75 rounded-md hover:bg-purple-500/20 active:bg-purple-500/40
-            cursor-default active:cursor-pointer;
+        px-3 py-0.5 transition-all duration-75 rounded-md hover:bg-purple-500/20 active:bg-purple-500/40
+        cursor-default active:cursor-pointer
+        outline-hidden ring-purple-500/40 ring-0 focus-visible:ring-2;
 }
 
 @utility admin-layout {
