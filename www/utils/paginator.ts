@@ -8,7 +8,7 @@ Object.freeze(events);
 
 type PaginatorEvent = typeof events[number];
 type PaginationLink = { page: number; link: string };
-type GetPaginationParams = {
+export type GetPaginationParams = {
   queryString?: string;
   extraArgs?: SearchParameters;
 };
