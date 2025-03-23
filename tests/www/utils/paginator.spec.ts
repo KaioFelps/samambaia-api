@@ -38,48 +38,40 @@ describe("Paginator Specifications", () => {
     const paginator = new Paginator({ url: fakeUrl, lastPage: 10, align: "center" });
     paginator.setVisibleButtons(5);
 
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([
-      { page: 1, link: `${fakeUrl}?page=${1}` },
-      { page: 2, link: `${fakeUrl}?page=${2}` },
-      { page: 3, link: `${fakeUrl}?page=${3}` },
-      { page: 4, link: `${fakeUrl}?page=${4}` },
-      { page: 5, link: `${fakeUrl}?page=${5}` },
-    ]));
+    expect(paginator.getPagination()).toEqual(expect.arrayContaining([1, 2, 3, 4, 5]
+      .map((page) => ({ page, link: `${fakeUrl}?page=${page}` }))));
 
     paginator.setCurrentPage(5);
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([
-      { page: 3, link: `${fakeUrl}?page=${3}` },
-      { page: 4, link: `${fakeUrl}?page=${4}` },
-      { page: 5, link: `${fakeUrl}?page=${5}` },
-      { page: 6, link: `${fakeUrl}?page=${6}` },
-      { page: 7, link: `${fakeUrl}?page=${7}` },
-    ]));
+    expect(paginator.getPagination()).toEqual(expect.arrayContaining([3, 4, 5, 6, 7]
+      .map(page => ({ page, link: `${fakeUrl}?page=${page}` }))));
+
+    paginator.setCurrentPage(5);
+    paginator.setVisibleButtons(7);
+    expect(paginator.getPagination()).toEqual(expect.arrayContaining([2, 3, 4, 5, 6, 7, 8]
+      .map(page => ({ page, link: `${fakeUrl}?page=${page}` }))));
+
+    paginator.setCurrentPage(7);
+    expect(paginator.getPagination()).toEqual(expect.arrayContaining([4, 5, 6, 7, 8, 9, 10]
+      .map(page => ({ page, link: `${fakeUrl}?page=${page}` }))));
+    paginator.setCurrentPage(7);
   });
 
   it("should be able to keep a left-aligned paginatio", () => {
     const paginator = new Paginator({ url: fakeUrl, lastPage: 10, align: "left" });
     paginator.setVisibleButtons(6);
 
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([
-      { page: 1, link: `${fakeUrl}?page=${1}` },
-      { page: 2, link: `${fakeUrl}?page=${2}` },
-      { page: 3, link: `${fakeUrl}?page=${3}` },
-      { page: 4, link: `${fakeUrl}?page=${4}` },
-      { page: 5, link: `${fakeUrl}?page=${5}` },
-      { page: 6, link: `${fakeUrl}?page=${6}` },
-    ]));
+    expect(paginator.getPagination()).toEqual(expect.arrayContaining([1, 2, 3, 4, 5, 6]
+      .map((page) => ({ page, link: `${fakeUrl}?page=${page}` }))));
 
     paginator.nextPage();
     paginator.nextPage();
 
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([
-      { page: 3, link: `${fakeUrl}?page=${3}` },
-      { page: 4, link: `${fakeUrl}?page=${4}` },
-      { page: 5, link: `${fakeUrl}?page=${5}` },
-      { page: 6, link: `${fakeUrl}?page=${6}` },
-      { page: 7, link: `${fakeUrl}?page=${7}` },
-      { page: 8, link: `${fakeUrl}?page=${8}` },
-    ]));
+    expect(paginator.getPagination()).toEqual(expect.arrayContaining([3, 4, 5, 6, 7, 8]
+      .map((page) => ({ page, link: `${fakeUrl}?page=${page}` }))));
+
+    paginator.setCurrentPage(8);
+    expect(paginator.getPagination()).toEqual(expect.arrayContaining([5, 6, 7, 8, 9, 10]
+      .map((page) => ({ page, link: `${fakeUrl}?page=${page}` }))));
   });
 
   it("shouldn't let put even amount of visible buttons on center align", () => {
@@ -97,6 +89,19 @@ describe("Paginator Specifications", () => {
 
       expect(paginator.getPagination({ queryString: "?foo&bar=baz" })[0].link)
         .toMatch(`${fakeUrl}?foo&bar=baz&page=1`);
+
+      expect(paginator.getPagination({ queryString: "?page=3" })[0].link)
+        .toMatch(`${fakeUrl}?page=1`);
+
+      expect(paginator.getPagination({ queryString: "?page=1" })[0].link)
+        .toMatch(`${fakeUrl}?page=1`);
+
+      expect(paginator.getPagination({
+        queryString: "?foo=bar&page=2&user=john",
+        extraArgs: { foo: "baz" },
+      })[0]
+        .link)
+        .toMatch(`${fakeUrl}?foo=baz&user=john&page=1`);
     });
 
   it("should let it change page query parameter key", () => {
@@ -114,7 +119,7 @@ describe("Paginator Specifications", () => {
     expect(paginator.hasPreviousPage()).toBeFalsy();
 
     paginator.previousPage();
-    expect(paginator.getCurrentPage().page).toBe(1);
+    expect(paginator.getCurrentPagePagination().page).toBe(1);
 
     paginator.nextPage();
     expect(paginator.hasNextPage()).toBeTruthy();
@@ -125,7 +130,7 @@ describe("Paginator Specifications", () => {
     expect(paginator.hasPreviousPage()).toBeTruthy();
 
     paginator.nextPage();
-    expect(paginator.getCurrentPage().page).toBe(5);
+    expect(paginator.getCurrentPagePagination().page).toBe(5);
   });
 
   it("should let register event listeners", () => {

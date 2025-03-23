@@ -1,7 +1,7 @@
 import { GetVisibleButtonsParams, PaginationPolitics } from "@/core/politics/pagination-politics";
 import { IllegalArgumentException } from "@/exceptions/illegal-argument-exception";
 
-type SearchParameters = Record<string, string | number | undefined>;
+export type SearchParameters = Record<string, string | number | undefined>;
 
 const events = ["next-page", "previous-page", "page-change"] as const;
 Object.freeze(events);
@@ -11,6 +11,14 @@ type PaginationLink = { page: number; link: string };
 type GetPaginationParams = {
   queryString?: string;
   extraArgs?: SearchParameters;
+};
+export type PaginatorConstructorArgs = {
+  url: string;
+  currentPage?: number;
+  lastPage: number;
+  visibleButtons?: number;
+  align?: GetVisibleButtonsParams["align"];
+  pageQuery?: string;
 };
 
 export class Paginator {
@@ -30,14 +38,7 @@ export class Paginator {
     align,
     pageQuery,
     visibleButtons,
-  }: {
-    url: string;
-    currentPage?: number;
-    lastPage: number;
-    visibleButtons?: number;
-    align?: GetVisibleButtonsParams["align"];
-    pageQuery?: string;
-  }) {
+  }: PaginatorConstructorArgs) {
     this.url = url;
     this.setLastPage(lastPage);
 
@@ -149,13 +150,12 @@ export class Paginator {
     this.callEventListeners("next-page");
   }
 
-  public getCurrentPage({ extraArgs, queryString }: GetPaginationParams = {}): PaginationLink {
-    queryString = this.getPaginationQueryString(queryString, extraArgs);
+  public getCurrentPage() {
+    return this.currentPage;
+  }
 
-    return {
-      page: this.currentPage,
-      link: this.preparePaginationLink(queryString, this.currentPage),
-    };
+  public getCurrentPagePagination(params: GetPaginationParams = {}): PaginationLink {
+    return this.getPaginationLinkForPage(this.currentPage, params);
   }
 
   public getPagination({
@@ -163,16 +163,14 @@ export class Paginator {
     extraArgs,
   }: GetPaginationParams = {}): Array<PaginationLink> {
     const boundaries = PaginationPolitics.getVisibleButtons({
-      currentPage: this.currentPage,
-      lastPage: this.lastPage,
       align: this.align,
+      lastPage: this.lastPage,
+      currentPage: this.currentPage,
       visibleButtons: this.visibleButtons,
     });
 
     const pages = [];
-
-    for (let i = 1; i < boundaries.maxLeft; i++) pages.push(this.currentPage - i);
-    for (let i = this.currentPage; i <= boundaries.maxRight; i++) pages.push(i);
+    for (let i = boundaries.maxLeft; i <= boundaries.maxRight; i++) pages.push(i);
 
     queryString = this.getPaginationQueryString(queryString, extraArgs);
 
@@ -200,6 +198,21 @@ export class Paginator {
 
   public resetEventListeners() {
     events.forEach(event => this.eventListeners.set(event, new Set()));
+  }
+
+  public getPaginationLinkForPage(
+    page: number,
+    {
+      extraArgs,
+      queryString,
+    }: GetPaginationParams = {},
+  ): PaginationLink {
+    queryString = this.getPaginationQueryString(queryString, extraArgs);
+
+    return {
+      page: this.currentPage,
+      link: this.preparePaginationLink(queryString, page),
+    };
   }
 
   private getPaginationQueryString(
