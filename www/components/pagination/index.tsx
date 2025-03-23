@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { memo, ReactNode } from "react";
 
 import { usePaginator } from "@/hooks/usePaginator";
@@ -20,6 +21,7 @@ export type PaginationArrowButtonProps = {
 type PaginationRootProps = {
   children: ReactNode;
   paginator: Omit<PaginatorConstructorArgs, "url">;
+  className?: string;
 };
 
 const PaginationButtons = memo(({ admin = false }: { admin?: boolean }) => {
@@ -35,12 +37,17 @@ const PaginationArrowButton = memo(({
   throw new Error("PaginationArrowButton has no non-admin variant implemented.");
 });
 
-const PaginationRoot = memo(({ children, paginator: paginatorParams }: PaginationRootProps) => {
+const PaginationRoot = memo(({
+  children,
+  className,
+  paginator: paginatorParams,
+
+}: PaginationRootProps) => {
   const paginator = usePaginator(paginatorParams);
 
   return (
     <PaginationContext.Provider value={{ paginator }}>
-      <div className="flex items-center gap-3">
+      <div className={clsx("flex items-center gap-3", className && className)}>
         {children}
       </div>
     </PaginationContext.Provider>
