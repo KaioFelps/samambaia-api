@@ -148,9 +148,8 @@ impl RouteTrait for WebRoutes {
                         .configure(AdminHomeController::register)
                     );
                 })
+                .service(actix_files::Files::new("/", "./public/").prefer_utf8(true))
             );
-
-        cfg.service(actix_files::Files::new("/", "./public/").prefer_utf8(true));
     }
 }
 
