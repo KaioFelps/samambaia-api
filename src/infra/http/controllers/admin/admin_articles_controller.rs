@@ -5,9 +5,11 @@ use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::user::User;
+use crate::domain::factories::journalism::article_tags::fetch_many_article_tags_service_factory;
 use crate::domain::factories::journalism::articles::fetch_articles_previews_service_factory;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
+use crate::domain::services::journalism::article_tags::fetch_many_article_tags_service::FetchManyArticleTagsParams;
 use crate::domain::services::journalism::articles::fetch_articles_previews_service::FetchArticlesPreviewsService;
 use crate::domain::services::journalism::articles::fetch_articles_services::{
     FetchArticleQuery,
@@ -15,7 +17,7 @@ use crate::domain::services::journalism::articles::fetch_articles_services::{
 };
 use crate::error::{IntoSamambaiaError, SamambaiaError};
 use crate::infra::http::controllers::controller::ControllerTrait;
-use crate::infra::http::controllers::AppResponseRedirect;
+use crate::infra::http::controllers::{AppResponse, AppResponseRedirect};
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
 use crate::infra::http::middlewares::web::has_permission::{
     PermissionComparisonMode,
@@ -26,6 +28,7 @@ use crate::infra::http::presenters::article_preview::{
     ArticlePreviewPresenter,
     MappedArticlePreview,
 };
+use crate::infra::http::presenters::article_tag::ArticleTagPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedPaginatedEntity, PresenterTrait};
 use crate::infra::sea::sea_service::SeaService;
 use crate::util::{verify_role_has_permission, RolePermissions};
@@ -35,18 +38,28 @@ pub struct AdminArticlesController;
 impl ControllerTrait for AdminArticlesController {
     fn register(cfg: &mut actix_web::web::ServiceConfig) {
         cfg.service(
-            web::scope("/noticias").route(
-                "",
-                web::get()
-                    .wrap(WebHasPermissionMiddleware::new(
-                        vec![
-                            RolePermissions::SeeUnapprovedArticle,
-                            RolePermissions::CreateArticle,
-                        ],
-                        PermissionComparisonMode::Any,
-                    ))
-                    .to(Self::manage_articles),
-            ),
+            web::scope("/noticias")
+                .route(
+                    "",
+                    web::get()
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![
+                                RolePermissions::SeeUnapprovedArticle,
+                                RolePermissions::CreateArticle,
+                            ],
+                            PermissionComparisonMode::Any,
+                        ))
+                        .to(Self::manage_articles),
+                )
+                .route(
+                    "nova",
+                    web::get()
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![RolePermissions::CreateArticle],
+                            PermissionComparisonMode::All,
+                        ))
+                        .to(Self::create_article),
+                ),
         );
     }
 }
@@ -81,6 +94,33 @@ impl AdminArticlesController {
         .await
         .map_err(IntoSamambaiaError::into_samambaia_error)
         .map(Either::Left)
+    }
+
+    async fn create_article(req: HttpRequest, db_conn: Data<SeaService>) -> AppResponse {
+        let list_tags_service = fetch_many_article_tags_service_factory::exec(&db_conn);
+        let article_tags = list_tags_service
+            .exec(FetchManyArticleTagsParams {
+                page: None,
+                per_page: Some(100),
+                query: None,
+            })
+            .await?;
+
+        let article_tags = article_tags
+            .data
+            .into_iter()
+            .map(ArticleTagPresenter::to_http)
+            .collect::<Vec<_>>();
+
+        Inertia::render_with_props(
+            &req,
+            "admin/articles/new".into(),
+            hashmap![
+                "tags" => InertiaProp::data(article_tags)
+            ],
+        )
+        .await
+        .map_err(IntoSamambaiaError::into_samambaia_error)
     }
 }
 
