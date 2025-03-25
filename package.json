@@ -21,13 +21,15 @@
     "@radix-ui/react-dropdown-menu": "2.1.4",
     "@radix-ui/react-popover": "1.1.4",
     "@radix-ui/react-select": "2.1.6",
+    "@tinymce/tinymce-react": "6.0.0",
     "@typescript-eslint/eslint-plugin": "8.19.1",
     "@typescript-eslint/parser": "8.19.1",
     "clsx": "2.1.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-toastify": "11.0.3",
-    "swiper": "11.2.0"
+    "swiper": "11.2.0",
+    "tinymce": "6.8.3"
   },
   "devDependencies": {
     "@inertiajs/core": "2.0.3",
@@ -50,5 +52,11 @@
     "unplugin-swc": "1.5.1",
     "vite": "6.2.2",
     "vitest": "3.0.9"
+  },
+  "overrides": {
+    "@tinymce/tinymce-react": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
   }
 }
