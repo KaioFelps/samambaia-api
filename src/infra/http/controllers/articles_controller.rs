@@ -8,6 +8,7 @@ use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::slug::Slug;
+use crate::domain::factories::identity::get_user_service_factory;
 use crate::domain::factories::journalism::articles::{
     create_article_service_factory,
     delete_article_service_factory,
@@ -15,6 +16,7 @@ use crate::domain::factories::journalism::articles::{
     get_expanded_article_service_factory,
     update_article_service_factory,
 };
+use crate::domain::services::identity::get_user_service::GetUserServiceParams;
 use crate::domain::services::journalism::articles::create_article_service::CreateArticleParams;
 use crate::domain::services::journalism::articles::delete_article_service::DeleteArticleParams;
 use crate::domain::services::journalism::articles::fetch_articles_services::{
@@ -27,7 +29,7 @@ use crate::domain::services::journalism::articles::get_expanded_article_service:
     GetExpandedArticleResponse,
 };
 use crate::domain::services::journalism::articles::update_article_service::UpdateArticleParams;
-use crate::error::IntoSamambaiaError;
+use crate::error::{IntoSamambaiaError, SamambaiaError};
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
 use crate::infra::http::dtos::list_articles::ListArticlesDto;
@@ -91,6 +93,18 @@ impl ArticlesController {
         let body = body.into_inner();
         let auth_user = user.into_inner();
 
+        let find_user_service = get_user_service_factory::exec(&db_conn);
+
+        let user = match find_user_service
+            .exec(GetUserServiceParams {
+                user_id: auth_user.user_id,
+            })
+            .await?
+        {
+            Some(user) => user,
+            None => return Err(SamambaiaError::resource_not_found_err()),
+        };
+
         let service = create_article_service_factory::exec(&db_conn);
 
         let CreateArticleDto {
@@ -105,12 +119,12 @@ impl ArticlesController {
         let article = service
             .exec(CreateArticleParams {
                 custom_author_id: author_id,
-                staff_id: auth_user.user_id,
                 content,
                 cover_url,
                 title,
                 tag_id,
                 description,
+                staff: &user,
             })
             .await?;
 
