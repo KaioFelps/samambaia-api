@@ -5,6 +5,8 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
+  --article-content-width: 744px;
+
   --color-*: initial;
   --color-black: #000000;
   --color-white: #ffffff;
@@ -271,6 +273,80 @@
   @supports (-webkit-text-stroke: 2px black) {
     -webkit-text-stroke: 2px black;
     -webkit-text-fill-color: white;
+  }
+}
+
+@utility article-content {
+  font-family: var(--font-default);
+  font-size: var(--text-sm);
+
+  & * {
+    max-width: var(--article-content-width);
+  }
+
+  p,
+  img,
+  div,
+  code,
+  pre,
+  blockquote {
+    display: block;
+    
+    &:not(:last-child) {
+      margin-bottom: calc(var(--spacing) * 3);
+    }
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    height: 43px;
+    width: var(--article-content-width);
+    border-radius: 7px;
+    
+    color: var(--color-white);
+    font-size: calc(var(--spacing) * 4);
+    font-family: var(--font-rowdies);
+
+    text-transform: capitalize;
+    text-align: center;
+    line-height: 40px;
+    
+    text-shadow: 0px 3px color-mix(in oklab, var(--color-black) 25%, transparent);
+
+    filter: drop-shadow(0px 2px 0px color-mix(in oklab, var(--color-black) 25%, transparent));
+    image-rendering: pixelated;
+    
+    &:not(:first-child) { margin-top: calc(var(--spacing) * 4); }
+    &:not(:last-child) { margin-bottom: calc(var(--spacing) * 4); }
+  }
+  h1 { background: url('/www/assets/icons-sprite.png') no-repeat 0 -543px; }
+  h2 {
+    background: url('/www/assets/icons-sprite.png') no-repeat 0 -586px;
+    color: var(--color-yellow-900);
+    text-shadow: 0px 2px color-mix(in oklab, var(--color-yellow-200) 100%, transparent);
+  }
+  h3 { background: url('/www/assets/icons-sprite.png') no-repeat 0 -629px; }
+  h4 { background: url('/www/assets/icons-sprite.png') no-repeat 0 -672px; }
+  h5 { background: url('/www/assets/icons-sprite.png') no-repeat 0 -715px; }
+  h6 { background: url('/www/assets/icons-sprite.png') no-repeat 0 -758px; }
+
+  pre {
+    display: block;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border-radius: calc(var(--spacing) * 2);
+    border: 2px solid var(--color-gray-400);
+    background: var(--color-gray-100);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-gray-800);
+  }
+
+  blockquote {
+    background: var(--color-gray-200);
+    padding-block: calc(var(--spacing) * 3);
+    padding-right: calc(var(--spacing) * 3);
+    padding-left: calc(var(--spacing) * 4);
+    border-left: 2px solid var(--color-purple-500);
+    border-start-end-radius: calc(var(--spacing) * 2);
+    border-end-end-radius: calc(var(--spacing) * 2);
   }
 }
 
