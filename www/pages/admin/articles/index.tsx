@@ -48,6 +48,8 @@ export default function AdminArticleHome({ articles }: AdminArticleHomeProps) {
             {userCanCreateArticle && (
               <Button
                 admin
+                asLink
+                href="/gremio/noticias/nova"
                 variant="default"
               >
                 Criar notícia
