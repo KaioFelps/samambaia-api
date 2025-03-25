@@ -3,13 +3,12 @@ import clsx from "clsx";
 import React, { ButtonHTMLAttributes, useMemo } from "react";
 
 import { BaseButtonProps } from ".";
+import { getAdminButtonStyles, OptionalVariantAndTheme, ThemeKey } from "./admin-button-themes";
 import { ButtonSize } from "./shared-types";
 
 export type AdminButtonProps = BaseButtonProps & {
-  variant?: "default" | "ghost";
-  theme?: "default";
   size?: ButtonSize;
-};
+} & OptionalVariantAndTheme;
 
 export const AdminButton = React.forwardRef(({
   asLink = false,
@@ -19,6 +18,10 @@ export const AdminButton = React.forwardRef(({
   size = "md",
   ...props
 }: AdminButtonProps, ref) => {
+  const variantAndThemeStyle = useMemo(() => {
+    return getAdminButtonStyles({ variant, theme: theme as ThemeKey });
+  }, [variant, theme]);
+
   const ButtonElement = useMemo(() => asLink
     ? Link
     : "button", [asLink]);
@@ -33,19 +36,10 @@ export const AdminButton = React.forwardRef(({
         "ring-0 focus-visible:ring-4 transition-all duration-100",
         "rounded-lg",
 
-        // default variant
-        variant === "default" && theme === "default" &&
-          "bg-blue-500 border border-black/10 text-white",
-        variant === "default" && theme === "default" &&
-          "ring-blue-500/40 hover:bg-blue-600 active:brightness-90",
-
-        variant === "ghost" && theme === "default" &&
-          "border border-black/20 ring-purple-500/40 bg-transparent",
-        variant === "ghost" && theme === "default" &&
-          "hover:bg-black/5 active:bg-black/10",
-
+        variantAndThemeStyle,
         // md size
         size === "md" && "px-2 py-1.5 text-sm",
+        size === "lg" && "px-4 py-2 text-md",
         className && className,
       )}
       // @ts-expect-error can't infer type of forwarded ref
