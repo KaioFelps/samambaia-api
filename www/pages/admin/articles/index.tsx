@@ -1,3 +1,4 @@
+import { PageProps } from "@inertiajs/core/types";
 import { router } from "@inertiajs/react";
 import { useState } from "react";
 
@@ -5,6 +6,7 @@ import { Alert } from "@/components/alert";
 import Button from "@/components/button";
 import { Head } from "@/components/head";
 import Header from "@/components/header";
+import { Main } from "@/components/main";
 import Pagination from "@/components/pagination";
 import { useMemoizedPaginatorParameters } from "@/hooks/pagination";
 import { useCanSee } from "@/hooks/useCanSee";
@@ -14,11 +16,11 @@ import { Paginated } from "@/types/pagination";
 import { ArticleListCard } from "@/ui/admin/article-list-card";
 import TableHeader from "@/ui/admin/paginated-table-header";
 
-type AdminArticleHomeProps = {
+type AdminArticleHomeProps = PageProps & {
   articles: Paginated<ArticlePreview[]>;
 };
 
-export default function AdminArticleHome({ articles }: AdminArticleHomeProps) {
+export default function AdminArticleHome({ articles, flash }: AdminArticleHomeProps) {
   const [filterIsLoading, setFilterIsLoading] = useState(false);
   const userCanCreateArticle = useCanSee(Permission.CreateArticle);
 
@@ -40,7 +42,8 @@ export default function AdminArticleHome({ articles }: AdminArticleHomeProps) {
         admin
         title="Notícias"
       />
-      <main className="admin-main-container">
+
+      <Main admin>
         <Header.Root className="mb-8">
           <Header.Title>Notícias publicadas</Header.Title>
           <Header.Divisor />
@@ -57,6 +60,15 @@ export default function AdminArticleHome({ articles }: AdminArticleHomeProps) {
             )}
           </Header.Actions>
         </Header.Root>
+
+        {"createArticleSuccess" in flash && (
+          <Alert
+            admin
+            message={flash.createArticleSuccess}
+            type="success"
+            className="mb-6"
+          />
+        )}
 
         <TableHeader.Root className="mb-4">
           <TableHeader.Count
@@ -114,7 +126,7 @@ export default function AdminArticleHome({ articles }: AdminArticleHomeProps) {
             direction="forward"
           />
         </Pagination.Root>
-      </main>
+      </Main>
     </>
   );
 };
