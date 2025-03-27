@@ -1,4 +1,5 @@
-use actix_web::web::{self, Data, Query};
+use actix_session::Session;
+use actix_web::web::{self, Data, Json, Query, Redirect};
 use actix_web::{Either, HttpRequest};
 use inertia_rust::validators::InertiaValidateOrRedirect;
 use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
@@ -6,18 +7,24 @@ use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::user::User;
 use crate::domain::factories::journalism::article_tags::fetch_many_article_tags_service_factory;
-use crate::domain::factories::journalism::articles::fetch_articles_previews_service_factory;
+use crate::domain::factories::journalism::articles::{
+    create_article_service_factory,
+    fetch_articles_previews_service_factory,
+};
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::domain::services::journalism::article_tags::fetch_many_article_tags_service::FetchManyArticleTagsParams;
+use crate::domain::services::journalism::articles::create_article_service::CreateArticleParams;
 use crate::domain::services::journalism::articles::fetch_articles_previews_service::FetchArticlesPreviewsService;
 use crate::domain::services::journalism::articles::fetch_articles_services::{
     FetchArticleQuery,
     FetchArticlesParams,
 };
 use crate::error::{IntoSamambaiaError, SamambaiaError};
+use crate::infra::extensions::sessions::SessionHelpers;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::{AppResponse, AppResponseRedirect};
+use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
 use crate::infra::http::middlewares::web::has_permission::{
     PermissionComparisonMode,
@@ -59,6 +66,15 @@ impl ControllerTrait for AdminArticlesController {
                             PermissionComparisonMode::All,
                         ))
                         .to(Self::create_article),
+                )
+                .route(
+                    "criar",
+                    web::post()
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![RolePermissions::CreateArticle],
+                            PermissionComparisonMode::All,
+                        ))
+                        .to(Self::store_article),
                 ),
         );
     }
@@ -121,6 +137,36 @@ impl AdminArticlesController {
         )
         .await
         .map_err(IntoSamambaiaError::into_samambaia_error)
+    }
+
+    async fn store_article(
+        req: HttpRequest,
+        db_conn: Data<SeaService>,
+        body: Json<CreateArticleDto>,
+        auth: WebAuthUser,
+    ) -> AppResponse<Redirect> {
+        let body = match body.validate_or_back(&req) {
+            Ok(body) => body,
+            Err(redirect_back) => return Ok(redirect_back),
+        };
+
+        let service = create_article_service_factory::exec(&db_conn);
+        let _article = service
+            .exec(CreateArticleParams {
+                title: body.title,
+                content: body.content,
+                cover_url: body.cover_url,
+                custom_author_id: body.author_id,
+                description: body.description,
+                staff: &auth.user,
+                tag_id: body.tag_id,
+            })
+            .await?;
+
+        Session::flash_silently(&req, "createArticleSuccess", "Notícia criada com sucesso!");
+
+        Ok(Redirect::to("/gremio/noticias").see_other())
+        // Ok(Inertia::back(&req))
     }
 }
 
