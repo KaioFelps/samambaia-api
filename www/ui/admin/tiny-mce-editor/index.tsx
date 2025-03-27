@@ -1,15 +1,17 @@
 // TinyMCE so the global var exists
 import "tinymce/tinymce";
-// DOM model
 import "tinymce/models/dom/model";
 // Theme
-import "tinymce/themes/silver";
+import "tinymce/themes/silver/theme";
 // Toolbar icons
 import "tinymce/icons/default";
 // Editor styles
 import "tinymce/skins/ui/oxide/skin";
+// The default content CSS can be changed or replaced with appropriate CSS for the editor content.
+// import contentCss from 'tinymce/skins/content/default/content.js'
+//
 // importing the plugin js.
-// if you use a plugin that is not listed here the editor will fail to load
+import "tinymce/plugins/emoticons/js/emojis";
 import "tinymce/plugins/advlist";
 import "tinymce/plugins/anchor";
 import "tinymce/plugins/autolink";
@@ -39,11 +41,8 @@ import "tinymce/plugins/table";
 import "tinymce/plugins/visualblocks";
 import "tinymce/plugins/visualchars";
 import "tinymce/plugins/wordcount";
-// importing plugin resources
-import "tinymce/plugins/emoticons/js/emojis";
-// Content styles, including inline UI like fake cursors
-import "tinymce/skins/content/default/content";
-import "tinymce/skins/ui/oxide/content";
+/* content UI CSS is required */
+import "tinymce/skins/ui/oxide/content.inline";
 
 import { Editor, type IAllProps } from "@tinymce/tinymce-react";
 import clsx from "clsx";
@@ -102,6 +101,7 @@ export function TinyMCEEditor({ validationError, ...props }: TinyMCEEditorProps)
         ]}
         id="editor"
         init={{
+          skin_url: "default",
           autoresize_bottom_margin: 0,
           language: "pt_BR",
           language_url: "/tiny-mce/langs/pt_BR.js",
