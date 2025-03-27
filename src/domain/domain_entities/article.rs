@@ -27,8 +27,8 @@ impl Article {
         title: String,
         content: String,
         cover_url: String,
-        tag_id: i32,
-        tag_value: String,
+        tag_id: Option<i32>,
+        tag_value: Option<String>,
         description: String,
     ) -> Self {
         let id = Uuid::new_v4();
@@ -44,8 +44,8 @@ impl Article {
             cover_url,
             title,
             content,
-            tag_id: Some(tag_id),
-            tag_value: Some(tag_value),
+            tag_id,
+            tag_value,
             approved: false,
             created_at,
             updated_at,

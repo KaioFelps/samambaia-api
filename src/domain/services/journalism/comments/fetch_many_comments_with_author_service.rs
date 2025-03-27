@@ -126,8 +126,8 @@ mod test {
             "Título da notícia".into(),
             "Conteúdo da notícia".into(),
             "url do cover".into(),
-            1,
-            "Foo".into(),
+            Some(1),
+            Some("Foo".into()),
             "baz".into(),
         );
         let article_id = article.id();

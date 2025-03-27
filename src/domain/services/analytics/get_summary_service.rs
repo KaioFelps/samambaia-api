@@ -45,8 +45,8 @@ mod test {
                 "foo".into(),
                 "foo content".into(),
                 "".into(),
-                1,
-                "Baz".into(),
+                Some(1),
+                Some("Baz".into()),
                 "foo description".into(),
             ),
             Article::new(
@@ -54,8 +54,8 @@ mod test {
                 "bar".into(),
                 "bar content".into(),
                 "".into(),
-                2,
-                "Baz".into(),
+                Some(2),
+                Some("Baz".into()),
                 "bar description".into(),
             ),
         ];

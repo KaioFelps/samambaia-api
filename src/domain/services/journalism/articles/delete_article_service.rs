@@ -125,8 +125,8 @@ mod test {
             "Título inicial".to_string(),
             "Conteúdo inicial".to_string(),
             "coverurl.inicial".to_string(),
-            1,
-            "Foo".into(),
+            Some(1),
+            Some("Foo".into()),
             "Bar baz!".into(),
         );
 

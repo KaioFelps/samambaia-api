@@ -98,8 +98,8 @@ mod test {
             "Título da notícia 1".to_string(),
             "Conteúdo da primeira notícia".to_string(),
             "url".to_string(),
-            1,
-            "Foo".into(),
+            Some(1),
+            Some("Foo".into()),
             "Descrição da notícia 1".into(),
         ));
         article_db.lock().unwrap().push(Article::new(
@@ -107,8 +107,8 @@ mod test {
             "Título da notícia 2".to_string(),
             "Conteúdo da segunda notícia".to_string(),
             "url".to_string(),
-            1,
-            "Foo".into(),
+            Some(1),
+            Some("Foo".into()),
             "Descrição da notícia 2".into(),
         ));
         article_db.lock().unwrap().push(Article::new(
@@ -116,8 +116,8 @@ mod test {
             "Título da notícia 3".to_string(),
             "Conteúdo da terceira notícia".to_string(),
             "url".to_string(),
-            1,
-            "Foo".into(),
+            Some(1),
+            Some("Foo".into()),
             "Descrição da notícia 3".into(),
         ));
 
