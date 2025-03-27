@@ -1,4 +1,4 @@
-import { router, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Spinner } from "@phosphor-icons/react/dist/ssr/Spinner";
@@ -67,16 +67,11 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
     post("/gremio/noticias/criar", {
       onSuccess: () => {
         const timer = 3000;
-        console.info("Notícia publicada.");
 
         toast("Notícia criada com sucesso! Peça para que a revisem.", {
           type: "success",
           autoClose: timer,
         });
-
-        setTimeout(() => {
-          router.visit("/gremio/noticias");
-        }, timer);
       },
       onError: (error) => {
         console.error(error);
