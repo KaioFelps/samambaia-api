@@ -14,7 +14,7 @@ pub struct CreateArticleParams<'a> {
     pub title: String,
     pub content: String,
     pub description: String,
-    pub tag_id: i32,
+    pub tag_id: Option<i32>,
 }
 pub struct CreateArticleService<
     ArticleRepository: ArticleRepositoryTrait,
@@ -54,30 +54,33 @@ impl<
             }
         };
 
-        let tag = self.article_tag_repository.find_by_id(params.tag_id).await;
-
-        if let Err(err) = tag {
-            return Err(generate_service_internal_error(
-                "Error occurred at create article service, while finding tag by id",
-                err,
-            ));
-        }
-        let tag = tag.unwrap();
-
-        if tag.is_none() {
-            return Err(SamambaiaError::bad_request_err()
-                .with_message(format!("Tag with id '{}' not found.", params.tag_id)));
-        }
-
-        let tag = tag.unwrap();
+        let tag = match params.tag_id {
+            None => None,
+            Some(tag_id) => match self
+                .article_tag_repository
+                .find_by_id(tag_id)
+                .await
+                .map_err(|err| {
+                    generate_service_internal_error(
+                        "Error occurred CreateArticleService when querying tag by id.",
+                        err,
+                    )
+                })? {
+                None => {
+                    return Err(SamambaiaError::bad_request_err()
+                        .with_message(format!("Tag with id '{}' not found.", tag_id)))
+                }
+                Some(tag) => Some(tag),
+            },
+        };
 
         let article = Article::new(
             author_id,
             params.title,
             params.content,
             params.cover_url,
-            tag.id(),
-            tag.value().to_owned(),
+            tag.as_ref().map(|tag| tag.id()),
+            tag.as_ref().map(|tag| tag.value().to_owned()),
             params.description,
         );
 
@@ -144,7 +147,7 @@ mod test {
                 content: "Article content right here!".to_string(),
                 cover_url: "https://i.imgur.com/fodase".to_string(),
                 title: "Fake title".to_string(),
-                tag_id: tag.id(),
+                tag_id: Some(tag.id()),
                 description: "A humble description...".into(),
             })
             .await;

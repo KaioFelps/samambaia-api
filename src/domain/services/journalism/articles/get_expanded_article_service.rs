@@ -186,8 +186,8 @@ mod test {
             "Notícia 1".into(),
             "Conteúdo da notícia 1.".into(),
             "url_da_cover.com".into(),
-            1,
-            "MockedTag".into(),
+            Some(1),
+            Some("MockedTag".into()),
             "Mocked description".into(),
         );
 

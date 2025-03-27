@@ -193,8 +193,8 @@ mod test {
             "Initial title".to_string(),
             "Initial content".to_string(),
             "initial.coverurl".to_string(),
-            1,
-            "Foo".to_string(),
+            Some(1),
+            Some("Foo".to_string()),
             "Initial description".into(),
         );
 

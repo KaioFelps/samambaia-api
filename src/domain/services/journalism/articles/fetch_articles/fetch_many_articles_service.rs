@@ -116,8 +116,8 @@ mod test {
             "Article 1 title".to_string(),
             "Article 1 content here".to_string(),
             "url".to_string(),
-            1,
-            "Foo".into(),
+            Some(1),
+            Some("Foo".into()),
             "Description".into(),
         );
         approved_article.set_approved(true);
@@ -127,8 +127,8 @@ mod test {
             "Article 2 title".to_string(),
             "Article 2 content here".to_string(),
             "url".to_string(),
-            1,
-            "Foo".into(),
+            Some(1),
+            Some("Foo".into()),
             "Description".into(),
         ));
 

@@ -18,5 +18,5 @@ pub struct CreateArticleDto {
     pub title: String,
 
     #[serde(rename = "tagId")]
-    pub tag_id: i32,
+    pub tag_id: Option<i32>,
 }
