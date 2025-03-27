@@ -1,3 +1,4 @@
+import { CheckFat } from "@phosphor-icons/react/dist/ssr/CheckFat";
 import { Info } from "@phosphor-icons/react/dist/ssr/Info";
 import { SealWarning } from "@phosphor-icons/react/dist/ssr/SealWarning";
 import clsx from "clsx";
@@ -6,7 +7,7 @@ import { memo, useMemo } from "react";
 import { BaseAlertProps } from ".";
 
 export type AdminAlertProps = BaseAlertProps & {
-  type: "info" | "warning";
+  type: "info" | "warning" | "success";
 };
 
 export const AdminAlert = memo(({ message, type, className }: AdminAlertProps) => {
@@ -14,6 +15,7 @@ export const AdminAlert = memo(({ message, type, className }: AdminAlertProps) =
     switch (type) {
       case "info": return Info;
       case "warning": return SealWarning;
+      case "success": return CheckFat;
     }
   }, [type]);
 
@@ -25,6 +27,7 @@ export const AdminAlert = memo(({ message, type, className }: AdminAlertProps) =
       // info-type
       type === "info" && "border-blue-500 bg-blue-500/10",
       type === "warning" && "border-yellow-700 bg-yellow-500/25",
+      type === "success" && "border-green-700 bg-green-500/25",
 
       className && className,
     )}
@@ -35,6 +38,7 @@ export const AdminAlert = memo(({ message, type, className }: AdminAlertProps) =
         className={clsx(
           type === "info" && "text-blue-700",
           type === "warning" && "text-yellow-900",
+          type === "success" && "text-green-700",
         )}
       />
       {message}
