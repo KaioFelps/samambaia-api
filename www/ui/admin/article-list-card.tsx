@@ -122,6 +122,8 @@ export const ArticleListCard = memo(({
             variant="ghost"
             theme="warn"
             icon={PencilSimple}
+            asLink
+            href={`/gremio/noticias/${id}/editar`}
           />
         )}
 
