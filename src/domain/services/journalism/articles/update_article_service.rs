@@ -182,14 +182,16 @@ mod test {
     use uuid::Uuid;
 
     use super::{Article, UpdateArticleParams};
-    use crate::domain::domain_entities::article_tag::ArticleTag;
+    use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
+    use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
+    use crate::domain::services::journalism::articles::update_article_service::UpdateArticleService;
     use crate::tests::repositories::article_repository::get_article_repository;
     use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
 
     #[tokio::test]
-    async fn test() {
+    async fn unauthorized_users_should_not_update_article() {
         let (article_db, _, article_repository) = get_article_repository();
         let (tag_db, article_tag_repository) = get_article_tag_repository();
 
@@ -229,11 +231,79 @@ mod test {
             })
             .await;
 
+        assert!(result.is_err());
         assert_eq!(result.unwrap_err().get_code(), StatusCode::UNAUTHORIZED); // writer can't approve any article
+    }
 
-        let result = service
+    #[tokio::test]
+    async fn writer_or_below_should_get_article_disapproved_on_edit() {
+        let (article_db, _, article_repository) = get_article_repository();
+        let (_tag_db, article_tag_repository) = get_article_tag_repository();
+
+        let writer = User::new("John".into(), "".into(), Some(Role::Writer));
+
+        let mut article = Article::new(
+            writer.id(),
+            "Title".into(),
+            "<h1>Contentm</h1>".into(),
+            "url".into(),
+            None,
+            None,
+            "description".into(),
+        );
+        article.set_approved(true);
+
+        article_db.lock().unwrap().push(article.clone());
+
+        let sut = UpdateArticleService::new(article_repository, article_tag_repository);
+        let result = sut
             .exec(UpdateArticleParams {
+                content: Some("<h1>Edited Content</h1>".into()),
+                cover_url: None,
+                description: None,
+                title: None,
+                approved: None,
+                article_id: article.id(),
+                author_id: None,
+                tag_id: None,
                 user: &writer,
+            })
+            .await;
+
+        assert!(result.is_ok());
+        assert!(!result.unwrap().approved());
+    }
+
+    #[tokio::test]
+    async fn authorized_user_should_be_able_to_update_article_and_keep_approved() {
+        let (article_db, _, article_repository) = get_article_repository();
+        let (_tag_db, article_tag_repository) = get_article_tag_repository();
+
+        let editor = User::new("John".into(), "".into(), Some(Role::Editor));
+
+        let mut article = Article::new(
+            Uuid::new_v4(),
+            "Title".into(),
+            "<h1>Contentm</h1>".into(),
+            "url".into(),
+            None,
+            None,
+            "description".into(),
+        );
+        article.set_approved(true);
+
+        article_db.lock().unwrap().push(article.clone());
+
+        let tag = article_tag_repository
+            .create(DraftArticleTag::new("Bar".into()))
+            .await
+            .unwrap();
+
+        let sut = UpdateArticleService::new(article_repository, article_tag_repository);
+
+        let result = sut
+            .exec(UpdateArticleParams {
+                user: &editor,
                 article_id: article.id(),
                 approved: None,
                 title: Some("updated title".to_string()),
@@ -241,10 +311,11 @@ mod test {
                 description: Some("updated description".to_string()),
                 cover_url: None,
                 author_id: None,
-                tag_id: Some(2),
+                tag_id: Some(tag.id()),
             })
             .await;
 
+        assert!(result.is_ok());
         let result = result.unwrap();
 
         assert_eq!("updated title", result.title());
