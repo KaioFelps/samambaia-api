@@ -11,6 +11,7 @@ use crate::domain::domain_entities::user::User;
 use crate::domain::factories::journalism::article_tags::fetch_many_article_tags_service_factory;
 use crate::domain::factories::journalism::articles::{
     create_article_service_factory,
+    delete_article_service_factory,
     fetch_articles_previews_service_factory,
     find_article_by_id_service_factory,
     update_article_service_factory,
@@ -19,6 +20,7 @@ use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::domain::services::journalism::article_tags::fetch_many_article_tags_service::FetchManyArticleTagsParams;
 use crate::domain::services::journalism::articles::create_article_service::CreateArticleParams;
+use crate::domain::services::journalism::articles::delete_article_service::DeleteArticleParams;
 use crate::domain::services::journalism::articles::fetch_articles_previews_service::FetchArticlesPreviewsService;
 use crate::domain::services::journalism::articles::fetch_articles_services::{
     FetchArticleQuery,
@@ -111,6 +113,18 @@ impl ControllerTrait for AdminArticlesController {
                             PermissionComparisonMode::All,
                         ))
                         .to(Self::update_article),
+                )
+                .route(
+                    "{article_id}/apagar",
+                    web::delete()
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![
+                                RolePermissions::DeleteArticle,
+                                RolePermissions::DeleteComment,
+                            ],
+                            PermissionComparisonMode::All,
+                        ))
+                        .to(Self::delete_article),
                 ),
         );
     }
@@ -328,6 +342,33 @@ impl AdminArticlesController {
                 Ok(Inertia::back(&req))
             }
         }
+    }
+
+    async fn delete_article(
+        req: HttpRequest,
+        auth: WebAuthUser,
+        path: Path<Uuid>,
+        db_conn: Data<SeaService>,
+    ) -> AppResponse<Redirect> {
+        let service = delete_article_service_factory::exec(&db_conn);
+
+        if let Err(err) = service
+            .exec(DeleteArticleParams {
+                article_id: path.into_inner(),
+                user: &auth.user,
+            })
+            .await
+        {
+            return Ok(Inertia::back_with_errors(
+                &req,
+                hashmap![
+                    "error" => err.get_message().to_string().into()
+                ],
+            ));
+        }
+
+        Session::flash_silently(&req, "deleteArticleSuccess", "Notícia apagada com sucesso!");
+        Ok(Inertia::back(&req))
     }
 }
 
