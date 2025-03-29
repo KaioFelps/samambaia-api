@@ -165,7 +165,7 @@ impl AdminArticlesController {
 
         Session::flash_silently(&req, "createArticleSuccess", "Notícia criada com sucesso!");
 
-        Ok(Redirect::to("/gremio/noticias").see_other())
+        Ok(Redirect::to("/gremio/noticias").using_status_code(StatusCode::FOUND))
         // Ok(Inertia::back(&req))
     }
 }
