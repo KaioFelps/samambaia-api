@@ -10,6 +10,8 @@ export const AdminPaginationButtons = memo(() => {
 
   const { paginator, ...getPaginationArgs } = paginationContext;
 
+  getPaginationArgs.queryString ??= window.location.search;
+
   return (
     <div className="flex items-center gap-1">
       {paginator.getPagination(getPaginationArgs).map(({ link, page }) =>
