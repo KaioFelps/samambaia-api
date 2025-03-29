@@ -1,9 +1,7 @@
 import { useForm, usePage } from "@inertiajs/react";
 import { CalendarBlank } from "@phosphor-icons/react/dist/ssr/CalendarBlank";
-import { CheckFat } from "@phosphor-icons/react/dist/ssr/CheckFat";
 import { Eye } from "@phosphor-icons/react/dist/ssr/Eye";
 import { PencilSimple } from "@phosphor-icons/react/dist/ssr/PencilSimple";
-import { Spinner } from "@phosphor-icons/react/dist/ssr/Spinner";
 import { Tag } from "@phosphor-icons/react/dist/ssr/Tag";
 import { Trash } from "@phosphor-icons/react/dist/ssr/Trash";
 import { User } from "@phosphor-icons/react/dist/ssr/User";
@@ -17,6 +15,8 @@ import { ArticlePreview } from "@/types/article-preview";
 import { Permission } from "@/types/auth";
 import { can } from "@/utils/can";
 
+import { ApproveToggleButton } from "./approve-toggle-button";
+
 type ToggleApprovedArticleForm = {
   approved: boolean;
 };
@@ -28,6 +28,7 @@ export const ArticleListCard = memo(({
   author,
   approved: _approved,
   createdAt,
+  slug,
 }: ArticlePreview) => {
   const [approved, setApproved] = useState(_approved);
   const auth = usePage().props.auth;
@@ -97,7 +98,7 @@ export const ArticleListCard = memo(({
           size="sm"
         />
 
-        <PublishmentCheck
+        <ApproveToggleButton
           isPublished={approved}
           isLoading={processing}
           onClick={handleToggleApproved}
@@ -133,45 +134,10 @@ export const ArticleListCard = memo(({
           variant="ghost"
           theme="info"
           icon={Eye}
+          asLink
+          href={`/noticias/${slug}`}
         />
       </div>
     </article>
-  );
-});
-
-type PublishmentCheckProps = {
-  isPublished: boolean;
-  isLoading: boolean;
-  onClick: () => void;
-};
-
-const PublishmentCheck = memo(({ isPublished, isLoading, onClick }: PublishmentCheckProps) => {
-  return (
-    <button
-      disabled={isLoading}
-      onClick={onClick}
-      className={clsx(
-        "p-1 rounded-full transition-all self-center outline-hidden ring-0 focus-visible:ring-4",
-        !isLoading && isPublished
-          ? "text-white bg-green-500 hover:bg-green-600 active:bg-green-700 ring-green-600/40"
-          : "text-gray-700 bg-gray-300 hover:bg-gray-400 active:brightness-95 ring-purple-500/40",
-      )}
-    >
-      {isLoading
-        ? (
-          <Spinner
-            className="animate-spin"
-            size={16}
-            weight="bold"
-          />
-          )
-        : (
-
-          <CheckFat
-            size={16}
-            weight="fill"
-          />
-          )}
-    </button>
   );
 });
