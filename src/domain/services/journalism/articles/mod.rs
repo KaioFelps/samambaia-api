@@ -8,3 +8,4 @@ pub use fetch_articles::{fetch_articles_previews_service, fetch_many_articles_se
 pub mod fetch_articles_services {
     pub use super::fetch_articles::params::*;
 }
+pub mod find_article_by_id_service;
