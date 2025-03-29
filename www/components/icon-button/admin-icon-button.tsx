@@ -1,7 +1,7 @@
 import { Link } from "@inertiajs/react";
 import { Icon } from "@phosphor-icons/react";
 import clsx from "clsx";
-import { ButtonHTMLAttributes, memo, ReactElement } from "react";
+import React, { ButtonHTMLAttributes, ReactElement } from "react";
 
 import { BaseIconButtonProps, LinkProps } from ".";
 
@@ -12,7 +12,7 @@ export type AdminIconButtonProps = BaseIconButtonProps & {
   icon: Icon | ReactElement;
 };
 
-export const AdminIconButton = memo(({
+export const AdminIconButton = React.forwardRef(({
   icon: _icon,
   className,
   size,
@@ -20,7 +20,8 @@ export const AdminIconButton = memo(({
   theme,
   asLink,
   ...props
-}: AdminIconButtonProps) => {
+}: AdminIconButtonProps,
+ref) => {
   const Button = asLink
     ? Link
     : "button";
@@ -39,7 +40,6 @@ export const AdminIconButton = memo(({
   })();
 
   return (
-    // @ts-expect-error it cant infer link props
     <Button
       {...(asLink
         ? props as LinkProps
@@ -58,6 +58,9 @@ export const AdminIconButton = memo(({
 
         className && className,
       )}
+      // @ts-expect-error cannot infer type of Forwarded component nor use new ref as props
+      // due to radix-ui
+      ref={ref}
     >
       {icon}
     </Button>
