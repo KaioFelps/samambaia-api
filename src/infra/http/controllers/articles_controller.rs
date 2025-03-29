@@ -273,11 +273,23 @@ impl ArticlesController {
         req_user: web::ReqData<ReqUser>,
         article_id: web::Path<Uuid>,
     ) -> AppResponse {
+        let find_user_service = get_user_service_factory::exec(&db_conn);
+
+        let user = match find_user_service
+            .exec(GetUserServiceParams {
+                user_id: req_user.user_id,
+            })
+            .await?
+        {
+            Some(user) => user,
+            None => return Err(SamambaiaError::unauthorized_err()),
+        };
+
         let service = delete_article_service_factory::exec(&db_conn);
 
         service
             .exec(DeleteArticleParams {
-                user_id: req_user.user_id,
+                user: &user,
                 article_id: article_id.into_inner(),
             })
             .await

@@ -1,59 +1,30 @@
 use uuid::Uuid;
 
+use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_comment_repository::ArticleCommentRepositoryTrait;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
-use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
-pub struct DeleteArticleParams {
-    pub user_id: Uuid,
+pub struct DeleteArticleParams<'a> {
+    pub user: &'a User,
     pub article_id: Uuid,
 }
-pub struct DeleteArticleService<
-    AR: ArticleRepositoryTrait,
-    ACR: ArticleCommentRepositoryTrait,
-    UR: UserRepositoryTrait,
-> {
+pub struct DeleteArticleService<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait> {
     article_repository: AR,
     article_comment_repository: ACR,
-    user_repository: UR,
 }
 
-impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRepositoryTrait>
-    DeleteArticleService<AR, ACR, UR>
-{
-    pub fn new(
-        article_repository: AR,
-        article_comment_repository: ACR,
-        user_repository: UR,
-    ) -> Self {
+impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait> DeleteArticleService<AR, ACR> {
+    pub fn new(article_repository: AR, article_comment_repository: ACR) -> Self {
         DeleteArticleService {
             article_repository,
             article_comment_repository,
-            user_repository,
         }
     }
 
-    pub async fn exec(&self, params: DeleteArticleParams) -> Result<(), SamambaiaError> {
-        let user_on_db = self
-            .user_repository
-            .find_by_id(&params.user_id)
-            .await
-            .map_err(|err| {
-                generate_service_internal_error(
-                    "Error occurred on Delete Article Service, while finding user by Id",
-                    err,
-                )
-            })?;
-
-        if user_on_db.is_none() {
-            return Err(SamambaiaError::unauthorized_err());
-        }
-
-        // article verifications
-
-        let article_on_db = self
+    pub async fn exec(&self, params: DeleteArticleParams<'_>) -> Result<(), SamambaiaError> {
+        let article = match self
             .article_repository
             .find_by_id(params.article_id)
             .await
@@ -62,25 +33,17 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRep
                     "Error occurred on Delete Article Service, while finding article by Id",
                     err,
                 )
-            })?;
-
-        if article_on_db.is_none() {
-            return Err(SamambaiaError::resource_not_found_err());
-        }
-
-        let article = article_on_db.clone().unwrap();
+            })? {
+            None => return Err(SamambaiaError::resource_not_found_err()),
+            Some(article) => article,
+        };
 
         // checks user is allowed to perform the update
-        let user_can_delete = verify_role_has_permission(
-            &user_on_db
-                .as_ref()
-                .unwrap()
-                .role()
-                .unwrap()
-                .clone()
-                .to_owned(),
-            RolePermissions::DeleteArticle,
-        );
+        let user_can_delete = params.user.id().eq(&article.author_id())
+            || verify_role_has_permission(
+                &params.user.role().unwrap(),
+                RolePermissions::DeleteArticle,
+            );
 
         if !user_can_delete {
             return Err(SamambaiaError::unauthorized_err());
@@ -100,25 +63,126 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait, UR: UserRep
 
 #[cfg(test)]
 mod test {
-    use std::sync::Arc;
 
     use tokio;
     use uuid::Uuid;
 
     use super::{DeleteArticleParams, DeleteArticleService};
     use crate::domain::domain_entities::article::Article;
+    use crate::domain::domain_entities::comment::Comment;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
-    use crate::domain::repositories::article_comment_repository::MockArticleCommentRepositoryTrait;
-    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
-    use crate::libs::time::TimeHelper;
+    use crate::tests::repositories::article_comment_repository::get_article_comment_repository;
     use crate::tests::repositories::article_repository::get_article_repository;
 
     #[tokio::test]
-    async fn test() {
-        let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
-        let (article_db, _, mocked_article_repo) = get_article_repository();
-        let mut mocked_article_comment_repo = MockArticleCommentRepositoryTrait::new();
+    async fn user_should_be_able_to_delete_own_article() {
+        let (article_db, _, article_repository) = get_article_repository();
+        let (article_db, _comment_db, article_comment_repository) =
+            get_article_comment_repository(Some(article_db), None);
+
+        let user = User::new("Flori".into(), "".into(), Some(Role::Writer));
+        let article = Article::new(
+            user.id(),
+            "Title".into(),
+            "Content".into(),
+            "cover".into(),
+            None,
+            None,
+            "desc".into(),
+        );
+
+        article_db.lock().unwrap().push(article.clone());
+
+        let sut = DeleteArticleService::new(article_repository, article_comment_repository);
+        let response = sut
+            .exec(DeleteArticleParams {
+                user: &user,
+                article_id: article.id(),
+            })
+            .await;
+
+        assert!(response.is_ok());
+        assert_eq!(0, article_db.lock().unwrap().len());
+    }
+
+    #[tokio::test]
+    async fn unauthorized_user_should_not_be_able_to_delete_others_articles() {
+        let (article_db, _, article_repository) = get_article_repository();
+        let (article_db, _comment_db, article_comment_repository) =
+            get_article_comment_repository(Some(article_db), None);
+
+        let article = Article::new(
+            Uuid::new_v4(),
+            "Título inicial".to_string(),
+            "Conteúdo inicial".to_string(),
+            "coverurl.inicial".to_string(),
+            Some(1),
+            Some("Foo".into()),
+            "Bar baz!".into(),
+        );
+
+        let non_author_user = User::new("Flori".into(), "".into(), Some(Role::Admin));
+
+        article_db.lock().unwrap().push(article.clone());
+
+        let service = DeleteArticleService {
+            article_comment_repository,
+            article_repository,
+        };
+
+        let response = service
+            .exec(DeleteArticleParams {
+                user: &non_author_user,
+                article_id: article.id(),
+            })
+            .await;
+
+        assert!(response.is_err());
+        assert_eq!(1, article_db.lock().unwrap().len());
+    }
+
+    #[tokio::test]
+    async fn authorized_user_should_be_able_to_delete_anyones_article() {
+        let (article_db, _, article_repository) = get_article_repository();
+        let (article_db, _comment_db, article_comment_repository) =
+            get_article_comment_repository(Some(article_db), None);
+
+        let article = Article::new(
+            Uuid::new_v4(),
+            "Título inicial".to_string(),
+            "Conteúdo inicial".to_string(),
+            "coverurl.inicial".to_string(),
+            Some(1),
+            Some("Foo".into()),
+            "Bar baz!".into(),
+        );
+
+        let principal = User::new("Flori".into(), "".into(), Some(Role::Principal));
+
+        article_db.lock().unwrap().push(article.clone());
+
+        let service = DeleteArticleService {
+            article_comment_repository,
+            article_repository,
+        };
+
+        let response = service
+            .exec(DeleteArticleParams {
+                user: &principal,
+                article_id: article.id(),
+            })
+            .await;
+
+        assert!(response.is_ok());
+        assert_eq!(0, article_db.lock().unwrap().len());
+    }
+
+    #[tokio::test]
+    async fn it_should_delete_comments_along_with_article() {
+        let (article_db, _, article_repository) = get_article_repository();
+        let (article_db, comment_db, article_comment_repository) =
+            get_article_comment_repository(Some(article_db), None);
 
         let article = Article::new(
             Uuid::new_v4(),
@@ -132,49 +196,54 @@ mod test {
 
         article_db.lock().unwrap().push(article.clone());
 
-        let db_clone = Arc::clone(&article_db);
-        mocked_article_comment_repo
-            .expect_delete_article_and_inactivate_comments()
-            .returning(move |param_article| {
-                let mut new_articles_db = vec![];
+        let comment_db_clone = comment_db.clone();
+        {
+            let mut lock = comment_db_clone.lock().unwrap();
+            lock.push(Comment::new(
+                Uuid::new_v4(),
+                Some(article.id()),
+                "Foo".into(),
+            ));
+            lock.push(Comment::new(
+                Uuid::new_v4(),
+                Some(article.id()),
+                "Bar".into(),
+            ));
+            lock.push(Comment::new(
+                Uuid::new_v4(),
+                Some(article.id()),
+                "Baz".into(),
+            ));
+            lock.push(Comment::new(
+                Uuid::new_v4(),
+                Some(article.id()),
+                "Foz".into(),
+            ));
 
-                for article in db_clone.lock().unwrap().iter() {
-                    if article.id().ne(&param_article.id()) {
-                        new_articles_db.push(article.clone());
-                    }
-                }
+            assert_eq!(4, lock.len());
+        }
 
-                *db_clone.lock().unwrap() = new_articles_db;
-                Ok(())
-            });
+        let principal = User::new("Flori".into(), "".into(), Some(Role::Principal));
+        let sut = DeleteArticleService::new(article_repository, article_comment_repository);
 
-        mocked_user_repo.expect_find_by_id().returning(|id| {
-            let fake_user = User::new_from_existing(
-                id.clone().to_owned(),
-                "Fake name".to_string(),
-                "password".to_string(),
-                TimeHelper::now(),
-                None,
-                Some(Role::Principal),
-            );
-
-            Ok(Some(fake_user))
-        });
-
-        let service = DeleteArticleService {
-            user_repository: mocked_user_repo,
-            article_comment_repository: mocked_article_comment_repo,
-            article_repository: mocked_article_repo,
-        };
-
-        let result = service
+        let response = sut
             .exec(DeleteArticleParams {
-                user_id: article.author_id(),
+                user: &principal,
                 article_id: article.id(),
             })
             .await;
 
-        assert!(result.is_ok());
+        assert!(response.is_ok());
         assert_eq!(0, article_db.lock().unwrap().len());
+        assert_eq!(
+            0,
+            comment_db
+                .lock()
+                .unwrap()
+                .iter()
+                .filter(|comment| comment.is_active())
+                .collect::<Vec<_>>()
+                .len()
+        );
     }
 }
