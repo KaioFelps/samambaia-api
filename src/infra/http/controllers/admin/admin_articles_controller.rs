@@ -1,8 +1,10 @@
 use actix_session::Session;
-use actix_web::web::{self, Data, Json, Query, Redirect};
+use actix_web::http::StatusCode;
+use actix_web::web::{self, Data, Json, Path, Query, Redirect};
 use actix_web::{Either, HttpRequest};
 use inertia_rust::validators::InertiaValidateOrRedirect;
 use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
+use uuid::Uuid;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::user::User;
@@ -10,6 +12,7 @@ use crate::domain::factories::journalism::article_tags::fetch_many_article_tags_
 use crate::domain::factories::journalism::articles::{
     create_article_service_factory,
     fetch_articles_previews_service_factory,
+    update_article_service_factory,
 };
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
@@ -20,12 +23,14 @@ use crate::domain::services::journalism::articles::fetch_articles_services::{
     FetchArticleQuery,
     FetchArticlesParams,
 };
+use crate::domain::services::journalism::articles::update_article_service::UpdateArticleParams;
 use crate::error::{IntoSamambaiaError, SamambaiaError};
 use crate::infra::extensions::sessions::SessionHelpers;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::{AppResponse, AppResponseRedirect};
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
+use crate::infra::http::dtos::patch_article_approved::PatchArticleApprovedDto;
 use crate::infra::http::middlewares::web::has_permission::{
     PermissionComparisonMode,
     WebHasPermissionMiddleware,
@@ -75,6 +80,15 @@ impl ControllerTrait for AdminArticlesController {
                             PermissionComparisonMode::All,
                         ))
                         .to(Self::store_article),
+                )
+                .route(
+                    "{article_id}/alterar-aprovado",
+                    web::patch()
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![RolePermissions::ApproveArticle],
+                            PermissionComparisonMode::Any,
+                        ))
+                        .to(Self::toggle_article_approved),
                 ),
         );
     }
@@ -167,6 +181,47 @@ impl AdminArticlesController {
 
         Ok(Redirect::to("/gremio/noticias").using_status_code(StatusCode::FOUND))
         // Ok(Inertia::back(&req))
+    }
+
+    async fn toggle_article_approved(
+        req: HttpRequest,
+        db_conn: Data<SeaService>,
+        body: Json<PatchArticleApprovedDto>,
+        auth: WebAuthUser,
+        article_id: Path<Uuid>,
+    ) -> AppResponse<Redirect> {
+        let body = match body.validate_or_back(&req) {
+            Ok(body) => body,
+            Err(redirect_back) => return Ok(redirect_back),
+        };
+
+        let article_id = article_id.into_inner();
+
+        let service = update_article_service_factory::exec(&db_conn);
+        if let Err(err) = service
+            .exec(UpdateArticleParams {
+                user_id: auth.user.id(),
+                user_role: auth.user.role().unwrap(),
+                article_id,
+                approved: body.approved,
+                author_id: None,
+                content: None,
+                cover_url: None,
+                description: None,
+                tag_id: None,
+                title: None,
+            })
+            .await
+        {
+            return Ok(Inertia::back_with_errors(
+                &req,
+                hashmap![
+                   "error" => err.get_message().to_string().into()
+                ],
+            ));
+        }
+
+        Ok(Inertia::back(&req))
     }
 }
 

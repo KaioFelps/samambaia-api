@@ -18,6 +18,7 @@ pub mod list_team_role;
 pub mod list_team_user;
 pub mod list_users;
 pub mod login;
+pub mod patch_article_approved;
 pub mod simple_pagination_query;
 pub mod update_article;
 pub mod update_article_tag;
