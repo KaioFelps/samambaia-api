@@ -237,14 +237,21 @@ impl ArticlesController {
 
         let service = update_article_service_factory::exec(&db_conn);
 
-        let ReqUser {
-            user_role, user_id, ..
-        } = user.into_inner();
+        let ReqUser { user_id, .. } = user.into_inner();
+
+        let find_user_service = get_user_service_factory::exec(&db_conn);
+
+        let user = match find_user_service
+            .exec(GetUserServiceParams { user_id })
+            .await?
+        {
+            Some(user) => user,
+            None => return Err(SamambaiaError::unauthorized_err()),
+        };
 
         let article = service
             .exec(UpdateArticleParams {
-                user_id,
-                user_role: user_role.unwrap(),
+                user: &user,
                 content,
                 cover_url,
                 approved,

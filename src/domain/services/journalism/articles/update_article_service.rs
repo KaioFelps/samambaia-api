@@ -3,14 +3,14 @@ use uuid::Uuid;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::domain_entities::role::Role;
+use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::error::SamambaiaError;
 use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
 
-pub struct UpdateArticleParams {
-    pub user_id: Uuid,
-    pub user_role: Role,
+pub struct UpdateArticleParams<'a> {
+    pub user: &'a User,
     pub article_id: Uuid,
     pub cover_url: Option<String>,
     pub title: Option<String>,
@@ -43,7 +43,7 @@ impl<
         }
     }
 
-    pub async fn exec(&self, params: UpdateArticleParams) -> Result<Article, SamambaiaError> {
+    pub async fn exec(&self, params: UpdateArticleParams<'_>) -> Result<Article, SamambaiaError> {
         // article verifications
         let article = self
             .article_repository
@@ -73,17 +73,16 @@ impl<
             return Ok(article);
         }
 
-        let mut article = article.unwrap();
-
         // checks user is allowed to perform the update
+        let user_role = params.user.role().unwrap();
         let user_can_update =
-            verify_role_has_permission(&params.user_role, RolePermissions::UpdateArticle);
+            verify_role_has_permission(&user_role, RolePermissions::UpdateArticle);
 
         let user_can_approve =
-            verify_role_has_permission(&params.user_role, RolePermissions::ApproveArticle);
+            verify_role_has_permission(&user_role, RolePermissions::ApproveArticle);
 
         let user_can_disapprove =
-            verify_role_has_permission(&params.user_role, RolePermissions::DisapproveArticle);
+            verify_role_has_permission(&user_role, RolePermissions::DisapproveArticle);
 
         if !user_can_approve && params.approved.is_some() {
             return Err(SamambaiaError::unauthorized_err());
@@ -92,19 +91,19 @@ impl<
             return Err(SamambaiaError::unauthorized_err());
         }
 
-        let user_is_author = article.author_id() == params.user_id;
+        let user_is_author = article.author_id() == params.user.id();
 
         if !user_can_update && !user_is_author {
             return Err(SamambaiaError::unauthorized_err());
         }
 
         // if user is author but does no longer belong to the team, he can't delete his own article either.
-        if user_is_author && params.user_role == Role::User {
+        if user_is_author && user_role == Role::User {
             return Err(SamambaiaError::unauthorized_err());
         }
 
         let user_can_change_article_author =
-            verify_role_has_permission(&params.user_role, RolePermissions::ChangeArticleAuthor);
+            verify_role_has_permission(&user_role, RolePermissions::ChangeArticleAuthor);
 
         if !user_can_change_article_author && params.author_id.is_some() {
             return Err(SamambaiaError::unauthorized_err());
@@ -142,17 +141,18 @@ impl<
             article.set_tag_value(tag.value().to_owned());
         }
 
-        let response = self.article_repository.save(article).await;
+        // ensures that uusers wont modify an article after it has been approved making public a content that actually
+        // wouldn't be approved
 
-        if let Err(err) = response {
-            return Err(generate_service_internal_error(
-                "Error occurred in Update Article Service, while saving the article on the database",
-                err,
-            ));
-        }
-        let article = response.unwrap();
-
-        Ok(article)
+        article.disapprove_if_touched(params.user);
+        self.article_repository
+            .save(article)
+            .await
+            .map_err(|err|
+                generate_service_internal_error(
+                    "Error occurred in Update Article Service, while saving the article on the database",
+                    err,
+                ))
     }
 
     async fn get_tag_by_id(&self, tag_id: i32) -> Result<ArticleTag, SamambaiaError> {
@@ -184,6 +184,7 @@ mod test {
     use super::{Article, UpdateArticleParams};
     use crate::domain::domain_entities::article_tag::ArticleTag;
     use crate::domain::domain_entities::role::Role;
+    use crate::domain::domain_entities::user::User;
     use crate::tests::repositories::article_repository::get_article_repository;
     use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
 
@@ -212,10 +213,11 @@ mod test {
             article_tag_repository,
         };
 
+        let writer = User::new("John".into(), "".into(), Some(Role::Writer));
+
         let result = service
             .exec(UpdateArticleParams {
-                user_id: article.author_id(),
-                user_role: Role::Writer,
+                user: &writer,
                 article_id: article.id(),
                 approved: Some(true),
                 title: None,
@@ -231,8 +233,7 @@ mod test {
 
         let result = service
             .exec(UpdateArticleParams {
-                user_id: article.author_id(),
-                user_role: Role::Writer,
+                user: &writer,
                 article_id: article.id(),
                 approved: None,
                 title: Some("updated title".to_string()),
