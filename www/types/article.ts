@@ -9,4 +9,5 @@ export type Article = {
   createdAt: Date | string;
   updatedAt?: Date | string;
   slug: string;
+  tagId?: number;
 };
