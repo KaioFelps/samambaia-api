@@ -8,6 +8,10 @@ const adminButtonStyles = {
     success: clsx(
       "bg-green-500 border border-black/10 text-white",
       "ring-green-700/40 hover:bg-green-600 active:bg-green-700"),
+    danger: clsx(
+      "bg-red-700 border-black/10 text-white",
+      "ring-red-700/40 hover:bg-red-800 active:brightness-90",
+    ),
   },
   ghost: {
     default: clsx(
