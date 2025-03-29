@@ -1,4 +1,5 @@
 pub mod announcements_repository;
+pub mod article_comment_repository;
 pub mod article_repository;
 pub mod article_tag_repository;
 pub mod council_alerts_repository;
