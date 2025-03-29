@@ -3,7 +3,6 @@ import { CalendarBlank } from "@phosphor-icons/react/dist/ssr/CalendarBlank";
 import { Eye } from "@phosphor-icons/react/dist/ssr/Eye";
 import { PencilSimple } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import { Tag } from "@phosphor-icons/react/dist/ssr/Tag";
-import { Trash } from "@phosphor-icons/react/dist/ssr/Trash";
 import { User } from "@phosphor-icons/react/dist/ssr/User";
 import clsx from "clsx";
 import { memo, useCallback, useState } from "react";
@@ -16,6 +15,7 @@ import { Permission } from "@/types/auth";
 import { can } from "@/utils/can";
 
 import { ApproveToggleButton } from "./approve-toggle-button";
+import { DeleteArticleButton } from "./delete-article-button";
 
 type ToggleApprovedArticleForm = {
   approved: boolean;
@@ -106,15 +106,10 @@ export const ArticleListCard = memo(({
       </div>
 
       <div className="flex items-center justify-end gap-1 grow max-w-20">
-        {can(auth?.permissions, Permission.DeleteArticle) && (
-          <IconButton
-            admin
-            size="sm"
-            theme="danger"
-            variant="ghost"
-            icon={Trash}
-          />
-        )}
+        <DeleteArticleButton
+          articleId={id}
+          articleTitle={title}
+        />
 
         {(auth?.user.id === author.id || can(auth?.permissions, Permission.UpdateArticle)) && (
           <IconButton

@@ -70,6 +70,15 @@ export default function AdminArticleHome({ articles, flash }: AdminArticleHomePr
           />
         )}
 
+        {"deleteArticleSuccess" in flash && (
+          <Alert
+            admin
+            message={flash.deleteArticleSuccess}
+            type="success"
+            className="mb-6"
+          />
+        )}
+
         <TableHeader.Root className="mb-4">
           <TableHeader.Count
             currentPage={articles.pagination.currentPage}
