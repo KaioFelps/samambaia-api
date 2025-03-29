@@ -44,15 +44,6 @@ impl<
     }
 
     pub async fn exec(&self, params: UpdateArticleParams) -> Result<Article, SamambaiaError> {
-        // checks if there is something to be updated
-        if params.cover_url.is_none()
-            && params.title.is_none()
-            && params.cover_url.is_none()
-            && params.approved.is_none()
-        {
-            return Err(SamambaiaError::bad_request_err());
-        }
-
         // article verifications
         let article = self
             .article_repository
@@ -65,8 +56,21 @@ impl<
                 )
             })?;
 
-        if article.is_none() {
-            return Err(SamambaiaError::resource_not_found_err());
+        let mut article = match article {
+            None => return Err(SamambaiaError::resource_not_found_err()),
+            Some(article) => article,
+        };
+
+        // skips it if there's nothing to be updated
+        if params.cover_url.is_none()
+            && params.title.is_none()
+            && params.approved.is_none()
+            && params.author_id.is_none()
+            && params.content.is_none()
+            && params.description.is_none()
+            && params.tag_id.is_none()
+        {
+            return Ok(article);
         }
 
         let mut article = article.unwrap();
