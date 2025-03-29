@@ -5,7 +5,7 @@ import { AdminButton, AdminButtonProps } from "./admin-button";
 import { PublicButton, PublicButtonProps } from "./public-button";
 
 export type BaseButtonProps =
-| { asLink: true } & InertiaLinkProps
+| { asLink: true } & Omit<InertiaLinkProps, "size">
 | { asLink?: false | undefined } & ButtonHTMLAttributes<HTMLButtonElement>;
 
 type ButtonProps = { admin: true } & AdminButtonProps | { admin?: false } & PublicButtonProps;
