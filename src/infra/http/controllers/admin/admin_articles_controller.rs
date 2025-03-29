@@ -12,6 +12,7 @@ use crate::domain::factories::journalism::article_tags::fetch_many_article_tags_
 use crate::domain::factories::journalism::articles::{
     create_article_service_factory,
     fetch_articles_previews_service_factory,
+    find_article_by_id_service_factory,
     update_article_service_factory,
 };
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
@@ -23,6 +24,7 @@ use crate::domain::services::journalism::articles::fetch_articles_services::{
     FetchArticleQuery,
     FetchArticlesParams,
 };
+use crate::domain::services::journalism::articles::find_article_by_id_service::FindArticleByIdParams;
 use crate::domain::services::journalism::articles::update_article_service::UpdateArticleParams;
 use crate::error::{IntoSamambaiaError, SamambaiaError};
 use crate::infra::extensions::sessions::SessionHelpers;
@@ -31,11 +33,13 @@ use crate::infra::http::controllers::{AppResponse, AppResponseRedirect};
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
 use crate::infra::http::dtos::patch_article_approved::PatchArticleApprovedDto;
+use crate::infra::http::dtos::update_article::UpdateArticleDto;
 use crate::infra::http::middlewares::web::has_permission::{
     PermissionComparisonMode,
     WebHasPermissionMiddleware,
 };
 use crate::infra::http::middlewares::web::WebAuthUser;
+use crate::infra::http::presenters::article::ArticlePresenter;
 use crate::infra::http::presenters::article_preview::{
     ArticlePreviewPresenter,
     MappedArticlePreview,
@@ -89,6 +93,24 @@ impl ControllerTrait for AdminArticlesController {
                             PermissionComparisonMode::Any,
                         ))
                         .to(Self::toggle_article_approved),
+                )
+                .route(
+                    "{article_id}/editar",
+                    web::get()
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![RolePermissions::UpdateArticle],
+                            PermissionComparisonMode::All,
+                        ))
+                        .to(Self::edit_article),
+                )
+                .route(
+                    "{article_id}/atualizar",
+                    web::put()
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![RolePermissions::UpdateArticle],
+                            PermissionComparisonMode::All,
+                        ))
+                        .to(Self::update_article),
                 ),
         );
     }
@@ -153,6 +175,46 @@ impl AdminArticlesController {
         .map_err(IntoSamambaiaError::into_samambaia_error)
     }
 
+    async fn edit_article(
+        req: HttpRequest,
+        path: Path<Uuid>,
+        auth: WebAuthUser,
+        db_conn: Data<SeaService>,
+    ) -> AppResponse {
+        let find_article_service = find_article_by_id_service_factory::exec(&db_conn);
+        let article_tags_service = fetch_many_article_tags_service_factory::exec(&db_conn);
+
+        let (article, tags) = tokio::try_join!(
+            find_article_service.exec(FindArticleByIdParams {
+                article_id: path.into_inner(),
+                user: Some(&auth.user),
+            }),
+            article_tags_service.exec(FetchManyArticleTagsParams {
+                page: None,
+                per_page: Some(100),
+                query: None
+            })
+        )?;
+
+        let article = article.map(ArticlePresenter::to_http);
+        let tags = tags
+            .data
+            .into_iter()
+            .map(ArticleTagPresenter::to_http)
+            .collect::<Vec<_>>();
+
+        Inertia::render_with_props(
+            &req,
+            "admin/articles/edit".into(),
+            hashmap![
+                "article" => InertiaProp::data(article),
+                "tags" => InertiaProp::data(tags)
+            ],
+        )
+        .await
+        .map_err(IntoSamambaiaError::into_samambaia_error)
+    }
+
     async fn store_article(
         req: HttpRequest,
         db_conn: Data<SeaService>,
@@ -200,8 +262,7 @@ impl AdminArticlesController {
         let service = update_article_service_factory::exec(&db_conn);
         if let Err(err) = service
             .exec(UpdateArticleParams {
-                user_id: auth.user.id(),
-                user_role: auth.user.role().unwrap(),
+                user: &auth.user,
                 article_id,
                 approved: body.approved,
                 author_id: None,
@@ -222,6 +283,51 @@ impl AdminArticlesController {
         }
 
         Ok(Inertia::back(&req))
+    }
+
+    async fn update_article(
+        req: HttpRequest,
+        auth: WebAuthUser,
+        path: Path<Uuid>,
+        body: Json<UpdateArticleDto>,
+        db_conn: Data<SeaService>,
+    ) -> AppResponse<Redirect> {
+        let body = match body.validate_or_back(&req) {
+            Ok(body) => body,
+            Err(redirect_back) => return Ok(redirect_back),
+        };
+
+        let service = update_article_service_factory::exec(&db_conn);
+
+        match service
+            .exec(UpdateArticleParams {
+                title: body.title,
+                description: body.description,
+                content: body.content,
+                approved: body.approved,
+                cover_url: body.cover_url,
+                tag_id: body.tag_id,
+                article_id: path.into_inner(),
+                author_id: body.author_id,
+                user: &auth.user,
+            })
+            .await
+        {
+            Err(err) => Ok(Inertia::back_with_errors(
+                &req,
+                hashmap![
+                    "error" => err.get_message().to_string().into()
+                ],
+            )),
+            Ok(_article) => {
+                Session::flash_silently(
+                    &req,
+                    "editArticleSuccess",
+                    "Notícia atualizada com sucesso!",
+                );
+                Ok(Inertia::back(&req))
+            }
+        }
     }
 }
 
