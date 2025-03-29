@@ -2,7 +2,9 @@ use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
 
 use super::slug::Slug;
+use super::user::User;
 use crate::libs::time::TimeHelper;
+use crate::util::{verify_role_has_permission, RolePermissions};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Article {
@@ -18,6 +20,7 @@ pub struct Article {
     created_at: DateTime,
     updated_at: Option<DateTime>,
     slug: Slug,
+    touched: bool,
 }
 
 impl Article {
@@ -51,6 +54,7 @@ impl Article {
             updated_at,
             slug,
             description,
+            touched: false,
         }
     }
 
@@ -82,6 +86,7 @@ impl Article {
             updated_at,
             slug,
             description,
+            touched: false,
         }
     }
 
@@ -89,6 +94,20 @@ impl Article {
 
     fn touch(&mut self) {
         self.updated_at = Some(TimeHelper::now());
+        self.touched = true;
+    }
+
+    pub fn disapprove_if_touched(&mut self, user: &User) {
+        if !self.touched {
+            return;
+        }
+
+        let user_can_modify_and_keep_approved =
+            !verify_role_has_permission(&user.role().unwrap(), RolePermissions::ApproveArticle);
+
+        if !user_can_modify_and_keep_approved {
+            self.approved = false;
+        }
     }
 
     // GETTERS
