@@ -10,6 +10,7 @@ import { Alert } from "@/components/alert";
 import Button from "@/components/button";
 import { AdminDroppableIndicator } from "@/components/droppable-indicator";
 import Form from "@/components/form";
+import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 import { Head } from "@/components/head";
 import Header from "@/components/header";
 import { Main } from "@/components/main";
@@ -26,10 +27,10 @@ type AdminCreateArticlePageProps = {
     type CreateArticleForm = {
       title: string;
       content: string;
-      coverUrl: string;
+      cover_url: string;
       description: string;
-      tagId?: number;
-      authorId?: string;
+      tag_id?: number;
+      author_id?: string;
     };
 
 export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageProps) {
@@ -42,7 +43,7 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
     post,
   } = useForm<CreateArticleForm>({
     content: "",
-    coverUrl: "",
+    cover_url: "",
     description: "",
     title: "",
 
@@ -73,11 +74,13 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
           autoClose: timer,
         });
       },
-      onError: (error) => {
-        console.error(error);
-        toast("Não foi possível publicar a notícia. Por favor, contate um desenvolvedor.", {
-          type: "error",
-        });
+      onError: (errors) => {
+        if ("error" in errors) {
+          console.error(errors.error);
+          toast("Não foi possível publicar a notícia. Por favor, contate um desenvolvedor.", {
+            type: "error",
+          });
+        }
       },
     });
   };
@@ -125,8 +128,8 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
             placeholder="https://i.imgur.com/..."
             name="cover_url"
             required
-            validationError={errors.coverUrl}
-            onInput={(e) => setData({ ...data, coverUrl: e.currentTarget.value })}
+            validationError={errors.cover_url}
+            onInput={(e) => setData({ ...data, cover_url: e.currentTarget.value })}
           />
 
           {userCanPublishInNameOfOthers && (
@@ -137,11 +140,11 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
                 label="ID do autor"
                 placeholder="37824kef-vduih27i2-4289328v-489uf"
                 name="author_id"
-                validationError={errors.authorId}
+                validationError={errors.author_id}
                 onInput={(e) => {
                   const value = e.currentTarget.value;
                   const authorId = value || undefined;
-                  setData({ ...data, authorId });
+                  setData({ ...data, author_id: authorId });
                 }}
               />
               <p className="text-sm font-light ml-1 text-gray-800">
@@ -155,7 +158,8 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
             <label className="block text-sm mb-1 ml-1">
               Tag/Categoria
             </label>
-            <Select.Root onValueChange={(v) => setData({ ...data, tagId: Number(v) })}>
+            <ValidationErrorSpan validationError={errors.tag_id} />
+            <Select.Root onValueChange={(v) => setData({ ...data, tag_id: Number(v) })}>
               <Select.Trigger asChild>
                 <Button
                   admin
