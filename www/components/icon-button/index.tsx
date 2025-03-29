@@ -1,5 +1,5 @@
 import { InertiaLinkProps } from "@inertiajs/react";
-import { ButtonHTMLAttributes, memo } from "react";
+import React, { ButtonHTMLAttributes } from "react";
 
 import { AdminIconButton, AdminIconButtonProps } from "./admin-icon-button";
 
@@ -13,8 +13,11 @@ type IconButtonProps =
 | { admin: true } & AdminIconButtonProps
 | { admin?: false } & {};
 
-export const IconButton = memo(({ admin, ...buttonProps }: IconButtonProps) => {
+export const IconButton = React.forwardRef(({ admin, ...buttonProps }: IconButtonProps, ref) => {
   return admin
-    ? <AdminIconButton {...buttonProps as AdminIconButtonProps} />
+    ? <AdminIconButton
+        {...buttonProps as AdminIconButtonProps}
+        ref={ref}
+      />
     : null;
 });
