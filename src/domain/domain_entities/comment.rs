@@ -48,6 +48,11 @@ impl Comment {
         }
     }
 
+    pub fn remove_associations_and_deactivate(&mut self) {
+        self.article_id = None;
+        self.is_active = false;
+    }
+
     // GETTERS
 
     pub fn id(&self) -> Uuid {
