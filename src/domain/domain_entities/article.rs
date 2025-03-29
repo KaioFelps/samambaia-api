@@ -103,7 +103,7 @@ impl Article {
         }
 
         let user_can_modify_and_keep_approved =
-            !verify_role_has_permission(&user.role().unwrap(), RolePermissions::ApproveArticle);
+            verify_role_has_permission(&user.role().unwrap(), RolePermissions::ApproveArticle);
 
         if !user_can_modify_and_keep_approved {
             self.approved = false;
