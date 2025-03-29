@@ -1,8 +1,9 @@
+import { Link } from "@inertiajs/react";
 import { Icon } from "@phosphor-icons/react";
 import clsx from "clsx";
-import { memo, ReactElement } from "react";
+import { ButtonHTMLAttributes, memo, ReactElement } from "react";
 
-import { BaseIconButtonProps } from ".";
+import { BaseIconButtonProps, LinkProps } from ".";
 
 export type AdminIconButtonProps = BaseIconButtonProps & {
   size: "sm";
@@ -17,8 +18,13 @@ export const AdminIconButton = memo(({
   size,
   variant,
   theme,
+  asLink,
   ...props
 }: AdminIconButtonProps) => {
+  const Button = asLink
+    ? Link
+    : "button";
+
   const icon = (() => {
     if ("render" in _icon) {
       const I = _icon as Icon;
@@ -33,8 +39,11 @@ export const AdminIconButton = memo(({
   })();
 
   return (
-    <button
-      {...props}
+    // @ts-expect-error it cant infer link props
+    <Button
+      {...(asLink
+        ? props as LinkProps
+        : props as ButtonHTMLAttributes<HTMLButtonElement>)}
       className={clsx(
         "outline-hidden ring-0 focus-visible:ring-4 transition-all will-change-[box-shadow]",
 
@@ -51,6 +60,6 @@ export const AdminIconButton = memo(({
       )}
     >
       {icon}
-    </button>
+    </Button>
   );
 });
