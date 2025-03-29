@@ -1,13 +1,15 @@
-import { usePage } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import { CalendarBlank } from "@phosphor-icons/react/dist/ssr/CalendarBlank";
 import { CheckFat } from "@phosphor-icons/react/dist/ssr/CheckFat";
 import { Eye } from "@phosphor-icons/react/dist/ssr/Eye";
 import { PencilSimple } from "@phosphor-icons/react/dist/ssr/PencilSimple";
+import { Spinner } from "@phosphor-icons/react/dist/ssr/Spinner";
 import { Tag } from "@phosphor-icons/react/dist/ssr/Tag";
 import { Trash } from "@phosphor-icons/react/dist/ssr/Trash";
 import { User } from "@phosphor-icons/react/dist/ssr/User";
 import clsx from "clsx";
-import { memo } from "react";
+import { memo, useCallback, useState } from "react";
+import { toast } from "react-toastify";
 
 import { Chip } from "@/components/chip";
 import { IconButton } from "@/components/icon-button";
@@ -15,14 +17,56 @@ import { ArticlePreview } from "@/types/article-preview";
 import { Permission } from "@/types/auth";
 import { can } from "@/utils/can";
 
+type ToggleApprovedArticleForm = {
+  approved: boolean;
+};
+
 export const ArticleListCard = memo(({
+  id,
   tag,
   title,
   author,
-  approved,
+  approved: _approved,
   createdAt,
 }: ArticlePreview) => {
+  const [approved, setApproved] = useState(_approved);
   const auth = usePage().props.auth;
+  const {
+    patch,
+    clearErrors,
+    processing,
+    data,
+    setData,
+  } = useForm<ToggleApprovedArticleForm>({ approved: !_approved });
+
+  const handleToggleApproved = useCallback(() => {
+    clearErrors();
+    const endpoint = `/gremio/noticias/${id}/alterar-aprovado`;
+
+    patch(endpoint, {
+      errorBag: `change-article-approved-${id}`,
+      onSuccess: () => {
+        setApproved(data.approved);
+        setData({ approved: !data.approved });
+        toast(data.approved
+          ? "Notícia aprovada."
+          : "Notícia desmarcada como aprovada.", { type: "info", autoClose: 3000 });
+      },
+      onError: (errors) => {
+        if ("error" in errors) {
+          toast("Não foi possível aprovar este artigo. Contate um desenvolvedor.", {
+            autoClose: false,
+            type: "error",
+          });
+
+          console.error(errors.error);
+          return;
+        }
+
+        if ("approved" in errors) { toast(errors.approved, { autoClose: false, type: "error" }); }
+      },
+    });
+  }, [id, clearErrors, patch, data, setData]);
 
   return (
     <article className={clsx(
@@ -53,7 +97,11 @@ export const ArticleListCard = memo(({
           size="sm"
         />
 
-        <PublishmentCheck isPublished={approved} />
+        <PublishmentCheck
+          isPublished={approved}
+          isLoading={processing}
+          onClick={handleToggleApproved}
+        />
       </div>
 
       <div className="flex items-center justify-end gap-1 grow max-w-20">
@@ -91,21 +139,37 @@ export const ArticleListCard = memo(({
 
 type PublishmentCheckProps = {
   isPublished: boolean;
+  isLoading: boolean;
+  onClick: () => void;
 };
 
-const PublishmentCheck = memo(({ isPublished }: PublishmentCheckProps) => {
+const PublishmentCheck = memo(({ isPublished, isLoading, onClick }: PublishmentCheckProps) => {
   return (
-    <button className={clsx(
-      "p-1 rounded-full transition-all self-center outline-hidden ring-0 focus-visible:ring-4",
-      isPublished
-        ? "text-white bg-green-500 hover:bg-green-600 active:bg-green-700 ring-green-600/40"
-        : "text-gray-700 bg-gray-300 hover:bg-gray-400 active:brightness-95 ring-purple-500/40",
-    )}
+    <button
+      disabled={isLoading}
+      onClick={onClick}
+      className={clsx(
+        "p-1 rounded-full transition-all self-center outline-hidden ring-0 focus-visible:ring-4",
+        !isLoading && isPublished
+          ? "text-white bg-green-500 hover:bg-green-600 active:bg-green-700 ring-green-600/40"
+          : "text-gray-700 bg-gray-300 hover:bg-gray-400 active:brightness-95 ring-purple-500/40",
+      )}
     >
-      <CheckFat
-        size={16}
-        weight="fill"
-      />
+      {isLoading
+        ? (
+          <Spinner
+            className="animate-spin"
+            size={16}
+            weight="bold"
+          />
+          )
+        : (
+
+          <CheckFat
+            size={16}
+            weight="fill"
+          />
+          )}
     </button>
   );
 });
