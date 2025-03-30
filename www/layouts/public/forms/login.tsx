@@ -46,7 +46,7 @@ export const LoginForm = memo(({
       open={open}
       onOpenChange={setOpen}
     >
-      <Dialog.Trigger>
+      <Dialog.Trigger asChild>
         {trigger}
       </Dialog.Trigger>
 
