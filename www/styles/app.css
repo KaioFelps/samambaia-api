@@ -285,7 +285,6 @@
   }
 
   p,
-  img,
   div,
   code,
   pre,
@@ -297,6 +296,11 @@
     }
   }
 
+  img {
+    display: inline-block;
+    margin: unset;
+  }
+  
   h1, h2, h3, h4, h5, h6 {
     height: 43px;
     width: var(--article-content-width);
@@ -335,7 +339,7 @@
     border-radius: calc(var(--spacing) * 2);
     border: 2px solid var(--color-gray-400);
     background: var(--color-gray-100);
-    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-default);
     color: var(--color-gray-800);
   }
 
@@ -347,6 +351,20 @@
     border-left: 2px solid var(--color-purple-500);
     border-start-end-radius: calc(var(--spacing) * 2);
     border-end-end-radius: calc(var(--spacing) * 2);
+  }
+
+  hr {
+    border: none;
+    width: 100%;
+    height: 2px;
+    background: var(--color-gray-250);
+    margin-block: calc(var(--spacing) * 4);
+  }
+
+  a,
+  a span {
+    text-decoration-style: wavy !important;
+    text-decoration-color: color-mix(in oklab, currentcolor 70%, transparent) !important;
   }
 }
 
