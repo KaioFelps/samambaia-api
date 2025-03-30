@@ -1,4 +1,4 @@
-import { X } from "@phosphor-icons/react/dist/ssr";
+import { X } from "@phosphor-icons/react/dist/ssr/X";
 import { Close, Description, Title } from "@radix-ui/react-dialog";
 import clsx from "clsx";
 import { memo } from "react";
