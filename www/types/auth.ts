@@ -1,6 +1,7 @@
 import { User } from "./user";
 
 export const Permission = {
+  AccessDashboard: "AccessDashboard",
   UpdateUser: "UpdateUser",
   ChangeUserPassword: "ChangeUserPassword",
   CreateArticle: "CreateArticle",
@@ -29,6 +30,10 @@ export const Permission = {
   CreateAnnouncement: "CreateAnnouncement",
   UpdateAnnouncement: "UpdateAnnouncement",
   DeleteAnnouncement: "DeleteAnnouncement",
+  SeeCouncilAlerts: "SeeCouncilAlerts",
+  CreateCouncilAlert: "CreateCouncilAlert",
+  UpdateCouncilAlert: "UpdateCouncilAlert",
+  DeleteCouncilAlert: "DeleteCouncilAlert",
 } as const;
 
 export const Role = {
