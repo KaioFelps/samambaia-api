@@ -43,6 +43,7 @@ import "tinymce/plugins/visualchars";
 import "tinymce/plugins/wordcount";
 /* content UI CSS is required */
 import "tinymce/skins/ui/oxide/content.inline";
+import "tinymce/skins/ui/oxide/content.inline.min.css";
 
 import { Editor, type IAllProps } from "@tinymce/tinymce-react";
 import clsx from "clsx";
