@@ -30,10 +30,10 @@
   & > span,
   & > h2,
   & > h1 {
-    @apply font-bold text-lg text-white;
-    text-shadow:
-      0 -2.5px rgba(0 0 0 / 30%),
-      0 2px rgba(255 255 255 / 40%);
+    color: var(--color-white);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-bold);
+    text-shadow: 0 2.5px color-mix(in oklab, var(--color-black) 30%, transparent);
   }
 
   &.purple {
