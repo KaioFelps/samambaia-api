@@ -1,10 +1,15 @@
 import { Link } from "@inertiajs/react";
 import { Code } from "@phosphor-icons/react/dist/ssr/Code";
+import clsx from "clsx";
 import { memo } from "react";
 
 import { Sprite } from "@/components/sprite";
+import { useCanSee } from "@/hooks/useCanSee";
+import { Permission } from "@/types/auth";
 
 export const Footer = memo(() => {
+  const canSeeTheDashboard = useCanSee(Permission.AccessDashboard);
+
   return (
     <footer
       style={{
@@ -83,23 +88,27 @@ export const Footer = memo(() => {
 
         <div className="h-auto w-0.5 bg-black/15 shadow-white shadow-[2px_1px_0_0] mx-[72px]" />
 
-        <div className="
-            flex-1 flex items-start gap-2 py-6 prose-a:font-medium prose-a:hover:text-purple-700
-            prose-a:active:underline prose-a:transition-colors prose-a:duration-75
-        "
+        <div className={clsx(
+          "flex-1 flex items-start gap-2 py-6 prose-a:font-medium prose-a:hover:text-purple-700",
+          "prose-a:hover:underline prose-a:transition-all prose-a:duration-300",
+          "prose-a:ml-0 prose-a:hover:ml-2 prose-a:w-fit prose-a:decoration-purple-300",
+        )}
         >
           <div className="flex-1 flex flex-col">
-            <span className="text-purple-500/70 font-bold text-sm mb-2">Cosmic</span>
+            <span className="text-purple-700/70 font-bold text-sm mb-2">Cosmic</span>
             <div className="flex flex-col">
               <Link href="/">Página inicial</Link>
               <Link href="">Sobre o Live Cosmic</Link>
               <Link href="">Equipe Cósmic</Link>
               <Link href="">Vagas na Equipe</Link>
+              {canSeeTheDashboard && (
+                <Link href="/gremio">Painel do Grêmio</Link>
+              )}
             </div>
           </div>
 
           <div className="flex-1 flex flex-col">
-            <span className="text-purple-500/70 font-bold text-sm mb-2">Jornalismo</span>
+            <span className="text-purple-700/70 font-bold text-sm mb-2">Jornalismo</span>
             <div className="flex flex-col">
               <Link href="">Arquivo de notícias</Link>
               <Link href="">Histórico de campanhas</Link>
@@ -108,7 +117,7 @@ export const Footer = memo(() => {
           </div>
 
           <div className="flex-1 flex flex-col">
-            <span className="text-purple-500/70 font-bold text-sm mb-2">Habblive</span>
+            <span className="text-purple-700/70 font-bold text-sm mb-2">Habblive</span>
             <div className="flex flex-col">
               <Link href="">Jogar Habblive</Link>
               <Link href="">Promoções ativas</Link>
