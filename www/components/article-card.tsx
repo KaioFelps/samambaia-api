@@ -88,7 +88,7 @@ export function ArticleCard({
               width={16}
               height={17}
             />
-            {new Date(createdAt).toLocaleDateString()}
+            {new Date(createdAt).toLocaleDateString("pt-BR")}
           </div>
         </div>
       </div>
