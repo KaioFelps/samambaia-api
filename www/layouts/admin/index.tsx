@@ -71,12 +71,9 @@ export function AdminLayout({ children, props }: { children: ReactNode; props: P
               Twitter do fã-site
             </a>
 
-            <a
-              href=""
-              target="_blank"
-            >
+            <Link href="/">
               Home do fã-site
-            </a>
+            </Link>
           </div>
         </footer>
       </div>
