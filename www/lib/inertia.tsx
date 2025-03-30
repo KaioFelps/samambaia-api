@@ -17,12 +17,13 @@ export const resolveTitle = (title: string | undefined, defaultTitle: string): s
   ? `${defaultTitle} - ${title}`
   : defaultTitle);
 
-export const pageResolver: PageResolver = (name) => {
-  const pages = import.meta.glob("../pages/**/*.tsx", { eager: true });
-  const page = pages[`../pages/${name}.tsx`] as PageComponent;
+export const pageResolver: PageResolver = async (name) => {
+  const pages = import.meta.glob("../pages/**/*.tsx", { eager: false });
+  const pagePromise = pages[`../pages/${name}.tsx`];
 
-  if (!page) throw new Error(`Não foi possível encontrar a página ${name}.`);
+  if (!pagePromise) throw new Error(`Não foi possível encontrar a página ${name}.`);
 
+  const page = await pagePromise() as PageComponent;
   const isAdmin = name.startsWith("admin/");
 
   page.default.layout ??= (page) =>
