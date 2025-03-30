@@ -127,9 +127,9 @@ impl RouteTrait for WebRoutes {
                 .wrap(ReflashTemporarySessionMiddleware)
                 .wrap(
                     SessionMiddleware::builder(storage, key)
-                        .cookie_domain(Some(APP_CONFIG.domain.into()))
+                        .cookie_domain(None)
                         .cookie_http_only(true)
-                        .cookie_same_site(SameSite::Strict)
+                        .cookie_same_site(SameSite::Lax)
                         .cookie_name(APP_CONFIG.session_cookie.into())
                         .cookie_secure(APP_CONFIG.rust_env == RustEnv::Production)
                         .build(),
