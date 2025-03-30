@@ -1,6 +1,6 @@
 import "swiper/css";
 
-import type { Page } from "@inertiajs/core";
+import { type Page } from "@inertiajs/core";
 import { Link, router, usePage } from "@inertiajs/react";
 import React, { memo, useEffect, useState } from "react";
 import { Autoplay } from "swiper/modules";
@@ -10,14 +10,14 @@ import { AnnouncementShort } from "@/types/announcement";
 
 export const AnnouncementsSlider = memo(() => {
   const page = usePage();
-  const [announcements, setAnnouncements] = useState<AnnouncementShort[]>();
+  const [announcements, setAnnouncements] = useState<AnnouncementShort[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (announcements) return;
     setTimeout(() => {
-      router.visit(page.url, {
+      router.get(page.url, {}, {
         only: ["announcements"],
-        fresh: true,
         onStart: () => { setIsLoading(true); },
         onFinish: () => { setIsLoading(false); },
         onSuccess(_page) {
@@ -28,17 +28,15 @@ export const AnnouncementsSlider = memo(() => {
           setAnnouncements([]);
         },
       });
-    }, 10);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    }, 0);
+  }, [announcements, page.url]);
 
   if (isLoading) return <AnnouncementsSliderSkeleton />;
 
   if (!announcements || !announcements?.length) return null;
 
   return (
-    <MemoizedSwiper>
+    <MemoizedSwiper amount={announcements.length}>
       {announcements.map(({ id, description, external, image, url }) => {
         const Anchor = external
           ? "a"
@@ -90,12 +88,14 @@ const AnnouncementsSliderSkeleton = memo(() => (
   />
 ));
 
-const MemoizedSwiper = memo(({ children }: React.PropsWithChildren) => (
+const MemoizedSwiper = memo(({ children, amount }: React.PropsWithChildren<{ amount: number }>) => (
   <Swiper
     spaceBetween={0}
     slidesPerView={1}
-    loop
-    modules={[Autoplay]}
+    loop={amount > 1}
+    modules={amount > 1
+      ? [Autoplay]
+      : undefined}
     autoplay={{
       disableOnInteraction: false,
       delay: 5000,
