@@ -24,10 +24,7 @@ async fn get_db_conn() -> Result<DatabaseConnection, DbErr> {
     if connection.is_err() {
         let err = connection.unwrap_err();
 
-        log::error!(
-            "{R_EOL}{LOG_SEP}{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-            err.to_string()
-        );
+        log::error!("{R_EOL}{LOG_SEP}{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}", err);
 
         return Err(err);
     }
