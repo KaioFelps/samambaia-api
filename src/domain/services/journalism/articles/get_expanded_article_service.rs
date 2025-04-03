@@ -139,7 +139,7 @@ impl<
         if author.is_none() {
             log::error!(
                 "Author from article of id '{}' returned None on Get Expanded Article Service.",
-                article.id().to_string()
+                article.id()
             );
             return Err(SamambaiaError::resource_not_found_err());
         }
