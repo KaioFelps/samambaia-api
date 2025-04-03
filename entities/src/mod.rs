@@ -5,6 +5,7 @@ pub mod prelude;
 pub mod announcement;
 pub mod article;
 pub mod article_tag;
+pub mod articles_tags_rel;
 pub mod comment;
 pub mod comment_report;
 pub mod free_badge;
