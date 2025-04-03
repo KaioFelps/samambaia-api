@@ -28,6 +28,7 @@ mod m20241124_033241_add_adsense_table;
 mod m20241124_154522_add_extra_fields_to_announcement_table;
 mod m20250114_045251_add_description_field_to_articles;
 mod m20250318_044458_add_council_alerts_table;
+mod m20250403_142434_change_article_and_tags_relationship;
 
 pub struct Migrator;
 
@@ -67,6 +68,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20241124_154522_add_extra_fields_to_announcement_table::Migration),
             Box::new(m20250114_045251_add_description_field_to_articles::Migration),
             Box::new(m20250318_044458_add_council_alerts_table::Migration),
+            Box::new(m20250403_142434_change_article_and_tags_relationship::Migration),
         ]
     }
 }
