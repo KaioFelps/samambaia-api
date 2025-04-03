@@ -17,21 +17,13 @@ pub struct Model {
     pub approved: bool,
     #[sea_orm(unique)]
     pub slug: String,
-    pub tag_id: Option<i32>,
-    pub tag_value: Option<String>,
     pub description: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::article_tag::Entity",
-        from = "Column::TagId",
-        to = "super::article_tag::Column::Id",
-        on_update = "NoAction",
-        on_delete = "SetNull"
-    )]
-    ArticleTag,
+    #[sea_orm(has_many = "super::articles_tags_rel::Entity")]
+    ArticlesTagsRel,
     #[sea_orm(has_many = "super::comment::Entity")]
     Comment,
     #[sea_orm(
@@ -44,9 +36,9 @@ pub enum Relation {
     User,
 }
 
-impl Related<super::article_tag::Entity> for Entity {
+impl Related<super::articles_tags_rel::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::ArticleTag.def()
+        Relation::ArticlesTagsRel.def()
     }
 }
 
@@ -59,6 +51,15 @@ impl Related<super::comment::Entity> for Entity {
 impl Related<super::user::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::User.def()
+    }
+}
+
+impl Related<super::article_tag::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::articles_tags_rel::Relation::ArticleTag.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(super::articles_tags_rel::Relation::Article.def().rev())
     }
 }
 

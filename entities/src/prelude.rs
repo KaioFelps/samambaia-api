@@ -3,6 +3,7 @@
 pub use super::announcement::Entity as Announcement;
 pub use super::article::Entity as Article;
 pub use super::article_tag::Entity as ArticleTag;
+pub use super::articles_tags_rel::Entity as ArticlesTagsRel;
 pub use super::comment::Entity as Comment;
 pub use super::comment_report::Entity as CommentReport;
 pub use super::free_badge::Entity as FreeBadge;
