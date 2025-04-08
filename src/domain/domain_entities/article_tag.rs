@@ -1,3 +1,5 @@
+use serde::Deserialize;
+
 pub struct DraftArticleTag {
     value: String,
 }
@@ -12,7 +14,7 @@ impl DraftArticleTag {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 pub struct ArticleTag {
     id: i32,
     value: String,
