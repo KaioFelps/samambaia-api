@@ -2,6 +2,7 @@ use chrono::NaiveDateTime as DateTime;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use super::article_tag::{ArticleTagPresenter, MappedArticleTag};
 use crate::domain::domain_entities::article::Article;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 
@@ -21,8 +22,7 @@ pub struct MappedArticle {
     #[serde(rename = "updatedAt")]
     updated_at: Option<DateTime>,
     slug: String,
-    #[serde(rename = "tagId")]
-    tag_id: Option<i32>,
+    tags: Vec<MappedArticleTag>,
 }
 
 pub struct ArticlePresenter;
@@ -40,7 +40,12 @@ impl PresenterTrait<Article, MappedArticle> for ArticlePresenter {
             approved: article.approved(),
             created_at: article.created_at(),
             updated_at: article.updated_at(),
-            tag_id: article.tag_id(),
+            tags: article
+                .get_tags()
+                .to_vec()
+                .into_iter()
+                .map(ArticleTagPresenter::to_http)
+                .collect(),
         }
     }
 }
