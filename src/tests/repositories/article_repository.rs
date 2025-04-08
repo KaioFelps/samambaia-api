@@ -2,11 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
-use crate::domain::domain_entities::article_preview::{
-    ArticlePreview,
-    ArticlePreviewAuthor,
-    ArticlePreviewTag,
-};
+use crate::domain::domain_entities::article_preview::{ArticlePreview, ArticlePreviewAuthor};
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType,
@@ -66,7 +62,7 @@ pub fn get_article_repository() -> (LocalDb<Article>, LocalDb<User>, MockArticle
                     }
                     ArticleQueryType::Tag(tag_id) => {
                         for item in articles_db_clone.lock().unwrap().iter() {
-                            if item.tag_id().unwrap().eq(&tag_id) {
+                            if item.get_tags().iter().any(|tag| tag.id() == tag_id) {
                                 articles.push(item.clone());
                             }
                         }
@@ -174,17 +170,7 @@ pub fn get_article_repository() -> (LocalDb<Article>, LocalDb<User>, MockArticle
                     Some(author) => author,
                 };
 
-                if article.tag_id().is_some() ^ article.tag_value().is_some() {
-                    return Err(Box::new(SamambaiaError::internal_err().with_message(
-                        "Found a article with a tag which doesn't have either id or value",
-                    )));
-                }
-
                 let author = ArticlePreviewAuthor::new(author.id(), author.nickname().to_owned());
-
-                let tag = article.tag_id().map(|id| {
-                    ArticlePreviewTag::new(id, article.tag_value().as_ref().unwrap().to_owned())
-                });
 
                 parsed_articles.push(ArticlePreview::new(
                     article.id(),
@@ -192,7 +178,7 @@ pub fn get_article_repository() -> (LocalDb<Article>, LocalDb<User>, MockArticle
                     article.title().to_owned(),
                     article.description().to_owned(),
                     article.approved(),
-                    tag,
+                    article.get_tags().to_vec(),
                     author,
                     article.created_at(),
                     article.slug().to_owned(),
