@@ -2,27 +2,8 @@ use chrono::NaiveDateTime;
 use serde::Deserialize;
 use uuid::Uuid;
 
+use super::article_tag::ArticleTag;
 use super::slug::Slug;
-
-#[derive(Deserialize)]
-pub struct ArticlePreviewTag {
-    id: i32,
-    value: String,
-}
-
-impl ArticlePreviewTag {
-    pub fn new(id: i32, value: String) -> Self {
-        Self { id, value }
-    }
-
-    pub fn id(&self) -> i32 {
-        self.id
-    }
-
-    pub fn value(&self) -> &str {
-        &self.value
-    }
-}
 
 #[derive(Deserialize)]
 pub struct ArticlePreviewAuthor {
@@ -51,7 +32,7 @@ pub struct ArticlePreview {
     title: String,
     description: String,
     approved: bool,
-    tag: Option<ArticlePreviewTag>,
+    tags: Vec<ArticleTag>,
     author: ArticlePreviewAuthor,
     created_at: NaiveDateTime,
     slug: Slug,
@@ -65,7 +46,7 @@ impl ArticlePreview {
         title: String,
         description: String,
         approved: bool,
-        tag: Option<ArticlePreviewTag>,
+        tags: Vec<ArticleTag>,
         author: ArticlePreviewAuthor,
         created_at: NaiveDateTime,
         slug: Slug,
@@ -76,7 +57,7 @@ impl ArticlePreview {
             title,
             description,
             approved,
-            tag,
+            tags,
             author,
             created_at,
             slug,
@@ -103,8 +84,8 @@ impl ArticlePreview {
         self.approved
     }
 
-    pub fn tag(&self) -> Option<&ArticlePreviewTag> {
-        self.tag.as_ref()
+    pub fn tags(&self) -> &[ArticleTag] {
+        self.tags.iter().as_slice()
     }
 
     pub fn author(&self) -> &ArticlePreviewAuthor {
