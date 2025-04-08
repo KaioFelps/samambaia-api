@@ -25,7 +25,7 @@ pub struct MappedArticlePreview {
     pub cover_url: String,
     pub title: String,
     pub description: String,
-    pub tag: Option<MappedArticlePreviewTag>,
+    pub tags: Vec<MappedArticlePreviewTag>,
     #[serde(rename = "createdAt")]
     pub created_at: DateTime,
     pub slug: String,
@@ -36,10 +36,14 @@ pub struct ArticlePreviewPresenter;
 
 impl PresenterTrait<ArticlePreview, MappedArticlePreview> for ArticlePreviewPresenter {
     fn to_http(article: ArticlePreview) -> MappedArticlePreview {
-        let tag = article.tag().map(|tag| MappedArticlePreviewTag {
-            id: tag.id(),
-            value: tag.value().to_owned(),
-        });
+        let tags = article
+            .tags()
+            .iter()
+            .map(|tag| MappedArticlePreviewTag {
+                id: tag.id(),
+                value: tag.value().to_owned(),
+            })
+            .collect::<Vec<_>>();
 
         let author = MappedArticlePreviewAuthor {
             id: *article.author().id(),
@@ -49,7 +53,7 @@ impl PresenterTrait<ArticlePreview, MappedArticlePreview> for ArticlePreviewPres
         MappedArticlePreview {
             author,
             id: article.id().to_owned(),
-            tag,
+            tags,
             slug: article.slug().to_string(),
             title: article.title().into(),
             cover_url: article.cover_url().into(),
