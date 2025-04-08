@@ -5,7 +5,9 @@ use async_trait::async_trait;
 use mockall::automock;
 
 use crate::core::pagination::PaginationParameters;
+use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
+use crate::error::SamambaiaError;
 
 #[derive(Debug)]
 pub struct FindManyArticleTagsResponse(pub Vec<ArticleTag>, pub u64);
@@ -32,4 +34,18 @@ pub trait ArticleTagRepositoryTrait {
     async fn save(&self, article_tag: ArticleTag) -> Result<ArticleTag, Box<dyn Error>>;
 
     async fn delete(&self, article_tag: ArticleTag) -> Result<(), Box<dyn Error>>;
+
+    async fn find_many_by_ids(&self, tag_ids: Vec<i32>) -> Result<Vec<ArticleTag>, SamambaiaError>;
+
+    async fn associate_tags_to_article(
+        &self,
+        article: &Article,
+        article_tags: Vec<i32>,
+    ) -> Result<(), SamambaiaError>;
+
+    async fn disassociate_tags_from_article(
+        &self,
+        article: &Article,
+        article_tags: Vec<i32>,
+    ) -> Result<(), SamambaiaError>;
 }

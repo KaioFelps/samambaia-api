@@ -1,5 +1,7 @@
 use std::sync::{Arc, Mutex};
 
+use uuid::Uuid;
+
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::repositories::article_tag_repository::{
@@ -9,9 +11,19 @@ use crate::domain::repositories::article_tag_repository::{
 };
 use crate::error::SamambaiaError;
 
-pub fn get_article_tag_repository() -> (Arc<Mutex<Vec<ArticleTag>>>, MockArticleTagRepositoryTrait)
-{
+#[derive(Clone)]
+pub struct ArticleTagArticle {
+    pub article_id: Uuid,
+    pub article_tag_id: i32,
+}
+
+pub fn get_article_tag_repository() -> (
+    Arc<Mutex<Vec<ArticleTag>>>,
+    Arc<Mutex<Vec<ArticleTagArticle>>>,
+    MockArticleTagRepositoryTrait,
+) {
     let db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(Vec::new()));
+    let article_tag_article_db = Arc::new(Mutex::new(Vec::<ArticleTagArticle>::new()));
 
     let mut repository = MockArticleTagRepositoryTrait::new();
 
@@ -125,5 +137,51 @@ pub fn get_article_tag_repository() -> (Arc<Mutex<Vec<ArticleTag>>>, MockArticle
         ))
     });
 
-    (db, repository)
+    let db_clone = db.clone();
+    repository.expect_find_many_by_ids().returning(move |ids| {
+        Ok(db_clone
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|tag| ids.iter().any(|id| tag.id().eq(id)))
+            .cloned()
+            .collect::<Vec<_>>())
+    });
+
+    let article_tag_article_db_clone = article_tag_article_db.clone();
+    repository
+        .expect_associate_tags_to_article()
+        .returning(move |article, tags_ids| {
+            let mut lock = article_tag_article_db_clone.lock().unwrap();
+            tags_ids.iter().for_each(|tag_id| {
+                lock.push(ArticleTagArticle {
+                    article_id: article.id(),
+                    article_tag_id: *tag_id,
+                });
+            });
+
+            Ok(())
+        });
+
+    let article_tag_article_db_clone = article_tag_article_db.clone();
+    repository
+        .expect_disassociate_tags_from_article()
+        .returning(move |article, tags_ids| {
+            let new_db = article_tag_article_db_clone
+                .lock()
+                .unwrap()
+                .iter()
+                .filter(|tag| {
+                    !(tag.article_id == article.id()
+                        && tags_ids.iter().any(|tag_id| tag.article_tag_id.eq(tag_id)))
+                })
+                .cloned()
+                .collect::<Vec<_>>();
+
+            *article_tag_article_db_clone.lock().unwrap() = new_db;
+
+            Ok(())
+        });
+
+    (db, article_tag_article_db, repository)
 }
