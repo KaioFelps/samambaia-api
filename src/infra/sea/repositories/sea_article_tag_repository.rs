@@ -13,7 +13,6 @@ use sea_orm::{
     QuerySelect,
     QueryTrait,
     Select,
-    TransactionTrait,
 };
 
 use crate::core::pagination::PaginationParameters;
@@ -124,23 +123,10 @@ impl ArticleTagRepositoryTrait for SeaArticleTagRepository<'_> {
     async fn save(&self, article_tag: ArticleTag) -> Result<ArticleTag, Box<dyn Error>> {
         let active_article_tag = SeaArticleTagMapper::entity_into_active_model(article_tag.clone());
 
-        let transaction = self.sea_service.db.begin().await?;
-
         let _ = ArticleTagEntity::update(active_article_tag)
             .filter(ArticleTagColumn::Id.eq(article_tag.id()))
-            .exec(&transaction)
+            .exec(&self.sea_service.db)
             .await?;
-
-        entities::article::Entity::update_many()
-            .filter(entities::article::Column::TagId.eq(article_tag.id()))
-            .col_expr(
-                entities::article::Column::TagValue,
-                Expr::value(article_tag.value()),
-            )
-            .exec(&transaction)
-            .await?;
-
-        transaction.commit().await?;
 
         Ok(article_tag)
     }
