@@ -1,8 +1,10 @@
+use std::collections::HashMap;
 use std::error::Error;
 
 use async_trait::async_trait;
 use chrono::NaiveDateTime;
 use entities::article::{Column as ArticleColumn, Entity as ArticleEntity};
+use entities::article_tag::Column as ArticleTagColumn;
 use entities::user::Column as UserColumn;
 use migration::extension::postgres::PgExpr;
 use migration::Expr;
@@ -15,16 +17,15 @@ use sea_orm::{
     QueryOrder,
     QuerySelect,
     QueryTrait,
+    TransactionTrait,
 };
 use uuid::Uuid;
 
+use super::sea_article_tag_repository::SeaArticleTagRepository;
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
-use crate::domain::domain_entities::article_preview::{
-    ArticlePreview,
-    ArticlePreviewAuthor,
-    ArticlePreviewTag,
-};
+use crate::domain::domain_entities::article_preview::{ArticlePreview, ArticlePreviewAuthor};
+use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::domain_entities::slug::Slug;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType,
@@ -32,7 +33,7 @@ use crate::domain::repositories::article_repository::{
     FindManyArticlesPreviewsResponse,
     FindManyArticlesResponse,
 };
-use crate::error::SamambaiaError;
+use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
 use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
@@ -50,42 +51,97 @@ impl SeaArticleRepository<'_> {
 
 #[async_trait]
 impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
-    async fn create(&self, article: Article) -> Result<Article, Box<dyn Error>> {
-        let new_article = SeaArticleMapper::entity_into_active_model(article);
+    async fn create(&self, mut article: Article) -> Result<Article, Box<dyn Error>> {
+        article.flush_tags();
 
-        let db = &self.sea_service.db;
+        let (article, tags) = SeaArticleMapper::entity_into_active_model(article);
 
-        let created_article = new_article.insert(db).await?;
-        let created_article = SeaArticleMapper::model_into_entity(created_article);
+        let article_tags = tags
+            .iter()
+            .map(|tag| entities::articles_tags_rel::ActiveModel {
+                article_id: article.id.clone(),
+                tag_id: tag.id.clone(),
+            })
+            .collect::<Vec<_>>();
+
+        let created_article = article.insert(&self.sea_service.db).await?;
+
+        let _ = entities::articles_tags_rel::Entity::insert_many(article_tags)
+            .exec(&self.sea_service.db)
+            .await?;
+
+        let tags = tags
+            .into_iter()
+            .map(|mut tag| entities::article_tag::Model {
+                id: tag.id.take().unwrap(),
+                value: tag.value.take().unwrap(),
+            })
+            .collect();
+
+        let created_article = SeaArticleMapper::model_into_entity((created_article, tags));
 
         Ok(created_article)
     }
 
+    async fn save(&self, mut article: Article) -> Result<Article, Box<dyn Error>> {
+        let transaction = self.sea_service.db.begin().await?;
+
+        if let Some(changeset) = article.get_tags_changeset() {
+            if changeset.has_changes() {
+                let sea_article_tag_repository = SeaArticleTagRepository::new(&transaction);
+
+                tokio::try_join!(
+                    sea_article_tag_repository.disassociate_tags_from_article(
+                        article.id(),
+                        changeset.removed.iter().map(|tag| tag.id()).collect()
+                    ),
+                    sea_article_tag_repository.associate_tags_to_article(
+                        article.id(),
+                        changeset.added.iter().map(|tag| tag.id()).collect()
+                    )
+                )?;
+            }
+        }
+
+        let (active_article, _) = SeaArticleMapper::entity_into_active_model(article.clone());
+
+        let _ = active_article.update(&transaction).await?;
+        transaction.commit().await?;
+
+        article.flush_tags();
+
+        Ok(article)
+    }
+
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Article>, Box<dyn Error>> {
-        let article = ArticleEntity::find_by_id(id)
-            .one(&self.sea_service.db)
+        let mut article = ArticleEntity::find_by_id(id)
+            .find_with_related(entities::article_tag::Entity)
+            .limit(1)
+            .all(&self.sea_service.db)
             .await?;
 
-        if article.is_none() {
+        if article.is_empty() {
             return Ok(None);
         }
 
-        let mapped_article = SeaArticleMapper::model_into_entity(article.unwrap());
+        let mapped_article = SeaArticleMapper::model_into_entity(article.remove(0));
 
         Ok(Some(mapped_article))
     }
 
     async fn find_by_slug(&self, slug: &Slug) -> Result<Option<Article>, Box<dyn Error>> {
-        let article = ArticleEntity::find()
+        let mut article = ArticleEntity::find()
             .filter(ArticleColumn::Slug.eq(slug.to_string()))
-            .one(&self.sea_service.db)
+            .find_with_related(entities::article_tag::Entity)
+            .limit(1)
+            .all(&self.sea_service.db)
             .await?;
 
-        if article.is_none() {
+        if article.is_empty() {
             return Ok(None);
         }
 
-        let mapped_article = SeaArticleMapper::model_into_entity(article.unwrap());
+        let mapped_article = SeaArticleMapper::model_into_entity(article.remove(0));
 
         Ok(Some(mapped_article))
     }
@@ -95,15 +151,12 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
         params: PaginationParameters<ArticleQueryType>,
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesResponse, Box<dyn Error>> {
-        #[allow(unused_mut)]
-        let mut articles_response;
-
         let current_page = params.page as u64;
         let items_per_page = params.items_per_page as u64;
 
         let leap = (&current_page - 1) * items_per_page;
 
-        articles_response = ArticleEntity::find()
+        let articles_response = ArticleEntity::find()
             .order_by_desc(ArticleColumn::CreatedAt)
             .apply_if(params.query.as_ref(), |query_builder, query| {
                 self.find_many_get_filters(query_builder, query)
@@ -111,6 +164,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             .apply_if(show_only_approved_state, |query_builder, approved| {
                 query_builder.filter(ArticleColumn::Approved.eq(approved))
             })
+            .find_with_related(entities::article_tag::Entity)
             .limit(items_per_page)
             .offset(leap)
             .all(&self.sea_service.db)
@@ -127,11 +181,10 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             .count(&self.sea_service.db)
             .await?;
 
-        let mut articles: Vec<Article> = vec![];
-
-        for article in articles_response.into_iter() {
-            articles.push(SeaArticleMapper::model_into_entity(article));
-        }
+        let articles = articles_response
+            .into_iter()
+            .map(SeaArticleMapper::model_into_entity)
+            .collect::<Vec<_>>();
 
         Ok(FindManyArticlesResponse(articles, articles_count))
     }
@@ -141,6 +194,29 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
         params: PaginationParameters<ArticleQueryType>,
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesPreviewsResponse, Box<dyn Error>> {
+        // with limited_articles as (
+        //     SELECT DISTINCT article.id
+        //     FROM article
+        //     LEFT JOIN article_tag_article on article_tag_article.article_id = article.id
+        //     -- se o filtro for por tag
+        //     WHERE article_tag_article.article_tag_id = ?
+        //     -- ou se o filtro for por id do autor
+        //     AND article.author_id = ?
+        //     -- ou se o filtro for por titulo
+        //     AND article.title = ?
+        //     LIMIT ?
+        //     OFFSET ?
+        // )
+        // SELECT
+        //     article.id, article.slug, article.title, article.cover_url, article.description, article.approved, article.created_at,
+        //     "user".id as user_id, "user".nickname as user_nickname,
+        //     tags.id as tag_id, tags.value as tag_value
+        // FROM article
+        // JOIN "user" on "user".id = article.author_id
+        // LEFT JOIN article_tag_article on article_tag_article.article_id = article.id
+        // LEFT JOIN article_tag as tags on tags.id = article_tag_article.article_tag_id
+        // WHERE article.id in (SELECT id FROM limited_articles)
+
         type CustomQueryResult = (
             Uuid,
             String,
@@ -148,14 +224,30 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             String,
             String,
             bool,
-            Option<i32>,
-            Option<String>,
             NaiveDateTime,
             Uuid,
+            String,
+            i32,
             String,
         );
 
         let offset = ((params.page - 1) * params.items_per_page) as u64;
+
+        let limited_articles_cte = ArticleEntity::find()
+            .distinct()
+            .select_only()
+            .column(ArticleColumn::Id)
+            .left_join(entities::articles_tags_rel::Entity)
+            .apply_if(params.query.as_ref(), |query, filter| {
+                self.find_many_get_filters(query, filter)
+            })
+            .apply_if(show_only_approved_state, |query, approved| {
+                query.filter(ArticleColumn::Approved.eq(approved))
+            })
+            .order_by_desc(ArticleColumn::CreatedAt)
+            .offset(offset)
+            .limit(params.items_per_page as u64)
+            .into_query();
 
         let (articles, articles_count): (Vec<CustomQueryResult>, u64) = tokio::try_join!(
             ArticleEntity::find()
@@ -167,119 +259,85 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
                     ArticleColumn::CoverUrl,
                     ArticleColumn::Description,
                     ArticleColumn::Approved,
-                    ArticleColumn::TagId,
-                    ArticleColumn::TagValue,
                     ArticleColumn::CreatedAt,
                 ])
-                .column(UserColumn::Id)
-                .column(UserColumn::Nickname)
+                .columns([UserColumn::Id, UserColumn::Nickname])
+                .columns([ArticleTagColumn::Id, ArticleTagColumn::Value])
                 .inner_join(entities::user::Entity)
-                .order_by_desc(ArticleColumn::CreatedAt)
-                .apply_if(params.query.as_ref(), |builder, query| {
-                    self.find_many_get_filters(builder, query)
-                })
-                .apply_if(show_only_approved_state, |builder, approved| {
-                    builder.filter(ArticleColumn::Approved.eq(approved))
-                })
-                .limit(params.items_per_page as u64)
-                .offset(offset)
+                .left_join(entities::articles_tags_rel::Entity)
+                .left_join(entities::article_tag::Entity)
+                .filter(ArticleColumn::Id.in_subquery(limited_articles_cte.clone()))
                 .into_tuple()
                 .all(&self.sea_service.db),
             ArticleEntity::find()
-                .apply_if(params.query.as_ref(), |query_builder, query| {
-                    self.find_many_get_filters(query_builder, query)
-                })
-                .apply_if(show_only_approved_state, |query_builder, approved| {
-                    query_builder.filter(ArticleColumn::Approved.eq(approved))
-                })
-                .offset(offset)
+                .apply_if(params.query.as_ref(), |query, filter| self
+                    .find_many_get_filters(query, filter))
+                .apply_if(show_only_approved_state, |query, approved| query
+                    .filter(ArticleColumn::Approved.eq(approved)))
                 .count(&self.sea_service.db)
         )
         .map_err(Box::new)
         .map_err(|err| err as Box<dyn Error>)?;
 
-        let mut parsed_articles = Vec::with_capacity(params.items_per_page as usize);
+        let mut articles_map = HashMap::with_capacity(articles.len() / 2);
 
-        for (
-            article_id,
-            article_slug,
-            article_title,
-            article_cover_url,
-            article_description,
-            article_approved,
-            tag_id,
-            tag_value,
-            article_created_at,
-            author_id,
-            author_nickname,
-        ) in articles
-        {
-            let tag = {
-                if tag_id.is_some() ^ tag_value.is_some() {
-                    return Err(Box::new(SamambaiaError::internal_err().with_message(
-                        "Found an article instance that has a tag that misses either id or value",
-                    )));
-                }
-                if tag_id.is_none() {
-                    None
-                } else {
-                    Some(ArticlePreviewTag::new(tag_id.unwrap(), tag_value.unwrap()))
-                }
-            };
+        articles.into_iter().for_each(
+            |(
+                id,
+                slug,
+                title,
+                cover_url,
+                description,
+                approved,
+                created_at,
+                author_id,
+                author_nickname,
+                tag_id,
+                tag_value,
+            )| {
+                let article = articles_map.entry(id).or_insert(ArticlePreview::new(
+                    id,
+                    cover_url,
+                    title,
+                    description,
+                    approved,
+                    Vec::new(),
+                    ArticlePreviewAuthor::new(author_id, author_nickname),
+                    created_at,
+                    Slug::new_from_existing(slug),
+                ));
 
-            let author = ArticlePreviewAuthor::new(author_id, author_nickname);
+                article
+                    .get_tags_mut()
+                    .push(ArticleTag::new_from_existing(tag_id, tag_value));
+            },
+        );
 
-            parsed_articles.push(ArticlePreview::new(
-                article_id,
-                article_cover_url,
-                article_title,
-                article_description,
-                article_approved,
-                tag,
-                author,
-                article_created_at,
-                Slug::new_from_existing(article_slug),
-            ))
-        }
+        let articles = articles_map
+            .drain()
+            .map(|(_, article)| article)
+            .collect::<Vec<_>>();
 
-        Ok(FindManyArticlesPreviewsResponse(
-            parsed_articles,
-            articles_count,
-        ))
-    }
-
-    async fn save(&self, article: Article) -> Result<Article, Box<dyn Error>> {
-        let article_id = &article.id().clone();
-
-        let article = SeaArticleMapper::entity_into_active_model(article);
-
-        let article = ArticleEntity::update(article.clone())
-            .filter(ArticleColumn::Id.eq(*article_id))
-            .exec(&self.sea_service.db)
-            .await?;
-
-        Ok(SeaArticleMapper::model_into_entity(article))
+        Ok(FindManyArticlesPreviewsResponse(articles, articles_count))
     }
 }
 
 impl SeaArticleRepository<'_> {
     fn find_many_get_filters(
         &self,
-        query_builder: sea_orm::Select<ArticleEntity>,
-        query: &ArticleQueryType,
+        query: sea_orm::Select<ArticleEntity>,
+        filter: &ArticleQueryType,
     ) -> sea_orm::Select<ArticleEntity> {
-        match query {
-            ArticleQueryType::Author(content) => {
-                let filter = ArticleColumn::AuthorId.eq(*content);
-                query_builder.filter(filter)
-            }
+        match filter {
+            ArticleQueryType::Author(content) => query.filter(ArticleColumn::AuthorId.eq(*content)),
             ArticleQueryType::Title(content) => {
                 // let filter = Expr::expr(Func::lower(Expr::col(ArticleColumn::Title)))
                 // .ilike(format!("%{}%", content.to_lowercase()));
-                query_builder
-                    .filter(Expr::col(ArticleColumn::Title).ilike(format!("%{}%", content)))
+                query.filter(Expr::col(ArticleColumn::Title).ilike(format!("%{}%", content)))
             }
-            ArticleQueryType::Tag(tag_id) => query_builder.filter(ArticleColumn::TagId.eq(*tag_id)),
+            ArticleQueryType::Tag(tag_id) => {
+                query.filter(entities::articles_tags_rel::Column::TagId.eq(*tag_id))
+            }
         }
     }
 }
