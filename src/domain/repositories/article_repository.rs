@@ -24,7 +24,7 @@ pub enum ArticleQueryType {
 #[cfg_attr(test, automock)]
 #[async_trait]
 pub trait ArticleRepositoryTrait {
-    async fn create(&self, article: Article) -> Result<Article, Box<dyn Error>>;
+    async fn create(&self, mut article: Article) -> Result<Article, Box<dyn Error>>;
 
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Article>, Box<dyn Error>>;
 
@@ -42,5 +42,5 @@ pub trait ArticleRepositoryTrait {
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesPreviewsResponse, Box<dyn Error>>;
 
-    async fn save(&self, article: Article) -> Result<Article, Box<dyn Error>>;
+    async fn save(&self, mut article: Article) -> Result<Article, Box<dyn Error>>;
 }
