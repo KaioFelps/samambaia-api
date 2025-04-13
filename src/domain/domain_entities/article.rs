@@ -1,12 +1,14 @@
 use chrono::NaiveDateTime as DateTime;
 use uuid::Uuid;
 
+use super::article_tag::ArticleTag;
 use super::slug::Slug;
 use super::user::User;
+use crate::domain::value_objects::changeset::{BlankChangeSet, ChangeSet, Changes};
 use crate::libs::time::TimeHelper;
 use crate::util::{verify_role_has_permission, RolePermissions};
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Article {
     id: Uuid,
     author_id: Uuid,
@@ -15,12 +17,11 @@ pub struct Article {
     content: String,
     description: String,
     approved: bool,
-    tag_id: Option<i32>,
-    tag_value: Option<String>,
     created_at: DateTime,
     updated_at: Option<DateTime>,
     slug: Slug,
     touched: bool,
+    tags: ChangeSet<ArticleTag>,
 }
 
 impl Article {
@@ -30,9 +31,8 @@ impl Article {
         title: String,
         content: String,
         cover_url: String,
-        tag_id: Option<i32>,
-        tag_value: Option<String>,
         description: String,
+        tags: Vec<ArticleTag>,
     ) -> Self {
         let id = Uuid::new_v4();
 
@@ -40,6 +40,7 @@ impl Article {
         let updated_at = None;
 
         let slug = Slug::new(id, title.clone());
+        let tags_changeset = BlankChangeSet::default().into_filled(tags);
 
         Article {
             id,
@@ -47,14 +48,13 @@ impl Article {
             cover_url,
             title,
             content,
-            tag_id,
-            tag_value,
             approved: false,
             created_at,
             updated_at,
             slug,
             description,
             touched: false,
+            tags: ChangeSet::Filled(tags_changeset),
         }
     }
 
@@ -68,10 +68,9 @@ impl Article {
         approved: bool,
         created_at: DateTime,
         updated_at: Option<DateTime>,
-        tag_id: Option<i32>,
-        tag_value: Option<String>,
         slug: Slug,
         description: String,
+        tags: Vec<ArticleTag>,
     ) -> Self {
         Article {
             id,
@@ -80,13 +79,12 @@ impl Article {
             title,
             content,
             approved,
-            tag_value,
-            tag_id,
             created_at,
             updated_at,
             slug,
             description,
             touched: false,
+            tags: ChangeSet::new(tags),
         }
     }
 
@@ -148,16 +146,16 @@ impl Article {
         &self.slug
     }
 
-    pub fn tag_id(&self) -> Option<i32> {
-        self.tag_id
-    }
-
-    pub fn tag_value(&self) -> &Option<String> {
-        &self.tag_value
-    }
-
     pub fn description(&self) -> &str {
         &self.description
+    }
+
+    pub fn set_approved(&mut self, approved: bool) {
+        self.approved = approved;
+    }
+
+    pub fn get_tags(&self) -> Vec<&ArticleTag> {
+        self.tags.get_current()
     }
 
     // SETTERS
@@ -184,20 +182,30 @@ impl Article {
         self.touch();
     }
 
-    pub fn set_approved(&mut self, approved: bool) {
-        self.approved = approved;
-    }
+    pub fn set_tags(&mut self, tags: Vec<ArticleTag>) {
+        let changeset = std::mem::take(&mut self.tags);
 
-    pub fn set_tag_id(&mut self, tag_id: i32) {
-        self.tag_id = Some(tag_id);
-    }
+        self.tags = match changeset {
+            ChangeSet::Blank(changeset) => changeset.into_filled(tags).into(),
+            ChangeSet::Filled(changeset) => changeset.renew_with(tags).into(),
+        };
 
-    pub fn set_tag_value(&mut self, tag_value: String) {
-        self.tag_value = Some(tag_value);
+        if self.tags.has_changes() {
+            self.touch();
+        }
     }
 
     pub fn set_description(&mut self, description: String) {
         self.description = description;
         self.touch();
+    }
+
+    pub fn get_tags_changeset(&self) -> Option<Changes<'_, ArticleTag>> {
+        self.tags.get_filled()?.differ().into()
+    }
+
+    pub fn flush_tags(&mut self) {
+        let changeset = std::mem::take(&mut self.tags);
+        self.tags = changeset.flush();
     }
 }
