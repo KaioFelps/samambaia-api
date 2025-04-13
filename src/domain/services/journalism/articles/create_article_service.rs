@@ -14,7 +14,7 @@ pub struct CreateArticleParams<'a> {
     pub title: String,
     pub content: String,
     pub description: String,
-    pub tag_id: Option<i32>,
+    pub tags: Vec<i32>,
 }
 pub struct CreateArticleService<
     ArticleRepository: ArticleRepositoryTrait,
@@ -47,41 +47,20 @@ impl<
             return Err(SamambaiaError::unauthorized_err());
         }
 
-        let author_id = {
-            match params.custom_author_id {
-                Some(author_id) => author_id,
-                _ => params.staff.id(),
-            }
-        };
+        let author_id = params.custom_author_id.unwrap_or(params.staff.id());
 
-        let tag = match params.tag_id {
-            None => None,
-            Some(tag_id) => match self
-                .article_tag_repository
-                .find_by_id(tag_id)
-                .await
-                .map_err(|err| {
-                    generate_service_internal_error(
-                        "Error occurred CreateArticleService when querying tag by id.",
-                        err,
-                    )
-                })? {
-                None => {
-                    return Err(SamambaiaError::bad_request_err()
-                        .with_message(format!("Tag with id '{}' not found.", tag_id)))
-                }
-                Some(tag) => Some(tag),
-            },
-        };
+        let tags = self
+            .article_tag_repository
+            .find_many_by_ids(params.tags)
+            .await?;
 
         let article = Article::new(
             author_id,
             params.title,
             params.content,
             params.cover_url,
-            tag.as_ref().map(|tag| tag.id()),
-            tag.as_ref().map(|tag| tag.value().to_owned()),
             params.description,
+            tags,
         );
 
         let response = self.article_repository.create(article).await;
