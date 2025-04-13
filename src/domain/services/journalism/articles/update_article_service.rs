@@ -18,7 +18,7 @@ pub struct UpdateArticleParams<'a> {
     pub description: Option<String>,
     pub approved: Option<bool>,
     pub author_id: Option<Uuid>,
-    pub tag_id: Option<i32>,
+    pub tags: Option<Vec<i32>>,
 }
 pub struct UpdateArticleService<
     ArticleRepository: ArticleRepositoryTrait,
@@ -43,35 +43,34 @@ impl<
         }
     }
 
-    pub async fn exec(&self, params: UpdateArticleParams<'_>) -> Result<Article, SamambaiaError> {
-        // article verifications
-        let article = self
-            .article_repository
-            .find_by_id(params.article_id)
+    async fn maybe_find_tags(
+        &self,
+        tags: Option<Vec<i32>>,
+    ) -> Option<Result<Vec<ArticleTag>, SamambaiaError>> {
+        self.article_tag_repository
+            .find_many_by_ids(tags?)
             .await
-            .map_err(|err| {
-                generate_service_internal_error(
-                    "Error occurred on Update Article Service, while finding article by id",
-                    err,
-                )
-            })?;
+            .into()
+    }
+
+    pub async fn exec(&self, params: UpdateArticleParams<'_>) -> Result<Article, SamambaiaError> {
+        let (article, new_tags) = tokio::join!(
+            self.article_repository.find_by_id(params.article_id),
+            self.maybe_find_tags(params.tags)
+        );
+
+        // article verifications
+        let article = article.map_err(|err| {
+            generate_service_internal_error(
+                "Error occurred on Update Article Service, while finding article by id",
+                err,
+            )
+        })?;
 
         let mut article = match article {
             None => return Err(SamambaiaError::resource_not_found_err()),
             Some(article) => article,
         };
-
-        // skips it if there's nothing to be updated
-        if params.cover_url.is_none()
-            && params.title.is_none()
-            && params.approved.is_none()
-            && params.author_id.is_none()
-            && params.content.is_none()
-            && params.description.is_none()
-            && params.tag_id.is_none()
-        {
-            return Ok(article);
-        }
 
         // checks user is allowed to perform the update
         let user_role = params.user.role().unwrap();
@@ -134,17 +133,15 @@ impl<
             article.set_approved(approved);
         }
 
-        if let Some(tag_id) = params.tag_id {
-            let tag = self.get_tag_by_id(tag_id).await?;
-
-            article.set_tag_id(tag.id());
-            article.set_tag_value(tag.value().to_owned());
+        if let Some(tags) = new_tags {
+            article.set_tags(tags?);
         }
 
         // ensures that uusers wont modify an article after it has been approved making public a content that actually
         // wouldn't be approved
 
         article.disapprove_if_touched(params.user);
+
         self.article_repository
             .save(article)
             .await
@@ -153,26 +150,6 @@ impl<
                     "Error occurred in Update Article Service, while saving the article on the database",
                     err,
                 ))
-    }
-
-    async fn get_tag_by_id(&self, tag_id: i32) -> Result<ArticleTag, SamambaiaError> {
-        let tag = self
-            .article_tag_repository
-            .find_by_id(tag_id)
-            .await
-            .map_err(|err| {
-                generate_service_internal_error(
-                    "Error occurred in Update Article Service, while finding article tag by id",
-                    err,
-                )
-            })?;
-
-        if tag.is_none() {
-            return Err(SamambaiaError::bad_request_err()
-                .with_message(format!("Tag with id '{}' not found.", tag_id)));
-        }
-
-        Ok(tag.unwrap())
     }
 }
 
