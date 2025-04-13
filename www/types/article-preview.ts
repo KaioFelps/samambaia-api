@@ -9,5 +9,5 @@ export type ArticlePreview = {
   approved: boolean;
   createdAt: Date | string;
   description: string;
-  tag: ArticleTag | null;
+  tags: ArticleTag[];
 };

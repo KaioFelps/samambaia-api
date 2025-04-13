@@ -1,3 +1,5 @@
+import { ArticleTag } from "./article-tag";
+
 export type Article = {
   id: string;
   authorId: string;
@@ -9,5 +11,5 @@ export type Article = {
   createdAt: Date | string;
   updatedAt?: Date | string;
   slug: string;
-  tagId?: number;
+  tags: ArticleTag[];
 };
