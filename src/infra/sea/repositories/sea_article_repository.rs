@@ -26,7 +26,7 @@ use crate::core::pagination::PaginationParameters;
 use crate::domain::aggregations::article_preview::{ArticlePreview, ArticlePreviewAuthor};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::article_tag::ArticleTag;
-use crate::domain::domain_entities::slug::Slug;
+use crate::domain::value_objects::slug::Slug;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType,
     ArticleRepositoryTrait,

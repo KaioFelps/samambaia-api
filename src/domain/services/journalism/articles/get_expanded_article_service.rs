@@ -4,7 +4,7 @@ use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::domain_entities::role::Role;
-use crate::domain::domain_entities::slug::Slug;
+use crate::domain::value_objects::slug::Slug;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::comment_user_article_repository::{

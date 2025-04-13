@@ -7,7 +7,6 @@ pub mod comment_with_author;
 pub mod council_alert;
 pub mod free_badge;
 pub mod role;
-pub mod slug;
 pub mod team_role;
 pub mod team_user;
 pub mod user;

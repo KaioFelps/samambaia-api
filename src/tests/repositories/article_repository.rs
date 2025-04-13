@@ -6,7 +6,7 @@ use super::LocalDb;
 use crate::core::pagination::PaginationParameters;
 use crate::domain::aggregations::article_preview::{ArticlePreview, ArticlePreviewAuthor};
 use crate::domain::domain_entities::article::Article;
-use crate::domain::domain_entities::slug::Slug;
+use crate::domain::value_objects::slug::Slug;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType,
