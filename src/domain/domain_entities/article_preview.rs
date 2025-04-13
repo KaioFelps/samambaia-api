@@ -5,7 +5,7 @@ use uuid::Uuid;
 use super::article_tag::ArticleTag;
 use super::slug::Slug;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct ArticlePreviewAuthor {
     nickname: String,
     id: Uuid,
@@ -25,7 +25,7 @@ impl ArticlePreviewAuthor {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct ArticlePreview {
     id: Uuid,
     cover_url: String,
@@ -86,6 +86,10 @@ impl ArticlePreview {
 
     pub fn tags(&self) -> &[ArticleTag] {
         self.tags.iter().as_slice()
+    }
+
+    pub fn get_tags_mut(&mut self) -> &mut Vec<ArticleTag> {
+        &mut self.tags
     }
 
     pub fn author(&self) -> &ArticlePreviewAuthor {
