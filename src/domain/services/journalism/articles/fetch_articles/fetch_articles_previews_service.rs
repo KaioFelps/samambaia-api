@@ -1,6 +1,6 @@
 use super::params::FetchArticlesParams;
 use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
-use crate::domain::domain_entities::article_preview::ArticlePreview;
+use crate::domain::aggregations::article_preview::ArticlePreview;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;

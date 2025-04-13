@@ -2,7 +2,7 @@ use chrono::NaiveDateTime as DateTime;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::domain::domain_entities::article_preview::ArticlePreview;
+use crate::domain::aggregations::article_preview::ArticlePreview;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 
 #[derive(Serialize)]

@@ -1,6 +1,5 @@
 pub mod announcement;
 pub mod article;
-pub mod article_preview;
 pub mod article_tag;
 pub mod comment;
 pub mod comment_report;

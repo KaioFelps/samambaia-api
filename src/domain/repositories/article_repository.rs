@@ -6,8 +6,8 @@ use mockall::automock;
 use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
+use crate::domain::aggregations::article_preview::ArticlePreview;
 use crate::domain::domain_entities::article::Article;
-use crate::domain::domain_entities::article_preview::ArticlePreview;
 use crate::domain::domain_entities::slug::Slug;
 
 #[derive(Debug)]
