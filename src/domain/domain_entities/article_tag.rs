@@ -1,3 +1,5 @@
+use std::hash::Hash;
+
 use serde::Deserialize;
 
 pub struct DraftArticleTag {
@@ -35,5 +37,11 @@ impl ArticleTag {
 
     pub fn set_value(&mut self, value: String) {
         self.value = value;
+    }
+}
+
+impl Hash for ArticleTag {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
     }
 }
