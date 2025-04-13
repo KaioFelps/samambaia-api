@@ -1,3 +1,4 @@
+pub mod aggregations;
 pub mod cryptography;
 pub mod domain_entities;
 pub mod factories;

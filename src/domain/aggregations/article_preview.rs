@@ -2,8 +2,8 @@ use chrono::NaiveDateTime;
 use serde::Deserialize;
 use uuid::Uuid;
 
-use super::article_tag::ArticleTag;
-use super::slug::Slug;
+use crate::domain::domain_entities::article_tag::ArticleTag;
+use crate::domain::domain_entities::slug::Slug;
 
 #[derive(Deserialize, Debug)]
 pub struct ArticlePreviewAuthor {

@@ -23,8 +23,8 @@ use uuid::Uuid;
 
 use super::sea_article_tag_repository::SeaArticleTagRepository;
 use crate::core::pagination::PaginationParameters;
+use crate::domain::aggregations::article_preview::{ArticlePreview, ArticlePreviewAuthor};
 use crate::domain::domain_entities::article::Article;
-use crate::domain::domain_entities::article_preview::{ArticlePreview, ArticlePreviewAuthor};
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::domain_entities::slug::Slug;
 use crate::domain::repositories::article_repository::{
