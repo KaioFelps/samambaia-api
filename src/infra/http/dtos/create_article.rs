@@ -15,5 +15,5 @@ pub struct CreateArticleDto {
 
     pub title: String,
 
-    pub tag_id: Option<i32>,
+    pub tags: Vec<i32>,
 }

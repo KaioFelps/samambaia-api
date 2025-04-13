@@ -17,5 +17,5 @@ pub struct UpdateArticleDto {
 
     pub approved: Option<bool>,
 
-    pub tag_id: Option<i32>,
+    pub tags: Option<Vec<i32>>,
 }
