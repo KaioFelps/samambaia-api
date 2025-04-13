@@ -249,7 +249,7 @@ impl AdminArticlesController {
                 custom_author_id: body.author_id,
                 description: body.description,
                 staff: &auth.user,
-                tag_id: body.tag_id,
+                tags: body.tags,
             })
             .await?;
 
@@ -283,8 +283,8 @@ impl AdminArticlesController {
                 content: None,
                 cover_url: None,
                 description: None,
-                tag_id: None,
                 title: None,
+                tags: None,
             })
             .await
         {
@@ -320,10 +320,10 @@ impl AdminArticlesController {
                 content: body.content,
                 approved: body.approved,
                 cover_url: body.cover_url,
-                tag_id: body.tag_id,
                 article_id: path.into_inner(),
                 author_id: body.author_id,
                 user: &auth.user,
+                tags: body.tags,
             })
             .await
         {
