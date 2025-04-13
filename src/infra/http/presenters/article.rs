@@ -42,8 +42,8 @@ impl PresenterTrait<Article, MappedArticle> for ArticlePresenter {
             updated_at: article.updated_at(),
             tags: article
                 .get_tags()
-                .to_vec()
                 .into_iter()
+                .cloned()
                 .map(ArticleTagPresenter::to_http)
                 .collect(),
         }
