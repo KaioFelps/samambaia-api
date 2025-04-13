@@ -64,22 +64,34 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait> DeleteArtic
 #[cfg(test)]
 mod test {
 
+    use std::sync::Arc;
+
     use tokio;
     use uuid::Uuid;
 
     use super::{DeleteArticleParams, DeleteArticleService};
     use crate::domain::domain_entities::article::Article;
+    use crate::domain::domain_entities::article_tag::DraftArticleTag;
     use crate::domain::domain_entities::comment::Comment;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
+    use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
+    use crate::tests::relationship_managers::comment_article::CommentArticleRelationInMemoryManager;
     use crate::tests::repositories::article_comment_repository::get_article_comment_repository;
-    use crate::tests::repositories::article_repository::get_article_repository;
+    use crate::tests::repositories::article_repository::InMemoryArticleRepository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
 
     #[tokio::test]
     async fn user_should_be_able_to_delete_own_article() {
-        let (article_db, _, article_repository) = get_article_repository();
-        let (article_db, _comment_db, article_comment_repository) =
-            get_article_comment_repository(Some(article_db), None);
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository);
+
+        let relationship_manager = Arc::new(CommentArticleRelationInMemoryManager::new());
+        let (article_db, _comment_db, article_comment_repository) = get_article_comment_repository(
+            Some(article_repository.article_db.clone()),
+            None,
+            relationship_manager,
+        );
 
         let user = User::new("Flori".into(), "".into(), Some(Role::Writer));
         let article = Article::new(
@@ -87,12 +99,15 @@ mod test {
             "Title".into(),
             "Content".into(),
             "cover".into(),
-            None,
-            None,
             "desc".into(),
+            vec![],
         );
 
-        article_db.lock().unwrap().push(article.clone());
+        article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(article.clone());
 
         let sut = DeleteArticleService::new(article_repository, article_comment_repository);
         let response = sut
@@ -108,18 +123,28 @@ mod test {
 
     #[tokio::test]
     async fn unauthorized_user_should_not_be_able_to_delete_others_articles() {
-        let (article_db, _, article_repository) = get_article_repository();
-        let (article_db, _comment_db, article_comment_repository) =
-            get_article_comment_repository(Some(article_db), None);
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
+
+        let relationship_manager = Arc::new(CommentArticleRelationInMemoryManager::new());
+        let (article_db, _comment_db, article_comment_repository) = get_article_comment_repository(
+            Some(article_repository.article_db.clone()),
+            None,
+            relationship_manager,
+        );
+
+        let tag = article_tag_repository
+            .create(DraftArticleTag::new("Foo".into()))
+            .await
+            .unwrap();
 
         let article = Article::new(
             Uuid::new_v4(),
             "Título inicial".to_string(),
             "Conteúdo inicial".to_string(),
             "coverurl.inicial".to_string(),
-            Some(1),
-            Some("Foo".into()),
             "Bar baz!".into(),
+            vec![tag],
         );
 
         let non_author_user = User::new("Flori".into(), "".into(), Some(Role::Admin));
@@ -144,18 +169,28 @@ mod test {
 
     #[tokio::test]
     async fn authorized_user_should_be_able_to_delete_anyones_article() {
-        let (article_db, _, article_repository) = get_article_repository();
-        let (article_db, _comment_db, article_comment_repository) =
-            get_article_comment_repository(Some(article_db), None);
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
+
+        let relationship_manager = Arc::new(CommentArticleRelationInMemoryManager::new());
+        let (article_db, _comment_db, article_comment_repository) = get_article_comment_repository(
+            Some(article_repository.article_db.clone()),
+            None,
+            relationship_manager,
+        );
+
+        let tag = article_tag_repository
+            .create(DraftArticleTag::new("Foo".into()))
+            .await
+            .unwrap();
 
         let article = Article::new(
             Uuid::new_v4(),
             "Título inicial".to_string(),
             "Conteúdo inicial".to_string(),
             "coverurl.inicial".to_string(),
-            Some(1),
-            Some("Foo".into()),
             "Bar baz!".into(),
+            vec![tag],
         );
 
         let principal = User::new("Flori".into(), "".into(), Some(Role::Principal));
@@ -180,18 +215,28 @@ mod test {
 
     #[tokio::test]
     async fn it_should_delete_comments_along_with_article() {
-        let (article_db, _, article_repository) = get_article_repository();
-        let (article_db, comment_db, article_comment_repository) =
-            get_article_comment_repository(Some(article_db), None);
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
+
+        let relationship_manager = Arc::new(CommentArticleRelationInMemoryManager::new());
+        let (article_db, comment_db, article_comment_repository) = get_article_comment_repository(
+            Some(article_repository.article_db.clone()),
+            None,
+            relationship_manager,
+        );
+
+        let tag = article_tag_repository
+            .create(DraftArticleTag::new("Foo".into()))
+            .await
+            .unwrap();
 
         let article = Article::new(
             Uuid::new_v4(),
             "Título inicial".to_string(),
             "Conteúdo inicial".to_string(),
             "coverurl.inicial".to_string(),
-            Some(1),
-            Some("Foo".into()),
             "Bar baz!".into(),
+            vec![tag],
         );
 
         article_db.lock().unwrap().push(article.clone());

@@ -66,15 +66,15 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
 mod test {
     use crate::domain::domain_entities::article_tag::ArticleTag;
     use crate::domain::domain_entities::role::Role;
-    use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
 
     #[tokio::test]
     async fn test_if_user_can_update_article_tag() {
-        let (tag_db, tag_repository) = get_article_tag_repository();
-        let sut = super::UpdateArticleTagService::new(tag_repository);
+        let tag_repository = InMemoryArticleTagRepository::default();
+        let sut = super::UpdateArticleTagService::new(tag_repository.clone());
 
         let tag = ArticleTag::new_from_existing(1, "Foo".into());
-        tag_db.lock().unwrap().push(tag);
+        tag_repository.tag_db.lock().unwrap().push(tag);
 
         let result = sut
             .exec(super::UpdateArticleTagParams {
@@ -87,18 +87,18 @@ mod test {
         assert!(result.is_ok());
         assert_eq!(
             &"Bar".to_string(),
-            tag_db.lock().unwrap()[0].value(),
+            tag_repository.tag_db.lock().unwrap()[0].value(),
             "Principal-role user should be able to update an article tag."
         );
     }
 
     #[tokio::test]
     async fn test_if_non_authorized_user_cannot_update_article_tag() {
-        let (tag_db, tag_repository) = get_article_tag_repository();
-        let sut = super::UpdateArticleTagService::new(tag_repository);
+        let tag_repository = InMemoryArticleTagRepository::default();
+        let sut = super::UpdateArticleTagService::new(tag_repository.clone());
 
         let tag = ArticleTag::new_from_existing(1, "Foo".into());
-        tag_db.lock().unwrap().push(tag);
+        tag_repository.tag_db.lock().unwrap().push(tag);
 
         let result = sut
             .exec(super::UpdateArticleTagParams {

@@ -57,68 +57,54 @@ impl<CR: CommentRepositoryTrait, AR: ArticleRepositoryTrait> CommentOnArticleSer
 
 #[cfg(test)]
 mod test {
-    use std::sync::{Arc, Mutex};
+    use std::sync::Arc;
 
     use super::*;
     use crate::domain::domain_entities::article::Article;
+    use crate::domain::domain_entities::article_tag::DraftArticleTag;
     use crate::domain::domain_entities::slug::Slug;
-    use crate::domain::repositories::comment_repository::MockCommentRepositoryTrait;
+    use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
     use crate::libs::time::TimeHelper;
-    use crate::tests::repositories::article_repository::get_article_repository;
-
-    #[allow(dead_code)]
-    #[derive(Clone, Copy)]
-    struct CommentArticle {
-        pub id: Uuid,
-        pub article_id: Uuid,
-        pub comment_id: Uuid,
-    }
+    use crate::tests::relationship_managers::comment_article::CommentArticleRelationInMemoryManager;
+    use crate::tests::repositories::article_repository::InMemoryArticleRepository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
+    use crate::tests::repositories::comment_repository::get_comment_repository;
 
     #[tokio::test]
-    async fn test() {
-        let (article_db, _, mocked_article_repo) = get_article_repository();
-        let mut mocked_comment_repo = MockCommentRepositoryTrait::new();
+    async fn it_should_comment_on_an_article() {
+        let article_tags_repository = InMemoryArticleTagRepository::default();
+        let mocked_article_repo =
+            InMemoryArticleRepository::default(article_tags_repository.clone());
+
+        let comment_article_manager = Arc::new(CommentArticleRelationInMemoryManager::new());
+        let (_, mocked_comment_repo) =
+            get_comment_repository(None, comment_article_manager.clone());
+
+        let foo_tag = article_tags_repository
+            .create(DraftArticleTag::new("Foo".into()))
+            .await
+            .unwrap();
 
         let user_id = Uuid::new_v4();
         let article_id = Uuid::new_v4();
 
-        article_db.lock().unwrap().push(Article::new_from_existing(
-            article_id,
-            user_id,
-            "cover_url".into(),
-            "title".into(),
-            "content".into(),
-            false,
-            TimeHelper::now(),
-            None,
-            Some(1),
-            Some("Foo".to_string()),
-            Slug::new(article_id, "title".into()),
-            "description".into(),
-        ));
-
-        let comment_article_db: Arc<Mutex<Vec<CommentArticle>>> = Arc::new(Mutex::new(vec![]));
-        let comment_db: Arc<Mutex<Vec<Comment>>> = Arc::new(Mutex::new(vec![]));
-
-        let comment_article_db_move_clone = Arc::clone(&comment_article_db);
-        let comment_db_move_clone = Arc::clone(&comment_db);
-
-        mocked_comment_repo
-            .expect_create()
-            .returning(move |comment| {
-                comment_article_db_move_clone
-                    .lock()
-                    .unwrap()
-                    .push(CommentArticle {
-                        id: Uuid::new_v4(),
-                        article_id: comment.article_id().unwrap(),
-                        comment_id: comment.id(),
-                    });
-
-                comment_db_move_clone.lock().unwrap().push(comment.clone());
-
-                Ok(comment)
-            });
+        mocked_article_repo
+            .article_db
+            .lock()
+            .unwrap()
+            .push(Article::new_from_existing(
+                article_id,
+                user_id,
+                "cover_url".into(),
+                "title".into(),
+                "content".into(),
+                false,
+                TimeHelper::now(),
+                None,
+                Slug::new(article_id, "title".into()),
+                "description".into(),
+                vec![foo_tag.clone()],
+            ));
 
         let sut = CommentOnArticleService::new(mocked_comment_repo, mocked_article_repo);
 
@@ -139,9 +125,9 @@ mod test {
             (user_id, "This article is awesome!")
         );
 
-        assert_eq!(1, comment_article_db.lock().unwrap().len());
+        assert_eq!(1, comment_article_manager.db.lock().unwrap().len());
 
-        let relation_1 = comment_article_db.lock().unwrap()[0];
+        let relation_1 = comment_article_manager.db.lock().unwrap()[0];
 
         assert_eq!(
             (relation_1.article_id, relation_1.comment_id),

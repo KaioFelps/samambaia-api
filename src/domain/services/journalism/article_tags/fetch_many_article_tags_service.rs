@@ -79,17 +79,19 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
 #[cfg(test)]
 mod test {
     use crate::domain::domain_entities::article_tag::ArticleTag;
-    use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
 
     #[tokio::test]
     async fn it_can_fetch_many_article_tags() {
-        let (tag_db, tag_repository) = get_article_tag_repository();
+        let tag_repository = InMemoryArticleTagRepository::default();
 
-        tag_db
+        tag_repository
+            .tag_db
             .lock()
             .unwrap()
             .push(ArticleTag::new_from_existing(1, "Bar".into()));
-        tag_db
+        tag_repository
+            .tag_db
             .lock()
             .unwrap()
             .push(ArticleTag::new_from_existing(2, "Foo".into()));

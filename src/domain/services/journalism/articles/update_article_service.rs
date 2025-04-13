@@ -164,28 +164,56 @@ mod test {
     use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
     use crate::domain::services::journalism::articles::update_article_service::UpdateArticleService;
-    use crate::tests::repositories::article_repository::get_article_repository;
-    use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
+    use crate::tests::repositories::article_repository::InMemoryArticleRepository;
+    use crate::tests::repositories::article_tag_repository::{
+        ArticleTagArticle,
+        InMemoryArticleTagRepository,
+    };
 
     #[tokio::test]
     async fn unauthorized_users_should_not_update_article() {
-        let (article_db, _, article_repository) = get_article_repository();
-        let (tag_db, article_tag_repository) = get_article_tag_repository();
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
+
+        let tag = ArticleTag::new_from_existing(1, "Foo".into());
+        let article_id = Uuid::new_v4();
+
+        article_tag_repository
+            .tag_db
+            .lock()
+            .unwrap()
+            .push(tag.clone());
+
+        article_tag_repository
+            .article_tag_db
+            .lock()
+            .unwrap()
+            .push(ArticleTagArticle {
+                article_id,
+                article_tag_id: tag.id(),
+            });
 
         let article = Article::new(
-            Uuid::new_v4(),
+            article_id,
             "Initial title".to_string(),
             "Initial content".to_string(),
             "initial.coverurl".to_string(),
-            Some(1),
-            Some("Foo".to_string()),
             "Initial description".into(),
+            vec![tag.clone()],
         );
 
         let article_tag = ArticleTag::new_from_existing(2, "Bar".to_string());
 
-        tag_db.lock().unwrap().push(article_tag);
-        article_db.lock().unwrap().push(article.clone());
+        article_tag_repository
+            .tag_db
+            .lock()
+            .unwrap()
+            .push(article_tag);
+        article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(article.clone());
 
         let service = super::UpdateArticleService {
             article_repository,
@@ -204,7 +232,7 @@ mod test {
                 description: None,
                 cover_url: None,
                 author_id: None,
-                tag_id: None,
+                tags: Some(Vec::new()),
             })
             .await;
 
@@ -214,8 +242,8 @@ mod test {
 
     #[tokio::test]
     async fn writer_or_below_should_get_article_disapproved_on_edit() {
-        let (article_db, _, article_repository) = get_article_repository();
-        let (_tag_db, article_tag_repository) = get_article_tag_repository();
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
 
         let writer = User::new("John".into(), "".into(), Some(Role::Writer));
 
@@ -224,13 +252,16 @@ mod test {
             "Title".into(),
             "<h1>Contentm</h1>".into(),
             "url".into(),
-            None,
-            None,
             "description".into(),
+            Vec::new(),
         );
         article.set_approved(true);
 
-        article_db.lock().unwrap().push(article.clone());
+        article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(article.clone());
 
         let sut = UpdateArticleService::new(article_repository, article_tag_repository);
         let result = sut
@@ -242,7 +273,7 @@ mod test {
                 approved: None,
                 article_id: article.id(),
                 author_id: None,
-                tag_id: None,
+                tags: None,
                 user: &writer,
             })
             .await;
@@ -253,8 +284,8 @@ mod test {
 
     #[tokio::test]
     async fn authorized_user_should_be_able_to_update_article_and_keep_approved() {
-        let (article_db, _, article_repository) = get_article_repository();
-        let (_tag_db, article_tag_repository) = get_article_tag_repository();
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
 
         let editor = User::new("John".into(), "".into(), Some(Role::Editor));
 
@@ -263,18 +294,30 @@ mod test {
             "Title".into(),
             "<h1>Contentm</h1>".into(),
             "url".into(),
-            None,
-            None,
             "description".into(),
+            Vec::new(),
         );
         article.set_approved(true);
 
-        article_db.lock().unwrap().push(article.clone());
+        article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(article.clone());
 
         let tag = article_tag_repository
             .create(DraftArticleTag::new("Bar".into()))
             .await
             .unwrap();
+
+        article_tag_repository
+            .article_tag_db
+            .lock()
+            .unwrap()
+            .push(ArticleTagArticle {
+                article_id: article.id(),
+                article_tag_id: tag.id(),
+            });
 
         let sut = UpdateArticleService::new(article_repository, article_tag_repository);
 
@@ -288,7 +331,7 @@ mod test {
                 description: Some("updated description".to_string()),
                 cover_url: None,
                 author_id: None,
-                tag_id: Some(tag.id()),
+                tags: Some(vec![tag.id()]),
             })
             .await;
 
@@ -298,6 +341,72 @@ mod test {
         assert_eq!("updated title", result.title());
         assert_eq!("updated description", result.description());
         assert_eq!("updated content", result.content());
-        assert_eq!("Bar", result.tag_value().as_ref().unwrap());
+
+        assert!(!result.get_tags().is_empty());
+        assert_eq!("Bar", result.get_tags().first().unwrap().value());
+    }
+
+    #[tokio::test]
+    async fn articles_tags_should_be_correctly_removed_or_added() {
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
+
+        let editor = User::new("John".into(), "".into(), Some(Role::Editor));
+
+        let tag_1 = article_tag_repository
+            .create(DraftArticleTag::new("Foo".into()))
+            .await
+            .unwrap();
+        let tag_2 = article_tag_repository
+            .create(DraftArticleTag::new("Bar".into()))
+            .await
+            .unwrap();
+        let tag_3 = article_tag_repository
+            .create(DraftArticleTag::new("Baz".into()))
+            .await
+            .unwrap();
+
+        let mut article = Article::new(
+            Uuid::new_v4(),
+            "Title".into(),
+            "<h1>Contentm</h1>".into(),
+            "url".into(),
+            "description".into(),
+            vec![tag_1.clone(), tag_2.clone()],
+        );
+
+        article.set_approved(true);
+
+        article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(article.clone());
+
+        let sut = UpdateArticleService::new(article_repository, article_tag_repository);
+
+        let result = sut
+            .exec(UpdateArticleParams {
+                user: &editor,
+                article_id: article.id(),
+                approved: None,
+                title: Some("updated title".to_string()),
+                content: Some("updated content".to_string()),
+                description: Some("updated description".to_string()),
+                cover_url: None,
+                author_id: None,
+                tags: Some(vec![tag_3.id()]),
+            })
+            .await;
+
+        assert!(result.is_ok());
+        let result = result.unwrap();
+
+        assert_eq!("updated title", result.title());
+        assert_eq!("updated description", result.description());
+        assert_eq!("updated content", result.content());
+
+        assert!(!result.get_tags().is_empty());
+        assert!([tag_3].iter().all(|tag| result.get_tags().contains(&tag)));
     }
 }

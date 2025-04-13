@@ -163,136 +163,98 @@ impl<
 
 #[cfg(test)]
 mod test {
+    use std::sync::Arc;
+
     use http::StatusCode;
     use tokio;
 
     use super::*;
     use crate::domain::domain_entities::article::Article;
+    use crate::domain::domain_entities::article_tag::DraftArticleTag;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
-    use crate::domain::repositories::article_comment_repository::MockArticleCommentRepositoryTrait;
-    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
+    use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
+    use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
     use crate::libs::time::TimeHelper;
+    use crate::tests::relationship_managers::comment_article::CommentArticleRelationInMemoryManager;
+    use crate::tests::repositories::article_comment_repository::get_article_comment_repository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
+    use crate::tests::repositories::comment_repository::get_comment_repository;
+    use crate::tests::repositories::users_repository::get_user_repository;
 
     #[tokio::test]
     async fn test() {
-        let mut db: Vec<Comment> = Vec::new();
+        let comment_article_relationship_manager =
+            Arc::new(CommentArticleRelationInMemoryManager::new());
 
-        let user = User::new(
-            "Floricultor".to_string(),
-            "password".to_string(),
-            Some(Role::Principal),
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let (_, user_repository) = get_user_repository(None);
+        let (_article_db, comment_db, article_comment_repository) = get_article_comment_repository(
+            None,
+            None,
+            comment_article_relationship_manager.clone(),
         );
+
+        let (_, comment_repository) = get_comment_repository(
+            Some(comment_db),
+            comment_article_relationship_manager.clone(),
+        );
+
+        let user = user_repository
+            .create(User::new(
+                "Floricultor".to_string(),
+                "password".to_string(),
+                Some(Role::Principal),
+            ))
+            .await
+            .unwrap();
+
+        let foo_tag = article_tag_repository
+            .create(DraftArticleTag::new("Foo".into()))
+            .await
+            .unwrap();
+
         let article = Article::new(
             user.id(),
             "Título da notícia".into(),
             "Conteúdo da notícia".into(),
             "url do cover".into(),
-            Some(1),
-            Some("Foo".into()),
             "baz".into(),
+            vec![foo_tag.clone()],
         );
 
-        db.push(Comment::new(
-            user.id(),
-            Some(article.id()),
-            "Comment 1 content here".to_string(),
-        ));
-        db.push(Comment::new(
-            user.id(),
-            Some(article.id()),
-            "Comment 2 content here".to_string(),
-        ));
-        db.push(Comment::new_from_existing(
-            Uuid::new_v4(),
-            Some(article.id()),
-            user.id(),
-            "Coment 2 content here".into(),
-            false,
-            TimeHelper::now(),
-        ));
+        comment_repository
+            .create(Comment::new(
+                user.id(),
+                Some(article.id()),
+                "Comment 1 content here".to_string(),
+            ))
+            .await
+            .unwrap();
 
-        let mut mocked_comment_repo: MockArticleCommentRepositoryTrait =
-            MockArticleCommentRepositoryTrait::new();
-        let mut mocked_user_repo: MockUserRepositoryTrait = MockUserRepositoryTrait::new();
+        comment_repository
+            .create(Comment::new(
+                user.id(),
+                Some(article.id()),
+                "Comment 2 content here".to_string(),
+            ))
+            .await
+            .unwrap();
 
-        mocked_user_repo
-            .expect_find_by_nickname()
-            .returning(move |nickname| {
-                let user = user.clone();
-
-                let is_user = nickname == user.nickname();
-
-                if is_user {
-                    return Ok(Some(user));
-                }
-
-                Ok(None)
-            });
-
-        mocked_comment_repo.expect_find_many_comments().returning(
-            move |_article_id, include_inactive, params| {
-                let PaginationParameters {
-                    page,
-                    items_per_page,
-                    query,
-                } = params;
-
-                let mut comments: Vec<Comment> = Vec::new();
-
-                if query.is_some() {
-                    match query.unwrap() {
-                        CommentQueryType::Content(content) => {
-                            for item in db.iter() {
-                                if item
-                                    .content()
-                                    .to_lowercase()
-                                    .contains(&content.to_lowercase()[..])
-                                    && (include_inactive || item.is_active())
-                                {
-                                    comments.push(item.clone());
-                                }
-                            }
-                        }
-                        CommentQueryType::Author(content) => {
-                            for item in db.iter() {
-                                if item.author_id().eq(&content)
-                                    && (include_inactive || item.is_active())
-                                {
-                                    comments.push(item.clone());
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    for item in db.iter() {
-                        if include_inactive || item.is_active() {
-                            comments.push(item.clone());
-                        }
-                    }
-                }
-
-                let total_of_items_before_paginating = comments.len();
-
-                let leap = (page - 1) * items_per_page;
-
-                let mut res_comments = vec![];
-
-                for (index, item) in comments.iter().enumerate() {
-                    if index >= leap as usize {
-                        res_comments.push(item.to_owned());
-                    }
-                }
-
-                Ok(FindManyCommentsResponse(
-                    res_comments,
-                    total_of_items_before_paginating as u64,
-                ))
-            },
-        );
+        comment_repository
+            .create(Comment::new_from_existing(
+                Uuid::new_v4(),
+                Some(article.id()),
+                user.id(),
+                "Coment 2 content here".into(),
+                false,
+                TimeHelper::now(),
+            ))
+            .await
+            .unwrap();
 
         let fetch_many_comments_service =
-            FetchManyCommentsService::new(mocked_comment_repo, mocked_user_repo);
+            FetchManyCommentsService::new(article_comment_repository, user_repository);
 
         // make a request querying by title
         let res = fetch_many_comments_service
