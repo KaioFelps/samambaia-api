@@ -3,9 +3,9 @@ use std::error::Error;
 use async_trait::async_trait;
 #[cfg(test)]
 use mockall::automock;
+use uuid::Uuid;
 
 use crate::core::pagination::PaginationParameters;
-use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
 use crate::error::SamambaiaError;
 
@@ -39,13 +39,13 @@ pub trait ArticleTagRepositoryTrait {
 
     async fn associate_tags_to_article(
         &self,
-        article: &Article,
-        article_tags: Vec<i32>,
+        article_id: Uuid,
+        tags_ids: Vec<i32>,
     ) -> Result<(), SamambaiaError>;
 
     async fn disassociate_tags_from_article(
         &self,
-        article: &Article,
-        article_tags: Vec<i32>,
+        article_id: Uuid,
+        tags_ids: Vec<i32>,
     ) -> Result<(), SamambaiaError>;
 }
