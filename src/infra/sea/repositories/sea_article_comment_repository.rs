@@ -2,10 +2,10 @@ use std::error::Error;
 use std::future::Future;
 
 use async_trait::async_trait;
-use entities::article::Entity as ArticleEntity;
 use entities::comment::{Column as CommentColumn, Entity as CommentEntity};
 use migration::{Expr, Func};
 use sea_orm::{
+    ActiveModelTrait,
     ColumnTrait,
     ConnectionTrait,
     EntityTrait,
@@ -127,17 +127,14 @@ impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository<'_> {
     }
 
     async fn delete_article_with_comments(&self, article: Article) -> Result<(), Box<dyn Error>> {
-        let article_id = article.id();
-
-        let article = SeaArticleMapper::entity_into_active_model(article);
+        let (active_article, _) = SeaArticleMapper::entity_into_active_model(article.clone());
 
         let transaction = self.sea_service.db.begin().await?;
 
-        ArticleEntity::delete(article).exec(&transaction).await?;
+        active_article.delete(&transaction).await?;
 
-        self.delete_all_articles_comments(&transaction, article_id)
+        self.delete_all_articles_comments(&transaction, article.id())
             .await?;
-
         transaction.commit().await?;
 
         Ok(())
@@ -149,14 +146,14 @@ impl ArticleCommentRepositoryTrait for SeaArticleCommentRepository<'_> {
     ) -> Result<(), Box<dyn Error>> {
         let article_id = article.id();
 
-        let article = SeaArticleMapper::entity_into_active_model(article);
+        let (active_article, _) = SeaArticleMapper::entity_into_active_model(article);
 
         let transaction = self.sea_service.db.begin().await?;
 
         self.inactivate_all_articles_comments(&transaction, article_id)
             .await?;
 
-        ArticleEntity::delete(article).exec(&transaction).await?;
+        active_article.delete(&transaction).await?;
 
         transaction.commit().await?;
 
