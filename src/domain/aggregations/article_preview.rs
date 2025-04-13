@@ -3,7 +3,7 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::domain::domain_entities::article_tag::ArticleTag;
-use crate::domain::domain_entities::slug::Slug;
+use crate::domain::value_objects::slug::Slug;
 
 #[derive(Deserialize, Debug)]
 pub struct ArticlePreviewAuthor {

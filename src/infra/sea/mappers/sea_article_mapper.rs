@@ -5,7 +5,7 @@ use sea_orm::IntoActiveValue;
 use super::sea_article_tag_mapper::SeaArticleTagMapper;
 use super::SeaMapper;
 use crate::domain::domain_entities::article::Article;
-use crate::domain::domain_entities::slug::Slug;
+use crate::domain::value_objects::slug::Slug;
 
 pub struct SeaArticleMapper;
 

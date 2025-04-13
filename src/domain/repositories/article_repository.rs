@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::core::pagination::PaginationParameters;
 use crate::domain::aggregations::article_preview::ArticlePreview;
 use crate::domain::domain_entities::article::Article;
-use crate::domain::domain_entities::slug::Slug;
+use crate::domain::value_objects::slug::Slug;
 
 #[derive(Debug)]
 pub struct FindManyArticlesResponse(pub Vec<Article>, pub u64);

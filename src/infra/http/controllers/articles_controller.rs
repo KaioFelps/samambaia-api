@@ -7,7 +7,7 @@ use validator::Validate;
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
-use crate::domain::domain_entities::slug::Slug;
+use crate::domain::value_objects::slug::Slug;
 use crate::domain::factories::identity::get_user_service_factory;
 use crate::domain::factories::journalism::articles::{
     create_article_service_factory,
