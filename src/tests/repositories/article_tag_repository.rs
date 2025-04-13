@@ -1,15 +1,23 @@
-use std::sync::{Arc, Mutex};
+use std::error::Error;
 
+use async_trait::async_trait;
 use uuid::Uuid;
 
+use super::{get_local_db, LocalDb};
 use crate::core::pagination::PaginationParameters;
-use crate::domain::domain_entities::article_tag::ArticleTag;
+use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
 use crate::domain::repositories::article_tag_repository::{
     ArticleTagQueryType,
+    ArticleTagRepositoryTrait,
     FindManyArticleTagsResponse,
-    MockArticleTagRepositoryTrait,
 };
 use crate::error::SamambaiaError;
+
+#[derive(Clone)]
+pub struct InMemoryArticleTagRepository {
+    pub tag_db: LocalDb<ArticleTag>,
+    pub article_tag_db: LocalDb<ArticleTagArticle>,
+}
 
 #[derive(Clone)]
 pub struct ArticleTagArticle {
@@ -17,107 +25,83 @@ pub struct ArticleTagArticle {
     pub article_tag_id: i32,
 }
 
-pub fn get_article_tag_repository() -> (
-    Arc<Mutex<Vec<ArticleTag>>>,
-    Arc<Mutex<Vec<ArticleTagArticle>>>,
-    MockArticleTagRepositoryTrait,
-) {
-    let db: Arc<Mutex<Vec<ArticleTag>>> = Arc::new(Mutex::new(Vec::new()));
-    let article_tag_article_db = Arc::new(Mutex::new(Vec::<ArticleTagArticle>::new()));
+impl InMemoryArticleTagRepository {
+    #[allow(dead_code)]
+    pub fn new(tag_db: LocalDb<ArticleTag>, article_tag_db: LocalDb<ArticleTagArticle>) -> Self {
+        Self {
+            article_tag_db,
+            tag_db,
+        }
+    }
+}
 
-    let mut repository = MockArticleTagRepositoryTrait::new();
+impl Default for InMemoryArticleTagRepository {
+    fn default() -> Self {
+        Self {
+            article_tag_db: get_local_db(),
+            tag_db: get_local_db(),
+        }
+    }
+}
 
-    let db_clone = Arc::clone(&db);
-    repository.expect_create().returning(move |draft_tag| {
-        let id = db_clone.lock().unwrap().len() + 1;
+#[async_trait]
+impl ArticleTagRepositoryTrait for InMemoryArticleTagRepository {
+    async fn create(&self, draft_tag: DraftArticleTag) -> Result<ArticleTag, Box<dyn Error>> {
+        let id = self.tag_db.lock().unwrap().len() + 1;
 
         let tag = ArticleTag::new_from_existing(id as i32, draft_tag.value().into());
-        db_clone.lock().unwrap().push(tag.clone());
+        self.tag_db.lock().unwrap().push(tag.clone());
 
         Ok(tag)
-    });
+    }
 
-    let db_clone = Arc::clone(&db);
-    repository.expect_find_by_id().returning(move |id| {
-        for tag in db_clone.lock().unwrap().iter() {
-            if tag.id().eq(&id) {
-                return Ok(Some(tag.clone()));
-            }
-        }
+    async fn find_by_id(&self, tag_id: i32) -> Result<Option<ArticleTag>, Box<dyn Error>> {
+        Ok(self
+            .tag_db
+            .lock()
+            .unwrap()
+            .iter()
+            .find(|tag| tag.id() == tag_id)
+            .cloned())
+    }
 
-        Ok(None)
-    });
+    async fn find_by_value(&self, tag_value: String) -> Result<Option<ArticleTag>, Box<dyn Error>> {
+        Ok(self
+            .tag_db
+            .lock()
+            .unwrap()
+            .iter()
+            .find(|tag| tag.value() == &tag_value)
+            .cloned())
+    }
 
-    let db_clone = Arc::clone(&db);
-    repository.expect_delete().returning(move |tag| {
-        let mut new_db: Vec<ArticleTag> = vec![];
-
-        for item in db_clone.lock().unwrap().iter() {
-            if item.id().ne(&tag.id()) {
-                new_db.push(item.clone());
-            }
-        }
-
-        *db_clone.lock().unwrap() = new_db;
-        Ok(())
-    });
-
-    let db_clone = Arc::clone(&db);
-    repository.expect_find_by_value().returning(move |value| {
-        for tag in db_clone.lock().unwrap().iter() {
-            if tag.value().eq(&value) {
-                return Ok(Some(tag.clone()));
-            }
-        }
-
-        Ok(None)
-    });
-
-    let db_clone = Arc::clone(&db);
-    repository.expect_save().returning(move |tag| {
-        let mut index = None;
-
-        for (i, item) in db_clone.lock().unwrap().iter().enumerate() {
-            if item.id().eq(&tag.id()) {
-                index = Some(i);
-                break;
-            }
-        }
-
-        match index {
-            Some(i) => {
-                db_clone.lock().unwrap()[i] = tag.clone();
-                Ok(tag)
-            }
-            None => Err(Box::new(SamambaiaError::resource_not_found_err())),
-        }
-    });
-
-    let db_clone = Arc::clone(&db);
-    repository.expect_find_many().returning(move |params| {
+    async fn find_many(
+        &self,
+        params: PaginationParameters<ArticleTagQueryType>,
+    ) -> Result<FindManyArticleTagsResponse, Box<dyn Error>> {
         let PaginationParameters {
             page,
             items_per_page,
             query,
         } = params;
 
-        let mut tags: Vec<ArticleTag> = Vec::new();
-
-        if query.is_some() {
-            let ArticleTagQueryType::Value(value) = query.unwrap();
-
-            for item in db_clone.lock().unwrap().iter() {
-                if item
-                    .value()
-                    .to_lowercase()
-                    .contains(&value.clone().to_lowercase()[..])
-                {
-                    tags.push(item.clone());
-                }
-            }
-        } else {
-            tags = db_clone.lock().unwrap().clone();
-        }
+        let tags = match query {
+            None => self.tag_db.lock().unwrap().to_vec(),
+            Some(tag) => match tag {
+                ArticleTagQueryType::Value(value) => self
+                    .tag_db
+                    .lock()
+                    .unwrap()
+                    .iter()
+                    .filter(|tag| {
+                        tag.value()
+                            .to_lowercase()
+                            .contains(&value.clone().to_lowercase()[..])
+                    })
+                    .cloned()
+                    .collect::<Vec<_>>(),
+            },
+        };
 
         let total_of_items_before_paginating = tags.len();
 
@@ -135,53 +119,86 @@ pub fn get_article_tag_repository() -> (
             res_tags,
             total_of_items_before_paginating as u64,
         ))
-    });
+    }
 
-    let db_clone = db.clone();
-    repository.expect_find_many_by_ids().returning(move |ids| {
-        Ok(db_clone
+    async fn save(&self, article_tag: ArticleTag) -> Result<ArticleTag, Box<dyn Error>> {
+        let index = match self
+            .tag_db
             .lock()
             .unwrap()
             .iter()
-            .filter(|tag| ids.iter().any(|id| tag.id().eq(id)))
+            .enumerate()
+            .find(|(_, tag)| tag.id() == article_tag.id())
+            .map(|(index, _)| index)
+        {
+            None => return Err(Box::new(SamambaiaError::resource_not_found_err())),
+            Some(index) => index,
+        };
+
+        self.tag_db.lock().unwrap()[index] = article_tag.clone();
+        Ok(article_tag)
+    }
+
+    async fn delete(&self, article_tag: ArticleTag) -> Result<(), Box<dyn Error>> {
+        let new_db: Vec<ArticleTag> = self
+            .tag_db
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|tag| tag.id() != article_tag.id())
+            .cloned()
+            .collect::<Vec<_>>();
+
+        *self.tag_db.lock().unwrap() = new_db;
+        Ok(())
+    }
+
+    async fn find_many_by_ids(&self, tag_ids: Vec<i32>) -> Result<Vec<ArticleTag>, SamambaiaError> {
+        Ok(self
+            .tag_db
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|tag| tag_ids.iter().any(|id| tag.id().eq(id)))
             .cloned()
             .collect::<Vec<_>>())
-    });
+    }
 
-    let article_tag_article_db_clone = article_tag_article_db.clone();
-    repository
-        .expect_associate_tags_to_article()
-        .returning(move |article, tags_ids| {
-            let mut lock = article_tag_article_db_clone.lock().unwrap();
-            tags_ids.iter().for_each(|tag_id| {
-                lock.push(ArticleTagArticle {
-                    article_id: article.id(),
-                    article_tag_id: *tag_id,
-                });
+    async fn associate_tags_to_article(
+        &self,
+        article_id: Uuid,
+        tags_ids: Vec<i32>,
+    ) -> Result<(), SamambaiaError> {
+        let mut lock = self.article_tag_db.lock().unwrap();
+        tags_ids.iter().for_each(|tag_id| {
+            lock.push(ArticleTagArticle {
+                article_id,
+                article_tag_id: *tag_id,
             });
-
-            Ok(())
         });
 
-    let article_tag_article_db_clone = article_tag_article_db.clone();
-    repository
-        .expect_disassociate_tags_from_article()
-        .returning(move |article, tags_ids| {
-            let new_db = article_tag_article_db_clone
-                .lock()
-                .unwrap()
-                .iter()
-                .filter(|tag| {
-                    !(tag.article_id == article.id()
-                        && tags_ids.iter().any(|tag_id| tag.article_tag_id.eq(tag_id)))
-                })
-                .cloned()
-                .collect::<Vec<_>>();
+        Ok(())
+    }
 
-            *article_tag_article_db_clone.lock().unwrap() = new_db;
+    async fn disassociate_tags_from_article(
+        &self,
+        article_id: Uuid,
+        tags_ids: Vec<i32>,
+    ) -> Result<(), SamambaiaError> {
+        let new_db = self
+            .article_tag_db
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|tag| {
+                !(tag.article_id == article_id
+                    && tags_ids.iter().any(|tag_id| tag.article_tag_id.eq(tag_id)))
+            })
+            .cloned()
+            .collect::<Vec<_>>();
 
-            Ok(())
-        });
+        *self.article_tag_db.lock().unwrap() = new_db;
 
-    (db, article_tag_article_db, repository)
+        Ok(())
+    }
 }

@@ -1,14 +1,21 @@
 use std::sync::{Arc, Mutex};
 
+use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment::Comment;
-use crate::domain::repositories::article_comment_repository::MockArticleCommentRepositoryTrait;
+use crate::domain::repositories::article_comment_repository::{
+    CommentQueryType,
+    FindManyCommentsResponse,
+    MockArticleCommentRepositoryTrait,
+};
+use crate::tests::relationship_managers::comment_article::CommentArticleRelationInMemoryManager;
 
 type InMemoryDB<T> = Arc<Mutex<Vec<T>>>;
 
 pub fn get_article_comment_repository(
     article_db: Option<InMemoryDB<Article>>,
     comment_db: Option<InMemoryDB<Comment>>,
+    comment_article_relationship_manager: Arc<CommentArticleRelationInMemoryManager>,
 ) -> (
     InMemoryDB<Article>,
     InMemoryDB<Comment>,
@@ -50,10 +57,84 @@ pub fn get_article_comment_repository(
                 })
                 .collect::<Vec<_>>();
 
+            let new_relationships = comment_article_relationship_manager
+                .db
+                .lock()
+                .unwrap()
+                .iter()
+                .filter(|relation| relation.article_id != param_article.id())
+                .cloned()
+                .collect::<Vec<_>>();
+
+            *comment_article_relationship_manager.db.lock().unwrap() = new_relationships;
             *article_db_clone.lock().unwrap() = new_articles;
             *comment_db_clone.lock().unwrap() = new_comments;
+
             Ok(())
         });
+
+    let comment_db_clone = comment_db.clone();
+    repository.expect_find_many_comments().returning(
+        move |_article_id, include_inactive, params| {
+            let db = comment_db_clone.lock().unwrap().to_vec();
+            let PaginationParameters {
+                page,
+                items_per_page,
+                query,
+            } = params;
+
+            let mut comments: Vec<Comment> = Vec::new();
+
+            if query.is_some() {
+                match query.unwrap() {
+                    CommentQueryType::Content(content) => {
+                        for item in db.iter() {
+                            if item
+                                .content()
+                                .to_lowercase()
+                                .contains(&content.to_lowercase()[..])
+                                && (include_inactive || item.is_active())
+                            {
+                                comments.push(item.clone());
+                            }
+                        }
+                    }
+                    CommentQueryType::Author(content) => {
+                        for item in db.iter() {
+                            if item.author_id().eq(&content)
+                                && (include_inactive || item.is_active())
+                            {
+                                comments.push(item.clone());
+                            }
+                        }
+                    }
+                }
+            } else {
+                for item in db.iter() {
+                    if include_inactive || item.is_active() {
+                        comments.push(item.clone());
+                    }
+                }
+            }
+
+            let total_of_items_before_paginating = comments.len();
+
+            let leap = (page - 1) * items_per_page;
+
+            let mut res_comments = vec![];
+
+            for (index, item) in comments.iter().enumerate() {
+                if index >= leap as usize {
+                    res_comments.push(item.to_owned());
+                }
+            }
+
+            Ok(FindManyCommentsResponse(
+                res_comments,
+                total_of_items_before_paginating as u64,
+            ))
+        },
+    );
 
     (article_db, comment_db, repository)
 }
