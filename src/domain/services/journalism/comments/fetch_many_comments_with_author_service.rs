@@ -102,17 +102,27 @@ mod test {
 
     use super::*;
     use crate::domain::domain_entities::article::Article;
+    use crate::domain::domain_entities::article_tag::DraftArticleTag;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
+    use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
     use crate::domain::repositories::comment_user_article_repository::MockCommentUserArticleRepositoryTrait;
     use crate::libs::time::TimeHelper;
-    use crate::tests::repositories::article_repository::get_article_repository;
+    use crate::tests::repositories::article_repository::InMemoryArticleRepository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
 
     #[tokio::test]
     async fn test() {
         let mut mocked_comment_repo: MockCommentUserArticleRepositoryTrait =
             MockCommentUserArticleRepositoryTrait::new();
-        let (article_db, _, _) = get_article_repository();
+
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
+
+        let foo_tag = article_tag_repository
+            .create(DraftArticleTag::new("Foo".into()))
+            .await
+            .unwrap();
 
         let mut db: Vec<CommentWithAuthor> = Vec::new();
 
@@ -126,13 +136,16 @@ mod test {
             "Título da notícia".into(),
             "Conteúdo da notícia".into(),
             "url do cover".into(),
-            Some(1),
-            Some("Foo".into()),
             "baz".into(),
+            vec![foo_tag],
         );
         let article_id = article.id();
 
-        article_db.lock().unwrap().push(article.clone());
+        article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(article.clone());
 
         db.push(CommentWithAuthor::new(
             Some(article.id()),

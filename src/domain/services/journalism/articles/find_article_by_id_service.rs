@@ -65,7 +65,8 @@ mod test {
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
     use crate::libs::time::TimeHelper;
-    use crate::tests::repositories::article_repository::get_article_repository;
+    use crate::tests::repositories::article_repository::InMemoryArticleRepository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
 
     static ARTICLE: LazyLock<Article> = LazyLock::new(|| {
         Article::new(
@@ -73,21 +74,25 @@ mod test {
             "Foo".into(),
             "Content".into(),
             "imgur.com".into(),
-            None,
-            None,
             "Description".into(),
+            vec![],
         )
     });
 
     #[tokio::test]
     async fn anyone_should_find_approved_article_by_id() {
-        let (articles_db, _user_db, article_repository) = get_article_repository();
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository);
 
         let mut article = ARTICLE.clone();
 
         article.set_approved(true);
 
-        articles_db.lock().unwrap().push(article.clone());
+        article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(article.clone());
 
         let sut = super::FindArticleByIdService::new(article_repository);
 
@@ -106,7 +111,8 @@ mod test {
 
     #[tokio::test]
     async fn normal_users_should_not_find_even_own_unapproved_articles() {
-        let (articles_db, _, article_repository) = get_article_repository();
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository);
 
         let user = User::new_from_existing(
             ARTICLE.author_id(),
@@ -118,7 +124,7 @@ mod test {
         );
 
         let article = ARTICLE.clone();
-        articles_db.lock().unwrap().push(article);
+        article_repository.article_db.lock().unwrap().push(article);
 
         let sut = super::FindArticleByIdService::new(article_repository);
 
@@ -135,8 +141,14 @@ mod test {
 
     #[tokio::test]
     async fn staffs_should_find_self_unnaproved_articles_by_id() {
-        let (articles_db, _, article_repository) = get_article_repository();
-        articles_db.lock().unwrap().push(ARTICLE.clone());
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository);
+
+        article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(ARTICLE.clone());
 
         let user = User::new_from_existing(
             ARTICLE.author_id(),
@@ -161,8 +173,14 @@ mod test {
 
     #[tokio::test]
     async fn staffs_should_find_unnaproved_articles_by_id() {
-        let (articles_db, _, article_repository) = get_article_repository();
-        articles_db.lock().unwrap().push(ARTICLE.clone());
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository);
+
+        article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(ARTICLE.clone());
 
         let user = User::new("Floricultor".into(), "".into(), Some(Role::Editor));
 

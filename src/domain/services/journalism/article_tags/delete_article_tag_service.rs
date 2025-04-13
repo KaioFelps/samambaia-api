@@ -64,14 +64,15 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
 mod test {
     use crate::domain::domain_entities::article_tag::ArticleTag;
     use crate::domain::domain_entities::role::Role;
-    use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
 
     #[tokio::test]
     async fn test_if_staff_can_delete_article_tag() {
-        let (tag_db, tag_repository) = get_article_tag_repository();
-        let sut = super::DeleteArticleTagService::new(tag_repository);
+        let tag_repository = InMemoryArticleTagRepository::default();
+        let sut = super::DeleteArticleTagService::new(tag_repository.clone());
 
-        tag_db
+        tag_repository
+            .tag_db
             .lock()
             .unwrap()
             .push(ArticleTag::new_from_existing(1, "Foo".into()));
@@ -86,17 +87,18 @@ mod test {
         assert!(response.is_ok());
         assert_eq!(
             0,
-            tag_db.lock().unwrap().len(),
+            tag_repository.tag_db.lock().unwrap().len(),
             "Expected database to be empty after the successful delete of the article tag."
         );
     }
 
     #[tokio::test]
     async fn test_if_non_authorized_user_cannot_delete_article_tag() {
-        let (tag_db, tag_repository) = get_article_tag_repository();
-        let sut = super::DeleteArticleTagService::new(tag_repository);
+        let tag_repository = InMemoryArticleTagRepository::default();
+        let sut = super::DeleteArticleTagService::new(tag_repository.clone());
 
-        tag_db
+        tag_repository
+            .tag_db
             .lock()
             .unwrap()
             .push(ArticleTag::new_from_existing(1, "Foo".into()));
@@ -111,7 +113,7 @@ mod test {
         assert!(response.is_err());
         assert_eq!(
             1,
-            tag_db.lock().unwrap().len(),
+            tag_repository.tag_db.lock().unwrap().len(),
             "Expected database not to be empty after delete request being rejected."
         );
     }

@@ -156,44 +156,66 @@ impl<
 
 #[cfg(test)]
 mod test {
-    use std::sync::{Arc, Mutex};
-
     use tokio;
     use uuid::Uuid;
 
     use super::*;
+    use crate::domain::domain_entities::article_tag::DraftArticleTag;
     use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
     use crate::domain::domain_entities::role::Role;
-    use crate::domain::repositories::comment_user_article_repository::{
-        CommentWithAuthorQueryType,
-        MockCommentUserArticleRepositoryTrait,
-    };
-    use crate::domain::repositories::user_repository::MockUserRepositoryTrait;
+    use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
     use crate::libs::time::TimeHelper;
-    use crate::tests::repositories::article_repository::get_article_repository;
+    use crate::tests::repositories::article_repository::InMemoryArticleRepository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
+    use crate::tests::repositories::comment_with_user_repository::InMemoryCommentUserRepository;
+    use crate::tests::repositories::users_repository::get_user_repository;
 
     #[tokio::test]
     async fn test() {
-        let mut mocked_user_repo = MockUserRepositoryTrait::new();
-        let mut mock_comm_user_art_repo = MockCommentUserArticleRepositoryTrait::new();
-        let (articles_db, _, mocked_article_repository) = get_article_repository();
+        let mock_comm_user_art_repo = InMemoryCommentUserRepository::default();
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let mocked_article_repository =
+            InMemoryArticleRepository::default(article_tag_repository.clone());
+        let (_, mocked_user_repo) =
+            get_user_repository(Some(mocked_article_repository.user_db.clone()));
 
-        let comments_db: Arc<Mutex<Vec<CommentWithAuthor>>> = Arc::new(Mutex::new(vec![]));
+        let tag = article_tag_repository
+            .create(DraftArticleTag::new("MockedTag".into()))
+            .await
+            .unwrap();
 
-        // POPULATING
-        let mocked_article = Article::new(
+        // region: --- populating
+        let user = User::new_from_existing(
             Uuid::new_v4(),
+            "Floricultor".into(),
+            "123".into(),
+            TimeHelper::now(),
+            None,
+            Some(Role::Ceo),
+        );
+
+        mocked_article_repository
+            .user_db
+            .lock()
+            .unwrap()
+            .push(user.clone());
+
+        let mocked_article = Article::new(
+            user.id(),
             "Notícia 1".into(),
             "Conteúdo da notícia 1.".into(),
             "url_da_cover.com".into(),
-            Some(1),
-            Some("MockedTag".into()),
             "Mocked description".into(),
+            vec![tag.clone()],
         );
 
         let mocked_article_id = mocked_article.id();
         let mocked_article_slug = mocked_article.slug().clone();
-        articles_db.lock().unwrap().push(mocked_article);
+        mocked_article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(mocked_article);
 
         let mocked_comm_1 = CommentWithAuthor::new(
             Some(mocked_article_id),
@@ -207,96 +229,30 @@ mod test {
             User::new("Elffi".into(), "123".into(), Some(Role::User)),
         );
 
-        comments_db.lock().unwrap().push(mocked_comm_1.clone());
-        comments_db.lock().unwrap().push(mocked_comm_2.clone());
-
-        let user = User::new_from_existing(
-            Uuid::new_v4(),
-            "Floricultor".into(),
-            "123".into(),
-            TimeHelper::now(),
-            None,
-            Some(Role::Ceo),
-        );
-
-        let user_id = user.id();
-
-        // MOCKING REPOSITORIES
-        mocked_user_repo
-            .expect_find_by_id()
-            .returning(move |_id| Ok(Some(user.clone())));
-
-        let comments_db_to_move = Arc::clone(&comments_db);
         mock_comm_user_art_repo
-            .expect_find_many_comments()
-            .returning(move |_article_id, include_inactive, params| {
-                let PaginationParameters {
-                    page,
-                    items_per_page,
-                    query,
-                } = params;
+            .comment_with_author_db
+            .lock()
+            .unwrap()
+            .push(mocked_comm_1.clone());
 
-                let mut comments: Vec<CommentWithAuthor> = Vec::new();
-
-                if query.is_some() {
-                    match query.unwrap() {
-                        CommentWithAuthorQueryType::Content(content) => {
-                            for item in comments_db_to_move.lock().unwrap().iter() {
-                                if item
-                                    .content()
-                                    .to_lowercase()
-                                    .contains(&content.to_lowercase()[..])
-                                    || include_inactive
-                                    || item.is_active()
-                                {
-                                    comments.push(item.clone());
-                                }
-                            }
-                        }
-                        CommentWithAuthorQueryType::Author(content) => {
-                            for item in comments_db_to_move.lock().unwrap().iter() {
-                                if item.author().id().eq(&content)
-                                    || include_inactive
-                                    || item.is_active()
-                                {
-                                    comments.push(item.clone());
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    comments = comments_db_to_move.lock().unwrap().clone();
-                }
-
-                let total_of_items_before_paginating = comments.len();
-
-                let leap = (page - 1) * items_per_page;
-
-                let mut res_comments = vec![];
-
-                for (index, item) in comments.iter().enumerate() {
-                    if index >= leap as usize {
-                        res_comments.push(item.to_owned());
-                    }
-                }
-
-                Ok(FindManyCommentsWithAuthorResponse(
-                    res_comments,
-                    total_of_items_before_paginating as u64,
-                ))
-            });
+        mock_comm_user_art_repo
+            .comment_with_author_db
+            .lock()
+            .unwrap()
+            .push(mocked_comm_2.clone());
+        // endregion: --- populating
 
         let sut = GetExpandedArticleService {
             user_repository: mocked_user_repo,
             comment_user_article_repository: mock_comm_user_art_repo,
-            article_repository: mocked_article_repository,
+            article_repository: mocked_article_repository.clone(),
         };
 
         let allowed_result = sut
             .exec(GetExpandedArticleParams {
                 article_slug: mocked_article_slug.clone(),
                 comments_per_page: None,
-                user_id: Some(&user_id),
+                user_id: Some(&user.id()),
                 user_role: Some(&Role::Editor),
             })
             .await
@@ -314,7 +270,7 @@ mod test {
         assert_eq!(mocked_comm_2, data[1].clone());
         assert_eq!(2, pagination.total_items);
         assert_eq!(mocked_article_id, article.id());
-        assert_eq!(user_id, article_author.id());
+        assert_eq!(user.id(), article_author.id());
 
         let unauthorized_result = sut
             .exec(GetExpandedArticleParams {

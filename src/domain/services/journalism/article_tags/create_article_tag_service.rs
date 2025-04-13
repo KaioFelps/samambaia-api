@@ -46,12 +46,12 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
 #[cfg(test)]
 mod test {
     use crate::domain::domain_entities::role::Role;
-    use crate::tests::repositories::article_tag_repository::get_article_tag_repository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
 
     #[tokio::test]
     async fn test_if_user_can_create_tag() {
-        let (tag_db, tag_repository) = get_article_tag_repository();
-        let sut = super::CreateArticleTagService::new(tag_repository);
+        let tag_repository = InMemoryArticleTagRepository::default();
+        let sut = super::CreateArticleTagService::new(tag_repository.clone());
 
         let result = sut
             .exec(super::CreateArticleTagParams {
@@ -59,7 +59,7 @@ mod test {
                 user_role: Role::Principal,
             })
             .await;
-        assert_eq!(tag_db.lock().unwrap().len(), 1);
+        assert_eq!(1, tag_repository.tag_db.lock().unwrap().len());
         assert!(
             result.is_ok(),
             "Principal-role users should be able to create a new article tag."
@@ -68,8 +68,8 @@ mod test {
 
     #[tokio::test]
     async fn test_if_unauthorized_user_cannot_create_tag() {
-        let (db, tag_repository) = get_article_tag_repository();
-        let sut = super::CreateArticleTagService::new(tag_repository);
+        let tag_repository = InMemoryArticleTagRepository::default();
+        let sut = super::CreateArticleTagService::new(tag_repository.clone());
 
         let result = sut
             .exec(super::CreateArticleTagParams {
@@ -78,6 +78,6 @@ mod test {
             })
             .await;
         assert!(result.is_err());
-        assert_eq!(db.lock().unwrap().len(), 0);
+        assert_eq!(0, tag_repository.tag_db.lock().unwrap().len());
     }
 }

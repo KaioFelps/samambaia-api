@@ -78,48 +78,64 @@ mod test {
 
     use super::*;
     use crate::domain::domain_entities::article::Article;
+    use crate::domain::domain_entities::article_tag::DraftArticleTag;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
-    use crate::tests::repositories::article_repository::get_article_repository;
+    use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
+    use crate::tests::repositories::article_repository::InMemoryArticleRepository;
+    use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
     use crate::tests::repositories::users_repository::get_user_repository;
 
     #[tokio::test]
     async fn test() {
-        let (article_db, users_db, article_repository) = get_article_repository();
-        let (users_db, user_repository) = get_user_repository(Some(users_db));
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
+        let (users_db, user_repository) =
+            get_user_repository(Some(article_repository.user_db.clone()));
+
+        let tag_foo = article_tag_repository
+            .create(DraftArticleTag::new("Foo".into()))
+            .await
+            .unwrap();
 
         let author = User::new("Floricultor".into(), "password".into(), Some(Role::Writer));
         let author_id = author.id();
 
         users_db.lock().unwrap().push(author);
 
-        article_db.lock().unwrap().push(Article::new(
-            author_id,
-            "Título da notícia 1".to_string(),
-            "Conteúdo da primeira notícia".to_string(),
-            "url".to_string(),
-            Some(1),
-            Some("Foo".into()),
-            "Descrição da notícia 1".into(),
-        ));
-        article_db.lock().unwrap().push(Article::new(
-            author_id,
-            "Título da notícia 2".to_string(),
-            "Conteúdo da segunda notícia".to_string(),
-            "url".to_string(),
-            Some(1),
-            Some("Foo".into()),
-            "Descrição da notícia 2".into(),
-        ));
-        article_db.lock().unwrap().push(Article::new(
-            author_id,
-            "Título da notícia 3".to_string(),
-            "Conteúdo da terceira notícia".to_string(),
-            "url".to_string(),
-            Some(1),
-            Some("Foo".into()),
-            "Descrição da notícia 3".into(),
-        ));
+        article_repository
+            .create(Article::new(
+                author_id,
+                "Título da notícia 1".to_string(),
+                "Conteúdo da primeira notícia".to_string(),
+                "url".to_string(),
+                "Descrição da notícia 1".into(),
+                vec![tag_foo.clone()],
+            ))
+            .await
+            .unwrap();
+        article_repository
+            .create(Article::new(
+                author_id,
+                "Título da notícia 2".to_string(),
+                "Conteúdo da segunda notícia".to_string(),
+                "url".to_string(),
+                "Descrição da notícia 2".into(),
+                vec![tag_foo.clone()],
+            ))
+            .await
+            .unwrap();
+        article_repository
+            .create(Article::new(
+                author_id,
+                "Título da notícia 3".to_string(),
+                "Conteúdo da terceira notícia".to_string(),
+                "url".to_string(),
+                "Descrição da notícia 3".into(),
+                vec![tag_foo.clone()],
+            ))
+            .await
+            .unwrap();
 
         let service = FetchArticlesPreviewsService::new(article_repository, user_repository);
         let result = service
@@ -133,9 +149,10 @@ mod test {
 
         assert!(result.is_ok());
 
-        let result = result.unwrap();
+        let result: FetchArticlesPreviewsResponse = result.unwrap();
 
         assert_eq!(3, result.pagination.total_items);
         assert_eq!("Floricultor", result.data[0].author().nickname());
+        assert_eq!(vec![tag_foo], result.data[0].tags())
     }
 }
