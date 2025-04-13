@@ -1,6 +1,6 @@
 import { Head, Link, router } from "@inertiajs/react";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback } from "react";
 
 import { Alert } from "@/components/alert";
 import { ArticleCard } from "@/components/article-card";
