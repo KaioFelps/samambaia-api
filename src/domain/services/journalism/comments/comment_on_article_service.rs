@@ -62,8 +62,8 @@ mod test {
     use super::*;
     use crate::domain::domain_entities::article::Article;
     use crate::domain::domain_entities::article_tag::DraftArticleTag;
-    use crate::domain::value_objects::slug::Slug;
     use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
+    use crate::domain::value_objects::slug::Slug;
     use crate::libs::time::TimeHelper;
     use crate::tests::relationship_managers::comment_article::CommentArticleRelationInMemoryManager;
     use crate::tests::repositories::article_repository::InMemoryArticleRepository;

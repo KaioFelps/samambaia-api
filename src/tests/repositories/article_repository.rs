@@ -6,7 +6,6 @@ use super::LocalDb;
 use crate::core::pagination::PaginationParameters;
 use crate::domain::aggregations::article_preview::{ArticlePreview, ArticlePreviewAuthor};
 use crate::domain::domain_entities::article::Article;
-use crate::domain::value_objects::slug::Slug;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType,
@@ -15,6 +14,7 @@ use crate::domain::repositories::article_repository::{
     FindManyArticlesResponse,
 };
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
+use crate::domain::value_objects::slug::Slug;
 use crate::error::SamambaiaError;
 
 #[derive(Clone)]
