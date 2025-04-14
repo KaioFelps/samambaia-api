@@ -3,8 +3,8 @@ This file contains the most notable changes of each released version, starting f
 has been introduced.
 
 ## Unreleased
+### Added
 - added deploy workflow;
-- changed rustfmt workflow to use nightly rust toolchain;
 - setup inertia-rust + vite-rust;
 - setup front-end strucutre;
 - added home page (`page/index.tsx`);
@@ -16,6 +16,10 @@ has been introduced.
     - added `SummaryRepository` trait;
     - added `SeaSummaryRepository` repository;
     - added `GetSummaryService` + factory.
+### Changed
+- Article now may have many tags (previously, 0..1 tag only);
+- changed rustfmt workflow to use nightly rust toolchain;
+- changed some of tests mocked repository factories to `InMemory` repositories which implement the repositories traits.
 
 ## Samambaia@0.5.0
 ### Added
