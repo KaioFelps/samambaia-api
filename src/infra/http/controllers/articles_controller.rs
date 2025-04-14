@@ -7,7 +7,6 @@ use validator::Validate;
 use super::controller::ControllerTrait;
 use super::AppResponse;
 use crate::core::pagination::DEFAULT_PER_PAGE;
-use crate::domain::value_objects::slug::Slug;
 use crate::domain::factories::identity::get_user_service_factory;
 use crate::domain::factories::journalism::articles::{
     create_article_service_factory,
@@ -29,6 +28,7 @@ use crate::domain::services::journalism::articles::get_expanded_article_service:
     GetExpandedArticleResponse,
 };
 use crate::domain::services::journalism::articles::update_article_service::UpdateArticleParams;
+use crate::domain::value_objects::slug::Slug;
 use crate::error::{IntoSamambaiaError, SamambaiaError};
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
