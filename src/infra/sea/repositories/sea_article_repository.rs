@@ -12,6 +12,7 @@ use sea_orm::{
     ActiveModelTrait,
     ColumnTrait,
     ConnectionTrait,
+    DatabaseTransaction,
     DbErr,
     EntityTrait,
     PaginatorTrait,
@@ -37,7 +38,9 @@ use crate::domain::repositories::article_repository::{
 };
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::domain::value_objects::slug::Slug;
+use crate::error::SamambaiaError;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
+use crate::infra::sea::mappers::sea_article_tag_mapper::SeaArticleTagMapper;
 use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 use crate::util::generate_service_internal_error;
@@ -69,33 +72,31 @@ impl SeaArticleRepository<'_> {
 #[async_trait]
 impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
     async fn create(&self, mut article: Article) -> Result<Article, Box<dyn Error>> {
+        let transaction = self.sea_service.db.begin().await?;
+
         article.flush_tags();
-
-        let (article, tags) = SeaArticleMapper::entity_into_active_model(article);
-
-        let article_tags = tags
+        let tags = article
+            .get_tags()
             .iter()
-            .map(|tag| entities::articles_tags_rel::ActiveModel {
-                article_id: article.id.clone(),
-                tag_id: tag.id.clone(),
-            })
+            .map(|article| (*article).clone())
             .collect::<Vec<_>>();
 
-        let created_article = article.insert(&self.sea_service.db).await?;
+        let article = SeaArticleMapper::entity_into_active_model(article)
+            .insert(&self.sea_service.db)
+            .await
+            .map_err(|err| generate_service_internal_error(
+                "Error occurred on SeaArticleRepository::create, on creating article and associating its tags with it",
+                Box::new(err)
+            ))?;
 
-        let _ = entities::articles_tags_rel::Entity::insert_many(article_tags)
-            .exec(&self.sea_service.db)
-            .await?;
+        let tags = self
+            .associate_tags_if_not_empty(article.id, tags, &transaction)
+            .await
+            .map_err(Box::new)?;
 
-        let tags = tags
-            .into_iter()
-            .map(|mut tag| entities::article_tag::Model {
-                id: tag.id.take().unwrap(),
-                value: tag.value.take().unwrap(),
-            })
-            .collect();
+        transaction.commit().await?;
 
-        let created_article = SeaArticleMapper::model_into_entity((created_article, tags));
+        let created_article = SeaArticleMapper::model_into_entity(article, tags);
 
         Ok(created_article)
     }
@@ -433,6 +434,22 @@ impl SeaArticleRepository<'_> {
                 query.filter(entities::articles_tags_rel::Column::TagId.eq(*tag_id))
             }
         }
+    }
+
+    async fn associate_tags_if_not_empty(
+        &self,
+        article_id: Uuid,
+        tags: Vec<ArticleTag>,
+        transaction: &DatabaseTransaction,
+    ) -> Result<Vec<ArticleTag>, SamambaiaError> {
+        if !tags.is_empty() {
+            let sea_article_tag_repository = SeaArticleTagRepository::new(transaction);
+            sea_article_tag_repository
+                .associate_tags_to_article(article_id, tags.iter().map(ArticleTag::id).collect())
+                .await?;
+        }
+
+        Ok(tags)
     }
 
     // async fn _find_many_previews(
