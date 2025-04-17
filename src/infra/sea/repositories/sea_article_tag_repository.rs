@@ -157,6 +157,10 @@ impl<C: ConnectionTrait> ArticleTagRepositoryTrait for SeaArticleTagRepository<'
         article_id: Uuid,
         tags_ids: Vec<i32>,
     ) -> Result<(), SamambaiaError> {
+        if tags_ids.is_empty() {
+            return Ok(());
+        }
+
         let added = tags_ids
             .into_iter()
             .map(|tag| entities::articles_tags_rel::ActiveModel {
@@ -180,6 +184,10 @@ impl<C: ConnectionTrait> ArticleTagRepositoryTrait for SeaArticleTagRepository<'
         article_id: Uuid,
         tags_ids: Vec<i32>,
     ) -> Result<(), SamambaiaError> {
+        if tags_ids.is_empty() {
+            return Ok(());
+        }
+
         let mut removed = Condition::any();
 
         for tag in tags_ids.into_iter() {
