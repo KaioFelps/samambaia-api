@@ -35,7 +35,7 @@ const MultiSelect = memo(({ options, defaultOptions, setValues }: MultiSelectPro
       noOptionsMessage={() => (
         <Alert
           admin
-          message="Não há tags registradas."
+          message="Não há mais tags registradas."
           type="warning"
           className="border-hidden rounded-lg"
         />
