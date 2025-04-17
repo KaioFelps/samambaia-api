@@ -120,7 +120,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             }
         }
 
-        let (active_article, _) = SeaArticleMapper::entity_into_active_model(article.clone());
+        let active_article = SeaArticleMapper::entity_into_active_model(article.clone());
 
         let _ = active_article.update(&transaction).await?;
         transaction.commit().await?;
@@ -141,7 +141,14 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             return Ok(None);
         }
 
-        let mapped_article = SeaArticleMapper::model_into_entity(article.remove(0));
+        let (article, tags) = article.remove(0);
+
+        let tags = tags
+            .into_iter()
+            .map(SeaArticleTagMapper::model_into_entity)
+            .collect();
+
+        let mapped_article = SeaArticleMapper::model_into_entity(article, tags);
 
         Ok(Some(mapped_article))
     }
@@ -158,7 +165,14 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             return Ok(None);
         }
 
-        let mapped_article = SeaArticleMapper::model_into_entity(article.remove(0));
+        let (article, tags) = article.remove(0);
+
+        let tags = tags
+            .into_iter()
+            .map(SeaArticleTagMapper::model_into_entity)
+            .collect();
+
+        let mapped_article = SeaArticleMapper::model_into_entity(article, tags);
 
         Ok(Some(mapped_article))
     }
@@ -200,7 +214,14 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
 
         let articles = articles_response
             .into_iter()
-            .map(SeaArticleMapper::model_into_entity)
+            .map(|(article, tags)| {
+                let tags = tags
+                    .into_iter()
+                    .map(SeaArticleTagMapper::model_into_entity)
+                    .collect();
+
+                SeaArticleMapper::model_into_entity(article, tags)
+            })
             .collect::<Vec<_>>();
 
         Ok(FindManyArticlesResponse(articles, articles_count))
