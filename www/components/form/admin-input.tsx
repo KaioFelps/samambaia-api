@@ -29,7 +29,7 @@ export function AdminInput({
         className={clsx(
           "w-full rounded-lg border border-black/20 text-sm leading-none py-1 px-2",
           "bg-white",
-          "transition-all outline-hidden ring-inset ring-0 ring-purple-500 focus:ring-2",
+          "transition-all outline-hidden ring-inset ring-0 ring-purple-500 focus:ring-1",
           "focus:border-purple-500",
           className && className)}
         data-invalid={validationError
