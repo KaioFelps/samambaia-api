@@ -22,7 +22,7 @@ theme.colors = {
   primary25: "color-mix(in oklab, var(--color-purple-500) 25%, transparent)",
 };
 
-export const MultiSelect = memo(({ options, defaultOptions, setValues }: MultiSelectProps) => {
+const MultiSelect = memo(({ options, defaultOptions, setValues }: MultiSelectProps) => {
   return (
     <PrimitiveSelect
       options={options}
@@ -89,3 +89,5 @@ export const MultiSelect = memo(({ options, defaultOptions, setValues }: MultiSe
     />
   );
 });
+
+export default MultiSelect;
