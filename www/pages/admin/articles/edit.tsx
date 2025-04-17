@@ -5,7 +5,7 @@ import { Spinner } from "@phosphor-icons/react/dist/ssr/Spinner";
 import { FormEvent, useMemo } from "react";
 import { toast } from "react-toastify";
 
-import { MultiSelect, SelectOption, SelectOptions } from "@/components/admin/multiselect";
+import MultiSelect, { SelectOption, SelectOptions } from "@/components/admin/multiselect";
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
 import Form from "@/components/form";
