@@ -24,8 +24,8 @@ pub enum ChangeSet<T: ChangeSetTrait> {
 }
 
 impl<T: ChangeSetTrait> ChangeSet<T> {
-    pub fn new(tags: Vec<T>) -> Self {
-        Self::Blank(BlankChangeSet::new(tags))
+    pub fn new(items: Vec<T>) -> Self {
+        Self::Blank(BlankChangeSet::new(items))
     }
 
     pub fn empty() -> Self {
@@ -43,6 +43,13 @@ impl<T: ChangeSetTrait> ChangeSet<T> {
         match self {
             Self::Blank(_) => None,
             Self::Filled(filled) => Some(filled),
+        }
+    }
+
+    pub fn get_blank(&self) -> Option<&BlankChangeSet<T>> {
+        match self {
+            Self::Blank(blank) => Some(blank),
+            Self::Filled(_) => None,
         }
     }
 
@@ -65,9 +72,9 @@ impl<T: ChangeSetTrait> ChangeSet<T> {
 }
 
 impl<T: ChangeSetTrait> BlankChangeSet<T> {
-    pub fn new(tags: Vec<T>) -> Self {
+    pub fn new(items: Vec<T>) -> Self {
         Self {
-            current: HashSet::from_iter(tags),
+            current: HashSet::from_iter(items),
         }
     }
 
@@ -87,15 +94,15 @@ impl<T: ChangeSetTrait> FilledChangeSet<T> {
     pub fn differ(&self) -> Changes<'_, T> {
         Changes {
             added: self
-                .current
+                .new
                 .iter()
-                .filter(|curr_tag| !self.new.contains(curr_tag))
+                .filter(|new_item| !self.current.contains(new_item))
                 .collect(),
 
             removed: self
-                .new
+                .current
                 .iter()
-                .filter(|new_tag| !self.current.contains(new_tag))
+                .filter(|item| !self.new.contains(item))
                 .collect(),
         }
     }
@@ -183,5 +190,40 @@ impl<T: ChangeSetTrait> From<FilledChangeSet<T>> for ChangeSet<T> {
 impl<T: ChangeSetTrait> From<Vec<T>> for ChangeSet<T> {
     fn from(value: Vec<T>) -> Self {
         Self::Blank(BlankChangeSet::new(value))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::{BlankChangeSet, ChangeSet};
+
+    #[test]
+    fn it_should_allow_to_remove_every_elements() {
+        let changeset = BlankChangeSet::new(vec![1, 2, 3, 4, 5]);
+        let changeset = changeset.into_filled(vec![]);
+
+        let changes = changeset.differ();
+        assert!(changes.has_changes());
+        assert_eq!(0, changes.added.len());
+        assert_eq!(5, changes.removed.len());
+
+        let changeset = ChangeSet::from(changeset).flush();
+        let blank_changeset = changeset.get_blank().unwrap();
+        assert_eq!(0, blank_changeset.get_current().len());
+    }
+
+    #[test]
+    fn it_should_allow_to_add_new_elements_and_differ_them() {
+        let changeset = BlankChangeSet::new(Vec::new()).into_filled(vec![1, 2, 3, 4, 5]);
+
+        let changes = changeset.differ();
+        assert!(changes.has_changes());
+        assert_eq!(5, changes.added.len());
+        assert_eq!(0, changes.removed.len());
+
+        let changeset = ChangeSet::from(changeset).flush();
+        let blank_changeset = changeset.get_blank().unwrap();
+
+        assert_eq!(5, blank_changeset.get_current().len());
     }
 }
