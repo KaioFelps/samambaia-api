@@ -85,6 +85,7 @@ export const DeleteArticleButton = memo(({ articleId, articleTitle }: DeleteArti
               <Button
                 admin
                 size="lg"
+                disabled={processing}
               >
                 Deixa baixo
               </Button>
