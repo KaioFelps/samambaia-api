@@ -40,9 +40,10 @@ function setTagsIfChanged(
   setData:(_data: EditArticleForm) => void,
 ) {
   const currentTagsSet = new Set(currentTags.map(tag => tag.id));
-  const newTagsSet = new Set(newTags.map(tag => tag.value));
+  const newTagsSet = new Set(newTags.map(tag => Number(tag.value)));
 
-  const hasChanges = newTagsSet.difference(currentTagsSet).size !== 0;
+  const hasChanges = currentTagsSet.size !== newTagsSet.size ||
+    !newTagsSet.values().every(value => currentTagsSet.has(value));
 
   setData({
     ...data,
@@ -60,6 +61,13 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
   const tagSelectOptions = useMemo(
     () => tags.map(tag => ({ label: tag.value, value: tag.id.toString() } satisfies SelectOption)),
     [tags]);
+
+  const articleCurrentTags = useMemo(
+    () => article
+      ?.tags
+      .map(tag => ({ label: tag.value, value: tag.id.toString() }) satisfies SelectOption),
+    [article],
+  );
 
   function handleEditArticle(e: FormEvent) {
     e.preventDefault();
@@ -226,6 +234,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             </label>
             <ValidationErrorSpan validationError={errors.tags} />
             <MultiSelect
+              defaultOptions={articleCurrentTags}
               options={tagSelectOptions}
               setValues={(value) => setTagsIfChanged(article.tags, value, data, setData)}
             />
