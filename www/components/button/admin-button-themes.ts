@@ -4,14 +4,16 @@ const adminButtonStyles = {
   default: {
     default: clsx(
       "bg-blue-500 border border-black/10 text-white",
-      "ring-blue-500/40 hover:bg-blue-600 active:brightness-90"),
+      "ring-blue-500/40 enabled:hover:bg-blue-600 enabled:active:brightness-90",
+      "disabled:bg-gray-400"),
     success: clsx(
       "bg-green-500 border border-black/10 text-white",
-      "ring-green-700/40 hover:bg-green-600 active:bg-green-700"),
+      "ring-green-700/40 enabled:hover:bg-green-600 enabled:active:bg-green-700",
+      "disabled:bg-gray-400"),
     danger: clsx(
       "bg-red-700 border-black/10 text-white",
-      "ring-red-700/40 hover:bg-red-800 active:brightness-90",
-    ),
+      "ring-red-700/40 enabled:hover:bg-red-800 enabled:active:brightness-90",
+      "disabled:bg-gray-400"),
   },
   ghost: {
     default: clsx(
