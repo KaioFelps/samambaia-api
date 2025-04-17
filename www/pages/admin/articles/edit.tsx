@@ -2,18 +2,17 @@ import { PageProps } from "@inertiajs/core/types";
 import { useForm } from "@inertiajs/react";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Spinner } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { FormEvent } from "react";
+import { FormEvent, useMemo } from "react";
 import { toast } from "react-toastify";
 
+import { MultiSelect, SelectOption, SelectOptions } from "@/components/admin/multiselect";
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
-import { AdminDroppableIndicator } from "@/components/droppable-indicator";
 import Form from "@/components/form";
 import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 import { Head } from "@/components/head";
 import Header from "@/components/header";
 import { Main } from "@/components/main";
-import Select from "@/components/select";
 import { useCanSee } from "@/hooks/useCanSee";
 import { Article } from "@/types/article";
 import { ArticleTag } from "@/types/article-tag";
@@ -30,14 +29,37 @@ type EditArticleForm = {
   content?: string;
   cover_url?: string;
   description?: string;
-  tag_id?: number;
+  tags?: number[];
   author_id?: string;
 };
+
+function setTagsIfChanged(
+  currentTags: ArticleTag[],
+  newTags: SelectOptions,
+  data: EditArticleForm,
+  setData:(_data: EditArticleForm) => void,
+) {
+  const currentTagsSet = new Set(currentTags.map(tag => tag.id));
+  const newTagsSet = new Set(newTags.map(tag => tag.value));
+
+  const hasChanges = newTagsSet.difference(currentTagsSet).size !== 0;
+
+  setData({
+    ...data,
+    tags: hasChanges
+      ? newTagsSet.values().map(tagId => Number(tagId)).toArray()
+      : undefined,
+  });
+}
 
 export default function AdminEditArticlePage({ article, tags, flash }: AdminEditArticlePageProps) {
   const { data, setData, errors, clearErrors, processing, put } = useForm<EditArticleForm>({});
 
   const userCanPublishInNameOfOthers = useCanSee(Permission.ChangeArticleAuthor);
+
+  const tagSelectOptions = useMemo(
+    () => tags.map(tag => ({ label: tag.value, value: tag.id.toString() } satisfies SelectOption)),
+    [tags]);
 
   function handleEditArticle(e: FormEvent) {
     e.preventDefault();
@@ -202,48 +224,11 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             <label className="block text-sm mb-1 ml-1">
               Tag/Categoria
             </label>
-            <ValidationErrorSpan validationError={errors.tag_id} />
-            <Select.Root onValueChange={(v) => setData({
-              ...data,
-              tag_id: Number(v) === article.tagId
-                ? undefined
-                : Number(v),
-            })}
-            >
-              <Select.Trigger asChild>
-                <Button
-                  admin
-                  variant="ghost"
-                  className="w-full justify-between! text-black/50"
-                >
-                  <Select.Value placeholder="Escolha uma tag" />
-                  <AdminDroppableIndicator />
-                </Button>
-              </Select.Trigger>
-              <Select.Content className="bg-white p-2 w-[var(--radix-select-trigger-width)]">
-                {tags.length
-                  ? (
-
-                    <Select.Viewport>
-                      {tags.map((tag) => (
-                        <Select.Item
-                          key={"new-article-form-tag-select-input-" + tag.id}
-                          label={tag.value}
-                          value={tag.id.toString()}
-                        />
-                      ))}
-                    </Select.Viewport>
-                    )
-                  : (
-                    <Alert
-                      admin
-                      message="Não há tags registradas."
-                      type="warning"
-                      className="border-hidden rounded-lg"
-                    />
-                    )}
-              </Select.Content>
-            </Select.Root>
+            <ValidationErrorSpan validationError={errors.tags} />
+            <MultiSelect
+              options={tagSelectOptions}
+              setValues={(value) => setTagsIfChanged(article.tags, value, data, setData)}
+            />
           </div>
 
           <TinyMCEEditor
