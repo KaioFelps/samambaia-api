@@ -15,7 +15,7 @@ export function NavDropdownContent({ children, ...rest }: NavDropdownContentProp
       sideOffset={-3}
       style={{
         boxShadow: `inset 0px 2px 0 0 color-mix(in oklab, var(--color-white) 15%, transparent),
-                    0 2px 0 0 color-mix(in oklab, var(--color-black), 20% transparent)`,
+                    0 2px 0 0 color-mix(in oklab, var(--color-black) 20%, transparent)`,
       }}
       className="group z-20 bg-gray-800 border-2 border-black rounded-lg text-white font-bold"
       {...rest}
