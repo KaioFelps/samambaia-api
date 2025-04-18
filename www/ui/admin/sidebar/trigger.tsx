@@ -12,7 +12,7 @@ export const SidebarMenuSectionTrigger = ({ title, icon: I }: SidebarMenuTrigger
   return (
     <Trigger className={clsx(
       "transition-all duration-150 flex items-center gap-2 px-2 py-1 rounded-lg cursor-default",
-      "group w-full data-[state=closed]:hover:bg-purple-500/10",
+      "group w-[calc(100%_-_var(--spacing))] data-[state=closed]:hover:bg-purple-500/10",
       "data-[state=closed]:active:bg-purple-500/20",
       "data-[state=closed]:active:cursor-pointer data-[state=open]:bg-purple-500/10",
       //

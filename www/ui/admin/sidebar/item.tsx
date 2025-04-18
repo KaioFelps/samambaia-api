@@ -23,7 +23,7 @@ export const SidebarMenuItem = ({
       data-active={isActive}
       href={href}
       className={clsx(
-        "group block w-full ml-1 px-2 py-1 bg-transparent rounded-lg mt-1 relative cursor-default",
+        "group block ml-1 px-2 py-1 bg-transparent rounded-lg mt-1 relative cursor-default",
         "data-[active=false]:active:bg-purple-700/10 data-[active=false]:hover:bg-purple-700/5",
         "data-[active=true]:bg-purple-700/5 data-[active=false]:active:cursor-pointer",
       )}
