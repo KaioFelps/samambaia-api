@@ -29,12 +29,7 @@ git clone https://github.com/KaioFelps/samambaia-api.git
 cd samambaia-api
 ```
 3. copie todas as informações do arquivo `.env.sample` para um arquivo nomeado `.env` e preencha as informações necessárias:
-```dotenv
-DATABASE_URL=postgresql://database_user:database_password@localhost:port/database_name?schema=public
-JWT_SECRET=
-RUST_ENV=DEVELOPMENT
-RUST_LOG=error
-```
+    * utilize o comando `head -c 64 /dev/urandom | base64` para gerar o valor da variável `APP_KEY`, copie e cole como valor da variável;
 4. utilize o docker-compose para inicializar todos os serviços necessários para o funcionamento da aplicação:
 ```bash
 docker-compose up -d
