@@ -1,19 +1,42 @@
+use std::error::Error;
 use std::sync::{Arc, Mutex};
 
-use crate::domain::domain_entities::council_alert::CouncilAlert;
-use crate::domain::repositories::council_alerts_repository::MockCouncilAlertRepositoryTrait;
+use async_trait::async_trait;
 
-pub fn get_council_alerts_repository() -> (
-    Arc<Mutex<Vec<CouncilAlert>>>,
-    MockCouncilAlertRepositoryTrait,
-) {
-    let db: Arc<Mutex<Vec<CouncilAlert>>> = Arc::new(Mutex::new(Vec::new()));
+use crate::domain::domain_entities::council_alert::{CouncilAlert, CouncilAlertDraft};
+use crate::domain::repositories::council_alerts_repository::CouncilAlertRepositoryTrait;
+use crate::tests::repositories::LocalDb;
 
-    let mut repository = MockCouncilAlertRepositoryTrait::new();
+#[derive(Clone)]
+pub struct InMemoryCouncilAlertRepository {
+    pub council_alert_db: LocalDb<CouncilAlert>,
+}
 
-    let db_clone = db.clone();
-    repository.expect_find_all().returning(move || {
-        let (mut pinned_alerts, mut alerts): (Vec<_>, Vec<_>) = db_clone
+impl InMemoryCouncilAlertRepository {
+    pub fn new() -> Self {
+        Self::with_db(Arc::new(Mutex::new(Vec::new())))
+    }
+
+    pub fn with_db(council_alert_db: LocalDb<CouncilAlert>) -> Self {
+        Self { council_alert_db }
+    }
+}
+
+#[async_trait]
+impl CouncilAlertRepositoryTrait for InMemoryCouncilAlertRepository {
+    async fn create(
+        &self,
+        council_alert: CouncilAlertDraft,
+    ) -> Result<CouncilAlert, Box<dyn Error>> {
+        let mut db = self.council_alert_db.lock().unwrap();
+        let council_alert = council_alert.into_council_alert(db.len() as i32 + 1);
+        db.push(council_alert.clone());
+        Ok(council_alert)
+    }
+
+    async fn find_all(&self) -> Result<Vec<CouncilAlert>, Box<dyn Error>> {
+        let (mut pinned_alerts, mut alerts): (Vec<_>, Vec<_>) = self
+            .council_alert_db
             .lock()
             .unwrap()
             .iter()
@@ -25,15 +48,5 @@ pub fn get_council_alerts_repository() -> (
         pinned_alerts.append(&mut alerts);
 
         Ok(pinned_alerts)
-    });
-
-    let db_clone = db.clone();
-    repository.expect_create().returning(move |draft| {
-        let mut db = db_clone.lock().unwrap();
-        let council_alert = draft.into_council_alert(db.len() as i32 + 1);
-        db.push(council_alert.clone());
-        Ok(council_alert)
-    });
-
-    (db, repository)
+    }
 }

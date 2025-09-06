@@ -57,14 +57,14 @@ impl<CAR: CouncilAlertRepositoryTrait> CreateCouncilAlertService<CAR> {
 mod test {
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
-    use crate::tests::repositories::council_alerts_repository::get_council_alerts_repository;
+    use crate::tests::repositories::council_alerts_repository::InMemoryCouncilAlertRepository;
 
     #[tokio::test]
     async fn test_only_council_members_can_create_council_alerts() {
-        let (db, repository) = get_council_alerts_repository();
+        let repository = InMemoryCouncilAlertRepository::new();
         let user = User::new("JohnDoe".into(), "123".into(), Some(Role::Admin));
 
-        let sut = super::CreateCouncilAlertService::new(repository);
+        let sut = super::CreateCouncilAlertService::new(repository.clone());
         let response = sut
             .exec(super::CreateCouncilAlertParams {
                 content: "foo".into(),
@@ -74,7 +74,7 @@ mod test {
             })
             .await;
 
-        let db_lock = db.lock().unwrap();
+        let db_lock = repository.council_alert_db.lock().unwrap();
 
         assert!(response.is_err());
         assert!(db_lock.is_empty());
@@ -82,11 +82,11 @@ mod test {
 
     #[tokio::test]
     async fn test_create_council_alert_service() {
-        let (db, repository) = get_council_alerts_repository();
+        let repository = InMemoryCouncilAlertRepository::new();
 
         let staff = User::new("JohnDoe".into(), "123".into(), Some(Role::Principal));
 
-        let sut = super::CreateCouncilAlertService::new(repository);
+        let sut = super::CreateCouncilAlertService::new(repository.clone());
         let response = sut
             .exec(super::CreateCouncilAlertParams {
                 content: "Alert Content".into(),
@@ -99,7 +99,7 @@ mod test {
         assert!(response.is_ok());
 
         let council_alert = response.unwrap();
-        let db_lock = db.lock().unwrap();
+        let db_lock = repository.council_alert_db.lock().unwrap();
 
         assert!(!db_lock.is_empty());
         assert!(db_lock
