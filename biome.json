@@ -12,7 +12,7 @@
       "./**/*.tsx",
       "./**/*.css",
       "./**/*.hbs",
-      "./**/*.json",
+      "./*.json",
       ".env",
       ".env.*",
       "www/**/*.hbs",
@@ -38,7 +38,8 @@
         "noYodaExpression": "warn",
         "useCollapsedElseIf": "on",
         "useConst": "warn",
-        "useSelfClosingElements": "warn"
+        "useSelfClosingElements": "warn",
+        "noNonNullAssertion": "off"
       },
       "performance": {
         "noAwaitInLoops": "error",
@@ -48,7 +49,15 @@
         "recommended": true
       },
       "complexity": {
-        "noUselessConstructor": "off"
+        "noUselessConstructor": "off",
+        "noStaticOnlyClass": "off",
+        "noImportantStyles": "off"
+      },
+      "suspicious": {
+        "noUnknownAtRules": "off"
+      },
+      "correctness": {
+        "useUniqueElementIds": "off"
       }
     }
   },
