@@ -1,10 +1,11 @@
 import type { PageProps } from "@inertiajs/core/types";
 import { useForm } from "@inertiajs/react";
-import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
-import { Spinner } from "@phosphor-icons/react/dist/ssr/Spinner";
+import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
 import { type FormEvent, useMemo } from "react";
 import { toast } from "react-toastify";
-
+import tinymce from "tinymce";
 import MultiSelect, { type SelectOption, type SelectOptions } from "@/components/admin/multiselect";
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
@@ -18,6 +19,7 @@ import type { Article } from "@/types/article";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import { TinyMCEEditor } from "@/ui/admin/tiny-mce-editor";
+import { copyHtmlToClipboard } from "./shared";
 
 type AdminEditArticlePageProps = PageProps & {
   article: Article | null;
@@ -75,6 +77,10 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
       ),
     [article],
   );
+
+  const handleCopyHtml = async () => {
+    await copyHtmlToClipboard(tinymce);
+  };
 
   function handleEditArticle(e: FormEvent) {
     e.preventDefault();
@@ -239,15 +245,19 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             <Button admin variant="default" theme="success" size="lg" disabled={processing}>
               {processing ? (
                 <>
-                  <Spinner size={16} weight="bold" className="animate-spin" />
+                  <SpinnerIcon size={16} weight="bold" className="animate-spin" />
                   Salvando...
                 </>
               ) : (
                 <>
-                  <Plus size={16} weight="bold" />
+                  <PlusIcon size={16} weight="bold" />
                   Salvar
                 </>
               )}
+            </Button>
+            <Button admin type="button" size="lg" onClick={handleCopyHtml}>
+              <ClipboardIcon size={16} weight="bold" />
+              Copiar HTML
             </Button>
             <Button admin asLink type="button" size="lg" variant="ghost" href="/gremio/noticias">
               Cancelar

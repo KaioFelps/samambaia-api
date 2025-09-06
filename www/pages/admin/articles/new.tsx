@@ -1,7 +1,7 @@
 import { useForm } from "@inertiajs/react";
-import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
-import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
-import { Spinner } from "@phosphor-icons/react/dist/ssr/Spinner";
+import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
 import type { FormEvent } from "react";
 import { toast } from "react-toastify";
 import tinymce from "tinymce";
@@ -17,6 +17,7 @@ import { useCanSee } from "@/hooks/useCanSee";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import { TinyMCEEditor } from "@/ui/admin/tiny-mce-editor";
+import { copyHtmlToClipboard } from "./shared";
 
 type AdminCreateArticlePageProps = {
   tags: ArticleTag[];
@@ -47,14 +48,7 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
   const userCanPublishInNameOfOthers = useCanSee(Permission.ChangeArticleAuthor);
 
   const handleCopyHtml = async () => {
-    const content = tinymce.activeEditor?.getContent();
-    if (!content) {
-      toast("Não há conteúdo a ser copiado.", { type: "error" });
-      return;
-    }
-
-    await window.navigator.clipboard.writeText(content);
-    toast("Conteúdo copiado com sucesso!", { type: "info" });
+    await copyHtmlToClipboard(tinymce);
   };
 
   const handleCreateArticle = (e: FormEvent) => {
@@ -165,18 +159,18 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
             <Button admin variant="default" theme="success" size="lg" disabled={processing}>
               {processing ? (
                 <>
-                  <Spinner size={16} weight="bold" className="animate-spin" />
+                  <SpinnerIcon size={16} weight="bold" className="animate-spin" />
                   Publicando...
                 </>
               ) : (
                 <>
-                  <Plus size={16} weight="bold" />
+                  <PlusIcon size={16} weight="bold" />
                   Publicar
                 </>
               )}
             </Button>
             <Button admin type="button" size="lg" onClick={handleCopyHtml}>
-              <Clipboard size={16} weight="bold" />
+              <ClipboardIcon size={16} weight="bold" />
               Copiar HTML
             </Button>
           </div>
