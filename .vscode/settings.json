@@ -1,14 +1,13 @@
 {
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "always",
-        "source.fixAll": "always"
-    },
-    "eslint.useFlatConfig": true,
-    "scss.lint.unknownAtRules": "ignore",
-    "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
-    "tailwindCSS.experimental.configFile": "./www/styles/app.css",
-    "tailwindCSS.classFunctions": ["tw", "clsx"],
-    "files.associations": {
-        "css": "tailwindcss"
-    }
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.fixAll.biome": "always",
+    "source.organizeImports.biome": "always",
+  },
+  "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
+  "tailwindCSS.experimental.configFile": "./www/styles/app.css",
+  "tailwindCSS.classFunctions": ["tw", "clsx"],
+  "files.associations": {
+    "css": "tailwindcss"
+  }
 }
