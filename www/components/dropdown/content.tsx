@@ -1,6 +1,6 @@
 import * as Dropdown from "@radix-ui/react-dropdown-menu";
 import clsx from "clsx";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export type DropdownContentProps = Dropdown.DropdownMenuContentProps & {
   children: ReactNode;
@@ -25,8 +25,7 @@ export function DropdownContent({ children, className, ...rest }: DropdownConten
           "data-[state=open]:data-[side=top]:animate-slide-up-and-fade",
           "data-[state=closed]:data-[side=top]:animate-slide-up-and-fade-reverse",
           className && className,
-        )}
-      >
+        )}>
         {children}
       </Dropdown.Content>
     </Dropdown.Portal>

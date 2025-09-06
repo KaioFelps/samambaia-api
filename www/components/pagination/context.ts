@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-import { GetPaginationParams, Paginator } from "@/utils/paginator";
+import type { GetPaginationParams, Paginator } from "@/utils/paginator";
 
 export type PaginationContextProps = {
   paginator: Paginator;

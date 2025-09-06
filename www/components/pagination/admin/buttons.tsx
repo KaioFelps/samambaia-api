@@ -14,13 +14,9 @@ export const AdminPaginationButtons = memo(() => {
 
   return (
     <div className="flex items-center gap-1">
-      {paginator.getPagination(getPaginationArgs).map(({ link, page }) =>
-        <AdminPaginationButton
-          key={"pagination-btn-" + link}
-          link={link}
-          page={page}
-        />)}
-
+      {paginator.getPagination(getPaginationArgs).map(({ link, page }) => (
+        <AdminPaginationButton key={`pagination-btn-${link}`} link={link} page={page} />
+      ))}
     </div>
   );
 });

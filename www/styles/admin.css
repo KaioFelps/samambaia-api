@@ -1,9 +1,9 @@
 @utility admin-btn {
   @apply select-none
-            flex items-center p-2 gap-2 rounded-lg border border-black/20 leading-none
-            text-sm bg-transparent transition-all duration-100
-            hover:bg-gray-400/15 active:bg-gray-700/10
-            outline-hidden ring-0 focus-visible:ring-4 ring-purple-500/40 focus-visible:border-purple-700;
+          flex items-center p-2 gap-2 rounded-lg border border-black/20 leading-none
+          text-sm bg-transparent transition-all duration-100
+          hover:bg-gray-400/15 active:bg-gray-700/10
+          outline-hidden ring-0 focus-visible:ring-4 ring-purple-500/40 focus-visible:border-purple-700;
 }
 
 @utility admin-dropdown-content {
@@ -11,7 +11,7 @@
 
   &.individual-focus {
     @apply has-[.admin-dropdown-content-clickable:hover]:[&_.admin-dropdown-content-clickable]:blur-[1px]
-                [&_.admin-dropdown-content-clickable]:hover:blur-none!;
+            [&_.admin-dropdown-content-clickable]:hover:blur-none!;
   }
 }
 
@@ -29,9 +29,9 @@
   display: grid;
   align-content: start;
   grid-template-areas:
-    'header header'
-    'aside main'
-    'footer footer';
+    "header header"
+    "aside main"
+    "footer footer";
   grid-template-columns: max-content 1fr;
   grid-template-rows: min-content 1fr min-content;
   gap: 2rem;

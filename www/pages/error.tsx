@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { Head } from "@/components/head";
 import { Sprite } from "@/components/sprite";
@@ -27,16 +27,13 @@ export default function ErrorPage({ status }: ErrorPageProps) {
 
   return (
     <>
-      <Head
-        title={messages[status]}
-        description={descriptions[status]}
-      />
+      <Head title={messages[status]} description={descriptions[status]} />
       <main className="flex items-center justify-center gap-4 px-6 py-28">
         <div>
-          <h1 className="
+          <h1
+            className="
             text-purple-700 font-black text-5xl mb-4 max-w-96 text-balance font-rowdies
-            "
-          >
+            ">
             {messages[status] ?? messages[500]}
           </h1>
           <p className="text-2xl font-medium max-w-[420px] text-balance font-rowdies">
@@ -44,12 +41,7 @@ export default function ErrorPage({ status }: ErrorPageProps) {
           </p>
         </div>
 
-        <Sprite
-          x={-679}
-          y={-118}
-          width={119}
-          height={180}
-        />
+        <Sprite x={-679} y={-118} width={119} height={180} />
       </main>
     </>
   );

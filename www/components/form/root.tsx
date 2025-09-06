@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { FormHTMLAttributes } from "react";
+import type { FormHTMLAttributes } from "react";
 
 type FormRootProps = FormHTMLAttributes<HTMLFormElement>;
 

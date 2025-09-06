@@ -1,7 +1,7 @@
 import {
   Content as PContent,
+  type SelectContentProps as PContentProps,
   Portal,
-  SelectContentProps as PContentProps,
 } from "@radix-ui/react-select";
 import clsx from "clsx";
 
@@ -43,8 +43,7 @@ export const SelectContent = ({
           "data-[state=closed]:data-[side=top]:animate-slide-up-and-fade-reverse",
 
           className && className,
-        )}
-      >
+        )}>
         {children}
         <AdminDroppableArrow component="select" />
       </PContent>

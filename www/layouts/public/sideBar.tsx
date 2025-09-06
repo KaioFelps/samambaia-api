@@ -1,11 +1,10 @@
 import { usePage } from "@inertiajs/react";
+import clsx from "clsx";
 import { memo } from "react";
-
 import iconsSprite from "@/assets/icons-sprite.png";
 import Popover from "@/components/popover";
 import { Sprite } from "@/components/sprite";
 import { Imager } from "@/utils/imager";
-
 import { AnnouncementsSlider } from "./announcements-slider";
 
 export const SideBar = memo(() => {
@@ -33,20 +32,11 @@ export const SideBar = memo(() => {
 
           <div className="flex items-center gap-3 justify-end">
             <ReclameAquiInfo />
-            <button
-              disabled
-              className="btn flex items-center gap-2.5"
-            >
-              <Sprite
-                x={-96}
-                y={-64}
-                width={11}
-                height={19}
-              />
+            <button type="button" disabled className="btn flex items-center gap-2.5">
+              <Sprite x={-96} y={-64} width={11} height={19} />
               Reclamar
             </button>
           </div>
-
         </div>
       </div>
 
@@ -64,12 +54,11 @@ export const SideBar = memo(() => {
                 flex gap-3 not-last:overflow-hidden
                 not-last:border-b-2 border-black/15
                 "
-                key={"live-cosmic-featured-user-" + nickname}
-              >
-                <div className="
+                key={`live-cosmic-featured-user-${nickname}`}>
+                <div
+                  className="
                 relative w-[150px] min-h-[172px] flex flex-col justify-end items-center -mb-4
-                "
-                >
+                ">
                   <div
                     aria-hidden
                     className="w-[150px] h-[114px] absolute -bottom-[1px]"
@@ -91,15 +80,13 @@ export const SideBar = memo(() => {
                   />
                 </div>
                 <div className="flex-1">
-                  <span className="
+                  <span
+                    className="
                     text-2xl font-black leading-loose text-white highlight-member-name-stroke mb-1
-                    "
-                  >
+                    ">
                     {nickname}
                   </span>
-                  <p className="text-sm">
-                    {cause}
-                  </p>
+                  <p className="text-sm">{cause}</p>
                 </div>
               </div>
             ))}
@@ -113,25 +100,19 @@ export const SideBar = memo(() => {
 const ReclameAquiInfo = memo(() => (
   <Popover.Root>
     <Popover.Trigger asChild>
-      <button className="
-        p-0.5 rounded-full outline-0 ring-0 ring-blue-500/25 focus-visible:ring-4
-        transition-all duration-100 will-change-[box-shadow]
-        "
-      >
-        <Sprite
-          x={-64}
-          y={-96}
-          width={18}
-          height={19}
-        />
+      <button
+        type="button"
+        className={clsx(
+          "p-0.5 rounded-full outline-0 ring-0 ring-blue-500/25 focus-visible:ring-4",
+          "transition-all duration-100 will-change-[box-shadow]",
+        )}>
+        <Sprite x={-64} y={-96} width={18} height={19} />
       </button>
     </Popover.Trigger>
 
     <Popover.Content side="right">
       <Popover.Header title="Espera aí!" />
-      <Popover.ContentContainer>
-        Essa seção ainda está em desenvolvimento!
-      </Popover.ContentContainer>
+      <Popover.ContentContainer>Essa seção ainda está em desenvolvimento!</Popover.ContentContainer>
     </Popover.Content>
   </Popover.Root>
 ));

@@ -20,21 +20,10 @@ import { SidebarSectionTitle } from "./sidebar-section-title";
 
 export const SidebarMenu = memo(() => {
   return (
-    <aside className={clsx(
-      "[grid-area:_aside] ml-6 w-80",
-    )}
-    >
+    <aside className={clsx("[grid-area:_aside] ml-6 w-80")}>
       <div className="sticky top-6 max-h-full">
-        <Accordion.Root
-          type="multiple"
-          className="flex flex-col gap-2"
-        >
-
-          <SidebarMenuLink
-            icon={House}
-            href="/gremio"
-            label="Home"
-          />
+        <Accordion.Root type="multiple" className="flex flex-col gap-2">
+          <SidebarMenuLink icon={House} href="/gremio" label="Home" />
 
           {/* region: --- Conteúdo */}
           <SidebarSectionTitle title="Conteúdo" />
@@ -44,12 +33,8 @@ export const SidebarMenu = memo(() => {
             icon={Newspaper}
             requires={{
               permissions: ["CreateArticle", "DeleteArticle", "UpdateArticle", "ApproveArticle"],
-            }}
-          >
-            <SidebarMenuItem
-              href="/gremio/noticias"
-              label="Gerenciar notícias"
-            />
+            }}>
+            <SidebarMenuItem href="/gremio/noticias" label="Gerenciar notícias" />
             <SidebarMenuItem
               href="/gremio/noticias/nova"
               label="Nova notícia"
@@ -57,82 +42,52 @@ export const SidebarMenu = memo(() => {
             />
           </SidebarMenuSection>
 
-          <SidebarMenuSection
-            label="Formulários"
-            icon={Table}
-          >
+          <SidebarMenuSection label="Formulários" icon={Table}>
             <Todo />
           </SidebarMenuSection>
 
-          <SidebarMenuSection
-            label="Emblemas grátis"
-            icon={Gift}
-          >
+          <SidebarMenuSection label="Emblemas grátis" icon={Gift}>
             <Todo />
           </SidebarMenuSection>
 
-          <SidebarMenuSection
-            label="Moderação"
-            icon={Gavel}
-          >
+          <SidebarMenuSection label="Moderação" icon={Gavel}>
             <Todo />
           </SidebarMenuSection>
 
           {/* region: --- Gerenciamento do site */}
           <SidebarSectionTitle title="Gerenciamento do site" />
 
-          <SidebarMenuSection
-            label="Membros destaque"
-            icon={Trophy}
-          >
+          <SidebarMenuSection label="Membros destaque" icon={Trophy}>
             <Todo />
           </SidebarMenuSection>
 
-          <SidebarMenuSection
-            label="Acervo"
-            icon={ClipboardText}
-          >
+          <SidebarMenuSection label="Acervo" icon={ClipboardText}>
             <Todo />
           </SidebarMenuSection>
 
-          <SidebarMenuSection
-            label="Equipe"
-            icon={UsersThree}
-          >
+          <SidebarMenuSection label="Equipe" icon={UsersThree}>
             <Todo />
           </SidebarMenuSection>
 
-          <SidebarMenuSection
-            label="CMS"
-            icon={Star}
-          >
+          <SidebarMenuSection label="CMS" icon={Star}>
             <Todo />
           </SidebarMenuSection>
 
           {/* region: --- Administração */}
           <SidebarSectionTitle title="Administração" />
 
-          <SidebarMenuSection
-            label="Usuários"
-            icon={UsersThree}
-          >
+          <SidebarMenuSection label="Usuários" icon={UsersThree}>
             <Todo />
           </SidebarMenuSection>
 
           {/* region: --- Promotoria */}
           <SidebarSectionTitle title="Promotoria" />
 
-          <SidebarMenuSection
-            label="Relatórios"
-            icon={ClipboardText}
-          >
+          <SidebarMenuSection label="Relatórios" icon={ClipboardText}>
             <Todo />
           </SidebarMenuSection>
 
-          <SidebarMenuSection
-            label="Pendências"
-            icon={Wrench}
-          >
+          <SidebarMenuSection label="Pendências" icon={Wrench}>
             <Todo />
           </SidebarMenuSection>
         </Accordion.Root>
@@ -143,15 +98,11 @@ export const SidebarMenu = memo(() => {
 
 function Todo() {
   return (
-    <span className={clsx(
-      "flex items-start bg-yellow-700/10 rounded-lg text-yellow-900 px-1 m-1 -mr-1 leading-7",
-    )}
-    >
-      <Warning
-        size={20}
-        weight="bold"
-        className="mr-2 inline-block p-1 shrink-0 box-content"
-      />
+    <span
+      className={clsx(
+        "flex items-start bg-yellow-700/10 rounded-lg text-yellow-900 px-1 m-1 -mr-1 leading-7",
+      )}>
+      <Warning size={20} weight="bold" className="mr-2 inline-block p-1 shrink-0 box-content" />
       Esta seção está em desenvolvimento.
     </span>
   );

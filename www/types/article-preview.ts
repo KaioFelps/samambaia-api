@@ -1,4 +1,4 @@
-import { ArticleTag } from "./article-tag";
+import type { ArticleTag } from "./article-tag";
 
 export type ArticlePreview = {
   id: string;

@@ -1,10 +1,10 @@
 import { Link, usePage } from "@inertiajs/react";
-import { type Icon } from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import clsx from "clsx";
 import { memo, useMemo } from "react";
 
 import { useCanSee } from "@/hooks/useCanSee";
-import { TPermission } from "@/types/auth";
+import type { TPermission } from "@/types/auth";
 
 export type SidebarMenuLinkProps = {
   label: string;
@@ -34,13 +34,8 @@ export const SidebarMenuLink = memo(({ icon: I, label, href, requires }: Sidebar
         "relative ml-1 before:absolute before:inset-y-full before:left-0 before:rounded-full",
         "before:w-0.5 before:bg-purple-500 before:-ml-1 data-[active=true]:before:inset-y-0",
         "before:transition-all before:will-change-[inset-y,_inset] before:duration-75",
-      )}
-    >
-      <I
-        size={20}
-        weight="bold"
-        className="text-purple-500"
-      />
+      )}>
+      <I size={20} weight="bold" className="text-purple-500" />
       {label}
     </Link>
   );

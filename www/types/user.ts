@@ -1,4 +1,4 @@
-import { TRole } from "./auth";
+import type { TRole } from "./auth";
 
 export type User = {
   id: string;

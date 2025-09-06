@@ -1,12 +1,13 @@
 import "swiper/css";
 
-import { type Page } from "@inertiajs/core";
+import type { Page } from "@inertiajs/core";
 import { Link, router, usePage } from "@inertiajs/react";
-import React, { memo, useEffect, useState } from "react";
+import type React from "react";
+import { memo, useEffect, useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { AnnouncementShort } from "@/types/announcement";
+import type { AnnouncementShort } from "@/types/announcement";
 
 export const AnnouncementsSlider = memo(() => {
   const page = usePage();
@@ -16,18 +17,26 @@ export const AnnouncementsSlider = memo(() => {
   useEffect(() => {
     if (announcements) return;
     setTimeout(() => {
-      router.get(page.url, {}, {
-        only: ["announcements"],
-        onStart: () => { setIsLoading(true); },
-        onFinish: () => { setIsLoading(false); },
-        onSuccess(_page) {
-          const page = _page as Page;
-          setAnnouncements(page.props.announcements.data);
+      router.get(
+        page.url,
+        {},
+        {
+          only: ["announcements"],
+          onStart: () => {
+            setIsLoading(true);
+          },
+          onFinish: () => {
+            setIsLoading(false);
+          },
+          onSuccess(_page) {
+            const page = _page as Page;
+            setAnnouncements(page.props.announcements.data);
+          },
+          onError(_errors) {
+            setAnnouncements([]);
+          },
         },
-        onError(_errors) {
-          setAnnouncements([]);
-        },
-      });
+      );
     }, 0);
   }, [announcements, page.url]);
 
@@ -38,12 +47,10 @@ export const AnnouncementsSlider = memo(() => {
   return (
     <MemoizedSwiper amount={announcements.length}>
       {announcements.map(({ id, description, external, image, url }) => {
-        const Anchor = external
-          ? "a"
-          : Link;
+        const Anchor = external ? "a" : Link;
 
         return (
-          <SwiperSlide key={"announcement-" + id}>
+          <SwiperSlide key={`announcement-${id}`}>
             <Anchor
               style={{
                 backgroundImage: `url("${image}")`,
@@ -53,13 +60,8 @@ export const AnnouncementsSlider = memo(() => {
               bg-cover
               "
               href={url}
-              target={external
-                ? "_blank"
-                : "_self"}
-              rel={external
-                ? "noreferrer"
-                : undefined}
-            >
+              target={external ? "_blank" : "_self"}
+              rel={external ? "noreferrer" : undefined}>
               <span
                 style={{
                   textShadow: "0 3px 0 color-mix(in oklab, var(--color-black) 25%, transparent)",
@@ -67,13 +69,11 @@ export const AnnouncementsSlider = memo(() => {
                 className="
                 px-6 py-1 font-bold bg-gray-800 rounded-full text-white text-2xl
                 text-center text-balance shadow-black/25 shadow-[0_2px_0_0]
-                "
-              >
+                ">
                 {description}
               </span>
             </Anchor>
           </SwiperSlide>
-
         );
       })}
     </MemoizedSwiper>
@@ -81,7 +81,8 @@ export const AnnouncementsSlider = memo(() => {
 });
 
 const AnnouncementsSliderSkeleton = memo(() => (
-  <div className="
+  <div
+    className="
     w-full bg-purple-700 aspect-square rounded-lg border-2 border-black
     shadow-black/25 shadow-[0_2px_0_0] animate-pulse
     "
@@ -93,9 +94,7 @@ const MemoizedSwiper = memo(({ children, amount }: React.PropsWithChildren<{ amo
     spaceBetween={0}
     slidesPerView={1}
     loop={amount > 1}
-    modules={amount > 1
-      ? [Autoplay]
-      : undefined}
+    modules={amount > 1 ? [Autoplay] : undefined}
     autoplay={{
       disableOnInteraction: false,
       delay: 5000,
@@ -104,8 +103,7 @@ const MemoizedSwiper = memo(({ children, amount }: React.PropsWithChildren<{ amo
     className="
         w-full bg-purple-700 aspect-square rounded-lg border-2 border-black
         shadow-black/25 shadow-[0_2px_0_0]
-        "
-  >
+        ">
     {children}
   </Swiper>
 ));

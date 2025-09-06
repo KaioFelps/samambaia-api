@@ -1,7 +1,7 @@
-import { PageProps } from "@inertiajs/core/types";
+import type { PageProps } from "@inertiajs/core/types";
 import { Link, router, usePage } from "@inertiajs/react";
 import clsx from "clsx";
-import { ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import Popover from "@/components/popover";
@@ -35,15 +35,13 @@ export function UserBox() {
     }
   }, [flash]);
 
-  return auth
-    ? <Logged user={auth.user} />
-    : <Unlogged
-        setDialog={setDialog}
-        dialog={dialog}
-      />;
+  return auth ? <Logged user={auth.user} /> : <Unlogged setDialog={setDialog} dialog={dialog} />;
 }
 
-function Unlogged({ dialog, setDialog }: {
+function Unlogged({
+  dialog,
+  setDialog,
+}: {
   dialog?: AuthenticationDialog;
   setDialog: (_: AuthenticationDialog | undefined) => void;
 }) {
@@ -52,46 +50,24 @@ function Unlogged({ dialog, setDialog }: {
       <RegisterForm
         open={dialog === "register"}
         setDialog={setDialog}
-        setOpen={(v) => setDialog(v
-          ? "register"
-          : undefined,
-        )}
-      >
+        setOpen={(v) => setDialog(v ? "register" : undefined)}>
         <button
+          type="button"
           style={{
             "--btn-black-down-text-shadow": "var(--color-green-300)",
           }}
-          className={clsx(
-            "btn-black text-green-500 ring-green-500/40",
-          )}
-        >
-          <Sprite
-            x={-66}
-            y={-64}
-            width={13}
-            height={16}
-          />
+          className={clsx("btn-black text-green-500 ring-green-500/40")}>
+          <Sprite x={-66} y={-64} width={13} height={16} />
           Registrar
         </button>
-
       </RegisterForm>
 
       <LoginForm
         open={dialog === "login"}
         setDialog={setDialog}
-        setOpen={(v) => setDialog(v
-          ? "login"
-          : undefined,
-        )}
-      >
-        <button className="btn-success btn-lg border-black to-black/25">
-          <Sprite
-            x={-32}
-            y={-65}
-            width={15}
-            height={15}
-          />
-
+        setOpen={(v) => setDialog(v ? "login" : undefined)}>
+        <button type="button" className="btn-success btn-lg border-black to-black/25">
+          <Sprite x={-32} y={-65} width={15} height={15} />
           Login
         </button>
       </LoginForm>
@@ -121,76 +97,45 @@ function Logged({ user }: LoggedProps) {
         className="w-[64px] h-[110px] absolute left-1/2 -translate-x-1/2 bottom-4"
       />
       <Popover.Root>
-        <Popover.Trigger className="
+        <Popover.Trigger
+          className="
           group flex items-center gap-0 btn-black ring-purple-500 relative
-          "
-        >
-          <Sprite
-            x={-152}
-            y={-90}
-            width={14}
-            height={14}
-            className="mr-1.5"
-          />
+          ">
+          <Sprite x={-152} y={-90} width={14} height={14} className="mr-1.5" />
 
-          <span className="font-rowdies text-sm font-normal leading-none">
-            {user?.nickname}
-          </span>
+          <span className="font-rowdies text-sm font-normal leading-none">{user?.nickname}</span>
 
           <Popover.Indicator className="ml-3" />
         </Popover.Trigger>
-        <Popover.Content
-          side="bottom"
-          collisionPadding={24}
-        >
+        <Popover.Content side="bottom" collisionPadding={24}>
           <div className="p-3 text-sm flex gap-3">
             <div className="p-2 bg-white/10 rounded-md grid place-items-center">
-              <img
-                width="64px"
-                height="110px"
-                src={habboAvatar}
-              />
+              <img width="64px" height="110px" src={habboAvatar} alt="avatar de habbo" />
             </div>
 
             <div className="flex flex-col gap-1">
-              <div className="
+              <div
+                className="
                 px-3 py-2 bg-black/15 text-white rounded-md border-2 border-black
-                "
-              >
+                ">
                 <b className="select-none">ID:</b> {user.id}
               </div>
 
-              <div className="
+              <div
+                className="
                 px-3 py-2 bg-black/15 text-white rounded-md border-2 border-black
-                "
-              >
+                ">
                 <b className="select-none">Cargo:</b> {user.role}
               </div>
 
               <div className="w-full h-0.5 bg-black my-2 shadow-white/10 shadow-[0_2px_0_0]" />
 
-              <Link
-                href="/"
-                className="btn-black font-normal"
-              >
-                <Sprite
-                  x={-201}
-                  y={-62}
-                  width={20}
-                  height={20}
-                />
+              <Link href="/" className="btn-black font-normal">
+                <Sprite x={-201} y={-62} width={20} height={20} />
                 Configurações
               </Link>
-              <button
-                className="btn-black font-normal"
-                onClick={handleLogout}
-              >
-                <Sprite
-                  x={-224}
-                  y={-62}
-                  width={20}
-                  height={20}
-                />
+              <button type="button" className="btn-black font-normal" onClick={handleLogout}>
+                <Sprite x={-224} y={-62} width={20} height={20} />
                 Logout
               </button>
             </div>

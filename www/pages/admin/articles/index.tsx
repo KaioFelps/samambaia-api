@@ -1,4 +1,4 @@
-import { PageProps } from "@inertiajs/core/types";
+import type { PageProps } from "@inertiajs/core/types";
 import { router } from "@inertiajs/react";
 import { useState } from "react";
 
@@ -10,9 +10,9 @@ import { Main } from "@/components/main";
 import Pagination from "@/components/pagination";
 import { useMemoizedPaginatorParameters } from "@/hooks/pagination";
 import { useCanSee } from "@/hooks/useCanSee";
-import { ArticlePreview } from "@/types/article-preview";
+import type { ArticlePreview } from "@/types/article-preview";
 import { Permission } from "@/types/auth";
-import { Paginated } from "@/types/pagination";
+import type { Paginated } from "@/types/pagination";
 import { ArticleListCard } from "@/ui/admin/article-list-card";
 import TableHeader from "@/ui/admin/paginated-table-header";
 
@@ -25,23 +25,18 @@ export default function AdminArticleHome({ articles, flash }: AdminArticleHomePr
   const userCanCreateArticle = useCanSee(Permission.CreateArticle);
 
   function handleFilter({ filter, query }: { filter?: string; query?: string }) {
-    const destination = (!filter || !query)
-      ? "?"
-      : `?${filter}=${query}`;
+    const destination = !filter || !query ? "?" : `?${filter}=${query}`;
 
     router.visit(destination, {
       only: ["articles"],
       onStart: () => setFilterIsLoading(true),
       onFinish: () => setFilterIsLoading(false),
     });
-  };
+  }
 
   return (
     <>
-      <Head
-        admin
-        title="Notícias"
-      />
+      <Head admin title="Notícias" />
 
       <Main admin>
         <Header.Root className="mb-8">
@@ -49,12 +44,7 @@ export default function AdminArticleHome({ articles, flash }: AdminArticleHomePr
           <Header.Divisor />
           <Header.Actions>
             {userCanCreateArticle && (
-              <Button
-                admin
-                asLink
-                href="/gremio/noticias/nova"
-                variant="default"
-              >
+              <Button admin asLink href="/gremio/noticias/nova" variant="default">
                 Criar notícia
               </Button>
             )}
@@ -62,21 +52,11 @@ export default function AdminArticleHome({ articles, flash }: AdminArticleHomePr
         </Header.Root>
 
         {"createArticleSuccess" in flash && (
-          <Alert
-            admin
-            message={flash.createArticleSuccess}
-            type="success"
-            className="mb-6"
-          />
+          <Alert admin message={flash.createArticleSuccess} type="success" className="mb-6" />
         )}
 
         {"deleteArticleSuccess" in flash && (
-          <Alert
-            admin
-            message={flash.deleteArticleSuccess}
-            type="success"
-            className="mb-6"
-          />
+          <Alert admin message={flash.deleteArticleSuccess} type="success" className="mb-6" />
         )}
 
         <TableHeader.Root className="mb-4">
@@ -97,45 +77,31 @@ export default function AdminArticleHome({ articles, flash }: AdminArticleHomePr
           />
         </TableHeader.Root>
 
-        {articles.pagination.totalItems > 0
-          ? (
-            <div className="flex flex-col gap-1">
-              {articles.data.map((article) => (
-                <ArticleListCard
-                  key={`admin-article-list-${article.id}`}
-                  {...article}
-                />),
-              )}
-            </div>
-            )
-          : (
-            <Alert
-              admin
-              type="info"
-              message="Não há notícias publicadas."
-            />
-            )}
+        {articles.pagination.totalItems > 0 ? (
+          <div className="flex flex-col gap-1">
+            {articles.data.map((article) => (
+              <ArticleListCard key={`admin-article-list-${article.id}`} {...article} />
+            ))}
+          </div>
+        ) : (
+          <Alert admin type="info" message="Não há notícias publicadas." />
+        )}
 
         <Pagination.Root
-          paginator={useMemoizedPaginatorParameters({
-            lastPage: articles.pagination.totalPages,
-            visibleButtons: 7,
-            currentPage: articles.pagination.currentPage,
-            align: "left",
-          })!}
-          className="mt-8 justify-end"
-        >
-          <Pagination.ArrowButton
-            admin
-            direction="backward"
-          />
+          paginator={
+            useMemoizedPaginatorParameters({
+              lastPage: articles.pagination.totalPages,
+              visibleButtons: 7,
+              currentPage: articles.pagination.currentPage,
+              align: "left",
+            })!
+          }
+          className="mt-8 justify-end">
+          <Pagination.ArrowButton admin direction="backward" />
           <Pagination.Buttons admin />
-          <Pagination.ArrowButton
-            admin
-            direction="forward"
-          />
+          <Pagination.ArrowButton admin direction="forward" />
         </Pagination.Root>
       </Main>
     </>
   );
-};
+}

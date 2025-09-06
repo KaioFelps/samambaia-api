@@ -7,20 +7,22 @@ type PaginatedTableHeaderProps = {
   totalItems: number;
   subject: string;
 };
-export const PaginatedTableHeaderCount = memo(({
-  currentPage,
-  itemsInCurrentPage,
-  itemsPerPage,
-  subject,
-  totalItems,
-}: PaginatedTableHeaderProps) => {
-  const itemsShown = useMemo(() => {
-    return (currentPage - 1) * itemsPerPage + itemsInCurrentPage;
-  }, [currentPage, itemsInCurrentPage, itemsPerPage]);
+export const PaginatedTableHeaderCount = memo(
+  ({
+    currentPage,
+    itemsInCurrentPage,
+    itemsPerPage,
+    subject,
+    totalItems,
+  }: PaginatedTableHeaderProps) => {
+    const itemsShown = useMemo(() => {
+      return (currentPage - 1) * itemsPerPage + itemsInCurrentPage;
+    }, [currentPage, itemsInCurrentPage, itemsPerPage]);
 
-  return (
-    <span className="font-light text-sm">
-      Exibindo {itemsShown} de {totalItems} {subject}
-    </span>
-  );
-});
+    return (
+      <span className="font-light text-sm">
+        Exibindo {itemsShown} de {totalItems} {subject}
+      </span>
+    );
+  },
+);

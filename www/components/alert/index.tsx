@@ -1,19 +1,23 @@
 import { memo } from "react";
 
-import { AdminAlert, AdminAlertProps } from "./admin-alert";
-import { PublicAlert, PublicAlertProps } from "./public-alert";
+import { AdminAlert, type AdminAlertProps } from "./admin-alert";
+import { PublicAlert, type PublicAlertProps } from "./public-alert";
 
 export type BaseAlertProps = {
   message: string;
   className?: string;
 };
 
-type AlertProps = {
-  admin: true;
-} & AdminAlertProps | { admin?: false } & PublicAlertProps;
+type AlertProps =
+  | ({
+      admin: true;
+    } & AdminAlertProps)
+  | ({ admin?: false } & PublicAlertProps);
 
 export const Alert = memo(({ admin, ...alertProps }: AlertProps) => {
-  return admin
-    ? <AdminAlert {...alertProps as AdminAlertProps} />
-    : <PublicAlert {...alertProps as PublicAlertProps} />;
+  return admin ? (
+    <AdminAlert {...(alertProps as AdminAlertProps)} />
+  ) : (
+    <PublicAlert {...(alertProps as PublicAlertProps)} />
+  );
 });

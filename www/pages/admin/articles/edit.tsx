@@ -1,11 +1,11 @@
-import { PageProps } from "@inertiajs/core/types";
+import type { PageProps } from "@inertiajs/core/types";
 import { useForm } from "@inertiajs/react";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Spinner } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { FormEvent, useMemo } from "react";
+import { type FormEvent, useMemo } from "react";
 import { toast } from "react-toastify";
 
-import MultiSelect, { SelectOption, SelectOptions } from "@/components/admin/multiselect";
+import MultiSelect, { type SelectOption, type SelectOptions } from "@/components/admin/multiselect";
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
 import Form from "@/components/form";
@@ -14,8 +14,8 @@ import { Head } from "@/components/head";
 import Header from "@/components/header";
 import { Main } from "@/components/main";
 import { useCanSee } from "@/hooks/useCanSee";
-import { Article } from "@/types/article";
-import { ArticleTag } from "@/types/article-tag";
+import type { Article } from "@/types/article";
+import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import { TinyMCEEditor } from "@/ui/admin/tiny-mce-editor";
 
@@ -37,18 +37,22 @@ function setTagsIfChanged(
   currentTags: ArticleTag[],
   newTags: SelectOptions,
   data: EditArticleForm,
-  setData:(_data: EditArticleForm) => void,
+  setData: (_data: EditArticleForm) => void,
 ) {
-  const currentTagsSet = new Set(currentTags.map(tag => tag.id));
-  const newTagsSet = new Set(newTags.map(tag => Number(tag.value)));
+  const currentTagsSet = new Set(currentTags.map((tag) => tag.id));
+  const newTagsSet = new Set(newTags.map((tag) => Number(tag.value)));
 
-  const hasChanges = currentTagsSet.size !== newTagsSet.size ||
-    !newTagsSet.values().every(value => currentTagsSet.has(value));
+  const hasChanges =
+    currentTagsSet.size !== newTagsSet.size ||
+    !newTagsSet.values().every((value) => currentTagsSet.has(value));
 
   setData({
     ...data,
     tags: hasChanges
-      ? newTagsSet.values().map(tagId => Number(tagId)).toArray()
+      ? newTagsSet
+          .values()
+          .map((tagId) => Number(tagId))
+          .toArray()
       : undefined,
   });
 }
@@ -59,13 +63,16 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
   const userCanPublishInNameOfOthers = useCanSee(Permission.ChangeArticleAuthor);
 
   const tagSelectOptions = useMemo(
-    () => tags.map(tag => ({ label: tag.value, value: tag.id.toString() } satisfies SelectOption)),
-    [tags]);
+    () =>
+      tags.map((tag) => ({ label: tag.value, value: tag.id.toString() }) satisfies SelectOption),
+    [tags],
+  );
 
   const articleCurrentTags = useMemo(
-    () => article
-      ?.tags
-      .map(tag => ({ label: tag.value, value: tag.id.toString() }) satisfies SelectOption),
+    () =>
+      article?.tags.map(
+        (tag) => ({ label: tag.value, value: tag.id.toString() }) satisfies SelectOption,
+      ),
     [article],
   );
 
@@ -95,10 +102,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
   if (!article) {
     return (
       <>
-        <Head
-          admin
-          title="Editar notícia"
-        />
+        <Head admin title="Editar notícia" />
         <Main admin>
           <Header.Root className="mb-8">
             <Header.Title>Notícia não encontrada</Header.Title>
@@ -120,10 +124,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
 
   return (
     <>
-      <Head
-        admin
-        title="Editar notícia"
-      />
+      <Head admin title="Editar notícia" />
       <Main admin>
         <Header.Root className="mb-8">
           <Header.Title>Editando notícia</Header.Title>
@@ -131,18 +132,10 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
         </Header.Root>
 
         {"editArticleSuccess" in flash && (
-          <Alert
-            admin
-            type="success"
-            message={flash.editArticleSuccess}
-            className="mb-6"
-          />
+          <Alert admin type="success" message={flash.editArticleSuccess} className="mb-6" />
         )}
 
-        <Form.Root
-          onSubmit={handleEditArticle}
-          className="flex flex-col gap-3"
-        >
+        <Form.Root onSubmit={handleEditArticle} className="flex flex-col gap-3">
           <Form.Input
             admin
             label="Título"
@@ -155,9 +148,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
               const value = e.currentTarget.value;
               setData({
                 ...data,
-                title: value === article.title
-                  ? undefined
-                  : value,
+                title: value === article.title ? undefined : value,
               });
             }}
           />
@@ -174,9 +165,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
               const value = e.currentTarget.value;
               setData({
                 ...data,
-                description: value === article.description
-                  ? undefined
-                  : value,
+                description: value === article.description ? undefined : value,
               });
             }}
           />
@@ -194,16 +183,13 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
 
               setData({
                 ...data,
-                cover_url: value === article.coverUrl
-                  ? undefined
-                  : value,
+                cover_url: value === article.coverUrl ? undefined : value,
               });
             }}
           />
 
           {userCanPublishInNameOfOthers && (
             <div>
-
               <Form.Input
                 admin
                 label="ID do autor"
@@ -215,25 +201,23 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
                   const value = e.currentTarget.value;
                   setData({
                     ...data,
-                    author_id: value === article.authorId
-                      ? undefined
-                      : value,
+                    author_id: value === article.authorId ? undefined : value,
                   });
                 }}
               />
               <p className="text-sm font-light ml-1 text-gray-800">
-                Ao preencher esse campo, a notícia será publicada no usuário com o ID
-                especificado.
+                Ao preencher esse campo, a notícia será publicada no usuário com o ID especificado.
               </p>
             </div>
           )}
 
           <div>
-            <label className="block text-sm mb-1 ml-1">
+            <label htmlFor="edit-article-tags-select" className="block text-sm mb-1 ml-1">
               Tag/Categoria
             </label>
             <ValidationErrorSpan validationError={errors.tags} />
             <MultiSelect
+              id="edit-article-tags-select"
               defaultOptions={articleCurrentTags}
               options={tagSelectOptions}
               setValues={(value) => setTagsIfChanged(article.tags, value, data, setData)}
@@ -245,52 +229,27 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             onEditorChange={(_content) => {
               setData({
                 ...data,
-                content: _content === article.content
-                  ? undefined
-                  : _content,
+                content: _content === article.content ? undefined : _content,
               });
             }}
             initialValue={article.content}
           />
 
           <div className="mt-3 flex items-center gap-1.5">
-
-            <Button
-              admin
-              variant="default"
-              theme="success"
-              size="lg"
-              disabled={processing}
-            >
-              {processing
-                ? (
-                  <>
-                    <Spinner
-                      size={16}
-                      weight="bold"
-                      className="animate-spin"
-                    />
-                    Salvando...
-                  </>
-                  )
-                : (
-                  <>
-                    <Plus
-                      size={16}
-                      weight="bold"
-                    />
-                    Salvar
-                  </>
-                  )}
+            <Button admin variant="default" theme="success" size="lg" disabled={processing}>
+              {processing ? (
+                <>
+                  <Spinner size={16} weight="bold" className="animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <Plus size={16} weight="bold" />
+                  Salvar
+                </>
+              )}
             </Button>
-            <Button
-              admin
-              asLink
-              type="button"
-              size="lg"
-              variant="ghost"
-              href="/gremio/noticias"
-            >
+            <Button admin asLink type="button" size="lg" variant="ghost" href="/gremio/noticias">
               Cancelar
             </Button>
           </div>

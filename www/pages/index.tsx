@@ -6,9 +6,9 @@ import { Alert } from "@/components/alert";
 import { ArticleCard } from "@/components/article-card";
 import { BadgeCard } from "@/components/badge-card";
 import { Sprite } from "@/components/sprite";
-import { ArticlePreview } from "@/types/article-preview";
-import { FreeBadge } from "@/types/free-badge";
-import { Paginated } from "@/types/pagination";
+import type { ArticlePreview } from "@/types/article-preview";
+import type { FreeBadge } from "@/types/free-badge";
+import type { Paginated } from "@/types/pagination";
 
 type HomeProps = {
   articles: Paginated<ArticlePreview[]>;
@@ -30,16 +30,13 @@ export default function Index({ articles, freeBadges }: HomeProps) {
         />
       </main>
     </>
-
   );
 }
 
 const ArticlesSection = memo(({ articles }: { articles: ArticlePreview[] }) => (
   <section className="card w-full">
     <header className="section-header blue flex gap-3 items-center justify-between mb-3">
-      <h1>
-        Últimas notícias
-      </h1>
+      <h1>Últimas notícias</h1>
 
       <Link
         href="/"
@@ -52,28 +49,17 @@ const ArticlesSection = memo(({ articles }: { articles: ArticlePreview[] }) => (
           flex items-center gap-1 text-white text-sm font-medium
           border-2 border-gray-800 bg-blue-500 px-2 py-[5.5px] rounded-[6px]
           leading-tight
-          "
-      >
-        <Plus
-          size={16}
-          weight="bold"
-        />
+          ">
+        <Plus size={16} weight="bold" />
         Ver mais notícias
       </Link>
     </header>
 
-    {articles.length > 0
-      ? (
-        <div className="grid grid-flow-row grid-cols-2 gap-2">
-          {articles.map(ArticleCard)}
-        </div>)
-      : (
-        <Alert
-          className="mt-3"
-          type="warning"
-          message="Ups! Parece que ainda não há notícias."
-        />
-        )}
+    {articles.length > 0 ? (
+      <div className="grid grid-flow-row grid-cols-2 gap-2">{articles.map(ArticleCard)}</div>
+    ) : (
+      <Alert className="mt-3" type="warning" message="Ups! Parece que ainda não há notícias." />
+    )}
   </section>
 ));
 
@@ -82,68 +68,48 @@ type FreeBadgeSectionProps = { badges: FreeBadge[]; currentPage: number };
 const FreeBadgeSection = memo(({ badges, currentPage }: FreeBadgeSectionProps) => {
   const PER_PAGE = 26;
 
-  function goToPage(page: number) {
+  const goToPage = useCallback((page: number) => {
     router.visit(`/?fb_p=${page}`, { only: ["freeBadges"] });
-  }
+  }, []);
 
   const handleGoToPrevPage = useCallback(() => {
     goToPage(currentPage - 1 || 1);
-  }, [currentPage]);
+  }, [currentPage, goToPage]);
 
   const handleGoToNextPage = useCallback(() => {
     goToPage(currentPage + 1);
-  }, [currentPage]);
+  }, [currentPage, goToPage]);
 
   return (
     <section className="card w-full">
       <header className="section-header green flex gap-3 items-center justify-between mb-3">
-        <h2>
-          Emblemas grátis
-        </h2>
+        <h2>Emblemas grátis</h2>
 
         <div className="flex gap-1">
           <button
+            type="button"
             className="btn-arrow-green"
             disabled={currentPage === 1}
-            onClick={handleGoToPrevPage}
-          >
-            <Sprite
-              x={-184}
-              y={-62}
-              height={20}
-              width={14}
-            />
+            onClick={handleGoToPrevPage}>
+            <Sprite x={-184} y={-62} height={20} width={14} />
           </button>
           <button
+            type="button"
             className="btn-arrow-green"
             disabled={badges.length <= PER_PAGE}
-            onClick={handleGoToNextPage}
-          >
-            <Sprite
-              x={-184}
-              y={-62}
-              height={20}
-              width={14}
-              className="rotate-180"
-            />
+            onClick={handleGoToNextPage}>
+            <Sprite x={-184} y={-62} height={20} width={14} className="rotate-180" />
           </button>
         </div>
       </header>
 
-      {badges.length > 0
-        ? (
-
-          <div className="grid grid-cols-[repeat(13,minmax(0,1fr))] grid-flow-row gap-1">
-            {badges.map(BadgeCard)}
-          </div>
-          )
-        : (
-          <Alert
-            className="mt-3"
-            type="warning"
-            message="Não tem nenhum emblema grátis!"
-          />
-          )}
+      {badges.length > 0 ? (
+        <div className="grid grid-cols-[repeat(13,minmax(0,1fr))] grid-flow-row gap-1">
+          {badges.map(BadgeCard)}
+        </div>
+      ) : (
+        <Alert className="mt-3" type="warning" message="Não tem nenhum emblema grátis!" />
+      )}
     </section>
   );
 });

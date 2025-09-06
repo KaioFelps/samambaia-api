@@ -5,13 +5,9 @@ import { useMemo } from "react";
 
 import { useCanSee } from "@/hooks/useCanSee";
 
-import { SidebarMenuLinkProps } from "./link";
+import type { SidebarMenuLinkProps } from "./link";
 
-export const SidebarMenuItem = ({
-  href,
-  label,
-  requires,
-}: Omit<SidebarMenuLinkProps, "icon">) => {
+export const SidebarMenuItem = ({ href, label, requires }: Omit<SidebarMenuLinkProps, "icon">) => {
   const pageSegment = usePage().url;
   const isActive = useMemo(() => href === pageSegment, [href, pageSegment]);
   const isVisible = useCanSee(requires);
@@ -26,16 +22,14 @@ export const SidebarMenuItem = ({
         "group block ml-1 px-2 py-1 bg-transparent rounded-lg mt-1 relative cursor-default",
         "data-[active=false]:active:bg-purple-700/10 data-[active=false]:hover:bg-purple-700/5",
         "data-[active=true]:bg-purple-700/5 data-[active=false]:active:cursor-pointer",
-      )}
-    >
-      <span className="px-7">
-        {label}
-      </span>
+      )}>
+      <span className="px-7">{label}</span>
 
-      <ArrowRight className={clsx(
-        "absolute right-2 top-1/2 -translate-y-1/2 w-0 transition-[width] duration-300",
-        "group-hover:group-data-[active=false]:w-5",
-      )}
+      <ArrowRight
+        className={clsx(
+          "absolute right-2 top-1/2 -translate-y-1/2 w-0 transition-[width] duration-300",
+          "group-hover:group-data-[active=false]:w-5",
+        )}
       />
     </Link>
   );

@@ -2,11 +2,11 @@ import { useForm } from "@inertiajs/react";
 import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Spinner } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { FormEvent } from "react";
+import type { FormEvent } from "react";
 import { toast } from "react-toastify";
 import tinymce from "tinymce";
 
-import MultiSelect, { SelectOption } from "@/components/admin/multiselect";
+import MultiSelect, { type SelectOption } from "@/components/admin/multiselect";
 import Button from "@/components/button";
 import Form from "@/components/form";
 import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
@@ -14,7 +14,7 @@ import { Head } from "@/components/head";
 import Header from "@/components/header";
 import { Main } from "@/components/main";
 import { useCanSee } from "@/hooks/useCanSee";
-import { ArticleTag } from "@/types/article-tag";
+import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import { TinyMCEEditor } from "@/ui/admin/tiny-mce-editor";
 
@@ -32,14 +32,7 @@ type CreateArticleForm = {
 };
 
 export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageProps) {
-  const {
-    data,
-    setData,
-    errors,
-    clearErrors,
-    processing,
-    post,
-  } = useForm<CreateArticleForm>({
+  const { data, setData, errors, clearErrors, processing, post } = useForm<CreateArticleForm>({
     content: "",
     cover_url: "",
     description: "",
@@ -47,17 +40,18 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
     tags: [],
   });
 
-  const tagsOptions = tags
-    .map(tag => ({ label: tag.value, value: tag.id.toString() } satisfies SelectOption));
+  const tagsOptions = tags.map(
+    (tag) => ({ label: tag.value, value: tag.id.toString() }) satisfies SelectOption,
+  );
 
-  const userCanPublishInNameOfOthers = useCanSee(Permission.ChangeArticleAuthor); ;
+  const userCanPublishInNameOfOthers = useCanSee(Permission.ChangeArticleAuthor);
 
   const handleCopyHtml = async () => {
     const content = tinymce.activeEditor?.getContent();
     if (!content) {
       toast("Não há conteúdo a ser copiado.", { type: "error" });
       return;
-    };
+    }
 
     await window.navigator.clipboard.writeText(content);
     toast("Conteúdo copiado com sucesso!", { type: "info" });
@@ -89,10 +83,7 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
 
   return (
     <>
-      <Head
-        admin
-        title="Nova notícia"
-      />
+      <Head admin title="Nova notícia" />
 
       <Main admin>
         <Header.Root className="mb-8">
@@ -100,10 +91,7 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
           <Header.Divisor />
         </Header.Root>
 
-        <Form.Root
-          onSubmit={handleCreateArticle}
-          className="flex flex-col gap-3"
-        >
+        <Form.Root onSubmit={handleCreateArticle} className="flex flex-col gap-3">
           <Form.Input
             admin
             label="Título"
@@ -136,7 +124,6 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
 
           {userCanPublishInNameOfOthers && (
             <div>
-
               <Form.Input
                 admin
                 label="ID do autor"
@@ -150,20 +137,22 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
                 }}
               />
               <p className="text-sm font-light ml-1 text-gray-800">
-                Ao preencher esse campo, a notícia será publicada no usuário com o ID
-                especificado.
+                Ao preencher esse campo, a notícia será publicada no usuário com o ID especificado.
               </p>
             </div>
           )}
 
           <div>
-            <label className="block text-sm mb-1 ml-1">
+            <label htmlFor="create-article-tags-select" className="block text-sm mb-1 ml-1">
               Tag/Categoria
             </label>
             <ValidationErrorSpan validationError={errors.tags} />
             <MultiSelect
+              id="create-article-tags-select"
               options={tagsOptions}
-              setValues={(value) => setData({ ...data, tags: value.map(tag => Number(tag.value)) })}
+              setValues={(value) =>
+                setData({ ...data, tags: value.map((tag) => Number(tag.value)) })
+              }
             />
           </div>
 
@@ -173,45 +162,21 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
           />
 
           <div className="mt-3 flex items-center gap-1.5">
-
-            <Button
-              admin
-              variant="default"
-              theme="success"
-              size="lg"
-              disabled={processing}
-            >
-              {processing
-                ? (
-                  <>
-                    <Spinner
-                      size={16}
-                      weight="bold"
-                      className="animate-spin"
-                    />
-                    Publicando...
-                  </>
-                  )
-                : (
-                  <>
-                    <Plus
-                      size={16}
-                      weight="bold"
-                    />
-                    Publicar
-                  </>
-                  )}
+            <Button admin variant="default" theme="success" size="lg" disabled={processing}>
+              {processing ? (
+                <>
+                  <Spinner size={16} weight="bold" className="animate-spin" />
+                  Publicando...
+                </>
+              ) : (
+                <>
+                  <Plus size={16} weight="bold" />
+                  Publicar
+                </>
+              )}
             </Button>
-            <Button
-              admin
-              type="button"
-              size="lg"
-              onClick={handleCopyHtml}
-            >
-              <Clipboard
-                size={16}
-                weight="bold"
-              />
+            <Button admin type="button" size="lg" onClick={handleCopyHtml}>
+              <Clipboard size={16} weight="bold" />
               Copiar HTML
             </Button>
           </div>

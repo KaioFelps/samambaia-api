@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import clsx from "clsx";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export type DialogContentProps = {
   children: ReactNode;
@@ -13,8 +13,7 @@ export function DialogContent({ children, className }: DialogContentProps) {
       <Dialog.Overlay className="fixed inset-0 bg-black/30 backdrop-blur-xs z-20" />
       <Dialog.Content
         style={{
-          boxShadow:
-            `inset 0 0 0 4px var(--color-white),
+          boxShadow: `inset 0 0 0 4px var(--color-white),
             0 2px 0 0 color-mix(in oklab, var(--color-black) 25%, transparent)`,
         }}
         className={clsx(
@@ -24,8 +23,7 @@ export function DialogContent({ children, className }: DialogContentProps) {
           "data-[state=open]:animate-dialog-scale-up-and-fade",
           "data-[state=closed]:animate-dialog-scale-up-and-fade-reverse",
           className && className,
-        )}
-      >
+        )}>
         {children}
       </Dialog.Content>
     </Dialog.Portal>

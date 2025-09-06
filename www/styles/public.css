@@ -20,11 +20,7 @@
 }
 
 @utility section-header {
-  background: linear-gradient(
-    180deg,
-    var(--tw-gradient-from) 50%,
-    var(--tw-gradient-to) 50%
-  );
+  background: linear-gradient(180deg, var(--tw-gradient-from) 50%, var(--tw-gradient-to) 50%);
   @apply rounded-[7px] border-2 border-gray-800 px-3 py-2.5 leading-tight shadow-white/50 shadow-[inset_0_2px_0_0];
 
   & > span,

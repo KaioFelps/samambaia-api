@@ -1,12 +1,12 @@
-import { InertiaLinkProps, Link } from "@inertiajs/react";
+import { type InertiaLinkProps, Link } from "@inertiajs/react";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import clsx from "clsx";
-import { JSXElementConstructor, memo, useContext, useEffect, useMemo, useState } from "react";
+import { type JSXElementConstructor, memo, useContext, useEffect, useMemo, useState } from "react";
 
-import { GetPaginationParams, Paginator } from "@/utils/paginator";
+import type { GetPaginationParams, Paginator } from "@/utils/paginator";
 
-import { PaginationArrowButtonProps } from "..";
+import type { PaginationArrowButtonProps } from "..";
 import { PaginationContext } from "../context";
 
 function getDirectionButtonProps(
@@ -14,27 +14,33 @@ function getDirectionButtonProps(
   paginator: Paginator,
   params: GetPaginationParams = {},
 ) {
-  let disabled;
+  let disabled: boolean;
 
   switch (direction) {
-    case "backward": disabled = !paginator.hasPreviousPage(); break;
-    case "forward": disabled = !paginator.hasNextPage(); break;
+    case "backward":
+      disabled = !paginator.hasPreviousPage();
+      break;
+    case "forward":
+      disabled = !paginator.hasNextPage();
+      break;
   }
 
   let page = null;
 
   if (!disabled) {
     switch (direction) {
-      case "backward": page = paginator.getCurrentPage() - 1; break;
-      case "forward": page = paginator.getCurrentPage() + 1; break;
+      case "backward":
+        page = paginator.getCurrentPage() - 1;
+        break;
+      case "forward":
+        page = paginator.getCurrentPage() + 1;
+        break;
     }
   }
 
   params.queryString ??= window.location.search;
 
-  const pagination = page
-    ? paginator.getPaginationLinkForPage(page, params)
-    : null;
+  const pagination = page ? paginator.getPaginationLinkForPage(page, params) : null;
 
   return {
     disabled,
@@ -42,9 +48,7 @@ function getDirectionButtonProps(
   };
 }
 
-export const AdminPaginationArrowButton = memo(({
-  direction,
-}: PaginationArrowButtonProps) => {
+export const AdminPaginationArrowButton = memo(({ direction }: PaginationArrowButtonProps) => {
   const paginationContext = useContext(PaginationContext);
 
   const [Button, setButton] = useState<JSXElementConstructor<InertiaLinkProps> | "div">("div");
@@ -61,15 +65,11 @@ export const AdminPaginationArrowButton = memo(({
     );
 
     setDisabled(disabled);
-    setHref(pagination && pagination.link);
-    setButton(disabled
-      ? "div"
-      : Link);
+    setHref(pagination?.link ?? null);
+    setButton(disabled ? "div" : Link);
   }, [direction, paginationContext]);
 
-  const Icon = useMemo(() => direction === "backward"
-    ? ArrowLeft
-    : ArrowRight, [direction]);
+  const Icon = useMemo(() => (direction === "backward" ? ArrowLeft : ArrowRight), [direction]);
 
   if (!paginationContext) return null;
 
@@ -83,12 +83,8 @@ export const AdminPaginationArrowButton = memo(({
         disabled
           ? "border border-gray-400"
           : "text-white bg-purple-500 hover:bg-purple-700 active:brightness-90",
-      )}
-    >
-      <Icon
-        size={16}
-        weight="bold"
-      />
+      )}>
+      <Icon size={16} weight="bold" />
     </Button>
   );
 });

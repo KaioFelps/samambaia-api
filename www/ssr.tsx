@@ -7,7 +7,7 @@ import { pageResolver, resolveTitle } from "./lib/inertia";
 
 const appName = appConfig.appName ?? "Live Cosmic";
 
-createServer(page =>
+createServer((page) =>
   createInertiaApp({
     page,
 

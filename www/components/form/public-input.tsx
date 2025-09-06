@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-import { InputProps } from "./input";
+import type { InputProps } from "./input";
 import { ValidationErrorSpan } from "./validation-error-alert";
 
 export const PublicInput = ({
@@ -14,10 +14,7 @@ export const PublicInput = ({
 }: Omit<InputProps, "admin">) => {
   return (
     <div className={containerClassName}>
-      <label
-        htmlFor={id ?? name}
-        className="block text-sm mb-1 ml-1"
-      >
+      <label htmlFor={id ?? name} className="block text-sm mb-1 ml-1">
         {label}
       </label>
 
@@ -27,9 +24,7 @@ export const PublicInput = ({
         id={id ?? name}
         name={name}
         className={clsx("text-input", className && className)}
-        data-invalid={validationError
-          ? ""
-          : null}
+        data-invalid={validationError ? "" : null}
         {...props}
       />
     </div>

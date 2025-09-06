@@ -1,8 +1,8 @@
+import path from "node:path";
 import MillionLint from "@million/lint";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import laravel from "laravel-vite-plugin";
-import path from "path";
 import type { UserConfig } from "vite";
 
 import tsconfig from "./tsconfig.json";

@@ -1,7 +1,7 @@
 import { usePage } from "@inertiajs/react";
 
-import { TPermission } from "@/types/auth";
-import { can, CanMode } from "@/utils/can";
+import type { TPermission } from "@/types/auth";
+import { type CanMode, can } from "@/utils/can";
 
 export function useCanSee(
   requires: TPermission[] | TPermission | undefined,
@@ -11,9 +11,7 @@ export function useCanSee(
 
   if (!requires) return true;
 
-  const requiredPermissions = Array.isArray(requires)
-    ? requires
-    : [requires];
+  const requiredPermissions = Array.isArray(requires) ? requires : [requires];
 
   if (requiredPermissions.length === 0 || !userPermissions) return false;
 

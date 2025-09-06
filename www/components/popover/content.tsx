@@ -1,17 +1,12 @@
 import * as Popover from "@radix-ui/react-popover";
 import clsx from "clsx";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { PublicDroppableArrow } from "../droppable-arrow";
 
 export type PopoverContentProps = Omit<Popover.PopoverContentProps, "className">;
 
-export function PopoverContent({
-  children,
-  sideOffset = 4,
-  style,
-  ...rest
-}: PopoverContentProps) {
+export function PopoverContent({ children, sideOffset = 4, style, ...rest }: PopoverContentProps) {
   return (
     <Popover.Portal>
       <Popover.Content
@@ -36,8 +31,7 @@ export function PopoverContent({
 
           "data-[state=open]:data-[side=top]:animate-slide-up-and-fade",
           "data-[state=closed]:data-[side=top]:animate-slide-up-and-fade-reverse",
-        )}
-      >
+        )}>
         {children}
         <PublicDroppableArrow component="popover" />
       </Popover.Content>
@@ -47,9 +41,5 @@ export function PopoverContent({
 
 type PopoverContentContainerProps = { children: ReactNode; className?: string };
 export function PopoverContentContainer({ children, className }: PopoverContentContainerProps) {
-  return (
-    <div className={clsx("px-3 pb-3 text-sm", className && className)}>
-      {children}
-    </div>
-  );
+  return <div className={clsx("px-3 pb-3 text-sm", className && className)}>{children}</div>;
 }

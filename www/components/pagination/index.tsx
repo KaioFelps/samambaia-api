@@ -18,13 +18,12 @@ const PaginationButtons = memo(({ admin = false }: { admin?: boolean }) => {
   throw new Error("PaginationButtons has no non-admin variant implemented.");
 });
 
-const PaginationArrowButton = memo(({
-  admin = false,
-  ...props
-}: PaginationArrowButtonProps & { admin?: boolean }) => {
-  if (admin) return <AdminPaginationArrowButton {...props} />;
-  throw new Error("PaginationArrowButton has no non-admin variant implemented.");
-});
+const PaginationArrowButton = memo(
+  ({ admin = false, ...props }: PaginationArrowButtonProps & { admin?: boolean }) => {
+    if (admin) return <AdminPaginationArrowButton {...props} />;
+    throw new Error("PaginationArrowButton has no non-admin variant implemented.");
+  },
+);
 
 export default {
   Root: PaginationRoot,

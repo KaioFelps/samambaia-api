@@ -5,11 +5,13 @@ const fakeUrl = "http://mylink.com";
 
 describe("Paginator Specifications", () => {
   it("shouldn't be possible to set invalid values to a paginator instance", () => {
-    expect(() => new Paginator({ url: fakeUrl, lastPage: -1 }))
-      .toThrowError(IllegalArgumentException);
+    expect(() => new Paginator({ url: fakeUrl, lastPage: -1 })).toThrowError(
+      IllegalArgumentException,
+    );
 
-    expect(() => new Paginator({ url: fakeUrl, lastPage: 10, currentPage: 0 }))
-      .toThrowError(IllegalArgumentException);
+    expect(() => new Paginator({ url: fakeUrl, lastPage: 10, currentPage: 0 })).toThrowError(
+      IllegalArgumentException,
+    );
 
     let paginator = new Paginator({ url: fakeUrl, lastPage: 10 });
 
@@ -38,21 +40,33 @@ describe("Paginator Specifications", () => {
     const paginator = new Paginator({ url: fakeUrl, lastPage: 10, align: "center" });
     paginator.setVisibleButtons(5);
 
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([1, 2, 3, 4, 5]
-      .map((page) => ({ page, link: `${fakeUrl}?page=${page}` }))));
+    expect(paginator.getPagination()).toEqual(
+      expect.arrayContaining(
+        [1, 2, 3, 4, 5].map((page) => ({ page, link: `${fakeUrl}?page=${page}` })),
+      ),
+    );
 
     paginator.setCurrentPage(5);
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([3, 4, 5, 6, 7]
-      .map(page => ({ page, link: `${fakeUrl}?page=${page}` }))));
+    expect(paginator.getPagination()).toEqual(
+      expect.arrayContaining(
+        [3, 4, 5, 6, 7].map((page) => ({ page, link: `${fakeUrl}?page=${page}` })),
+      ),
+    );
 
     paginator.setCurrentPage(5);
     paginator.setVisibleButtons(7);
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([2, 3, 4, 5, 6, 7, 8]
-      .map(page => ({ page, link: `${fakeUrl}?page=${page}` }))));
+    expect(paginator.getPagination()).toEqual(
+      expect.arrayContaining(
+        [2, 3, 4, 5, 6, 7, 8].map((page) => ({ page, link: `${fakeUrl}?page=${page}` })),
+      ),
+    );
 
     paginator.setCurrentPage(7);
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([4, 5, 6, 7, 8, 9, 10]
-      .map(page => ({ page, link: `${fakeUrl}?page=${page}` }))));
+    expect(paginator.getPagination()).toEqual(
+      expect.arrayContaining(
+        [4, 5, 6, 7, 8, 9, 10].map((page) => ({ page, link: `${fakeUrl}?page=${page}` })),
+      ),
+    );
     paginator.setCurrentPage(7);
   });
 
@@ -60,18 +74,27 @@ describe("Paginator Specifications", () => {
     const paginator = new Paginator({ url: fakeUrl, lastPage: 10, align: "left" });
     paginator.setVisibleButtons(6);
 
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([1, 2, 3, 4, 5, 6]
-      .map((page) => ({ page, link: `${fakeUrl}?page=${page}` }))));
+    expect(paginator.getPagination()).toEqual(
+      expect.arrayContaining(
+        [1, 2, 3, 4, 5, 6].map((page) => ({ page, link: `${fakeUrl}?page=${page}` })),
+      ),
+    );
 
     paginator.nextPage();
     paginator.nextPage();
 
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([3, 4, 5, 6, 7, 8]
-      .map((page) => ({ page, link: `${fakeUrl}?page=${page}` }))));
+    expect(paginator.getPagination()).toEqual(
+      expect.arrayContaining(
+        [3, 4, 5, 6, 7, 8].map((page) => ({ page, link: `${fakeUrl}?page=${page}` })),
+      ),
+    );
 
     paginator.setCurrentPage(8);
-    expect(paginator.getPagination()).toEqual(expect.arrayContaining([5, 6, 7, 8, 9, 10]
-      .map((page) => ({ page, link: `${fakeUrl}?page=${page}` }))));
+    expect(paginator.getPagination()).toEqual(
+      expect.arrayContaining(
+        [5, 6, 7, 8, 9, 10].map((page) => ({ page, link: `${fakeUrl}?page=${page}` })),
+      ),
+    );
   });
 
   it("shouldn't let put even amount of visible buttons on center align", () => {
@@ -82,27 +105,28 @@ describe("Paginator Specifications", () => {
     expect(() => paginator.setVisibleButtons(6)).not.toThrowError();
   });
 
-  it(
-    "should not override existing search params but the page and the explicitly overriden ones",
-    () => {
-      const paginator = new Paginator({ url: fakeUrl, lastPage: 10 });
+  it("should not override existing search params but the page and the explicitly overriden ones", () => {
+    const paginator = new Paginator({ url: fakeUrl, lastPage: 10 });
 
-      expect(paginator.getPagination({ queryString: "?foo&bar=baz" })[0].link)
-        .toMatch(`${fakeUrl}?foo&bar=baz&page=1`);
+    expect(paginator.getPagination({ queryString: "?foo&bar=baz" })[0].link).toMatch(
+      `${fakeUrl}?foo&bar=baz&page=1`,
+    );
 
-      expect(paginator.getPagination({ queryString: "?page=3" })[0].link)
-        .toMatch(`${fakeUrl}?page=1`);
+    expect(paginator.getPagination({ queryString: "?page=3" })[0].link).toMatch(
+      `${fakeUrl}?page=1`,
+    );
 
-      expect(paginator.getPagination({ queryString: "?page=1" })[0].link)
-        .toMatch(`${fakeUrl}?page=1`);
+    expect(paginator.getPagination({ queryString: "?page=1" })[0].link).toMatch(
+      `${fakeUrl}?page=1`,
+    );
 
-      expect(paginator.getPagination({
+    expect(
+      paginator.getPagination({
         queryString: "?foo=bar&page=2&user=john",
         extraArgs: { foo: "baz" },
-      })[0]
-        .link)
-        .toMatch(`${fakeUrl}?foo=baz&user=john&page=1`);
-    });
+      })[0].link,
+    ).toMatch(`${fakeUrl}?foo=baz&user=john&page=1`);
+  });
 
   it("shouldn't render visible buttons if there are not enough pages on left align", () => {
     const paginator = new Paginator({
@@ -119,8 +143,7 @@ describe("Paginator Specifications", () => {
     const paginator = new Paginator({ url: fakeUrl, lastPage: 10 });
     paginator.setPageQuery("p");
 
-    expect(paginator.getPagination()[0].link)
-      .toMatch(`${fakeUrl}?p=1`);
+    expect(paginator.getPagination()[0].link).toMatch(`${fakeUrl}?p=1`);
   });
 
   it("shouldn't move paginator cursor to out of bounds page", () => {

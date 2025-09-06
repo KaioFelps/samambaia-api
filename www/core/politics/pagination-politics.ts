@@ -29,8 +29,8 @@ export class PaginationPolitics {
     lastPage: number,
     visibleButtons: number,
   ) {
-    let maxLeft = (currentPage - Math.floor(visibleButtons / 2));
-    let maxRight = (currentPage + Math.floor(visibleButtons / 2));
+    let maxLeft = currentPage - Math.floor(visibleButtons / 2);
+    let maxRight = currentPage + Math.floor(visibleButtons / 2);
 
     if (maxLeft <= 1) {
       maxLeft = 1;
@@ -90,7 +90,7 @@ export class PaginationPolitics {
       return key;
     });
 
-    const queryString = "?" + params.join("&");
+    const queryString = `?${params.join("&")}`;
 
     return queryString;
   }

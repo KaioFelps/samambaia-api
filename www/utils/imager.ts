@@ -23,7 +23,7 @@ export const CarriableItem = {
   sushi: 42,
 } as const;
 
-type CarriableItemValue = typeof CarriableItem[keyof typeof CarriableItem];
+type CarriableItemValue = (typeof CarriableItem)[keyof typeof CarriableItem];
 
 export const Action = {
   sit: "sit",
@@ -36,7 +36,9 @@ export const Action = {
 
 type ActionKeys = Exclude<keyof typeof Action, "carrying" | "eating">;
 type ActionType =
-  typeof Action[ActionKeys] | `crr=${CarriableItemValue}` | `crr=${CarriableItemValue}`;
+  | (typeof Action)[ActionKeys]
+  | `crr=${CarriableItemValue}`
+  | `crr=${CarriableItemValue}`;
 
 export interface ImagerParamsArguments {
   img_format: "png";
@@ -45,17 +47,14 @@ export interface ImagerParamsArguments {
   size: "s" | "m" | "g";
   /* Use `Actions` enumeration to generate actions instead of hard-coding strings values. */
   action?: ActionType;
-  gesture?: typeof FaceGesture[keyof typeof FaceGesture];
+  gesture?: (typeof FaceGesture)[keyof typeof FaceGesture];
   headonly?: "0" | "1";
 }
 
 export abstract class Imager {
-  public static getUserImage(
-    nickname: string,
-    params: Partial<ImagerParamsArguments> = {},
-  ) {
+  public static getUserImage(nickname: string, params: Partial<ImagerParamsArguments> = {}) {
     const searchParams = new URLSearchParams(Object.entries({ user: nickname, ...params }));
-    return appConfig.imagerUrl + "?" + searchParams.toString();
+    return `${appConfig.imagerUrl}?${searchParams.toString()}`;
   }
 }
 

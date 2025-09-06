@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { Paginator, PaginatorConstructorArgs } from "@/utils/paginator";
+import { Paginator, type PaginatorConstructorArgs } from "@/utils/paginator";
 
 export type GetPaginatorArgs = Omit<PaginatorConstructorArgs, "url">;
 
@@ -19,9 +19,9 @@ export function useMemoizedPaginatorParameters({
 }: GetPaginatorArgs) {
   const [articlePaginator, setArticlePaginator] = useState<GetPaginatorArgs | null>();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: it must run only once
   useEffect(() => {
-    if (articlePaginator?.currentPage === currentPage &&
-      articlePaginator?.lastPage === lastPage) {
+    if (articlePaginator?.currentPage === currentPage && articlePaginator?.lastPage === lastPage) {
       return;
     }
 
@@ -32,9 +32,7 @@ export function useMemoizedPaginatorParameters({
       align,
       pageQuery,
     } satisfies GetPaginatorArgs);
-  },
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  [currentPage, lastPage, align, pageQuery, visibleButtons]);
+  }, [currentPage, lastPage, align, pageQuery, visibleButtons]);
 
   return articlePaginator!;
 }
@@ -42,10 +40,10 @@ export function useMemoizedPaginatorParameters({
 export function useMemoizedPaginationFilter<T = string>(key: T, value: string | number) {
   const [filter, setFilter] = useState<{ key: T; value: string | number } | null>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: it must not rerender due to filter key or value changes
   useEffect(() => {
     if (key === filter?.key && value === filter?.value) return;
     setFilter({ key, value });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, value]);
 
   return filter!;

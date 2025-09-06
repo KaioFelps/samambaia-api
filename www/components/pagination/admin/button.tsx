@@ -1,8 +1,8 @@
-import { InertiaLinkProps, Link } from "@inertiajs/react";
+import { type InertiaLinkProps, Link } from "@inertiajs/react";
 import clsx from "clsx";
-import { JSXElementConstructor, memo, useContext, useEffect, useState } from "react";
+import { type JSXElementConstructor, memo, useContext, useEffect, useState } from "react";
 
-import { PaginationButtonProps } from "..";
+import type { PaginationButtonProps } from "..";
 import { PaginationContext } from "../context";
 
 export const AdminPaginationButton = memo(({ link, page }: PaginationButtonProps) => {
@@ -13,16 +13,12 @@ export const AdminPaginationButton = memo(({ link, page }: PaginationButtonProps
   useEffect(() => {
     const isActive = paginator.getCurrentPage() === page;
     setIsActive(isActive);
-    setButton(isActive
-      ? "div"
-      : Link);
+    setButton(isActive ? "div" : Link);
   }, [paginator, page]);
 
   return (
     <Button
-      role={!isActive
-        ? "button"
-        : undefined}
+      role={!isActive ? "button" : undefined}
       href={link}
       className={clsx(
         "text-sm transition-all self-stretch h-8 px-2 aspect-square grid place-items-center",
@@ -31,8 +27,7 @@ export const AdminPaginationButton = memo(({ link, page }: PaginationButtonProps
         !isActive && "bg-purple-700/20 hover:bg-purple-700/30 active:bg-purple-700/40",
         !isActive && "underline decoration-dotted decoration-2",
         isActive && "bg-purple-700/5",
-      )}
-    >
+      )}>
       {page}
     </Button>
   );

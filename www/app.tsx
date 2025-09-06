@@ -16,19 +16,13 @@ createInertiaApp({
   resolve: pageResolver,
 
   setup({ el, App, props }) {
-    const isSSR = document.head
-      .querySelector("meta[name='ssr']")
-      ?.getAttribute("content") === "true";
+    const isSSR =
+      document.head.querySelector("meta[name='ssr']")?.getAttribute("content") === "true";
 
     if (isSSR) {
-      hydrateRoot(
-        el,
-        <App {...props} />,
-      );
+      hydrateRoot(el, <App {...props} />);
     } else {
-      createRoot(el).render(
-        <App {...props} />,
-      );
+      createRoot(el).render(<App {...props} />);
     }
   },
 });

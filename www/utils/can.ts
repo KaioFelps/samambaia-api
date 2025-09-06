@@ -1,4 +1,4 @@
-import { TPermission } from "@/types/auth";
+import type { TPermission } from "@/types/auth";
 
 export type CanMode = "some" | "every";
 
@@ -9,14 +9,12 @@ export function can(
 ): boolean {
   if (!userPermissions) return false;
 
-  const requiredPerms = Array.isArray(required)
-    ? required
-    : [required];
+  const requiredPerms = Array.isArray(required) ? required : [required];
 
   switch (mode) {
     case "every":
-      return requiredPerms.every(requiredPerm => userPermissions.includes(requiredPerm));
+      return requiredPerms.every((requiredPerm) => userPermissions.includes(requiredPerm));
     case "some":
-      return requiredPerms.some(requiredPerm => userPermissions.includes(requiredPerm));
+      return requiredPerms.some((requiredPerm) => userPermissions.includes(requiredPerm));
   }
 }

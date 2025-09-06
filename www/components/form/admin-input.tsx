@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-import { InputProps } from "./input";
+import type { InputProps } from "./input";
 import { ValidationErrorSpan } from "./validation-error-alert";
 
 export function AdminInput({
@@ -14,10 +14,7 @@ export function AdminInput({
 }: Omit<InputProps, "admin">) {
   return (
     <div className={containerClassName}>
-      <label
-        htmlFor={id ?? name}
-        className="block text-sm mb-1 ml-1"
-      >
+      <label htmlFor={id ?? name} className="block text-sm mb-1 ml-1">
         {label}
       </label>
 
@@ -31,10 +28,9 @@ export function AdminInput({
           "bg-white",
           "transition-all outline-hidden ring-inset ring-0 ring-purple-500 focus:ring-1",
           "focus:border-purple-500",
-          className && className)}
-        data-invalid={validationError
-          ? ""
-          : null}
+          className && className,
+        )}
+        data-invalid={validationError ? "" : null}
         {...rest}
       />
     </div>

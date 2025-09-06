@@ -10,6 +10,7 @@ export type SelectOptions = Array<SelectOption>;
 type MultiSelectProps = {
   options: SelectOptions;
   defaultOptions?: SelectOptions;
+  id?: string;
   setValues: (_value: SelectOptions) => void;
 };
 
@@ -22,9 +23,10 @@ theme.colors = {
   primary25: "color-mix(in oklab, var(--color-purple-500) 25%, transparent)",
 };
 
-const MultiSelect = memo(({ options, defaultOptions, setValues }: MultiSelectProps) => {
+const MultiSelect = memo(({ options, id, defaultOptions, setValues }: MultiSelectProps) => {
   return (
     <PrimitiveSelect
+      id={id}
       options={options}
       defaultValue={defaultOptions}
       isMulti

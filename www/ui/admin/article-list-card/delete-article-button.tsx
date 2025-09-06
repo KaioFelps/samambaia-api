@@ -26,12 +26,9 @@ export const DeleteArticleButton = memo(({ articleId, articleTitle }: DeleteArti
         if (!("error" in errors)) return;
 
         console.error(errors.error);
-        toast(
-          "Não foi possível apagar a notícia \"" +
-          articleTitle +
-          "\". Contate um desenvolvedor.",
-          { type: "error" },
-        );
+        toast(`Não foi possível apagar a notícia "${articleTitle}". Contate um desenvolvedor.`, {
+          type: "error",
+        });
       },
       onSuccess: () => toast(`Notícia ${articleTitle} apagada.`, { type: "success" }),
     });
@@ -42,13 +39,7 @@ export const DeleteArticleButton = memo(({ articleId, articleTitle }: DeleteArti
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <IconButton
-          admin
-          size="sm"
-          theme="danger"
-          variant="ghost"
-          icon={Trash}
-        />
+        <IconButton admin size="sm" theme="danger" variant="ghost" icon={Trash} />
       </Dialog.Trigger>
 
       <Dialog.Content>
@@ -59,9 +50,9 @@ export const DeleteArticleButton = memo(({ articleId, articleTitle }: DeleteArti
 
         <Dialog.Container className="flex flex-col gap-4 text-gray-800">
           <p className="font-light">
-            Ao confirmar sua intenção de apagar esta notícia, você se responsabiliza por
-            removê-la <strong>permanentemente</strong> do banco de dados do fã-site, juntamente
-            de todos os comentários associados à essa notícia.
+            Ao confirmar sua intenção de apagar esta notícia, você se responsabiliza por removê-la{" "}
+            <strong>permanentemente</strong> do banco de dados do fã-site, juntamente de todos os
+            comentários associados à essa notícia.
           </p>
 
           <p className="font-light">Você tem certeza do que está fazendo?</p>
@@ -75,18 +66,11 @@ export const DeleteArticleButton = memo(({ articleId, articleTitle }: DeleteArti
               theme="danger"
               size="lg"
               disabled={processing}
-              onClick={handleDeleteArticleAndComments}
-            >
-              {processing
-                ? "Apagando..."
-                : "Estou ciente e me responsabilizo"}
+              onClick={handleDeleteArticleAndComments}>
+              {processing ? "Apagando..." : "Estou ciente e me responsabilizo"}
             </Button>
             <Dialog.Close asChild>
-              <Button
-                admin
-                size="lg"
-                disabled={processing}
-              >
+              <Button admin size="lg" disabled={processing}>
                 Deixa baixo
               </Button>
             </Dialog.Close>

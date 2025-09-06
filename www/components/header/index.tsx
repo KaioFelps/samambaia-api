@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { memo, ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 
 type HeaderRootProps = {
   children: ReactNode;
@@ -20,13 +20,7 @@ type HeaderTitleProps = {
 
 const HeaderTitle = memo(({ heading: H = "h1", children, className }: HeaderTitleProps) => {
   return (
-    <H className={clsx(
-      "font-medium text-black text-xl",
-      className && className,
-    )}
-    >
-      {children}
-    </H>
+    <H className={clsx("font-medium text-black text-xl", className && className)}>{children}</H>
   );
 });
 
@@ -35,11 +29,7 @@ type HeaderActionsProps = {
 };
 
 const HeaderActions = memo(({ children }: HeaderActionsProps) => {
-  return (
-    <div className="flex items-center gap-2">
-      {children}
-    </div>
-  );
+  return <div className="flex items-center gap-2">{children}</div>;
 });
 
 export default {

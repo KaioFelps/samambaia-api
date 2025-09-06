@@ -1,8 +1,4 @@
-import {
-  Root as PRoot,
-  Trigger as PTrigger,
-  Value as PValue,
-} from "@radix-ui/react-select";
+import { Root as PRoot, Trigger as PTrigger, Value as PValue } from "@radix-ui/react-select";
 
 import { SelectContent } from "./content";
 import { SelectItem } from "./item";

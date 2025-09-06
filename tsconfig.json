@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2022",         
-    "lib": [
-      "dom",
-      "DOM.Iterable",
-      "esnext"
-    ],
+    "target": "ES2022",
+    "lib": ["dom", "DOM.Iterable", "esnext"],
     "types": ["node", "vite/client", "vitest/globals"],
     "allowJs": true,
     "skipLibCheck": true,

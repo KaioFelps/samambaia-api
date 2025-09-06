@@ -12,24 +12,19 @@ export type SpriteProps = {
   className?: string;
 };
 
-export const Sprite = memo(({
-  height,
-  width,
-  x,
-  y,
-  spriteUrl = iconsSprite,
-  className,
-}: SpriteProps) => {
-  return (
-    <span
-      style={{
-        background: `url("${spriteUrl}") no-repeat ${x}px ${y}px`,
-        width,
-        height,
-        minWidth: width,
-        minHeight: height,
-      }}
-      className={clsx("block pixelated", className && className)}
-    />
-  );
-});
+export const Sprite = memo(
+  ({ height, width, x, y, spriteUrl = iconsSprite, className }: SpriteProps) => {
+    return (
+      <span
+        style={{
+          background: `url("${spriteUrl}") no-repeat ${x}px ${y}px`,
+          width,
+          height,
+          minWidth: width,
+          minHeight: height,
+        }}
+        className={clsx("block pixelated", className && className)}
+      />
+    );
+  },
+);

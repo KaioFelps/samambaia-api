@@ -1,5 +1,5 @@
 import { Head as InertiaHead } from "@inertiajs/react";
-import React from "react";
+import type React from "react";
 
 import { appConfig } from "@/config/app";
 import { resolveTitle } from "@/lib/inertia";
@@ -20,62 +20,25 @@ export function Head({
   admin = false,
   children,
 }: React.PropsWithChildren<HeadProps>) {
-  const title = admin
-    ? "Grêmio :: " + _title
-    : _title;
+  const title = admin ? `Grêmio :: ${_title}` : _title;
 
   const resolvedTitle = resolveTitle(title, appConfig.meta.title);
 
   return (
     <InertiaHead title={title}>
-      {title && (
-        <meta
-          name="application-name"
-          content={resolvedTitle}
-        />
-      )}
+      {title && <meta name="application-name" content={resolvedTitle} />}
 
-      {title && (
-        <meta
-          property="og:title"
-          content={resolvedTitle}
-        />
-      )}
+      {title && <meta property="og:title" content={resolvedTitle} />}
 
-      {title && (
-        <meta
-          property="og:site_name"
-          content={resolvedTitle}
-        />
-      )}
+      {title && <meta property="og:site_name" content={resolvedTitle} />}
 
-      {title && (
-        <meta
-          name="twitter:title"
-          content={resolvedTitle}
-        />
-      )}
+      {title && <meta name="twitter:title" content={resolvedTitle} />}
 
-      {description && (
-        <meta
-          name="description"
-          content={description}
-        />
-      )}
+      {description && <meta name="description" content={description} />}
 
-      {description && (
-        <meta
-          property="og:description"
-          content={description}
-        />
-      )}
+      {description && <meta property="og:description" content={description} />}
 
-      {description && (
-        <meta
-          name="twitter:description"
-          content={description}
-        />
-      )}
+      {description && <meta name="twitter:description" content={description} />}
 
       {children}
     </InertiaHead>

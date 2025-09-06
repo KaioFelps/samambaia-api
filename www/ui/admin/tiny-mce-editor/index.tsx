@@ -57,9 +57,7 @@ type TinyMCEEditorProps = Omit<IAllProps, "licenseKey"> & {
 export function TinyMCEEditor({ validationError, ...props }: TinyMCEEditorProps) {
   return (
     <div className="article-content">
-      <span className="block text-black text-sm ml-1 mb-2">
-        Editor HTML
-      </span>
+      <span className="block text-black text-sm ml-1 mb-2">Editor HTML</span>
 
       <ValidationErrorSpan validationError={validationError} />
 
@@ -71,8 +69,7 @@ export function TinyMCEEditor({ validationError, ...props }: TinyMCEEditorProps)
           { name: "history", items: ["undo", "redo"] },
           {
             name: "styles",
-            items: [
-              "styles", "fontsize", "forecolor", "backcolor", "removeformat"],
+            items: ["styles", "fontsize", "forecolor", "backcolor", "removeformat"],
           },
           {
             name: "formatting",
@@ -84,19 +81,16 @@ export function TinyMCEEditor({ validationError, ...props }: TinyMCEEditorProps)
               "subscript",
               "superscript",
               "link",
-              "unlink"],
+              "unlink",
+            ],
           },
           {
             name: "alignment",
-            items: [
-              "alignleft", "aligncenter", "alignright", "alignjustify",
-            ],
+            items: ["alignleft", "aligncenter", "alignright", "alignjustify"],
           },
           {
             name: "blocks",
-            items: [
-              "bullist", "numlist", "blockquote", "image", "table", "anchor",
-            ],
+            items: ["bullist", "numlist", "blockquote", "image", "table", "anchor"],
           },
           { name: "indentation", items: ["outdent", "indent"] },
         ]}

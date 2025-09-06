@@ -1,14 +1,14 @@
 import {
-  GetVisibleButtonsParams,
+  type GetVisibleButtonsParams,
   PaginationPolitics,
-  SearchRecord,
+  type SearchRecord,
 } from "@/core/politics/pagination-politics";
 import { IllegalArgumentException } from "@/exceptions/illegal-argument-exception";
 
 const events = ["next-page", "previous-page", "page-change"] as const;
 Object.freeze(events);
 
-type PaginatorEvent = typeof events[number];
+type PaginatorEvent = (typeof events)[number];
 type PaginationLink = { page: number; link: string };
 export type GetPaginationParams = {
   queryString?: string;
@@ -49,7 +49,7 @@ export class Paginator {
     this.setCurrentPage(currentPage ?? 1);
     this.setVisibleButtons(visibleButtons ?? PaginationPolitics.DEFAULT_VISIBLE_BUTTONS);
 
-    events.forEach(event => {
+    events.forEach((event) => {
       this.eventListeners.set(event, new Set());
     });
   }
@@ -57,7 +57,8 @@ export class Paginator {
   public setPageQuery(pageQuery: string) {
     if (pageQuery.includes(" ") || pageQuery.includes("\n")) {
       throw new IllegalArgumentException(
-        "Paginator's page key cannot contain whitespaces nor EOLs.");
+        "Paginator's page key cannot contain whitespaces nor EOLs.",
+      );
     }
 
     if (pageQuery.length < 1) {
@@ -70,21 +71,25 @@ export class Paginator {
   public setVisibleButtons(quantity: number) {
     if (quantity <= 0) {
       throw new IllegalArgumentException(
-        "Paginator needs to be able to display at least one page.");
+        "Paginator needs to be able to display at least one page.",
+      );
     }
 
     if (quantity > PaginationPolitics.MAX_VISIBLE_BUTTONS) {
       throw new IllegalArgumentException(
-        "Paginator cannot display more than " +
-        PaginationPolitics.MAX_VISIBLE_BUTTONS +
-        " pages.");
+        `Paginator cannot display more than ${PaginationPolitics.MAX_VISIBLE_BUTTONS} pages.`,
+      );
     }
 
     const isOddQuantity = quantity % 2 !== 0;
     if (!isOddQuantity && this.align === "center") {
       throw new IllegalArgumentException(
-        "Tried to add a even amount of " + quantity + " visible buttons, but align is " +
-          this.align + ", which only accepts odd amount of visible buttons.");
+        "Tried to add a even amount of " +
+          quantity +
+          " visible buttons, but align is " +
+          this.align +
+          ", which only accepts odd amount of visible buttons.",
+      );
     }
 
     this.visibleButtons = quantity;
@@ -92,8 +97,7 @@ export class Paginator {
 
   public setLastPage(lastPage: number) {
     if (lastPage < this.currentPage) {
-      throw new IllegalArgumentException(
-        "Last page cannot be lower than current page.");
+      throw new IllegalArgumentException("Last page cannot be lower than current page.");
     }
 
     this.lastPage = lastPage;
@@ -102,14 +106,21 @@ export class Paginator {
   public setCurrentPage(page: number) {
     if (page > this.lastPage) {
       throw new IllegalArgumentException(
-        "Paginator's current page " + page + " can't be beyond the last page " +
-        this.lastPage + ".");
+        "Paginator's current page " +
+          page +
+          " can't be beyond the last page " +
+          this.lastPage +
+          ".",
+      );
     }
 
     if (page <= 0) {
       throw new IllegalArgumentException(
-        "Tried to assign " + page + " to Paginator's current page," +
-        "but it can't be lower than 1.");
+        "Tried to assign " +
+          page +
+          " to Paginator's current page," +
+          "but it can't be lower than 1.",
+      );
     }
 
     this.currentPage = page;
@@ -128,7 +139,8 @@ export class Paginator {
     if (this.currentPage - 1 < 1) {
       console.warn(
         "Tried to go to an previous page, but there is none. Current page is " +
-        this.currentPage + ".",
+          this.currentPage +
+          ".",
       );
 
       return;
@@ -142,7 +154,10 @@ export class Paginator {
     if (this.currentPage + 1 > this.lastPage) {
       console.warn(
         "Tried to go to the next page, but it doesn't exist. Current page is " +
-            this.currentPage + " and last page is " + this.lastPage + ".",
+          this.currentPage +
+          " and last page is " +
+          this.lastPage +
+          ".",
       );
 
       return;
@@ -176,7 +191,7 @@ export class Paginator {
 
     queryString = this.getPaginationQueryString(queryString, extraArgs);
 
-    return pages.map(page => ({
+    return pages.map((page) => ({
       page,
       link: this.preparePaginationLink(queryString, page),
     }));
@@ -191,7 +206,9 @@ export class Paginator {
   }
 
   private callEventListeners(event: PaginatorEvent) {
-    this.eventListeners.get(event)?.forEach(callback => callback(this.currentPage));
+    this.eventListeners.get(event)?.forEach((callback) => {
+      callback(this.currentPage);
+    });
   }
 
   public countEventListeners(event: PaginatorEvent): number {
@@ -199,15 +216,14 @@ export class Paginator {
   }
 
   public resetEventListeners() {
-    events.forEach(event => this.eventListeners.set(event, new Set()));
+    events.forEach((event) => {
+      this.eventListeners.set(event, new Set());
+    });
   }
 
   public getPaginationLinkForPage(
     page: number,
-    {
-      extraArgs,
-      queryString,
-    }: GetPaginationParams = {},
+    { extraArgs, queryString }: GetPaginationParams = {},
   ): PaginationLink {
     queryString = this.getPaginationQueryString(queryString, extraArgs);
 
@@ -235,7 +251,7 @@ export class Paginator {
   }
 
   private preparePaginationLink(queryString: string, page: number): string {
-    if (queryString === "?") return this.url + "?" + this.pageQuery + "=" + page;
-    return this.url + queryString + "&" + this.pageQuery + "=" + page;
+    if (queryString === "?") return `${this.url}?${this.pageQuery}=${page}`;
+    return `${this.url + queryString}&${this.pageQuery}=${page}`;
   }
 }

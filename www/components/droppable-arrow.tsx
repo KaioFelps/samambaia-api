@@ -24,9 +24,7 @@ const publicDroppableArrowProps = {
 
 type DroppableComponent = "dropdown" | "popover" | "select";
 
-export function AdminDroppableArrow({ component }: {
-  component: DroppableComponent;
-}) {
+export function AdminDroppableArrow({ component }: { component: DroppableComponent }) {
   const Arrow = {
     dropdown: DropdownArrow,
     popover: PopoverArrow,
@@ -36,9 +34,7 @@ export function AdminDroppableArrow({ component }: {
   return <Arrow {...adminDroppableArrowProps} />;
 }
 
-export function PublicDroppableArrow({ component }: {
-  component: DroppableComponent;
-}) {
+export function PublicDroppableArrow({ component }: { component: DroppableComponent }) {
   const Arrow = {
     dropdown: DropdownArrow,
     popover: PopoverArrow,

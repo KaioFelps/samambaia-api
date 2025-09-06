@@ -15,14 +15,9 @@ export const Header = memo(() => {
         style={{ backgroundImage: `url("${appConfig.assets.topBg}")` }}
         className="
             pixelated w-full h-[292px] bg-center animate-top-bg grid place-items-center
-          "
-      >
+          ">
         <Link href="/">
-          <img
-            src={appConfig.assets.logo}
-            alt="Live Cosmic"
-            className="pixelated"
-          />
+          <img src={appConfig.assets.logo} alt="Live Cosmic" className="pixelated" />
         </Link>
       </div>
 
@@ -33,22 +28,12 @@ export const Header = memo(() => {
             inset 0 -2px 0 0 var(--color-black),
             0 2px 0 0 color-mix(in oklab, var(--color-black) 20%, transparent)`,
         }}
-        className="bg-gray-800 text-white"
-      >
+        className="bg-gray-800 text-white">
         <div className="h-[68px] main-screen-centralized mx-auto flex items-center justify-between">
-
           <nav className="flex h-full">
-            <Link
-              href="/"
-              className="navbar-item"
-            >
+            <Link href="/" className="navbar-item">
               <span className="block size-[40px]">
-                <Sprite
-                  x={-65}
-                  y={-2}
-                  width={38}
-                  height={39}
-                />
+                <Sprite x={-65} y={-2} width={38} height={39} />
               </span>
               Início
             </Link>
@@ -56,15 +41,9 @@ export const Header = memo(() => {
             <Dropdown.Root>
               <Dropdown.Trigger className="navbar-item group">
                 <span className="block size-[40px]">
-                  <Sprite
-                    x={-128}
-                    y={0}
-                    width={36}
-                    height={40}
-                  />
+                  <Sprite x={-128} y={0} width={36} height={40} />
                 </span>
                 Cosmic
-
                 <Dropdown.Indicator />
               </Dropdown.Trigger>
 
@@ -75,45 +54,21 @@ export const Header = memo(() => {
               </NavDropdownContent>
             </Dropdown.Root>
 
-            <Link
-              href=""
-              className="navbar-item"
-            >
+            <Link href="" className="navbar-item">
               <span className="block size-[40px]">
-                <Sprite
-                  x={0}
-                  y={0}
-                  width={40}
-                  height={40}
-                />
+                <Sprite x={0} y={0} width={40} height={40} />
               </span>
               Jornalismo
             </Link>
-            <Link
-              href=""
-              className="navbar-item"
-            >
+            <Link href="" className="navbar-item">
               <span className="block size-[40px]">
-                <Sprite
-                  x={-258}
-                  y={0}
-                  width={37}
-                  height={39}
-                />
+                <Sprite x={-258} y={0} width={37} height={39} />
               </span>
               Habblive
             </Link>
-            <Link
-              href=""
-              className="navbar-item"
-            >
+            <Link href="" className="navbar-item">
               <span className="block size-[40px]">
-                <Sprite
-                  x={-195}
-                  y={-1}
-                  width={33}
-                  height={39}
-                />
+                <Sprite x={-195} y={-1} width={33} height={39} />
               </span>
               VIP
             </Link>
@@ -121,7 +76,6 @@ export const Header = memo(() => {
 
           <UserBox />
         </div>
-
       </div>
     </header>
   );
