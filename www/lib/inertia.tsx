@@ -10,7 +10,7 @@ import type { Pagination } from "@/types/pagination";
 
 type PageComponent = ReactElement & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  default: { layout: (_page: any) => ReactElement };
+  default: { layout: (_page: JSX.Element) => ReactElement };
 };
 
 export const resolveTitle = (title: string | undefined, defaultTitle: string): string => (title
