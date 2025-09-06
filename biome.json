@@ -1,0 +1,68 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.3/schema.json",
+  "vcs": {
+    "enabled": false,
+    "clientKind": "git",
+    "useIgnoreFile": false
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": [
+      "./**/*.ts",
+      "./**/*.tsx",
+      "./**/*.css",
+      "./**/*.hbs",
+      "./**/*.json",
+      ".env",
+      ".env.*",
+      "www/**/*.hbs",
+      "www/**/*.hbs"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "bracketSpacing": true,
+    "bracketSameLine": true,
+    "lineWidth": 100,
+    "useEditorconfig": true,
+    "attributePosition": "auto",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "style": {
+        "useImportType": "warn",
+        "noYodaExpression": "warn",
+        "useCollapsedElseIf": "on",
+        "useConst": "warn",
+        "useSelfClosingElements": "warn"
+      },
+      "performance": {
+        "noAwaitInLoops": "error",
+        "useTopLevelRegex": "warn"
+      },
+      "a11y": {
+        "recommended": true
+      },
+      "complexity": {
+        "noUselessConstructor": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
+}
