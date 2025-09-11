@@ -71,6 +71,6 @@ jobs:
       - name: Commit the application to the host
         run: |
           cd __package
-          squarecloud login --token=${{ secrets.square_token }}
+          squarecloud auth login --token=${{ secrets.square_token }}
           squarecloud commit ${{ secrets.square_app_id }}
           squarecloud app restart ${{ secrets.square_app_id }}
