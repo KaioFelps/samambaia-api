@@ -135,8 +135,8 @@ mod test {
                     }
                 }
 
-                if index.is_some() {
-                    comm_report_db_clone.lock().unwrap()[index.unwrap()] = comm_report.clone();
+                if let Some(index) = index {
+                    comm_report_db_clone.lock().unwrap()[index] = comm_report.clone();
                 }
 
                 Ok(comm_report)

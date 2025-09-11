@@ -111,10 +111,11 @@ mod test {
 
                 let mut users = Vec::new();
 
-                if query.is_none() {
-                    users = to_move_tr_db.lock().unwrap().clone();
-                } else {
-                    match query.unwrap() {
+                match query {
+                    None => {
+                        users = to_move_tr_db.lock().unwrap().clone();
+                    }
+                    Some(query) => match query {
                         UserQueryType::Nickname(nickname) => {
                             for tr in to_move_tr_db.lock().unwrap().iter() {
                                 if tr
@@ -133,7 +134,7 @@ mod test {
                                 }
                             }
                         }
-                    }
+                    },
                 }
 
                 let total_before_paginating = users.len();

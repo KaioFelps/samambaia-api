@@ -21,15 +21,13 @@ async fn get_db_conn() -> Result<DatabaseConnection, DbErr> {
 
     let connection = Database::connect(db_opts).await;
 
-    if connection.is_err() {
-        let err = connection.unwrap_err();
-
-        log::error!("{R_EOL}{LOG_SEP}{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}", err);
-
-        return Err(err);
+    match connection {
+        Err(err) => {
+            log::error!("{R_EOL}{LOG_SEP}{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}", err);
+            Err(err)
+        }
+        Ok(connection) => Ok(connection),
     }
-
-    Ok(connection.unwrap())
 }
 
 impl SeaService {

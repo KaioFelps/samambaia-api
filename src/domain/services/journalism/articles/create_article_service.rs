@@ -63,17 +63,15 @@ impl<
             tags,
         );
 
-        let response = self.article_repository.create(article).await;
-
-        if response.is_err() {
-            let err = response.unwrap_err();
-            return Err(generate_service_internal_error(
-                "Error ocurred at create article service, while persisting the article",
-                err,
-            ));
-        }
-
-        Ok(response.unwrap())
+        self.article_repository
+            .create(article)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error ocurred at create article service, while persisting the article",
+                    err,
+                )
+            })
     }
 }
 

@@ -85,8 +85,8 @@ pub fn get_article_comment_repository(
 
             let mut comments: Vec<Comment> = Vec::new();
 
-            if query.is_some() {
-                match query.unwrap() {
+            if let Some(query) = query {
+                match query {
                     CommentQueryType::Content(content) => {
                         for item in db.iter() {
                             if item

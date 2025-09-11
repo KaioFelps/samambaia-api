@@ -208,9 +208,7 @@ mod test {
 
                 let mut comment_reports: Vec<CommentReport> = vec![];
 
-                if query.is_some() {
-                    let query = query.unwrap();
-
+                if let Some(query) = query {
                     match query {
                         CommentReportQueryType::Content(content) => {
                             for item in comm_repo_db_clone.lock().unwrap().iter() {
