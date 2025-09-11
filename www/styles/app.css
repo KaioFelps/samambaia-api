@@ -5,7 +5,7 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --article-content-width: 744px;
+  --article-content-width: var(--container-article-content);
 
   --color-\*: initial;
   --color-black: #000000;
@@ -49,7 +49,10 @@
   --font-default: Kanit, ui-sans-serif, system-ui;
   --font-rowdies: Rowdies, Kanit, ui-sans-serif, system-ui;
 
-  --breakpoint-main: 1392px;
+  --breakpoint-main: var(--container-main);
+  --container-main: 1392px;
+  --container-main-center-content: 768px;
+  --container-article-content: 744px;
 
   --animate-top-bg: topBgKeyframe 50s linear infinite;
   --animate-slide-down-and-fade: slideDownAndFade 400ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -243,6 +246,8 @@
   font-family: var(--font-default);
   font-size: var(--text-sm);
 
+  image-rendering: pixelated;
+
   & * {
     max-width: var(--article-content-width);
   }
@@ -253,6 +258,7 @@
   pre,
   blockquote {
     display: block;
+    word-wrap: break-word;
 
     &:not(:last-child) {
       margin-bottom: calc(var(--spacing) * 3);
