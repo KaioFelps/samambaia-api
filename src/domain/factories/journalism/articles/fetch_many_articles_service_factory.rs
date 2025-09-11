@@ -5,7 +5,7 @@ use crate::infra::sea::sea_service::SeaService;
 
 pub fn exec(
     db_conn: &SeaService,
-) -> FetchManyArticlesService<SeaArticleRepository, SeaUserRepository> {
+) -> FetchManyArticlesService<SeaArticleRepository<'_>, SeaUserRepository<'_>> {
     let user_repository = SeaUserRepository::new(db_conn);
     let article_repository = SeaArticleRepository::new(db_conn);
 

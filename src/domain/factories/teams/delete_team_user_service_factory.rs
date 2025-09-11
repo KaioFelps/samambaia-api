@@ -2,7 +2,7 @@ use crate::domain::services::teams::delete_team_user_service::DeleteTeamUserServ
 use crate::infra::sea::repositories::sea_team_user_repository::SeaTeamUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 
-pub fn exec(db_conn: &SeaService) -> DeleteTeamUserService<SeaTeamUserRepository> {
+pub fn exec(db_conn: &SeaService) -> DeleteTeamUserService<SeaTeamUserRepository<'_>> {
     let team_user_repository = SeaTeamUserRepository::new(db_conn);
     DeleteTeamUserService::new(team_user_repository)
 }

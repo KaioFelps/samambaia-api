@@ -5,7 +5,7 @@ use crate::infra::sea::sea_service::SeaService;
 
 pub fn exec(
     db_conn: &SeaService,
-) -> AuthenticateUserService<SeaUserRepository, PasswordAuthHasherAndVerifier> {
+) -> AuthenticateUserService<SeaUserRepository<'_>, PasswordAuthHasherAndVerifier> {
     let user_repository = SeaUserRepository::new(db_conn);
 
     let verifier = PasswordAuthHasherAndVerifier;

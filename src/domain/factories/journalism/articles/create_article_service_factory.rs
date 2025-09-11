@@ -7,7 +7,8 @@ use crate::infra::sea::sea_service::SeaService;
 
 pub fn exec(
     db_conn: &SeaService,
-) -> CreateArticleService<SeaArticleRepository, SeaArticleTagRepository<DatabaseConnection>> {
+) -> CreateArticleService<SeaArticleRepository<'_>, SeaArticleTagRepository<'_, DatabaseConnection>>
+{
     let sea_article_repository = SeaArticleRepository::new(db_conn);
     let sea_article_tag_repository = SeaArticleTagRepository::new(&db_conn.db);
 

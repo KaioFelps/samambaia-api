@@ -4,7 +4,7 @@ use crate::infra::sea::sea_service::SeaService;
 
 pub fn exec(
     db_conn: &SeaService,
-) -> FetchManyArticleCommentsWithAuthorService<SeaCommentUserArticleRepository> {
+) -> FetchManyArticleCommentsWithAuthorService<SeaCommentUserArticleRepository<'_>> {
     let comment_user_article_repository = SeaCommentUserArticleRepository::new(db_conn);
 
     FetchManyArticleCommentsWithAuthorService::new(comment_user_article_repository)

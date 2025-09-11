@@ -5,7 +5,7 @@ use crate::infra::sea::sea_service::SeaService;
 
 pub fn exec(
     db_conn: &SeaService,
-) -> DeleteArticleService<SeaArticleRepository, SeaArticleCommentRepository> {
+) -> DeleteArticleService<SeaArticleRepository<'_>, SeaArticleCommentRepository<'_>> {
     let article_comment_repository = SeaArticleCommentRepository::new(db_conn);
     let article_repository = SeaArticleRepository::new(db_conn);
 

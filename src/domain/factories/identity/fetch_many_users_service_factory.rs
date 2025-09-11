@@ -2,7 +2,7 @@ use crate::domain::services::identity::fetch_many_users_service::FetchManyUsersS
 use crate::infra::sea::repositories::sea_user_repository::SeaUserRepository;
 use crate::infra::sea::sea_service::SeaService;
 
-pub fn exec(db_conn: &SeaService) -> FetchManyUsersService<SeaUserRepository> {
+pub fn exec(db_conn: &SeaService) -> FetchManyUsersService<SeaUserRepository<'_>> {
     let user_repository = SeaUserRepository::new(db_conn);
     FetchManyUsersService::new(user_repository)
 }

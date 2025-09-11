@@ -6,7 +6,7 @@ use crate::infra::sea::sea_service::SeaService;
 
 pub fn exec(
     db_conn: &SeaService,
-) -> DeleteArticleTagService<SeaArticleTagRepository<DatabaseConnection>> {
+) -> DeleteArticleTagService<SeaArticleTagRepository<'_, DatabaseConnection>> {
     let article_tag_repository = SeaArticleTagRepository::new(&db_conn.db);
     DeleteArticleTagService::new(article_tag_repository)
 }
