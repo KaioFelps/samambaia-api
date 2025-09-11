@@ -9,6 +9,7 @@ use crate::core::pagination::PaginationResponse;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::domain_entities::user::User;
+use crate::infra::http::presenters::article_tag::{ArticleTagPresenter, MappedArticleTag};
 use crate::infra::http::presenters::presenter::PresenterTrait;
 
 #[derive(Serialize, Deserialize)]
@@ -28,6 +29,8 @@ pub struct MappedExpandedArticle {
     author: MappedUser,
 
     comments: MappedExpandedArticleComments,
+
+    tags: Vec<MappedArticleTag>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -65,6 +68,15 @@ impl ExpandedArticlePresenter {
                     .collect(),
                 pagination: PaginationPresenter::to_http(pagination.0, pagination.1),
             },
+
+            tags: article
+                .get_tags()
+                .into_iter()
+                .cloned()
+                .collect::<Vec<_>>()
+                .into_iter()
+                .map(ArticleTagPresenter::to_http)
+                .collect::<Vec<_>>(),
         }
     }
 }
