@@ -116,10 +116,11 @@ mod test {
 
                 let mut roles = Vec::new();
 
-                if query.is_none() {
-                    roles = to_move_tr_db.lock().unwrap().clone();
-                } else {
-                    match query.unwrap() {
+                match query {
+                    None => {
+                        roles = to_move_tr_db.lock().unwrap().clone();
+                    }
+                    Some(query) => match query {
                         TeamRoleQueryType::Title(title) => {
                             for tr in to_move_tr_db.lock().unwrap().iter() {
                                 if tr.title().contains(&title) {
@@ -127,7 +128,7 @@ mod test {
                                 }
                             }
                         }
-                    }
+                    },
                 }
 
                 let total_before_paginating = roles.len();
