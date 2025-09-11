@@ -44,3 +44,25 @@ impl FromRequest for WebAuthUser {
         })
     }
 }
+
+impl FromRequest for WebRequestUser {
+    type Error = actix_web::Error;
+
+    type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
+
+    fn from_request(req: &actix_web::HttpRequest, _: &mut actix_web::dev::Payload) -> Self::Future {
+        let user = req.extensions().get::<Self>().cloned();
+        Box::pin(async move {
+            match user {
+                Some(user) => Ok(user),
+                None => {
+                    log::error!(
+                        "Tried to extract a WebRequestUser that doesn't exist in the request."
+                    );
+
+                    Err(actix_web::Error::from(SamambaiaError::internal_err()))
+                }
+            }
+        })
+    }
+}
