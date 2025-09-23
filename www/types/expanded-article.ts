@@ -8,6 +8,7 @@ export type ExpandedArticle = {
   coverUrl: string;
   title: string;
   content: string;
+  description: string;
   approved: boolean;
   creatdAt: Date | string;
   updatedAt: Date | string;
