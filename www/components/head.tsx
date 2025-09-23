@@ -7,6 +7,7 @@ import { resolveTitle } from "@/lib/inertia";
 type HeadProps = {
   title?: string;
   admin?: boolean;
+  cover?: string;
   description?: string;
 };
 
@@ -18,6 +19,7 @@ export function Head({
   title: _title,
   description,
   admin = false,
+  cover,
   children,
 }: React.PropsWithChildren<HeadProps>) {
   const title = admin ? `Grêmio :: ${_title}` : _title;
@@ -39,6 +41,9 @@ export function Head({
       {description && <meta property="og:description" content={description} />}
 
       {description && <meta name="twitter:description" content={description} />}
+
+      {cover && <meta name="twitter:image" content={cover} />}
+      {cover && <meta property="og:image" content={cover} />}
 
       {children}
     </InertiaHead>

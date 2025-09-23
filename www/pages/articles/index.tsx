@@ -1,5 +1,6 @@
 import type { PageProps } from "@inertiajs/core/types";
 import { usePage } from "@inertiajs/react";
+import { Head } from "@/components/head";
 import { Main } from "@/components/main";
 import type { ExpandedArticle } from "@/types/expanded-article";
 
@@ -9,10 +10,15 @@ type Props = PageProps & {
 
 export default function ShowArticle() {
   const props = usePage<Props>().props;
-  console.log(props.article.tags);
 
   return (
     <>
+      <Head
+        title={props.article.title}
+        description={props.article.description}
+        cover={props.article.coverUrl}
+      />
+
       <Main className="flex-1 max-w-main-center-content basis-main-center-content">
         <article className="card p-0">
           <div className="p-3">
@@ -37,12 +43,15 @@ export default function ShowArticle() {
             dangerouslySetInnerHTML={{ __html: props.article.content }}
           />
         </article>
+
+        {/* TODO: Comments */}
       </Main>
 
       <aside className="card flex-1 h-fit">
         <header className="section-header gray">
           <h2>Feed de notícias</h2>
         </header>
+        {/* TODO: Articles Feed */}
       </aside>
     </>
   );
