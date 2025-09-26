@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { memo } from "react";
 
 import { Sprite } from "@/components/sprite";
+import { appConfig } from "@/config/app";
 import { useCanSee } from "@/hooks/useCanSee";
 import { Permission } from "@/types/auth";
 
@@ -47,8 +48,8 @@ export const Footer = memo(() => {
 
           <p className="text-balance text-gray-700 text-sm">
             <span className="block mb-1">Copyright Live Cosmic 2025</span>
-            Somos um fã-site oficial do Habblive Hotel, não somos aprovados, patrocinados, filiados
-            nem reconhecidos pela Sulake.
+            Somos um fã-site oficial do {appConfig.hostHotel.name}. Não somos aprovados,
+            patrocinados, filiados nem reconhecidos pela Sulake.
           </p>
         </div>
 
@@ -81,9 +82,13 @@ export const Footer = memo(() => {
           </div>
 
           <div className="flex-1 flex flex-col">
-            <span className="text-purple-700/70 font-bold text-sm mb-2">Habblive</span>
+            <span className="text-purple-700/70 font-bold text-sm mb-2">
+              {appConfig.hostHotel.name}
+            </span>
             <div className="flex flex-col">
-              <Link href="">Jogar Habblive</Link>
+              <a href={appConfig.hostHotel.baseUrl} target="_blank">
+                Jogar {appConfig.hostHotel.shortName}
+              </a>
               <Link href="">Promoções ativas</Link>
               <Link href="">Campanhas ativas</Link>
             </div>

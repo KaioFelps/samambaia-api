@@ -64,7 +64,7 @@ export const Header = memo(() => {
               <span className="block size-[40px]">
                 <Sprite x={-258} y={0} width={37} height={39} />
               </span>
-              Habblive
+              {appConfig.hostHotel.shortName}
             </Link>
             <Link href="" className="navbar-item">
               <span className="block size-[40px]">
