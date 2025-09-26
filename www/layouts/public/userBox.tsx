@@ -1,13 +1,12 @@
 import type { PageProps } from "@inertiajs/core/types";
 import { Link, router, usePage } from "@inertiajs/react";
 import clsx from "clsx";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
 import Popover from "@/components/popover";
 import { Sprite } from "@/components/sprite";
 import { FaceGesture, Imager } from "@/utils/imager";
-
 import { LoginForm } from "./forms/login";
 import { RegisterForm } from "./forms/register";
 
@@ -80,11 +79,15 @@ type LoggedProps = {
 };
 
 function Logged({ user }: LoggedProps) {
-  const habboAvatar = Imager.getUserImage(user.nickname, {
-    direction: "3",
-    head_direction: "3",
-    gesture: FaceGesture.smile,
-  });
+  const habboAvatar = useMemo(
+    () =>
+      Imager.getUserImage(user.nickname, {
+        direction: "3",
+        head_direction: "3",
+        gesture: FaceGesture.smile,
+      }),
+    [user],
+  );
 
   function handleLogout() {
     router.post("/sessions/logout");
@@ -94,7 +97,7 @@ function Logged({ user }: LoggedProps) {
       <div
         inert
         style={{ backgroundImage: `url("${habboAvatar}")` }}
-        className="w-[64px] h-[110px] absolute left-1/2 -translate-x-1/2 bottom-4"
+        className="pixelated w-[64px] h-[110px] absolute left-1/2 -translate-x-1/2 bottom-4"
       />
       <Popover.Root>
         <Popover.Trigger

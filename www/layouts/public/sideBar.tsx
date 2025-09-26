@@ -4,8 +4,15 @@ import { memo } from "react";
 import iconsSprite from "@/assets/icons-sprite.png";
 import Popover from "@/components/popover";
 import { Sprite } from "@/components/sprite";
-import { Imager } from "@/utils/imager";
+import { Imager, type ImagerParamsArguments } from "@/utils/imager";
 import { AnnouncementsSlider } from "./announcements-slider";
+
+const featuredUsersImagerParams = Object.freeze({
+  action: "wav",
+  head_direction: "3",
+  direction: "2",
+  size: "m",
+}) as ImagerParamsArguments;
 
 export const SideBar = memo(() => {
   const { featuredUsers } = usePage().props;
@@ -69,13 +76,8 @@ export const SideBar = memo(() => {
                     }}
                   />
                   <img
-                    className="relative mb-16"
-                    src={Imager.getUserImage(nickname, {
-                      action: "wav",
-                      head_direction: "3",
-                      direction: "2",
-                      size: "m",
-                    })}
+                    className="relative mb-16 pixelated"
+                    src={Imager.getUserImage(nickname, featuredUsersImagerParams)}
                     alt={`Habbo ${nickname} acenando`}
                   />
                 </div>
