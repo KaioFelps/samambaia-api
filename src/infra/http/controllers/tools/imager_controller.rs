@@ -1,0 +1,57 @@
+use std::collections::HashMap;
+
+use actix_web::http::header::ContentType;
+use actix_web::{web, HttpResponse};
+
+use crate::error::SamambaiaError;
+use crate::infra::http::controllers::controller::ControllerTrait;
+use crate::infra::imager::factory::ImagerFactory;
+use crate::util::generate_service_internal_error;
+
+pub struct ImagerController;
+
+impl ControllerTrait for ImagerController {
+    fn register(cfg: &mut actix_web::web::ServiceConfig) {
+        cfg.route("imager", web::get().to(Self::get_image));
+    }
+}
+
+impl ImagerController {
+    async fn get_image(
+        query: web::Query<HashMap<String, String>>,
+    ) -> Result<HttpResponse, SamambaiaError> {
+        let mut params = query.into_inner();
+        let nickname = match params.remove("user") {
+            None => {
+                return Err(SamambaiaError::bad_request_err()
+                    .with_message("Missing `user` query parameter."))
+            }
+            Some(nickname) => nickname,
+        };
+
+        let imager_url = ImagerFactory::get_imager()
+            .mount_imager_url(&nickname, params)
+            .await?;
+
+        let image = reqwest::get(&imager_url)
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Failed to fetch user avatar on final imager url",
+                    Box::new(err),
+                )
+            })?
+            .bytes()
+            .await
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Failed to get bytes from avatar image response in `ImagerController::get_image` handler",
+                    Box::new(err)
+                )
+            })?;
+
+        Ok(HttpResponse::Ok()
+            .content_type(ContentType::png())
+            .body(image))
+    }
+}

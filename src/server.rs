@@ -4,6 +4,7 @@ use serde_json::json;
 
 use crate::infra::http::routes::api::ApiRoutes;
 use crate::infra::http::routes::route::RouteTrait;
+use crate::infra::http::routes::tools::ToolsRouter;
 use crate::infra::http::routes::web::WebRoutes;
 use crate::infra::sea::sea_service::SeaService;
 
@@ -24,6 +25,7 @@ impl ServerFactory {
                 middleware::TrailingSlash::Trim,
             ))
             .configure(ApiRoutes::register)
+            .configure(ToolsRouter::register)
             .configure(WebRoutes::register)
             .app_data(web::JsonConfig::default().error_handler(|err, _req| {
                 actix_web::error::InternalError::from_response(

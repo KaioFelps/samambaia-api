@@ -19,4 +19,5 @@ pub mod team_users_controller;
 pub mod users_controller;
 
 pub mod admin;
+pub mod tools;
 pub mod web;
