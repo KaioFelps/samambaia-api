@@ -10,7 +10,7 @@ export type ExpandedArticle = {
   content: string;
   description: string;
   approved: boolean;
-  creatdAt: Date | string;
+  createdAt: Date | string;
   updatedAt: Date | string;
   slug: string;
   author: User;
