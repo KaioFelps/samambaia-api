@@ -1,11 +1,17 @@
 import cover from "@/assets/website-meta-cover.jpeg";
+import { HotelsCode } from "./hotels";
 
 const appName = "Live Cosmic" as const;
 
 export const appConfig = {
   appName,
-  imagerUrl: "https://habblive.in/imager.php",
-  userInfoUrl: "https://habblive.in/api/userinfo.php",
+
+  hostHotel: {
+    name: "Habblive Hotel",
+    shortName: "Habblive",
+    baseUrl: "https://habblive.in",
+    code: HotelsCode.Habblet,
+  },
 
   assets: {
     topBg: "https://i.imgur.com/bBw1X5C.png",
