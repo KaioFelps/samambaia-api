@@ -111,6 +111,7 @@ impl RouteTrait for WebRoutes {
                             })),
                             "auth" => InertiaProp::always(user),
                             "flash" => InertiaProp::always(flash),
+                            "verificationMotto" => InertiaProp::data(APP_CONFIG.verification_motto),
                             // TODO: adicionar o domínio de membros destaques
                             "featuredUsers" => InertiaProp::data(json!({
                                 "data": [],
