@@ -117,14 +117,13 @@ function Logged({ user }: LoggedProps) {
       />
       <Popover.Root>
         <Popover.Trigger asChild>
-          <PublicButton.Default asChild variant="black" className="group gap-0 ring-purple-500">
-            <button type="button">
-              <Sprite x={-152} y={-90} width={14} height={14} className="mr-1.5" />
-              <span className="font-rowdies text-sm font-normal leading-none">
-                {user?.nickname}
-              </span>
-              <Popover.Indicator className="ml-3" />
-            </button>
+          <PublicButton.Default
+            variant="black"
+            type="button"
+            className="group gap-0 ring-purple-500">
+            <Sprite x={-152} y={-90} width={14} height={14} className="mr-1.5" />
+            <span className="font-rowdies text-sm font-normal leading-none">{user?.nickname}</span>
+            <Popover.Indicator className="ml-3" />
           </PublicButton.Default>
         </Popover.Trigger>
         <Popover.Content side="bottom" collisionPadding={24}>
