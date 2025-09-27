@@ -8,6 +8,8 @@ pub const SESSION_USER_KEY: &str = "__user_id__";
 pub const SESSION_FLASH_KEY: &str = "__flash__";
 
 pub struct AppConfig<'a> {
+    pub verification_motto: &'a str,
+
     // Whether the application is running on PRODUCTION or DEVELOPMENT mode
     pub rust_env: RustEnv,
 
@@ -55,6 +57,8 @@ impl AppConfig<'_> {
         let env_vars = EnvConfig::from_env();
 
         Self {
+            verification_motto: "@cosmicfs-verificacao",
+
             lottery: [2, 100],
             sessions_dir: "storage/sessions",
             sessions_exp_key: "___expires_at___",

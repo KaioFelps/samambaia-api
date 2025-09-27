@@ -28,7 +28,7 @@ impl HotelsConfig {
             },
             habblive: HotelInfo {
                 imager_url: "https://habblive.in/imager.php",
-                api_base_url: "https://habblive.in/api/userinfo.php",
+                api_base_url: "https://habblive.in/api",
             },
         }
     }
