@@ -3,10 +3,10 @@ import { type FormEvent, memo, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { Alert } from "@/components/alert";
+import PublicButton from "@/components/button/public-button";
 import Dialog from "@/components/dialog";
 import { Input } from "@/components/form/input";
 import { appConfig } from "@/config/app";
-
 import type { AuthenticationDialogProps } from "../userBox";
 
 const confirmationCode = "@livecosmicfs";
@@ -139,19 +139,22 @@ export const RegisterForm = memo(
             />
 
             <div className="flex items-center justify-end gap-2">
-              <button
+              <PublicButton.Ghost
+                variant="success"
+                size="lg"
                 type="button"
-                onClick={() => setDialog("login")}
-                className="btn-ghost-success">
+                onClick={() => setDialog("login")}>
                 Já tenho conta
-              </button>
-              <button
+              </PublicButton.Ghost>
+
+              <PublicButton.Default
+                variant="success"
+                size="lg"
                 type="submit"
-                className="btn-success btn-lg"
                 disabled={processing}
                 aria-busy={processing}>
                 {processing ? "Registrando..." : "Registre-me"}
-              </button>
+              </PublicButton.Default>
             </div>
           </form>
         </Dialog.Content>

@@ -2,6 +2,7 @@ import { usePage } from "@inertiajs/react";
 import clsx from "clsx";
 import { memo } from "react";
 import iconsSprite from "@/assets/icons-sprite.png";
+import PublicButton from "@/components/button/public-button/index";
 import Popover from "@/components/popover";
 import { Sprite } from "@/components/sprite";
 import { Imager, type ImagerParamsArguments } from "@/utils/imager";
@@ -39,10 +40,13 @@ export const SideBar = memo(() => {
 
           <div className="flex items-center gap-3 justify-end">
             <ReclameAquiInfo />
-            <button type="button" disabled className="btn flex items-center gap-2.5">
+            <PublicButton.Default
+              type="button"
+              disabled
+              className="leading-normal! text-sm gap-2.5">
               <Sprite x={-96} y={-64} width={11} height={19} />
               Reclamar
-            </button>
+            </PublicButton.Default>
           </div>
         </div>
       </div>
@@ -68,7 +72,7 @@ export const SideBar = memo(() => {
                 ">
                   <div
                     aria-hidden
-                    className="w-[150px] h-[114px] absolute -bottom-[1px]"
+                    className="pixelated w-[150px] h-[114px] absolute -bottom-[1px]"
                     style={{
                       backgroundImage: `url("${iconsSprite}")`,
                       backgroundPosition: "-570px 0",

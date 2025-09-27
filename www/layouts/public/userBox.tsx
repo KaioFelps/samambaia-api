@@ -1,9 +1,8 @@
 import type { PageProps } from "@inertiajs/core/types";
 import { Link, router, usePage } from "@inertiajs/react";
-import clsx from "clsx";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
-
+import PublicButton from "@/components/button/public-button/index";
 import Popover from "@/components/popover";
 import { Sprite } from "@/components/sprite";
 import { FaceGesture, Imager } from "@/utils/imager";
@@ -50,25 +49,35 @@ function Unlogged({
         open={dialog === "register"}
         setDialog={setDialog}
         setOpen={(v) => setDialog(v ? "register" : undefined)}>
-        <button
+        <PublicButton.Default
+          variant="black"
+          size="lg"
           type="button"
           style={{
-            "--btn-black-down-text-shadow": "var(--color-green-300)",
+            "--btn-bottom-text-shadow":
+              "color-mix(in oklab, var(--color-green-300) 25%, var(--color-transparent))",
           }}
-          className={clsx("btn-black text-green-500 ring-green-500/40")}>
+          className="text-green-500 ring-green-500/40">
           <Sprite x={-66} y={-64} width={13} height={16} />
           Registrar
-        </button>
+        </PublicButton.Default>
       </RegisterForm>
 
       <LoginForm
         open={dialog === "login"}
         setDialog={setDialog}
         setOpen={(v) => setDialog(v ? "login" : undefined)}>
-        <button type="button" className="btn-success btn-lg border-black to-black/25">
+        <PublicButton.Default
+          variant="success"
+          size="lg"
+          type="button"
+          className="border-black"
+          style={{
+            "--bottom-inner-shadow": "color-mix(in oklab, var(--color-black) 50%, transparent)",
+          }}>
           <Sprite x={-32} y={-65} width={15} height={15} />
           Login
-        </button>
+        </PublicButton.Default>
       </LoginForm>
     </div>
   );

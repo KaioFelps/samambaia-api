@@ -2,9 +2,9 @@ import { useForm } from "@inertiajs/react";
 import { type FormEvent, memo, useEffect } from "react";
 
 import { Alert } from "@/components/alert";
+import PublicButton from "@/components/button/public-button";
 import Dialog from "@/components/dialog";
 import { Input } from "@/components/form/input";
-
 import type { AuthenticationDialogProps } from "../userBox";
 
 type LoginFormData = {
@@ -86,15 +86,17 @@ export const LoginForm = memo(
             />
 
             <div className="flex items-center justify-end gap-2">
-              <button
+              <PublicButton.Ghost
+                variant="success"
+                size="lg"
                 type="button"
-                className="btn-ghost-success"
                 onClick={() => setDialog("register")}>
                 Não tenho conta
-              </button>
-              <button className="btn-success btn-lg" type="submit" disabled={processing}>
+              </PublicButton.Ghost>
+
+              <PublicButton.Default variant="success" size="lg" type="submit" disabled={processing}>
                 {processing ? "Logando..." : "Logar"}
-              </button>
+              </PublicButton.Default>
             </div>
           </form>
         </Dialog.Content>
