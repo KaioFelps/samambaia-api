@@ -7,14 +7,7 @@ use crate::domain::domain_entities::comment_report::{
     CommentReportIdTrait,
     CommentReportTrait,
 };
-use crate::domain::domain_entities::role::Role;
 use crate::infra::http::presenters::presenter::PresenterTrait;
-
-#[derive(Serialize, Deserialize)]
-struct MappedCommentAuthor {
-    nickname: String,
-    role: Role,
-}
 
 #[derive(Serialize, Deserialize)]
 pub struct MappedCommentReport {
