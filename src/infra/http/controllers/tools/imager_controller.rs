@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use actix_web::http::header::ContentType;
+use actix_web::http::header::{self, ContentType};
 use actix_web::{web, HttpResponse};
 
 use crate::error::SamambaiaError;
@@ -33,14 +33,16 @@ impl ImagerController {
             .mount_imager_url(&nickname, params)
             .await?;
 
-        let image = reqwest::get(&imager_url)
-            .await
-            .map_err(|err| {
-                generate_service_internal_error(
-                    "Failed to fetch user avatar on final imager url",
-                    Box::new(err),
-                )
-            })?
+        let image = reqwest::get(&imager_url).await.map_err(|err| {
+            generate_service_internal_error(
+                "Failed to fetch user avatar on final imager url",
+                Box::new(err),
+            )
+        })?;
+
+        let content_length = image.content_length();
+
+        let image_bytes = image
             .bytes()
             .await
             .map_err(|err| {
@@ -52,6 +54,9 @@ impl ImagerController {
 
         Ok(HttpResponse::Ok()
             .content_type(ContentType::png())
-            .body(image))
+            .insert_header(header::ContentLength(
+                content_length.unwrap_or(image_bytes.len() as u64) as usize,
+            ))
+            .body(image_bytes))
     }
 }
