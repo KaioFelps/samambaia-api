@@ -23,8 +23,11 @@ export function DefaultPublicButton({
         "not-enabled:cursor-not-allowed",
 
         variant === "default" && "btn",
-        size === "md" && "px-6 py-3 font-medium",
-        size === "lg" && "px-8 py-4 font-bold",
+
+        // sempre diminuir 1 nos paddings pra diminuir 4, o que
+        // compensa os 4px extras ganhados pelas bordas de 2px em cada lado
+        size === "md" && "px-5 py-2 font-medium",
+        size === "lg" && "px-7 py-3 font-bold",
 
         variant === "default" && "btn",
         variant === "success" && "btn-success",

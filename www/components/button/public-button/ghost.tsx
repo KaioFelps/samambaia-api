@@ -18,8 +18,8 @@ export function GhostPublicButton({
   return (
     <Button
       className={clsx(
-        size === "md" && "px-6 py-3 font-medium",
-        size === "lg" && "px-8 py-4 font-bold",
+        size === "md" && "px-5 py-2 font-medium",
+        size === "lg" && "px-7 py-3 font-bold",
 
         variant === "success" && "btn-ghost-success",
       )}
