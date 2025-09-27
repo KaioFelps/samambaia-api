@@ -57,92 +57,191 @@
 }
 
 @utility btn {
-  @apply px-6 py-3 rounded-[6px] bg-gray-200 border-2 border-gray-700 font-bold text-sm leading-tight
-        transition-all duration-100 hover:bg-gray-250 outline-0 ring-0 focus-visible:ring-4 ring-black/15;
+  border-radius: calc(var(--spacing) * 1.5);
+  background-color: var(--color-gray-200);
+  border: 2px solid var(--color-gray-700);
+  outline: none;
 
-  &,
-  &:focus-visible {
+  @apply focus-visible:ring-4 ring-black/15;
+
+  --btn-upper-shadow: var(--color-white);
+  --btn-bottom-shadow: color-mix(in oklab, var(--color-black) 10%, var(--color-transparent));
+
+  --btn-upper-text-shadow: color-mix(in oklab, var(--color-black) 10%, transparent);
+  --btn-bottom-text-shadow: color-mix(in oklab, var(--color-white) 70%, transparent);
+
+  &:not(:disabled) {
+    &:hover {
+      background-color: var(--color-gray-250);
+    }
+
+    &:active {
+      background-color: var(--color-gray-300);
+    }
+
+    text-shadow:
+      0 -2px 0 var(--btn-upper-text-shadow),
+      0 2px 0 var(--btn-bottom-text-shadow);
+
     box-shadow:
-      inset 0 3px 0 0 white,
-      inset 0 -3px 0 0 rgba(0 0 0 / 10%),
+      inset 0 3px 0 0 var(--btn-upper-shadow),
+      inset 0 -3px 0 0 var(--btn-bottom-shadow),
       var(--tw-ring-offset-shadow),
-      var(--tw-ring-shadow),
-      var(--tw-shadow, 0 0 #0000);
-  }
-
-  &:active {
-    box-shadow:
-      inset 0 3px 0 0 rgba(0 0 0 / 10%),
-      var(--tw-ring-offset-shadow),
-      var(--tw-ring-shadow),
-      var(--tw-shadow, 0 0 #0000);
-  }
-
-  &:disabled {
-    @apply shadow-none cursor-not-allowed;
+      var(--tw-ring-shadow);
   }
 }
 
 @utility btn-success {
-  @apply rounded-md bg-green-500 from-green-300 to-green-600 flex items-center
-            text-white border-2 border-green-700 
-            px-5 py-2 gap-2 font-medium text-base transition-all duration-150 will-change-[shadow,_filter]
-            hover:brightness-95 active:brightness-90
-            outline-hidden ring-green-500/40 ring-0 focus-visible:ring-4;
+  background-color: var(--color-green-500);
+  color: var(--color-white);
+  border: 2px solid var(--color-green-700);
+  outline: none;
+  border-radius: calc(var(--spacing) * 1.5);
 
-  &.btn-lg {
-    @apply px-7 py-3 gap-2 font-bold;
-  }
+  --btn-upper-shadow: color-mix(in oklab, var(--color-white) 50%, var(--color-transparent));
+  --btn-bottom-shadow: color-mix(in oklab, var(--color-black) 10%, var(--color-transparent));
 
-  &:enabled {
-    text-shadow:
-      0 -2px 0 color-mix(in oklab, var(--color-black) 10%, transparent),
-      0 2px 0 color-mix(in oklab, var(--color-white) 30%, transparent);
-  }
+  --btn-upper-text-shadow: color-mix(in oklab, var(--color-black) 10%, transparent);
+  --btn-bottom-text-shadow: color-mix(in oklab, var(--color-white) 30%, transparent);
 
-  &:disabled {
+  @apply ring-green-500/40 focus-visible:ring-4;
+
+  &:disabled,
+  &:not(:enabled) {
     @apply opacity-75;
   }
 
-  &,
-  &:focus-visible {
+  &:not(:disabled) {
+    text-shadow:
+      0 -2px 0 var(--btn-upper-text-shadow),
+      0 2px 0 var(--btn-bottom-text-shadow);
+
+    &:hover {
+      filter: brightness(0.95);
+    }
+
+    &:active {
+      filter: brightness(0.9);
+    }
+
     box-shadow:
-      inset 0 3px 0 0 var(--tw-gradient-from),
-      inset 0 -2px 0 0 var(--tw-gradient-to),
+      inset 0 2px 0 0 var(--btn-upper-shadow),
+      inset 0 -2px 0 0 var(--btn-bottom-shadow),
+      var(--tw-ring-offset-shadow),
+      var(--tw-ring-shadow);
+  }
+}
+
+@utility btn-yellow {
+  border-radius: calc(var(--spacing) * 1.5);
+  background: var(--color-yellow-400);
+  border: 2px solid var(--color-yellow-800);
+  color: var(--color-black);
+  transition-property: all;
+  transition-timing-function: var(
+    --tw-ease,
+    var(--default-transition-timing-function) /* cubic-bezier(0.4, 0, 0.2, 1) */
+  );
+  transition-duration: 150ms;
+  will-change: shadow, filter;
+  outline: none;
+
+  --btn-upper-shadow: color-mix(in oklab, var(--color-white) 50%, var(--color-transparent));
+  --btn-bottom-shadow: color-mix(in oklab, var(--color-black) 10%, var(--color-transparent));
+
+  --btn-upper-text-shadow: color-mix(in oklab, var(--color-black) 10%, transparent);
+  --btn-bottom-text-shadow: color-mix(in oklab, var(--color-white) 30%, transparent);
+
+  @apply ring-yellow-500/40 focus-visible:ring-4;
+
+  &:not(:enabled) {
+    opacity: 0.7;
+  }
+
+  &:not(:disabled) {
+    &:hover {
+      filter: brightness(0.95);
+    }
+
+    &:active {
+      filter: brightness(0.9);
+    }
+
+    text-shadow:
+      0 -2px 0 var(--btn-upper-text-shadow),
+      0 2px 0 var(--btn-bottom-text-shadow);
+
+    box-shadow:
+      inset 0 2px 0 0 var(--btn-upper-shadow),
+      inset 0 -2px 0 0 var(--btn-bottom-shadow),
       var(--tw-ring-offset-shadow),
       var(--tw-ring-shadow);
   }
 }
 
 @utility btn-black {
-  @apply bg-gray-800 rounded-md px-7 py-3 flex items-center gap-2 border-2 border-black
-            text-white font-bold from-white/25 to-black/25 transition-all duration-150 will-change-[shadow]
-            hover:brightness-95 active:brightness-90
-            outline-hidden ring-0 focus-visible:ring-4 ring-purple-100/40;
+  background: var(--color-gray-800);
+  border-radius: calc(var(--spacing) * 1.5);
+  border: 2px solid var(--color-black);
+  color: var(--color-white);
+  transition-property: all;
+  transition-timing-function: var(
+    --tw-ease,
+    var(--default-transition-timing-function) /* cubic-bezier(0.4, 0, 0.2, 1) */
+  );
+  transition-duration: 150ms;
+  will-change: shadow, filter;
+  outline: none;
 
-  --btn-black-up-text-shadow: var(--color-black);
-  --btn-black-down-text-shadow: var(--color-white);
+  --btn-upper-shadow: color-mix(in oklab, var(--color-white) 25%, var(--color-transparent));
+  --btn-bottom-shadow: color-mix(in oklab, var(--color-black) 25%, var(--color-transparent));
 
-  text-shadow:
-    0 -2px 0 color-mix(in oklab, var(--btn-black-up-text-shadow) 40%, transparent),
-    0 2px 0 color-mix(in oklab, var(--btn-black-down-text-shadow) 25%, transparent);
+  --btn-upper-text-shadow: color-mix(in oklab, var(--color-black) 40%, var(--color-transparent));
+  --btn-bottom-text-shadow: color-mix(in oklab, var(--color-white) 25%, var(--color-transparent));
 
-  &,
-  &:focus-visible {
+  @apply focus-visible:ring-4 ring-purple-100/40;
+
+  &:not(:disabled) {
+    &:hover {
+      filter: brightness(0.95);
+    }
+
+    &:active {
+      filter: brightness(0.9);
+    }
+
+    text-shadow:
+      0 -2px 0 var(--btn-upper-text-shadow),
+      0 2px 0 var(--btn-bottom-text-shadow);
+
     box-shadow:
-      inset 0 3px 0 0 var(--tw-gradient-from),
-      inset 0 -2px 0 0 var(--tw-gradient-to),
+      inset 0 3px 0 0 var(--btn-upper-shadow),
+      inset 0 -2px 0 0 var(--btn-bottom-shadow),
       var(--tw-ring-offset-shadow),
       var(--tw-ring-shadow);
   }
 }
 
 @utility btn-ghost-success {
-  @apply px-8 py-4 text-green-500 rounded-md hover:bg-green-500/15 active:bg-green-500/25
-            transition-all duration-150 will-change-[background,_shadow] outline-0
-            ring-inset ring-0 focus-visible:ring-4 ring-green-500/40 focus-visible:bg-green-500/10;
+  border-radius: calc(var(--spacing) * 1.5);
+  background-color: var(--color-transparent);
+  will-change: background-color, shadow;
+  color: var(--color-green-500);
+  outline: none;
 
-  &:disabled {
+  &:not(:disabled) {
+    &:hover {
+      background-color: color-mix(in oklab, var(--color-green-500) 15%, var(--color-transparent));
+    }
+
+    &:active {
+      background-color: color-mix(in oklab, var(--color-green-500) 25%, var(--color-transparent));
+    }
+  }
+
+  @apply ring-inset ring-0 focus-visible:ring-4 ring-green-500/40 focus-visible:bg-green-500/10;
+
+  &:disabled, &:not(:enabled) {
     @apply opacity-75;
   }
 }
