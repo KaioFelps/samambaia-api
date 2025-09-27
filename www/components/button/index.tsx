@@ -14,11 +14,7 @@ const Button = React.forwardRef(
     { admin = true, ...buttonProps }: ButtonProps,
     ref: ForwardedRef<HTMLButtonElement | ReactElement>,
   ) => {
-    return admin ? (
-      <AdminButton {...(buttonProps as AdminButtonProps)} ref={ref} />
-    ) : (
-      null
-    );
+    return admin ? <AdminButton {...(buttonProps as AdminButtonProps)} ref={ref} /> : null;
   },
 );
 

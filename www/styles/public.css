@@ -241,7 +241,8 @@
 
   @apply ring-inset ring-0 focus-visible:ring-4 ring-green-500/40 focus-visible:bg-green-500/10;
 
-  &:disabled, &:not(:enabled) {
+  &:disabled,
+  &:not(:enabled) {
     @apply opacity-75;
   }
 }
