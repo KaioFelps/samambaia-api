@@ -1,5 +1,4 @@
 import cover from "@/assets/website-meta-cover.jpeg";
-import { HotelsCode } from "./hotels";
 
 const appName = "Live Cosmic" as const;
 
@@ -10,7 +9,6 @@ export const appConfig = {
     name: "Habblive Hotel",
     shortName: "Habblive",
     baseUrl: "https://habblive.in",
-    code: HotelsCode.Habblet,
   },
 
   assets: {
