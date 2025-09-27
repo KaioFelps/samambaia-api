@@ -4,14 +4,16 @@ use actix_web::HttpRequest;
 use inertia_rust::validators::InertiaValidateOrRedirect;
 use inertia_rust::{hashmap, Inertia, InertiaFacade};
 
-use crate::configs::app::SESSION_USER_KEY;
+use crate::configs::app::{APP_CONFIG, SESSION_USER_KEY};
 use crate::configs::inertia::IntoInertiaRedirect;
 use crate::domain::factories::identity::{
     authenticate_user_service_factory,
     create_user_service_factory,
+    verify_verification_code_service_factory,
 };
 use crate::domain::services::identity::authenticate_user_service::AuthenticateUserParams;
 use crate::domain::services::identity::create_user_service::CreateUserParams;
+use crate::domain::services::identity::verify_verification_code_service::VerifyVerificationCodeParams;
 use crate::infra::extensions::sessions::SessionHelpers;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::AppResponse;
@@ -92,6 +94,35 @@ impl SessionsController {
             Err(err_redirect) => return err_redirect,
             Ok(dto) => dto,
         };
+
+        let code_verification_service = verify_verification_code_service_factory::exec();
+        let code_authorization = match code_verification_service
+            .execute(VerifyVerificationCodeParams {
+                nickname: &nickname,
+            })
+            .await
+        {
+            Ok(authorization) => authorization,
+            Err(_) => {
+                return Inertia::back_with_errors(
+                    &req,
+                    hashmap![ "error" => "Não conseguimos nos comunicar com o hotel, tente novamente mais tarde.".into() ],
+                );
+            }
+        };
+
+        if !code_authorization.is_authorized {
+            return Inertia::back_with_errors(
+                &req,
+                hashmap![
+                    "verification_code" => format!(
+                        "Mude sua missão para {} para se registrar (atual: \"{}\").",
+                        APP_CONFIG.verification_motto,
+                        code_authorization.motto.unwrap_or_default()
+                    ).into()
+                ],
+            );
+        }
 
         let create_user_service = create_user_service_factory::exec(&db_conn);
         let user = match create_user_service

@@ -19,7 +19,7 @@ export type AuthenticationDialogProps = {
 };
 
 export function UserBox() {
-  const { auth, flash } = usePage().props;
+  const { auth, flash, verificationMotto } = usePage().props;
   const [dialog, setDialog] = useState<AuthenticationDialog>();
 
   useEffect(() => {
@@ -33,22 +33,29 @@ export function UserBox() {
     }
   }, [flash]);
 
-  return auth ? <Logged user={auth.user} /> : <Unlogged setDialog={setDialog} dialog={dialog} />;
+  return auth ? (
+    <Logged user={auth.user} />
+  ) : (
+    <Unlogged setDialog={setDialog} dialog={dialog} verificationMotto={verificationMotto} />
+  );
 }
 
 function Unlogged({
   dialog,
   setDialog,
+  verificationMotto,
 }: {
   dialog?: AuthenticationDialog;
   setDialog: (_: AuthenticationDialog | undefined) => void;
+  verificationMotto: string;
 }) {
   return (
     <div className="flex items-center gap-2">
       <RegisterForm
         open={dialog === "register"}
         setDialog={setDialog}
-        setOpen={(v) => setDialog(v ? "register" : undefined)}>
+        setOpen={(v) => setDialog(v ? "register" : undefined)}
+        verificationMotto={verificationMotto}>
         <PublicButton.Default
           variant="black"
           size="lg"

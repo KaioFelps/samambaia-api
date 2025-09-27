@@ -6,10 +6,7 @@ import { Alert } from "@/components/alert";
 import PublicButton from "@/components/button/public-button";
 import Dialog from "@/components/dialog";
 import { Input } from "@/components/form/input";
-import { appConfig } from "@/config/app";
 import type { AuthenticationDialogProps } from "../userBox";
-
-const confirmationCode = "@livecosmicfs";
 
 type RegisterFormData = {
   nickname: string;
@@ -19,8 +16,12 @@ type RegisterFormData = {
   error?: string;
 };
 
+type Props = {
+  verificationMotto: string;
+} & AuthenticationDialogProps;
+
 export const RegisterForm = memo(
-  ({ children: trigger, open, setDialog, setOpen }: AuthenticationDialogProps) => {
+  ({ children: trigger, open, setDialog, setOpen, verificationMotto }: Props) => {
     const { post, errors, reset, clearErrors, data, setData, setError, processing } =
       useForm<RegisterFormData>();
 
@@ -33,24 +34,12 @@ export const RegisterForm = memo(
         return;
       }
 
-      fetch(`${appConfig.userInfoUrl}?user=${data.nickname}`).then((res) =>
-        res.json().then(({ motto }) => {
-          if (motto !== confirmationCode) {
-            setError(
-              "verification_code",
-              `Mude sua missão para ${confirmationCode} para registrar-se (atual: "${motto}").`,
-            );
-            return;
-          }
-
-          post("/sessions/register", {
-            errorBag: "register",
-            onSuccess() {
-              setOpen(false);
-            },
-          });
-        }),
-      );
+      post("/sessions/register", {
+        errorBag: "register",
+        onSuccess() {
+          setOpen(false);
+        },
+      });
     }
 
     useEffect(() => {
@@ -117,7 +106,7 @@ export const RegisterForm = memo(
             <Input
               label="Cole na sua missão"
               type="text"
-              value={confirmationCode}
+              value={verificationMotto}
               className="text-input bg-gray-200 cursor-pointer"
               containerClassName="mb-4"
               readOnly

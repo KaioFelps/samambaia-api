@@ -41,5 +41,6 @@ declare module "@inertiajs/core/types" {
     announcements: { data: AnnouncementShort[]; paginationn: Pagination };
     featuredUsers: { data: FeaturedUser[]; pagination: Pagination };
     flash: Record<string, string>;
+    verificationMotto: string;
   }
 }
