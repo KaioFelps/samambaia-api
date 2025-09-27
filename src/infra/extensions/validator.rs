@@ -5,7 +5,7 @@ use crate::error::{IntoSamambaiaError, SamambaiaError};
 impl From<ValidationErrors> for SamambaiaError {
     fn from(value: ValidationErrors) -> Self {
         let errors_map = value.field_errors().to_owned();
-        SamambaiaError::validation_err(&errors_map)
+        SamambaiaError::validation_err(errors_map)
     }
 }
 

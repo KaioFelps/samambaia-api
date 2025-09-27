@@ -100,10 +100,10 @@ impl SamambaiaError {
     }
 
     pub fn validation_err<T: ToString>(
-        errors_map: &HashMap<T, &Vec<validator::ValidationError>>,
+        errors_map: HashMap<T, &Vec<validator::ValidationError>>,
     ) -> Self {
         let mut _errors_map = errors_map
-            .iter()
+            .into_iter()
             .map(|(k, v)| (k.to_string(), v.to_vec()))
             .collect();
 
