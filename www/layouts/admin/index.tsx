@@ -31,7 +31,7 @@ export function AdminLayout({ children, props }: { children: ReactNode; props: P
             "bg-gray-100 px-6 py-2 flex items-center justify-between border-b border-gray-250",
           )}>
           <Link href="/gremio">
-            <img src={appConfig.assets.adminLogo} alt="Cosmic" />
+            <img src={appConfig.assets.adminLogo} alt="Cosmic" className="pixelated" />
           </Link>
           <div className="flex gap-2">
             <CreateShortcutsDropdown />
