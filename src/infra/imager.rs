@@ -29,7 +29,6 @@ impl Imager {
             });
         }
 
-        dbg!(&base_url);
         Ok(base_url.to_string())
     }
 }
