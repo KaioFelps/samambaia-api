@@ -4,3 +4,4 @@ pub mod create_user_service_factory;
 pub mod fetch_many_users_service_factory;
 pub mod get_user_service_factory;
 pub mod update_user_service_factory;
+pub mod verify_verification_code_service_factory;
