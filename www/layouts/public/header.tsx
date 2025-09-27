@@ -6,7 +6,7 @@ import { appConfig } from "@/config/app";
 
 import { Sprite } from "../../components/sprite";
 import { NavDropdownContent, NavDropdownItem } from "./nav-dropdown-content";
-import { UserBox } from "./userBox";
+import { UserBox } from "./user-box";
 
 export const Header = memo(() => {
   return (

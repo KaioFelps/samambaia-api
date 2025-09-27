@@ -7,7 +7,7 @@ import PublicButton from "@/components/button/public-button";
 import Dialog from "@/components/dialog";
 import { Input } from "@/components/form/input";
 import { appConfig } from "@/config/app";
-import type { AuthenticationDialogProps } from "../userBox";
+import type { AuthenticationDialogProps } from "../user-box";
 
 type RegisterFormData = {
   nickname: string;

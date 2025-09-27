@@ -113,23 +113,30 @@ function Logged({ user }: LoggedProps) {
       <div
         inert
         style={{ backgroundImage: `url("${habboAvatar}")` }}
-        className="pixelated w-[64px] h-[110px] absolute left-1/2 -translate-x-1/2 bottom-4"
+        className="pixelated w-[90px] h-[110px] absolute left-1/2 -translate-x-1/2 bottom-4"
       />
       <Popover.Root>
-        <Popover.Trigger
-          className="
-          group flex items-center gap-0 btn-black ring-purple-500 relative
-          ">
-          <Sprite x={-152} y={-90} width={14} height={14} className="mr-1.5" />
-
-          <span className="font-rowdies text-sm font-normal leading-none">{user?.nickname}</span>
-
-          <Popover.Indicator className="ml-3" />
+        <Popover.Trigger asChild>
+          <PublicButton.Default asChild variant="black" className="group gap-0 ring-purple-500">
+            <button type="button">
+              <Sprite x={-152} y={-90} width={14} height={14} className="mr-1.5" />
+              <span className="font-rowdies text-sm font-normal leading-none">
+                {user?.nickname}
+              </span>
+              <Popover.Indicator className="ml-3" />
+            </button>
+          </PublicButton.Default>
         </Popover.Trigger>
         <Popover.Content side="bottom" collisionPadding={24}>
           <div className="p-3 text-sm flex gap-3">
             <div className="p-2 bg-white/10 rounded-md grid place-items-center">
-              <img width="64px" height="110px" src={habboAvatar} alt="avatar de habbo" />
+              <img
+                className="pixelated object-center"
+                width="90px"
+                height="130px"
+                src={habboAvatar}
+                alt="avatar de habbo"
+              />
             </div>
 
             <div className="flex flex-col gap-1">
@@ -149,14 +156,21 @@ function Logged({ user }: LoggedProps) {
 
               <div className="w-full h-0.5 bg-black my-2 shadow-white/10 shadow-[0_2px_0_0]" />
 
-              <Link href="/" className="btn-black font-normal">
-                <Sprite x={-201} y={-62} width={20} height={20} />
-                Configurações
-              </Link>
-              <button type="button" className="btn-black font-normal" onClick={handleLogout}>
+              <PublicButton.Default asChild variant="black" className="justify-start font-normal">
+                <Link href="/">
+                  <Sprite x={-201} y={-62} width={20} height={20} />
+                  Configurações
+                </Link>
+              </PublicButton.Default>
+
+              <PublicButton.Default
+                variant="black"
+                className="justify-start font-normal"
+                type="button"
+                onClick={handleLogout}>
                 <Sprite x={-224} y={-62} width={20} height={20} />
                 Logout
-              </button>
+              </PublicButton.Default>
             </div>
           </div>
         </Popover.Content>
