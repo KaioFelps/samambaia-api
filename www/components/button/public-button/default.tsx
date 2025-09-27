@@ -17,10 +17,11 @@ export function DefaultPublicButton({
   const Button = asChild ? Slot : "button";
   return (
     <Button
+      role="button"
       className={clsx(
         "flex items-center justify-center gap-3 leading-tight",
         "transition-all duration-150 will-change-[shadow,_filter]",
-        "not-enabled:cursor-not-allowed",
+        "disabled:cursor-not-allowed [role='button']:not-enabled:cursor-not-allowed",
 
         variant === "default" && "btn",
 
