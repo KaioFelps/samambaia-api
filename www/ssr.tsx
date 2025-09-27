@@ -5,7 +5,7 @@ import ReactDOMServer from "react-dom/server";
 import { appConfig } from "./config/app";
 import { pageResolver, resolveTitle } from "./lib/inertia";
 
-const appName = appConfig.appName ?? "Live Cosmic";
+const appName = appConfig.appName ?? "Cosmic";
 
 createServer((page) =>
   createInertiaApp({

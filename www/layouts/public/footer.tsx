@@ -47,7 +47,7 @@ export const Footer = memo(() => {
           <Sprite x={-721} y={-2} width={78} height={78} />
 
           <p className="text-balance text-gray-700 text-sm">
-            <span className="block mb-1">Copyright Live Cosmic 2025</span>
+            <span className="block mb-1">Copyright {appConfig.appName} 2025</span>
             Somos um fã-site oficial do {appConfig.hostHotel.name}. Não somos aprovados,
             patrocinados, filiados nem reconhecidos pela Sulake.
           </p>
@@ -65,7 +65,7 @@ export const Footer = memo(() => {
             <span className="text-purple-700/70 font-bold text-sm mb-2">Cosmic</span>
             <div className="flex flex-col">
               <Link href="/">Página inicial</Link>
-              <Link href="">Sobre o Live Cosmic</Link>
+              <Link href="">Sobre o {appConfig.appName}</Link>
               <Link href="">Equipe Cósmic</Link>
               <Link href="">Vagas na Equipe</Link>
               {canSeeTheDashboard && <Link href="/gremio">Painel do Grêmio</Link>}

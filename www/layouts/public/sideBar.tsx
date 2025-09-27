@@ -65,7 +65,7 @@ export const SideBar = memo(() => {
                 flex gap-3 not-last:overflow-hidden
                 not-last:border-b-2 border-black/15
                 "
-                key={`live-cosmic-featured-user-${nickname}`}>
+                key={`cosmic-featured-user-${nickname}`}>
                 <div
                   className="
                 relative w-[150px] min-h-[172px] flex flex-col justify-end items-center -mb-4

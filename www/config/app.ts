@@ -1,14 +1,14 @@
 import cover from "@/assets/website-meta-cover.jpeg";
 
-const appName = "Live Cosmic" as const;
+const appName = "Habblet Cosmic" as const;
 
 export const appConfig = {
   appName,
 
   hostHotel: {
-    name: "Habblive Hotel",
-    shortName: "Habblive",
-    baseUrl: "https://habblive.in",
+    name: "Habblet Hotel",
+    shortName: "Habblet",
+    baseUrl: "https://habblet.city",
   },
 
   assets: {
@@ -20,7 +20,7 @@ export const appConfig = {
   meta: {
     appURL: "https://live-cosmic-staging.squareweb.app/",
     title: appName,
-    description: "Sua galáxia de entretenimento e informações no Habblive Hotel!",
+    description: "Sua galáxia de entretenimento e informações no Habblet Hotel!",
     cover,
   },
 } as const;

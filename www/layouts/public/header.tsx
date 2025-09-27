@@ -17,7 +17,7 @@ export const Header = memo(() => {
             pixelated w-full h-[292px] bg-center animate-top-bg grid place-items-center
           ">
         <Link href="/">
-          <img src={appConfig.assets.logo} alt="Live Cosmic" className="pixelated" />
+          <img src={appConfig.assets.logo} alt={appConfig.appName} className="pixelated" />
         </Link>
       </div>
 

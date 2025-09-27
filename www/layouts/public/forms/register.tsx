@@ -6,6 +6,7 @@ import { Alert } from "@/components/alert";
 import PublicButton from "@/components/button/public-button";
 import Dialog from "@/components/dialog";
 import { Input } from "@/components/form/input";
+import { appConfig } from "@/config/app";
 import type { AuthenticationDialogProps } from "../userBox";
 
 type RegisterFormData = {
@@ -55,7 +56,7 @@ export const RegisterForm = memo(
         <Dialog.Content>
           <Dialog.Header
             title="Registre-se"
-            description="Crie sua própria conta na Live Cosmic de graça!"
+            description={`Crie sua própria conta no ${appConfig.appName} de graça!`}
           />
 
           {errors.error && <Alert type="error" message={errors.error} className="mb-4" />}

@@ -62,7 +62,7 @@ impl AppConfig<'_> {
             lottery: [2, 100],
             sessions_dir: "storage/sessions",
             sessions_exp_key: "___expires_at___",
-            session_cookie: "live_cosmic_session",
+            session_cookie: "cosmic_fs_session",
 
             // FROM ENVIRONMENT VARIABLES
             app_key: Box::leak(env_vars.app_key.into_boxed_str()),

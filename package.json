@@ -1,7 +1,7 @@
 {
-  "name": "live-cosmic",
+  "name": "cosmic-fs",
   "version": "1.0.0",
-  "description": "Páginas do Live Cosmic.",
+  "description": "Páginas do fansite Cosmic.",
   "main": "www/app.js",
   "scripts": {
     "dev": "vite",

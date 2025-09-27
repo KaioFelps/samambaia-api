@@ -5,6 +5,7 @@ import { Alert } from "@/components/alert";
 import PublicButton from "@/components/button/public-button";
 import Dialog from "@/components/dialog";
 import { Input } from "@/components/form/input";
+import { appConfig } from "@/config/app";
 import type { AuthenticationDialogProps } from "../userBox";
 
 type LoginFormData = {
@@ -42,7 +43,7 @@ export const LoginForm = memo(
         <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
 
         <Dialog.Content>
-          <Dialog.Header title="Login" description="Acesse sua conta na Live Cosmic." />
+          <Dialog.Header title="Login" description={`Acesse sua conta no ${appConfig.appName}.`} />
 
           {(errors as Record<string, string>).error && (
             <Alert
