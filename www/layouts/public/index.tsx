@@ -6,7 +6,7 @@ import { appConfig } from "@/config/app";
 
 import { Footer } from "./footer";
 import { Header } from "./header";
-import { SideBar } from "./sideBar";
+import { SideBar } from "./side-bar";
 
 type PublicLayoutProps = {
   children: ReactNode;
