@@ -1,6 +1,5 @@
 import type { PageProps } from "@inertiajs/core/types";
 import { usePage } from "@inertiajs/react";
-import PublicButton from "@/components/button/public-button/index";
 import { Head } from "@/components/head";
 import { Main } from "@/components/main";
 import { Sprite } from "@/components/sprite";
@@ -76,14 +75,16 @@ export default function ShowArticle() {
           </div>
 
           <div id="article-actions-container" className="py-3 flex items-center justify-end gap-2">
-            <PublicButton.Default variant="success" size="lg">
+            {/* TODO: make forms work in order to enable this button */}
+            {/* <PublicButton.Default variant="success" size="lg">
               <Sprite width={18} height={13} x={-94} y={-96} />
               Formulário
-            </PublicButton.Default>
+            </PublicButton.Default> */}
 
-            <PublicButton.Default variant="yellow" size="lg">
+            {/* TODO: make stars work in order to enable this button */}
+            {/* <PublicButton.Default variant="yellow" size="lg">
               <Sprite width={16} height={14} x={-112} y={-64} /> 1
-            </PublicButton.Default>
+            </PublicButton.Default> */}
           </div>
         </div>
 
