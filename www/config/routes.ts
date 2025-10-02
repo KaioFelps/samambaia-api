@@ -8,6 +8,9 @@ export const routes = {
       base: "/article",
       view: (slug: string): string => `/article/${slug}`,
     },
+    comment: {
+      createComment: (articleId: string) => `/comments/${articleId}/new`,
+    },
   },
   admin: {
     home: "/gremio",
