@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { ToastContainer } from "react-toastify";
 
 import { appConfig } from "@/config/app";
-
+import { ProvidersWrapper } from "../providers-wrapper";
 import { Footer } from "./footer";
 import { Header } from "./header";
 import { SideBar } from "./side-bar";
@@ -58,10 +58,13 @@ export function RawPublicLayout({ children }: PublicLayoutProps) {
 
         <meta name="twitter:image" content={appConfig.meta.cover} />
       </Head>
-      <Header />
-      {children}
-      <Footer />
-      <ToastContainer />
+
+      <ProvidersWrapper>
+        <Header />
+        {children}
+        <Footer />
+        <ToastContainer />
+      </ProvidersWrapper>
     </>
   );
 }
