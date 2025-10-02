@@ -23,7 +23,15 @@ export function Comments({ userNickname, isAuthenticated, comments, articleId }:
       />
 
       <hr />
-      <div className="flex flex-col gap-2">{comments.map(CommentBox)}</div>
+      <div className="flex flex-col gap-2">
+        {comments.map((comment) => (
+          <CommentBox
+            key={`article-comment-${comment.id}`}
+            authUserNickname={userNickname}
+            {...comment}
+          />
+        ))}
+      </div>
     </section>
   );
 }
