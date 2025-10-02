@@ -1,18 +1,13 @@
 import clsx from "clsx";
-import { useMemo } from "react";
 import { Sprite } from "@/components/sprite";
 import type { Comment } from "@/types/comment";
 import { Imager } from "@/utils/imager";
 
 export function CommentBox(comment: Comment) {
-  const userImage = useMemo(
-    () =>
-      Imager.getUserImage(comment.author.nickname, {
-        size: "s",
-        head_direction: "3",
-      }),
-    [comment],
-  );
+  const userImage = Imager.getUserImage(comment.author.nickname, {
+    size: "s",
+    head_direction: "3",
+  });
 
   return (
     <div key={`article-comment-${comment.id}`} className="border-2 border-gray-700 rounded-md flex">

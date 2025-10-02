@@ -30,7 +30,12 @@ export default function ShowArticle() {
           publishmentDate={props.article.createdAt}
         />
 
-        <Comments comments={props.article.comments.data} userNickname={props.auth?.user.nickname} />
+        <Comments
+          comments={props.article.comments.data}
+          userNickname={props.auth?.user.nickname}
+          isAuthenticated={Boolean(props.auth)}
+          articleId={props.article.id}
+        />
       </Main>
 
       <aside className="card flex-1 h-fit">
