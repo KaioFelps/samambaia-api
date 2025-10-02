@@ -83,7 +83,7 @@ impl CommentsController {
         let _comment = service
             .exec(CommentOnArticleParams {
                 author_id: user.user_id,
-                content: body.into_inner().content,
+                content: body.into_inner().content.unwrap(),
                 article_id: article_id.into_inner(),
             })
             .await?;

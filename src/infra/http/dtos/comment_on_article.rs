@@ -3,6 +3,9 @@ use validator::Validate;
 
 #[derive(Serialize, Deserialize, Validate)]
 pub struct CommentOnArticleDto {
-    #[validate(length(min = 1, message = "Comment can't be empty."))]
-    pub content: String,
+    #[validate(
+        required(message = "O comentário precisa ter conteúdo."),
+        length(min = 1, message = "O comentário não pode estar vazio.")
+    )]
+    pub content: Option<String>,
 }
