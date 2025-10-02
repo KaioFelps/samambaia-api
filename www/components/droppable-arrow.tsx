@@ -1,6 +1,7 @@
 import { Arrow as DropdownArrow } from "@radix-ui/react-dropdown-menu";
 import { Arrow as PopoverArrow } from "@radix-ui/react-popover";
 import { Arrow as SelectArrow } from "@radix-ui/react-select";
+import { TooltipArrow } from "@radix-ui/react-tooltip";
 import clsx from "clsx";
 
 const adminDroppableArrowProps = {
@@ -22,24 +23,21 @@ const publicDroppableArrowProps = {
   height: 10,
 };
 
-type DroppableComponent = "dropdown" | "popover" | "select";
+type DroppableComponent = "dropdown" | "popover" | "select" | "tooltip";
+
+const arrows = {
+  dropdown: DropdownArrow,
+  popover: PopoverArrow,
+  select: SelectArrow,
+  tooltip: TooltipArrow,
+};
 
 export function AdminDroppableArrow({ component }: { component: DroppableComponent }) {
-  const Arrow = {
-    dropdown: DropdownArrow,
-    popover: PopoverArrow,
-    select: SelectArrow,
-  }[component];
-
+  const Arrow = arrows[component];
   return <Arrow {...adminDroppableArrowProps} />;
 }
 
 export function PublicDroppableArrow({ component }: { component: DroppableComponent }) {
-  const Arrow = {
-    dropdown: DropdownArrow,
-    popover: PopoverArrow,
-    select: SelectArrow,
-  }[component];
-
+  const Arrow = arrows[component];
   return <Arrow {...publicDroppableArrowProps} />;
 }
