@@ -1,9 +1,13 @@
 import type { PageProps } from "@inertiajs/core/types";
 import { usePage } from "@inertiajs/react";
+import { useMemo } from "react";
+import { Alert } from "@/components/alert";
+import PublicButton from "@/components/button/public-button";
 import { Head } from "@/components/head";
 import { Main } from "@/components/main";
 import { Sprite } from "@/components/sprite";
 import type { ExpandedArticle } from "@/types/expanded-article";
+import { CommentBox } from "@/ui/articles/comment-box";
 import { FaceGesture, Imager } from "@/utils/imager";
 
 type Props = PageProps & {
@@ -12,6 +16,15 @@ type Props = PageProps & {
 
 export default function ShowArticle() {
   const props = usePage<Props>().props;
+
+  const userHead = useMemo(() => {
+    if (!props.auth) return null;
+    return Imager.getUserImage(props.auth.user.nickname, {
+      headonly: "1",
+      head_direction: "3",
+      size: "m",
+    });
+  }, [props.auth]);
 
   return (
     <>
@@ -47,7 +60,9 @@ export default function ShowArticle() {
           />
         </article>
 
-        <div id="article-footer-container" className="card py-0 flex items-center justify-between">
+        <section
+          id="article-footer-container"
+          className="card py-0 flex items-center justify-between mb-3">
           <div id="article-author-container" className="flex gap-1 items-center">
             <div
               style={{
@@ -86,9 +101,42 @@ export default function ShowArticle() {
               <Sprite width={16} height={14} x={-112} y={-64} /> 1
             </PublicButton.Default> */}
           </div>
-        </div>
+        </section>
 
         {/* TODO: Comments */}
+        <section className="card flex flex-col gap-3">
+          <header className="section-header gray">
+            <h2>Comentários</h2>
+          </header>
+
+          {props.auth ? (
+            <form className="flex items-center gap-3">
+              <label className="w-full flex items-center gap-3">
+                <img
+                  src={userHead!}
+                  alt="Avatar do usuário"
+                  className="pixelated w-14 h-16 object-none object-[-24px_-20px]"
+                />
+
+                <input
+                  type="text"
+                  className="text-input w-full"
+                  placeholder="Comente algo legal..."
+                  required
+                />
+              </label>
+
+              <PublicButton.Default type="submit" size="lg">
+                Enviar
+              </PublicButton.Default>
+            </form>
+          ) : (
+            <Alert message="Você precisa estar logado para poder comentar." type="warning" />
+          )}
+
+          <hr />
+          <div className="flex flex-col gap-2">{props.article.comments.data.map(CommentBox)}</div>
+        </section>
       </Main>
 
       <aside className="card flex-1 h-fit">
