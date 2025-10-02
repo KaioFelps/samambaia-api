@@ -1,14 +1,11 @@
 import type { PageProps } from "@inertiajs/core/types";
 import { usePage } from "@inertiajs/react";
-import { useMemo } from "react";
-import { Alert } from "@/components/alert";
-import PublicButton from "@/components/button/public-button";
 import { Head } from "@/components/head";
 import { Main } from "@/components/main";
-import { Sprite } from "@/components/sprite";
 import type { ExpandedArticle } from "@/types/expanded-article";
-import { CommentBox } from "@/ui/articles/comment-box";
-import { FaceGesture, Imager } from "@/utils/imager";
+import { ArticleContainer } from "@/ui/articles/article-container";
+import { ArticleFooter } from "@/ui/articles/article-footer";
+import { Comments } from "@/ui/articles/comments";
 
 type Props = PageProps & {
   article: ExpandedArticle;
@@ -16,15 +13,6 @@ type Props = PageProps & {
 
 export default function ShowArticle() {
   const props = usePage<Props>().props;
-
-  const userHead = useMemo(() => {
-    if (!props.auth) return null;
-    return Imager.getUserImage(props.auth.user.nickname, {
-      headonly: "1",
-      head_direction: "3",
-      size: "m",
-    });
-  }, [props.auth]);
 
   return (
     <>
@@ -35,108 +23,14 @@ export default function ShowArticle() {
       />
 
       <Main className="flex-1 max-w-main-center-content basis-main-center-content">
-        <article id="article-container" className="card p-0 mb-2">
-          <div id="article-header-wrapper" className="p-3">
-            <header id="article-header-container" className="section-header blue mb-1">
-              <h1>{props.article.title}</h1>
-            </header>
+        <ArticleContainer {...props.article} />
 
-            {props.article.tags.length > 0 && (
-              <div id="article-tags-container" className="flex flex-wrap items-row gap-1 mb-3">
-                {props.article.tags.map((tag) => (
-                  <span key={`article-tag-${tag.id}`}>{tag.value}</span>
-                ))}
-              </div>
-            )}
-          </div>
+        <ArticleFooter
+          authorNickname={props.article.author.nickname}
+          publishmentDate={props.article.createdAt}
+        />
 
-          <hr id="article-divisor" className="mx-0.5" />
-
-          <div
-            id="article-content-container"
-            className="p-3 article-content"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: this content is curated by fansite staff
-            dangerouslySetInnerHTML={{ __html: props.article.content }}
-          />
-        </article>
-
-        <section
-          id="article-footer-container"
-          className="card py-0 flex items-center justify-between mb-3">
-          <div id="article-author-container" className="flex gap-1 items-center">
-            <div
-              style={{
-                background: `url(${Imager.getUserImage(props.article.author.nickname, {
-                  gesture: FaceGesture.smile,
-                  direction: "2",
-                  head_direction: "3",
-                  size: "m",
-                  img_format: "png",
-                })}) no-repeat calc((90px - 64px) / 2 * -1) -14px`,
-              }}
-              className="pixelated w-16 h-[72px]"
-            />
-            <div className="flex flex-col justify-center items-start text-sm text-gray-700">
-              <span className="flex gap-0.5 items-center">
-                <Sprite width={16} height={17} x={-139} y={-64} />
-                Escrito por <strong>{props.article.author.nickname}</strong>
-              </span>
-              <span className="flex gap-0.5 items-center">
-                <Sprite width={16} height={17} x={-128} y={-95} />
-                Publicado em{" "}
-                <strong>{new Date(props.article.createdAt).toLocaleDateString("pt-BR")}</strong>
-              </span>
-            </div>
-          </div>
-
-          <div id="article-actions-container" className="py-3 flex items-center justify-end gap-2">
-            {/* TODO: make forms work in order to enable this button */}
-            {/* <PublicButton.Default variant="success" size="lg">
-              <Sprite width={18} height={13} x={-94} y={-96} />
-              Formulário
-            </PublicButton.Default> */}
-
-            {/* TODO: make stars work in order to enable this button */}
-            {/* <PublicButton.Default variant="yellow" size="lg">
-              <Sprite width={16} height={14} x={-112} y={-64} /> 1
-            </PublicButton.Default> */}
-          </div>
-        </section>
-
-        {/* TODO: Comments */}
-        <section className="card flex flex-col gap-3">
-          <header className="section-header gray">
-            <h2>Comentários</h2>
-          </header>
-
-          {props.auth ? (
-            <form className="flex items-center gap-3">
-              <label className="w-full flex items-center gap-3">
-                <img
-                  src={userHead!}
-                  alt="Avatar do usuário"
-                  className="pixelated w-14 h-16 object-none object-[-24px_-20px]"
-                />
-
-                <input
-                  type="text"
-                  className="text-input w-full"
-                  placeholder="Comente algo legal..."
-                  required
-                />
-              </label>
-
-              <PublicButton.Default type="submit" size="lg">
-                Enviar
-              </PublicButton.Default>
-            </form>
-          ) : (
-            <Alert message="Você precisa estar logado para poder comentar." type="warning" />
-          )}
-
-          <hr />
-          <div className="flex flex-col gap-2">{props.article.comments.data.map(CommentBox)}</div>
-        </section>
+        <Comments comments={props.article.comments.data} userNickname={props.auth?.user.nickname} />
       </Main>
 
       <aside className="card flex-1 h-fit">
