@@ -1,18 +1,39 @@
+import { router } from "@inertiajs/react";
 import clsx from "clsx";
+import { toast } from "react-toastify";
 import { Sprite } from "@/components/sprite";
 import Tooltip from "@/components/tooltip";
+import { routes } from "@/config/routes";
+import { type Auth, Permission } from "@/types/auth";
 import type { Comment } from "@/types/comment";
 import { Imager } from "@/utils/imager";
 
 type Props = {
-  authUserNickname?: string;
+  auth?: Auth;
 } & Comment;
 
-export function CommentBox({ authUserNickname, ...comment }: Props) {
+export function CommentBox({ auth, ...comment }: Props) {
   const userImage = Imager.getUserImage(comment.author.nickname, {
     size: "s",
     head_direction: "3",
   });
+
+  const userCanDeleteComment =
+    comment.author.nickname === auth?.user.nickname ||
+    (auth?.permissions.includes(Permission.DeleteComment) ?? false);
+
+  const handleDeleteComment = () => {
+    router.delete(
+      routes.web.comment.deleteComment(comment.id),
+      {
+        preserveScroll: true,
+        onError: (errors) => {
+          if ("error" in errors) toast.error(errors.error);
+        },
+        onSuccess: () => toast.success("Comentário deletado com sucesso!"),
+      },
+    );
+  };
 
   return (
     <div className="border-2 border-gray-700 rounded-md flex">
@@ -45,10 +66,10 @@ export function CommentBox({ authUserNickname, ...comment }: Props) {
           </span>
 
           <div className="flex items-center gap-1 pb-0.5">
-            {comment.author.nickname === authUserNickname && (
+            {userCanDeleteComment && (
               <Tooltip.Root>
                 <Tooltip.Trigger asChild>
-                  <button title="Apagar comentário" type="button">
+                  <button title="Apagar comentário" type="button" onClick={handleDeleteComment}>
                     <Sprite width={13} height={16} x={-130} y={-128} />
                   </button>
                 </Tooltip.Trigger>

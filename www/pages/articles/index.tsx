@@ -32,8 +32,7 @@ export default function ShowArticle() {
 
         <Comments
           comments={props.article.comments.data}
-          userNickname={props.auth?.user.nickname}
-          isAuthenticated={Boolean(props.auth)}
+          auth={props.auth}
           articleId={props.article.id}
         />
       </Main>
