@@ -14,6 +14,6 @@ export type ExpandedArticle = {
   updatedAt: Date | string;
   slug: string;
   author: User;
-  comments: Paginated<Comment>;
+  comments: Paginated<Comment[]>;
   tags: Array<ArticleTag>;
 };
