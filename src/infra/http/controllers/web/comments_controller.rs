@@ -5,8 +5,12 @@ use inertia_rust::validators::InertiaValidateOrRedirect;
 use inertia_rust::{Inertia, InertiaFacade};
 use uuid::Uuid;
 
-use crate::domain::factories::journalism::comments::comment_on_article_service_factory;
+use crate::domain::factories::journalism::comments::{
+    comment_on_article_service_factory,
+    delete_comment_service_factory,
+};
 use crate::domain::services::journalism::comments::comment_on_article_service::CommentOnArticleParams;
+use crate::domain::services::journalism::comments::delete_comment_service::DeleteCommentParams;
 use crate::infra::extensions::sessions::SessionHelpers;
 use crate::infra::http::controllers::AppResponse;
 use crate::infra::http::dtos::comment_on_article::CommentOnArticleDto;
@@ -22,7 +26,11 @@ impl RouteTrait for CommentsController {
         cfg.service(
             web::scope("comments")
                 .wrap(WebAuthUserMiddleware)
-                .route("{article_id}/new", web::post().to(Self::comment_on_article)),
+                .route("{article_id}/new", web::post().to(Self::comment_on_article))
+                .route(
+                    "{comment_id}/delete",
+                    web::delete().to(Self::delete_comment),
+                ),
         );
     }
 }
@@ -51,6 +59,25 @@ impl CommentsController {
             .await?;
 
         Session::flash_silently(&req, "commentSuccess", "Comentário registrado com sucesso!");
+
+        Ok(Inertia::back(&req))
+    }
+
+    pub async fn delete_comment(
+        req: HttpRequest,
+        auth_user: WebAuthUser,
+        comment_id: Path<Uuid>,
+        db_conn: Data<SeaService>,
+    ) -> AppResponse<Redirect> {
+        let service = delete_comment_service_factory::exec(&db_conn);
+
+        service
+            .exec(DeleteCommentParams {
+                comment_id: comment_id.into_inner(),
+                staff_role: auth_user.user.role().unwrap(),
+                user_id: auth_user.user.id(),
+            })
+            .await?;
 
         Ok(Inertia::back(&req))
     }

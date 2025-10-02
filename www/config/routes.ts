@@ -10,6 +10,7 @@ export const routes = {
     },
     comment: {
       createComment: (articleId: string) => `/comments/${articleId}/new`,
+      deleteComment: (commentId: string) => `/comments/${commentId}/delete`,
     },
   },
   admin: {
