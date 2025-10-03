@@ -15,6 +15,9 @@ export const routes = {
   },
   admin: {
     home: "/gremio",
+    articles: {
+      create: "/gremio/noticias/nova",
+    },
   },
 } as const;
 
