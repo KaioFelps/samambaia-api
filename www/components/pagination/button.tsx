@@ -12,26 +12,30 @@ export type CorePaginationButtonProps = {
 
 export const CorePaginationButton = memo(
   ({ link, page, preserveScroll, ...props }: CorePaginationButtonProps) => {
-    const [Button, setButton] = useState<InertiaLinkConstructorProps | "div">("div");
     const [isActive, setIsActive] = useState(false);
     const { paginator } = useContext(PaginationContext)!;
 
     useEffect(() => {
       const isActive = paginator.getCurrentPage() === page;
       setIsActive(isActive);
-      setButton(isActive ? "div" : Link);
     }, [paginator, page]);
 
+    if (isActive)
+      return (
+        <button {...props} disabled data-disabled="disabled">
+          {page}
+        </button>
+      );
+
     return (
-      <Button
+      <Link
         {...props}
-        disabled={isActive}
-        data-disabled={isActive ? "disabled" : "enabled"}
+        preserveScroll={preserveScroll}
+        data-disabled="enabled"
         role="button"
-        href={link}
-        preserveScroll={preserveScroll}>
+        href={link}>
         {page}
-      </Button>
+      </Link>
     );
   },
 );

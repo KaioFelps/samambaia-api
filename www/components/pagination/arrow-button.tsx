@@ -1,12 +1,5 @@
-import { type InertiaLinkProps, Link } from "@inertiajs/react";
-import {
-  type JSXElementConstructor,
-  memo,
-  type ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { Link } from "@inertiajs/react";
+import { memo, type ReactNode, useContext, useEffect, useState } from "react";
 
 import type { GetPaginationParams, Paginator } from "@/utils/paginator";
 import { PaginationContext } from "./context";
@@ -23,8 +16,8 @@ type PaginationArrowButtonProps = CorePaginationArrowButtonProps & {
 export const CorePaginationArrowButton = memo(
   ({ direction, preserveScroll, icon, ...props }: PaginationArrowButtonProps) => {
     const paginationContext = useContext(PaginationContext);
+    const buttonTitle = `Ir para ${direction === "backward" ? "a página anterior" : "a próxima página"}`;
 
-    const [Button, setButton] = useState<JSXElementConstructor<InertiaLinkProps> | "div">("div");
     const [disabled, setDisabled] = useState(true);
     const [href, setHref] = useState<string | null>(null);
 
@@ -39,21 +32,28 @@ export const CorePaginationArrowButton = memo(
 
       setDisabled(disabled);
       setHref(pagination?.link ?? null);
-      setButton(disabled ? "div" : Link);
     }, [direction, paginationContext]);
 
     if (!paginationContext) return null;
 
+    if (disabled)
+      return (
+        <button {...props} type="button" disabled={disabled} data-disabled="disabled">
+          {icon}
+          <span className="sr-only">{buttonTitle}</span>
+        </button>
+      );
+
     return (
-      <Button
+      <Link
         {...props}
-        disabled={disabled}
-        data-disabled={disabled ? "disabled" : "enabled"}
         role="button"
+        data-disabled="enabled"
         href={href ?? "#"}
-        preserveScroll={preserveScroll}>
+        preserveScroll={disabled ? undefined : preserveScroll}>
         {icon}
-      </Button>
+        <span className="sr-only">{buttonTitle}</span>
+      </Link>
     );
   },
 );
