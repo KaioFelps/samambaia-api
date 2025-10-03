@@ -9,11 +9,13 @@ import type { CanMode } from "@/utils/can";
 
 import { SidebarMenuSectionTrigger } from "./trigger";
 
+export type SidebarMenuSectionRequirements = { permissions: TPermission[]; mode?: CanMode };
+
 type SidebarMenuProps = {
   children: ReactNode;
   label: string;
   icon: Icon;
-  requires?: { permissions: TPermission[]; mode?: CanMode };
+  requires?: SidebarMenuSectionRequirements;
 };
 
 export const SidebarMenuSection = ({ label, icon, requires, children }: SidebarMenuProps) => {
