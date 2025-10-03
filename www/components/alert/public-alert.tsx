@@ -46,7 +46,7 @@ export const PublicAlert = memo(({ message, type, className }: PublicAlertProps)
         type === "warning" && "bg-yellow-500/25 border-yellow-900 text-yellow-900",
         type === "error" && "bg-red-700/25 border-red-700 text-red-800",
         type === "success" && "bg-green-500/25 border-green-700 text-green-700",
-        type === "info" && "bg-blue-500/15 border-blue-500 text-blue-700",
+        type === "info" && "bg-purple-500/15 border-purple-500 text-purple-700",
         className && className,
       )}>
       <div
@@ -55,7 +55,7 @@ export const PublicAlert = memo(({ message, type, className }: PublicAlertProps)
           type === "warning" && "bg-yellow-900",
           type === "error" && "bg-red-800",
           type === "success" && "bg-green-700",
-          type === "info" && "bg-blue-700",
+          type === "info" && "bg-purple-700",
         )}>
         <Sprite {...sprites[type]} />
       </div>
