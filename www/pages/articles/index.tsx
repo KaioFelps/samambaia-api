@@ -31,6 +31,7 @@ export default function ShowArticle() {
         />
 
         <CommentsSection
+          pagination={props.article.comments.pagination}
           comments={props.article.comments.data}
           auth={props.auth}
           articleId={props.article.id}
