@@ -219,6 +219,18 @@
   }
 }
 
+@custom-variant button-like-disabled {
+  &:is(button:disabled, [role="button"][data-disabled="disabled"]) {
+    @slot;
+  }
+}
+
+@custom-variant button-like-enabled {
+  &:is(button:not(:disabled), button:enabled, [role="button"][data-disabled="enabled"]) {
+    @slot;
+  }
+}
+
 @utility w-full-mx {
   width: calc(100% - 48px);
 }

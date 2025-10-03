@@ -70,7 +70,7 @@
   --btn-upper-text-shadow: color-mix(in oklab, var(--color-black) 10%, transparent);
   --btn-bottom-text-shadow: color-mix(in oklab, var(--color-white) 70%, transparent);
 
-  &:not(:disabled) {
+  @variant button-like-enabled {
     &:hover {
       background-color: var(--color-gray-250);
     }
@@ -106,12 +106,11 @@
 
   @apply ring-green-500/40 focus-visible:ring-4;
 
-  &:disabled,
-  &:not(:enabled) {
+  @variant button-like-disabled {
     @apply opacity-75;
   }
 
-  &:not(:disabled) {
+  @variant button-like-enabled {
     text-shadow:
       0 -2px 0 var(--btn-upper-text-shadow),
       0 2px 0 var(--btn-bottom-text-shadow);
@@ -154,11 +153,11 @@
 
   @apply ring-yellow-500/40 focus-visible:ring-4;
 
-  &:not(:enabled) {
+  @variant button-like-disabled {
     opacity: 0.7;
   }
 
-  &:not(:disabled) {
+  @variant button-like-enabled {
     &:hover {
       filter: brightness(0.95);
     }
@@ -201,7 +200,7 @@
 
   @apply focus-visible:ring-4 ring-purple-100/40;
 
-  &:not(:disabled) {
+  @variant button-like-enabled {
     &:hover {
       filter: brightness(0.95);
     }
@@ -229,7 +228,7 @@
   color: var(--color-green-500);
   outline: none;
 
-  &:not(:disabled) {
+  @variant button-like-enabled {
     &:hover {
       background-color: color-mix(in oklab, var(--color-green-500) 15%, var(--color-transparent));
     }
@@ -241,8 +240,7 @@
 
   @apply ring-inset ring-0 focus-visible:ring-4 ring-green-500/40 focus-visible:bg-green-500/10;
 
-  &:disabled,
-  &:not(:enabled) {
+  @variant button-like-disabled {
     @apply opacity-75;
   }
 }
