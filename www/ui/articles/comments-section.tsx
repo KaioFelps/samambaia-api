@@ -1,3 +1,4 @@
+import { PublicAlert } from "@/components/alert/public-alert";
 import type { Auth } from "@/types/auth";
 import type { Comment } from "@/types/comment";
 import { CommentBox } from "./comment-box";
@@ -23,11 +24,19 @@ export function CommentsSection({ auth, comments, articleId }: Props) {
       />
 
       <hr />
-      <div className="flex flex-col gap-2">
-        {comments.map((comment) => (
-          <CommentBox key={`article-comment-${comment.id}`} auth={auth} {...comment} />
-        ))}
-      </div>
+
+      {comments.length >= 1 ? (
+        <div className="flex flex-col gap-2">
+          {comments.map((comment) => (
+            <CommentBox key={`article-comment-${comment.id}`} auth={auth} {...comment} />
+          ))}
+        </div>
+      ) : (
+        <PublicAlert
+          message="Ainda não há comentários. Seja o primeiro a dizer algo legal!"
+          type="info"
+        />
+      )}
     </section>
   );
 }
