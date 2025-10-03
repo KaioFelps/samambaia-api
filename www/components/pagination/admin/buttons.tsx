@@ -1,9 +1,9 @@
 import { memo, useContext } from "react";
-
+import type { CorePaginationButtonsProps } from "../buttons";
 import { PaginationContext } from "../context";
 import { AdminPaginationButton } from "./button";
 
-export const AdminPaginationButtons = memo(() => {
+export const AdminPaginationButtons = memo(({ preserveScroll }: CorePaginationButtonsProps) => {
   const paginationContext = useContext(PaginationContext)!;
 
   if (!paginationContext) return null;
@@ -15,7 +15,12 @@ export const AdminPaginationButtons = memo(() => {
   return (
     <div className="flex items-center gap-1">
       {paginator.getPagination(getPaginationArgs).map(({ link, page }) => (
-        <AdminPaginationButton key={`pagination-btn-${link}`} link={link} page={page} />
+        <AdminPaginationButton
+          key={`pagination-btn-${link}`}
+          link={link}
+          page={page}
+          preserveScroll={preserveScroll}
+        />
       ))}
     </div>
   );

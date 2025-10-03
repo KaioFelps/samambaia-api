@@ -1,34 +1,21 @@
-import { type InertiaLinkProps, Link } from "@inertiajs/react";
+import { Slot } from "@radix-ui/react-slot";
 import clsx from "clsx";
-import { type JSXElementConstructor, memo, useContext, useEffect, useState } from "react";
+import { memo } from "react";
+import { CorePaginationButton, type CorePaginationButtonProps } from "../button";
 
-import type { PaginationButtonProps } from "..";
-import { PaginationContext } from "../context";
-
-export const AdminPaginationButton = memo(({ link, page }: PaginationButtonProps) => {
-  const [Button, setButton] = useState<JSXElementConstructor<InertiaLinkProps> | "div">("div");
-  const [isActive, setIsActive] = useState(false);
-  const { paginator } = useContext(PaginationContext)!;
-
-  useEffect(() => {
-    const isActive = paginator.getCurrentPage() === page;
-    setIsActive(isActive);
-    setButton(isActive ? "div" : Link);
-  }, [paginator, page]);
-
+export const AdminPaginationButton = memo((props: CorePaginationButtonProps) => {
   return (
-    <Button
-      role={!isActive ? "button" : undefined}
-      href={link}
+    <Slot
       className={clsx(
         "text-sm transition-all self-stretch h-8 px-2 aspect-square grid place-items-center",
         "font-rowdies rounded-sm text-purple-700 select-none",
         "outline-hidden ring-0 ring-purple-500/40 focus-visible:ring-4",
-        !isActive && "bg-purple-700/20 hover:bg-purple-700/30 active:bg-purple-700/40",
-        !isActive && "underline decoration-dotted decoration-2",
-        isActive && "bg-purple-700/5",
+        "data-[state=deactivated]:bg-purple-700/20 data-[state=deactivated]:hover:bg-purple-700/30",
+        "data-[state=deactivated]:active:bg-purple-700/40 data-[state=deactivated]:underline",
+        "data-[state=deactivated]:decoration-dotted data-[state=deactivated]:decoration-2",
+        "data-[state=active]:bg-purple-700/5",
       )}>
-      {page}
-    </Button>
+      <CorePaginationButton {...props} />
+    </Slot>
   );
 });
