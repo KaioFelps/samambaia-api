@@ -9,7 +9,7 @@ type Props = {
   auth?: Auth;
 };
 
-export function Comments({ auth, comments, articleId }: Props) {
+export function CommentsSection({ auth, comments, articleId }: Props) {
   return (
     <section className="card flex flex-col gap-3">
       <header className="section-header gray">

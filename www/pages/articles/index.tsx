@@ -5,7 +5,7 @@ import { Main } from "@/components/main";
 import type { ExpandedArticle } from "@/types/expanded-article";
 import { ArticleContainer } from "@/ui/articles/article-container";
 import { ArticleFooter } from "@/ui/articles/article-footer";
-import { Comments } from "@/ui/articles/comments";
+import { CommentsSection } from "@/ui/articles/comments-section";
 
 type Props = PageProps & {
   article: ExpandedArticle;
@@ -30,7 +30,7 @@ export default function ShowArticle() {
           publishmentDate={props.article.createdAt}
         />
 
-        <Comments
+        <CommentsSection
           comments={props.article.comments.data}
           auth={props.auth}
           articleId={props.article.id}

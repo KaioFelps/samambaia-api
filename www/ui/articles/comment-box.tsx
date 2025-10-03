@@ -1,4 +1,4 @@
-import { router } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import clsx from "clsx";
 import { toast } from "react-toastify";
 import { Sprite } from "@/components/sprite";
@@ -7,12 +7,15 @@ import { routes } from "@/config/routes";
 import { type Auth, Permission } from "@/types/auth";
 import type { Comment } from "@/types/comment";
 import { Imager } from "@/utils/imager";
+import { DeleteCommentConfirmationDialog } from "./delete-comment-confirmation-dialog";
 
 type Props = {
   auth?: Auth;
 } & Comment;
 
 export function CommentBox({ auth, ...comment }: Props) {
+  const { delete: formDelete, processing: isDeleting } = useForm();
+
   const userImage = Imager.getUserImage(comment.author.nickname, {
     size: "s",
     head_direction: "3",
@@ -23,16 +26,13 @@ export function CommentBox({ auth, ...comment }: Props) {
     (auth?.permissions.includes(Permission.DeleteComment) ?? false);
 
   const handleDeleteComment = () => {
-    router.delete(
-      routes.web.comment.deleteComment(comment.id),
-      {
-        preserveScroll: true,
-        onError: (errors) => {
-          if ("error" in errors) toast.error(errors.error);
-        },
-        onSuccess: () => toast.success("Comentário deletado com sucesso!"),
+    formDelete(routes.web.comment.deleteComment(comment.id), {
+      preserveScroll: true,
+      onError: (errors) => {
+        if ("error" in errors) toast.error(errors.error);
       },
-    );
+      onSuccess: () => toast.success("Comentário deletado com sucesso!"),
+    });
   };
 
   return (
@@ -69,9 +69,19 @@ export function CommentBox({ auth, ...comment }: Props) {
             {userCanDeleteComment && (
               <Tooltip.Root>
                 <Tooltip.Trigger asChild>
-                  <button title="Apagar comentário" type="button" onClick={handleDeleteComment}>
-                    <Sprite width={13} height={16} x={-130} y={-128} />
-                  </button>
+                  <DeleteCommentConfirmationDialog
+                    buttonsShallBeDisabled={isDeleting}
+                    trigger={
+                      <button
+                        title="Apagar comentário"
+                        disabled={isDeleting}
+                        aria-busy={isDeleting}
+                        type="button">
+                        <Sprite width={13} height={16} x={-130} y={-128} />
+                      </button>
+                    }
+                    onConfirm={handleDeleteComment}
+                  />
                 </Tooltip.Trigger>
 
                 <Tooltip.Container>
