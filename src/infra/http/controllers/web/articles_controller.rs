@@ -1,4 +1,4 @@
-use actix_web::web::{self, Data, Path};
+use actix_web::web::{self, Data, Path, Query};
 use actix_web::HttpRequest;
 use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
 
@@ -9,6 +9,7 @@ use crate::domain::value_objects::slug::Slug;
 use crate::error::IntoSamambaiaError;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::AppResponse;
+use crate::infra::http::dtos::controllers::articles::ShowArticleQueryDto;
 use crate::infra::http::middlewares::web::WebRequestUser;
 use crate::infra::http::presenters::expanded_article::ExpandedArticlePresenter;
 use crate::infra::sea::sea_service::SeaService;
@@ -30,6 +31,7 @@ impl ArticlesController {
         slug: Path<String>,
         db_conn: Data<SeaService>,
         auth_user: WebRequestUser,
+        query: Query<ShowArticleQueryDto>,
         req: HttpRequest,
     ) -> AppResponse {
         let auth_user = match auth_user {
@@ -51,6 +53,7 @@ impl ArticlesController {
                     .as_ref(),
                 article_slug: Slug::new_from_existing(slug.into_inner()),
                 comments_per_page: None,
+                comments_page: query.comments_page,
             })
             .await?;
 

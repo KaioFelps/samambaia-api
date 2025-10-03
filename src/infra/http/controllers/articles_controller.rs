@@ -1,4 +1,5 @@
 use actix_web::middleware::from_fn;
+use actix_web::web::Query;
 use actix_web::{web, HttpResponse};
 use serde_json::json;
 use uuid::Uuid;
@@ -30,6 +31,7 @@ use crate::domain::services::journalism::articles::get_expanded_article_service:
 use crate::domain::services::journalism::articles::update_article_service::UpdateArticleParams;
 use crate::domain::value_objects::slug::Slug;
 use crate::error::{IntoSamambaiaError, SamambaiaError};
+use crate::infra::http::dtos::controllers::articles::ShowArticleQueryDto;
 use crate::infra::http::dtos::create_article::CreateArticleDto;
 use crate::infra::http::dtos::list_article_admin::AdminListArticlesDto;
 use crate::infra::http::dtos::list_articles::ListArticlesDto;
@@ -135,7 +137,7 @@ impl ArticlesController {
 
     async fn get(
         db_conn: web::Data<SeaService>,
-
+        query: Query<ShowArticleQueryDto>,
         article_slug: web::Path<String>,
         user: Option<web::ReqData<ReqUser>>,
     ) -> AppResponse {
@@ -154,6 +156,7 @@ impl ArticlesController {
             .exec(GetExpandedArticleParams {
                 article_slug: Slug::new_from_existing(article_slug.into_inner()),
                 comments_per_page: Some(DEFAULT_PER_PAGE as u32),
+                comments_page: query.comments_page,
                 user_id,
                 user_role,
             })

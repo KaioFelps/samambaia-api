@@ -18,6 +18,7 @@ use crate::util::{generate_service_internal_error, verify_role_has_permission, R
 pub struct GetExpandedArticleParams<'exec> {
     pub article_slug: Slug,
     pub comments_per_page: Option<u32>,
+    pub comments_page: Option<u32>,
     pub user_role: Option<&'exec Role>,
     pub user_id: Option<&'exec Uuid>,
 }
@@ -68,8 +69,6 @@ impl<
         &self,
         params: GetExpandedArticleParams<'_>,
     ) -> Result<GetExpandedArticleResponse, SamambaiaError> {
-        let items_per_page = params.comments_per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
-
         let article = match self
             .article_repository
             .find_by_slug(&params.article_slug)
@@ -101,14 +100,17 @@ impl<
             return Err(SamambaiaError::resource_not_found_err());
         }
 
+        let comments_per_page = params.comments_per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
+        let comments_page = params.comments_page.unwrap_or(1);
+
         let FindManyCommentsWithAuthorResponse(data, total_items) = self
             .comment_user_article_repository
             .find_many_comments(
                 article.id(),
                 false,
                 PaginationParameters {
-                    items_per_page,
-                    page: 1,
+                    items_per_page: comments_per_page,
+                    page: comments_page,
                     query: None,
                 },
             )
@@ -122,7 +124,7 @@ impl<
 
         let comments = FetchManyCommentsWithAuthorResponse {
             data,
-            pagination: PaginationResponse::new(1, total_items, items_per_page),
+            pagination: PaginationResponse::new(comments_page, total_items, comments_per_page),
         };
 
         let author = self
@@ -252,6 +254,7 @@ mod test {
             .exec(GetExpandedArticleParams {
                 article_slug: mocked_article_slug.clone(),
                 comments_per_page: None,
+                comments_page: None,
                 user_id: Some(&user.id()),
                 user_role: Some(&Role::Editor),
             })
@@ -277,6 +280,7 @@ mod test {
                 article_slug: mocked_article_slug.clone(),
                 comments_per_page: None,
                 user_id: None,
+                comments_page: None,
                 user_role: None,
             })
             .await;
