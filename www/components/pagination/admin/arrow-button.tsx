@@ -18,9 +18,9 @@ export const AdminPaginationArrowButton = memo(
         className={clsx(
           "h-8 aspect-square grid place-items-center rounded-sm",
           "transittion-all duration-300 text-gray-700",
-          "data-[state=disabled]:border data-[state=disabled]:border-gray-400",
-          "data-[state=enabled]:text-white data-[state=enabled]:bg-purple-500",
-          "data-[state=enabled]:hover:bg-purple-700 data-[state=enabled]:active:brightness-90",
+          "button-like-disabled:border button-like-disabled:border-gray-400",
+          "button-like-enabled:text-white button-like-enabled:bg-purple-500",
+          "button-like-enabled:hover:bg-purple-700 button-like-enabled:active:brightness-90",
         )}>
         <CorePaginationArrowButton direction={direction} icon={<Icon size={16} weight="bold" />} />
       </Slot>

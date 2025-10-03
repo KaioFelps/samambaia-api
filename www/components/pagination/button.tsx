@@ -25,9 +25,9 @@ export const CorePaginationButton = memo(
     return (
       <Button
         {...props}
-        disabled={!isActive}
-        data-state={isActive ? "active" : "deactivated"}
-        role={!isActive ? "button" : undefined}
+        disabled={isActive}
+        data-disabled={isActive ? "disabled" : "enabled"}
+        role="button"
         href={link}
         preserveScroll={preserveScroll}>
         {page}

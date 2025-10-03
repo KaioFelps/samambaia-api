@@ -48,7 +48,7 @@ export const CorePaginationArrowButton = memo(
       <Button
         {...props}
         disabled={disabled}
-        data-state={disabled ? "disabled" : "enabled"}
+        data-disabled={disabled ? "disabled" : "enabled"}
         role="button"
         href={href ?? "#"}
         preserveScroll={preserveScroll}>

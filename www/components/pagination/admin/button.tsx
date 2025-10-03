@@ -10,10 +10,10 @@ export const AdminPaginationButton = memo((props: CorePaginationButtonProps) => 
         "text-sm transition-all self-stretch h-8 px-2 aspect-square grid place-items-center",
         "font-rowdies rounded-sm text-purple-700 select-none",
         "outline-hidden ring-0 ring-purple-500/40 focus-visible:ring-4",
-        "data-[state=deactivated]:bg-purple-700/20 data-[state=deactivated]:hover:bg-purple-700/30",
-        "data-[state=deactivated]:active:bg-purple-700/40 data-[state=deactivated]:underline",
-        "data-[state=deactivated]:decoration-dotted data-[state=deactivated]:decoration-2",
-        "data-[state=active]:bg-purple-700/5",
+        "button-like-enabled:bg-purple-700/20 button-like-enabled:hover:bg-purple-700/30",
+        "button-like-enabled:active:bg-purple-700/40 button-like-enabled:underline",
+        "button-like-enabled:decoration-dotted button-like-enabled:decoration-2",
+        "button-like-disabled:bg-purple-700/5",
       )}>
       <CorePaginationButton {...props} />
     </Slot>
