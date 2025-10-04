@@ -1,32 +1,34 @@
-import clsx from "clsx";
 import { memo, type ReactNode, useEffect, useState } from "react";
 
 import { type GetPaginatorArgs, getPaginator } from "@/hooks/pagination";
-
+import type { Paginator } from "@/utils/paginator";
 import { PaginationContext, type PaginationContextProps } from "./context";
 
 type PaginationRootProps = {
   children?: ReactNode;
-  className?: string;
-  paginator: GetPaginatorArgs;
+  paginatorArgs?: GetPaginatorArgs;
+  paginator?: Paginator;
   filter?: { key: string; value: string | number };
 };
 
 export const PaginationRoot = memo(
-  ({ children, className, paginator: paginatorParams, filter }: PaginationRootProps) => {
+  ({ children, paginatorArgs, paginator, filter }: PaginationRootProps) => {
     const [contextValue, setContextValue] = useState<PaginationContextProps | null>(null);
 
     useEffect(() => {
+      console.log(paginator, paginatorArgs);
+      if (!paginator && !paginatorArgs)
+        throw new Error(
+          "Tried to instantiate a `PaginationRoot` without neither " +
+            "an instance of paginators or args for instantiating it.",
+        );
+
       setContextValue({
-        paginator: getPaginator(paginatorParams),
+        paginator: paginator ?? getPaginator(paginatorArgs!),
         extraArgs: filter,
       });
-    }, [paginatorParams, filter]);
+    }, [paginator, paginatorArgs, filter]);
 
-    return (
-      <PaginationContext.Provider value={contextValue}>
-        <div className={clsx("flex items-center gap-3", className && className)}>{children}</div>
-      </PaginationContext.Provider>
-    );
+    return <PaginationContext.Provider value={contextValue}>{children}</PaginationContext.Provider>;
   },
 );

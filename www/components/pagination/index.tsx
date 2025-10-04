@@ -5,6 +5,7 @@ import { AdminPaginationButton } from "./admin/button";
 import type { CorePaginationArrowButtonProps } from "./arrow-button";
 import type { CorePaginationButtonProps } from "./button";
 import { CorePaginationButtons, type CorePaginationButtonsProps } from "./buttons";
+import { PaginationContainer } from "./container";
 import { PublicPaginationArrowButton } from "./public/arrow-button";
 import { PublicPaginationButton } from "./public/button";
 import { PaginationRoot } from "./root";
@@ -30,6 +31,7 @@ const PaginationArrowButton = memo(
 
 export default {
   Root: PaginationRoot,
+  Container: PaginationContainer,
   Buttons: PaginationButtons,
   ArrowButton: PaginationArrowButton,
 };
