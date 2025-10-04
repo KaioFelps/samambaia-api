@@ -4,6 +4,7 @@ has been introduced.
 
 ## Unreleased
 ### Added
+- added Paginator manager class and component(s);
 - added deploy workflow;
 - setup inertia-rust + vite-rust;
 - setup front-end strucutre;
@@ -16,6 +17,7 @@ has been introduced.
     - added `SummaryRepository` trait;
     - added `SeaSummaryRepository` repository;
     - added `GetSummaryService` + factory.
+- added articles page;
 ### Changed
 - Article now may have many tags (previously, 0..1 tag only);
 - changed rustfmt workflow to use nightly rust toolchain;
