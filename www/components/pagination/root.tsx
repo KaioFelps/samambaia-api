@@ -16,7 +16,6 @@ export const PaginationRoot = memo(
     const [contextValue, setContextValue] = useState<PaginationContextProps | null>(null);
 
     useEffect(() => {
-      console.log(paginator, paginatorArgs);
       if (!paginator && !paginatorArgs)
         throw new Error(
           "Tried to instantiate a `PaginationRoot` without neither " +
