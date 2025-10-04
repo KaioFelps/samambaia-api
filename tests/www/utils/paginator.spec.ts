@@ -8,10 +8,10 @@ describe("Paginator Specifications", () => {
     expect(() => new Paginator({ url: fakeUrl, lastPage: -1 })).toThrowError(
       IllegalArgumentException,
     );
-
-    expect(() => new Paginator({ url: fakeUrl, lastPage: 10, currentPage: 0 })).toThrowError(
-      IllegalArgumentException,
-    );
+    expect(
+      () => new Paginator({ url: fakeUrl, lastPage: 10, currentPage: 0 }),
+      "It should not allow pages lower than 1.",
+    ).toThrowError(IllegalArgumentException);
 
     let paginator = new Paginator({ url: fakeUrl, lastPage: 10 });
 

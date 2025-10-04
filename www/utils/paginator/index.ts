@@ -4,12 +4,17 @@ import {
   type SearchRecord,
 } from "@/core/politics/pagination-politics";
 import { IllegalArgumentException } from "@/exceptions/illegal-argument-exception";
+import { PaginatorContext } from "./context";
+import {
+  events,
+  getEmptyEventsMap,
+  type PaginatorEvent,
+  type PaginatorEventHandler,
+} from "./events";
+import type { PaginatorFlags } from "./flags";
 
-const events = ["next-page", "previous-page", "page-change"] as const;
-Object.freeze(events);
-
-type PaginatorEvent = (typeof events)[number];
 type PaginationLink = { page: number; link: string };
+
 export type GetPaginationParams = {
   queryString?: string;
   extraArgs?: SearchRecord;
@@ -17,41 +22,50 @@ export type GetPaginationParams = {
 export type PaginatorConstructorArgs = {
   url: string;
   currentPage?: number;
-  lastPage: number;
+  lastPage?: number;
   visibleButtons?: number;
   align?: GetVisibleButtonsParams["align"];
   pageQuery?: string;
+  eventListeners?: Map<PaginatorEvent, Set<PaginatorEventHandler>>;
+  flags?: PaginatorFlags;
 };
 
 export class Paginator {
-  private url!: string;
-  private currentPage!: number;
-  private lastPage!: number;
-  private visibleButtons!: number;
-  private align!: GetVisibleButtonsParams["align"];
-  private pageQuery!: string;
+  private url: string = "";
+  private currentPage: number = 1;
+  private lastPage: number = 1;
+  private visibleButtons: number = PaginationPolitics.DEFAULT_VISIBLE_BUTTONS;
+  private align: GetVisibleButtonsParams["align"] = "center";
+  private pageQuery: string = "page";
+  private flags: PaginatorFlags = {
+    ignoreErrorOnOverflow: false,
+    ignoreErrorOnUnderflow: false,
+  };
 
-  private eventListeners: Map<PaginatorEvent, Set<(_page: number) => void>> = new Map();
+  private eventListeners: Map<PaginatorEvent, Set<PaginatorEventHandler>> = getEmptyEventsMap();
 
-  public constructor({
-    currentPage,
-    lastPage,
-    url,
-    align,
-    pageQuery,
-    visibleButtons,
-  }: PaginatorConstructorArgs) {
-    this.url = url;
-    this.setLastPage(lastPage);
+  public constructor(args?: PaginatorConstructorArgs) {
+    if (args) {
+      const {
+        lastPage,
+        url,
+        align,
+        currentPage,
+        pageQuery,
+        visibleButtons,
+        eventListeners,
+        flags,
+      } = args;
+      this.url = url;
 
-    this.align = align ?? "center";
-    this.setPageQuery(pageQuery ?? "page");
-    this.setCurrentPage(currentPage ?? 1);
-    this.setVisibleButtons(visibleButtons ?? PaginationPolitics.DEFAULT_VISIBLE_BUTTONS);
-
-    events.forEach((event) => {
-      this.eventListeners.set(event, new Set());
-    });
+      if (lastPage !== undefined) this.setLastPage(lastPage);
+      if (align !== undefined) this.align = align;
+      if (pageQuery !== undefined) this.setPageQuery(pageQuery);
+      if (currentPage !== undefined) this.setCurrentPage(currentPage);
+      if (visibleButtons !== undefined) this.setVisibleButtons(visibleButtons);
+      if (eventListeners !== undefined) this.eventListeners = eventListeners;
+      if (flags) this.flags = flags;
+    }
   }
 
   public setPageQuery(pageQuery: string) {
@@ -96,7 +110,7 @@ export class Paginator {
   }
 
   public setLastPage(lastPage: number) {
-    if (lastPage < this.currentPage) {
+    if (lastPage < this.currentPage && !this.flags.ignoreErrorOnUnderflow) {
       throw new IllegalArgumentException("Last page cannot be lower than current page.");
     }
 
@@ -105,6 +119,12 @@ export class Paginator {
 
   public setCurrentPage(page: number) {
     if (page > this.lastPage) {
+      if (this.countEventListeners("page-overflow") > 0) {
+        this.callEventListeners("page-overflow", undefined, true);
+        return;
+      }
+
+      if (this.flags.ignoreErrorOnOverflow) return;
       throw new IllegalArgumentException(
         "Paginator's current page " +
           page +
@@ -114,7 +134,7 @@ export class Paginator {
       );
     }
 
-    if (page <= 0) {
+    if (page <= 0 && !this.flags.ignoreErrorOnUnderflow) {
       throw new IllegalArgumentException(
         "Tried to assign " +
           page +
@@ -123,8 +143,9 @@ export class Paginator {
       );
     }
 
+    const previousCurrentPage = this.currentPage;
     this.currentPage = page;
-    this.callEventListeners("page-change");
+    this.callEventListeners("page-change", previousCurrentPage, false);
   }
 
   public hasPreviousPage(): boolean {
@@ -146,8 +167,9 @@ export class Paginator {
       return;
     }
 
+    const previousCurrentPage = this.currentPage;
     this.currentPage--;
-    this.callEventListeners("previous-page");
+    this.callEventListeners("previous-page", previousCurrentPage, false);
   }
 
   public nextPage() {
@@ -163,12 +185,17 @@ export class Paginator {
       return;
     }
 
+    const previousCurrentPage = this.currentPage;
     this.currentPage++;
-    this.callEventListeners("next-page");
+    this.callEventListeners("next-page", previousCurrentPage, false);
   }
 
   public getCurrentPage() {
     return this.currentPage;
+  }
+
+  public getLastPage() {
+    return this.lastPage;
   }
 
   public getCurrentPagePagination(params: GetPaginationParams = {}): PaginationLink {
@@ -205,9 +232,21 @@ export class Paginator {
     this.eventListeners.get(event)?.delete(callback);
   }
 
-  private callEventListeners(event: PaginatorEvent) {
+  private callEventListeners(
+    event: PaginatorEvent,
+    previousCurrentPage?: number,
+    hadOverflow?: boolean,
+  ) {
     this.eventListeners.get(event)?.forEach((callback) => {
-      callback(this.currentPage);
+      callback(
+        new PaginatorContext(
+          this.currentPage,
+          this.lastPage,
+          hadOverflow ?? false,
+          this,
+          previousCurrentPage,
+        ),
+      );
     });
   }
 
