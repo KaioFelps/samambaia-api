@@ -21,6 +21,13 @@ type AdminArticleHomeProps = PageProps & {
 };
 
 export default function AdminArticleHome({ articles, flash }: AdminArticleHomeProps) {
+  const paginatorArgs = useMemoizedPaginatorParameters({
+    lastPage: articles.pagination.totalPages,
+    visibleButtons: 7,
+    currentPage: articles.pagination.currentPage,
+    align: "left",
+  });
+
   const [filterIsLoading, setFilterIsLoading] = useState(false);
   const userCanCreateArticle = useCanSee(Permission.CreateArticle);
 
@@ -87,20 +94,15 @@ export default function AdminArticleHome({ articles, flash }: AdminArticleHomePr
           <Alert admin type="info" message="Não há notícias publicadas." />
         )}
 
-        <Pagination.Root
-          paginator={
-            useMemoizedPaginatorParameters({
-              lastPage: articles.pagination.totalPages,
-              visibleButtons: 7,
-              currentPage: articles.pagination.currentPage,
-              align: "left",
-            })!
-          }
-          className="mt-8 justify-end">
-          <Pagination.ArrowButton admin direction="backward" />
-          <Pagination.Buttons admin />
-          <Pagination.ArrowButton admin direction="forward" />
-        </Pagination.Root>
+        {paginatorArgs && (
+          <Pagination.Root paginatorArgs={paginatorArgs}>
+            <Pagination.Container className="mt-8 justify-end">
+              <Pagination.ArrowButton admin direction="backward" />
+              <Pagination.Buttons admin />
+              <Pagination.ArrowButton admin direction="forward" />
+            </Pagination.Container>
+          </Pagination.Root>
+        )}
       </Main>
     </>
   );
