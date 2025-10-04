@@ -17,7 +17,7 @@ export function useMemoizedPaginatorParameters({
   pageQuery,
   visibleButtons,
 }: GetPaginatorArgs) {
-  const [articlePaginator, setArticlePaginator] = useState<GetPaginatorArgs | null>();
+  const [articlePaginator, setArticlePaginator] = useState<GetPaginatorArgs | null>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: it must run only once
   useEffect(() => {
