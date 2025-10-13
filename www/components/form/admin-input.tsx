@@ -1,5 +1,5 @@
 import clsx from "clsx";
-
+import { useId } from "react";
 import type { InputProps } from "./input";
 import { ValidationErrorSpan } from "./validation-error-alert";
 
@@ -12,16 +12,17 @@ export function AdminInput({
   containerClassName,
   ...rest
 }: Omit<InputProps, "admin">) {
+  const inputId = useId();
   return (
     <div className={containerClassName}>
-      <label htmlFor={id ?? name} className="block text-sm mb-1 ml-1">
+      <label htmlFor={id ?? `${label}-${inputId}`} className="block text-sm mb-1 ml-1">
         {label}
       </label>
 
       <ValidationErrorSpan validationError={validationError} />
 
       <input
-        id={id ?? name}
+        id={id ?? `${label}-${inputId}`}
         name={name}
         className={clsx(
           "w-full rounded-lg border border-black/20 text-sm leading-none py-1 px-2",
