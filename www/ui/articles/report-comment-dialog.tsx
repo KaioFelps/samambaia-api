@@ -57,13 +57,19 @@ export const ReportCommentDialog = forwardRef<HTMLButtonElement, Props>(
             id={`report-comment-form-${formId}`}
             onSubmit={handleReportComment}
             className="mb-3">
-            <PublicForm.Input
-              label="Autor do comentário"
-              type="text"
-              disabled
-              value={comment.author.nickname}
-            />
-            <PublicForm.TextArea label="Comentário" disabled value={comment.content} />
+            <div>
+              <PublicForm.Label asChild>
+                <span>Autor do comentário</span>
+              </PublicForm.Label>
+              <p className="text-input disabled">{comment.author.nickname}</p>
+            </div>
+
+            <div>
+              <PublicForm.Label asChild>
+                <span>Comentário</span>
+              </PublicForm.Label>
+              <p className="text-input disabled">{comment.content}</p>
+            </div>
 
             <PublicForm.Input
               label="Motivo da denúncia"
