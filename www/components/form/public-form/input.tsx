@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useId } from "react";
-import type { InputProps } from "./input";
-import { ValidationErrorSpan } from "./validation-error-alert";
+import type { InputProps } from "../input";
+import { ValidationErrorSpan } from "../validation-error-alert";
 
 export const PublicInput = ({
   id,

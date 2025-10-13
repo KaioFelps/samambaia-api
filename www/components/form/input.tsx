@@ -1,7 +1,7 @@
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
 
 import { AdminInput } from "./admin-input";
-import { PublicInput } from "./public-input";
+import { PublicInput } from "./public-form/input";
 
 export type InputProps = DetailedHTMLProps<
   InputHTMLAttributes<HTMLInputElement>,
