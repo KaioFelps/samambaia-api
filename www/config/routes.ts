@@ -11,6 +11,9 @@ export const routes = {
     comment: {
       createComment: (articleId: string) => `/comments/${articleId}/new`,
       deleteComment: (commentId: string) => `/comments/${commentId}/delete`,
+      report: {
+        create: (commentId: string) => `/comment_reports/${commentId}/new`,
+      },
     },
   },
   admin: {

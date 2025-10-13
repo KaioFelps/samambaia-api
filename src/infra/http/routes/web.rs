@@ -33,6 +33,7 @@ use crate::infra::http::controllers::admin::admin_articles_controller::AdminArti
 use crate::infra::http::controllers::admin::admin_home_controller::AdminHomeController;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::web::articles_controller::ArticlesController;
+use crate::infra::http::controllers::web::comment_reports_controller::CommentReportsController;
 use crate::infra::http::controllers::web::comments_controller::CommentsController;
 use crate::infra::http::controllers::web::home_controller::HomeController;
 use crate::infra::http::controllers::web::sessions_controller::SessionsController;
@@ -141,6 +142,7 @@ impl RouteTrait for WebRoutes {
                 .configure(SessionsController::register)
                 .configure(ArticlesController::register)
                 .configure(CommentsController::register)
+                .configure(CommentReportsController::register)
                 .configure(|cfg| {
                     cfg.service(web::scope("/gremio")
                         .wrap(WebHasPermissionMiddleware::new(
