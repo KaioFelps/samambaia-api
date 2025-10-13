@@ -1,7 +1,6 @@
-import { router, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import clsx from "clsx";
 import { toast } from "react-toastify";
-import { usePaginator } from "@/components/pagination/context";
 import { Sprite } from "@/components/sprite";
 import Tooltip from "@/components/tooltip";
 import { routes } from "@/config/routes";
@@ -22,8 +21,6 @@ export function CommentBox({ auth, ...comment }: Props) {
     head_direction: "3",
   });
 
-  const paginator = usePaginator();
-
   const userCanDeleteComment =
     comment.author.nickname === auth?.user.nickname ||
     (auth?.permissions.includes(Permission.DeleteComment) ?? false);
@@ -34,9 +31,7 @@ export function CommentBox({ auth, ...comment }: Props) {
       onError: (errors) => {
         if ("error" in errors) toast.error(errors.error);
       },
-      onSuccess: (page) => {
-        toast.success("Comentário deletado com sucesso!");
-      },
+      onSuccess: () => toast.success("Comentário deletado com sucesso!"),
     });
   };
 
