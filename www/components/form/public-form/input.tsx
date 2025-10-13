@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { useId } from "react";
 import type { InputProps } from "../input";
 import { ValidationErrorSpan } from "../validation-error-alert";
+import { PublicLabel } from "./label";
 
 export const PublicInput = ({
   id,
@@ -15,9 +16,7 @@ export const PublicInput = ({
   const inputId = useId();
   return (
     <div className={containerClassName}>
-      <label htmlFor={id ?? `${label}-${inputId}`} className="block text-sm mb-1 ml-1">
-        {label}
-      </label>
+      <PublicLabel htmlFor={id ?? `${label}-${inputId}`}>{label}</PublicLabel>
 
       <ValidationErrorSpan validationError={validationError} />
 
