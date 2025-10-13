@@ -10,12 +10,13 @@ import {
 import { toast } from "react-toastify";
 import PublicButton from "@/components/button/public-button";
 import Dialog from "@/components/dialog";
-import Form from "@/components/form";
+import PublicForm from "@/components/form/public-form";
 import { routes } from "@/config/routes";
+import type { Comment } from "@/types/comment";
 
 type Props = {
   trigger: ReactElement;
-  commentId: string;
+  comment: Comment;
   open: boolean;
   setOpen: (value: boolean) => void;
 } & ButtonHTMLAttributes<HTMLButtonElement>;
@@ -25,7 +26,7 @@ type ReportCommentFormData = {
 };
 
 export const ReportCommentDialog = forwardRef<HTMLButtonElement, Props>(
-  ({ trigger, commentId, open, setOpen, ...props }, ref) => {
+  ({ trigger, comment, open, setOpen, ...props }, ref) => {
     const formId = useId();
 
     const { post, processing, errors, setData } = useForm<ReportCommentFormData>({ content: "" });
@@ -33,14 +34,14 @@ export const ReportCommentDialog = forwardRef<HTMLButtonElement, Props>(
     const handleReportComment = useCallback(
       (e: FormEvent) => {
         e.preventDefault();
-        post(routes.web.comment.report.create(commentId), {
+        post(routes.web.comment.report.create(comment.id), {
           onSuccess: () => {
             toast.success("Denúncia realizada com sucesso.");
             setOpen(false);
           },
         });
       },
-      [post, commentId, setOpen],
+      [post, comment, setOpen],
     );
 
     return (
@@ -52,19 +53,27 @@ export const ReportCommentDialog = forwardRef<HTMLButtonElement, Props>(
         <Dialog.Content>
           <Dialog.Header title="Denunciar comentário" />
 
-          <form
+          <PublicForm.Root
             id={`report-comment-form-${formId}`}
             onSubmit={handleReportComment}
             className="mb-3">
-            <Form.Input
-              label="Detalhes"
-              placeholder="Descreva o motivo da denúncia."
+            <PublicForm.Input
+              label="Autor do comentário"
+              type="text"
+              disabled
+              value={comment.author.nickname}
+            />
+            <PublicForm.TextArea label="Comentário" disabled value={comment.content} />
+
+            <PublicForm.Input
+              label="Motivo da denúncia"
+              placeholder="Descreva o motivo pelo qual deseja denunciar este comentário."
               type="text"
               validationError={errors.content}
               onInput={(event) => setData({ content: event.currentTarget.value })}
               required
             />
-          </form>
+          </PublicForm.Root>
 
           <div className="flex items-center gap-2 justify-end">
             <Dialog.Close asChild>

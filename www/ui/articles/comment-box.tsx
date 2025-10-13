@@ -107,7 +107,7 @@ export function CommentBox({ auth, ...comment }: Props) {
                     trigger={reportCommentButton}
                     open={reportDialogIsOpen}
                     setOpen={setReportDialogIsOpen}
-                    commentId={comment.id}
+                    comment={comment}
                   />
                 ) : (
                   <ReportNeedsLoginDialog trigger={reportCommentButton} />
