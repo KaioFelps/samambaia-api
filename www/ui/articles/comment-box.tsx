@@ -1,5 +1,6 @@
 import { useForm } from "@inertiajs/react";
 import clsx from "clsx";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { Sprite } from "@/components/sprite";
 import Tooltip from "@/components/tooltip";
@@ -8,12 +9,15 @@ import { type Auth, Permission } from "@/types/auth";
 import type { Comment } from "@/types/comment";
 import { Imager } from "@/utils/imager";
 import { DeleteCommentConfirmationDialog } from "./delete-comment-confirmation-dialog";
+import { ReportCommentDialog } from "./report-comment-dialog";
+import { ReportNeedsLoginDialog } from "./report-needs-login-dialog";
 
 type Props = {
   auth?: Auth;
 } & Comment;
 
 export function CommentBox({ auth, ...comment }: Props) {
+  const [reportDialogIsOpen, setReportDialogIsOpen] = useState(false);
   const { delete: formDelete, processing: isDeleting } = useForm();
 
   const userImage = Imager.getUserImage(comment.author.nickname, {
@@ -34,6 +38,12 @@ export function CommentBox({ auth, ...comment }: Props) {
       onSuccess: () => toast.success("Comentário deletado com sucesso!"),
     });
   };
+
+  const reportCommentButton = (
+    <button title="Denunciar" type="button">
+      <Sprite width={16} height={16} x={-1} y={-65} />
+    </button>
+  );
 
   return (
     <div className="border-2 border-gray-700 rounded-md flex">
@@ -92,9 +102,16 @@ export function CommentBox({ auth, ...comment }: Props) {
 
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
-                <button title="Denunciar" type="button">
-                  <Sprite width={16} height={16} x={-1} y={-65} />
-                </button>
+                {auth ? (
+                  <ReportCommentDialog
+                    trigger={reportCommentButton}
+                    open={reportDialogIsOpen}
+                    setOpen={setReportDialogIsOpen}
+                    commentId={comment.id}
+                  />
+                ) : (
+                  <ReportNeedsLoginDialog trigger={reportCommentButton} />
+                )}
               </Tooltip.Trigger>
 
               <Tooltip.Container>
