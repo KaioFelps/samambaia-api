@@ -84,7 +84,7 @@ impl CommentReportsController {
         let comment_report = service
             .exec(CreateCommentReportParams {
                 user_id: user.user_id,
-                content: body.content,
+                content: body.content.unwrap(), // safe to unwrap since DTO's validation states this field is required
                 comment_id: comment_id.into_inner(),
             })
             .await?;
