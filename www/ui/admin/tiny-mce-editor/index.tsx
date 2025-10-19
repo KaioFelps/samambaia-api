@@ -132,6 +132,11 @@ export function TinyMCEEditor({ validationError, ...props }: TinyMCEEditorProps)
           verify_html: false,
           keep_styles: true,
           inline_styles: true,
+          image_advtab: true,
+          image_class_list: [
+            { title: "Nenhuma", value: "" },
+            { title: "Arredondado", value: "article-rounded-img" },
+          ],
           valid_children: "+body[style]",
           extended_valid_elements: "script[src|async|defer|type|charset],style,div[*],center",
           custom_elements: "style,script,center,div",

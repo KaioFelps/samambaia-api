@@ -260,6 +260,10 @@
 
   image-rendering: pixelated;
 
+  .article-rounded-img {
+    border-radius: calc(var(--spacing) * 3);
+  }
+
   & * {
     max-width: var(--article-content-width);
   }
