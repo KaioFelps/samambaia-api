@@ -6,7 +6,7 @@ export const routes = {
     home: "/",
     article: {
       base: "/article",
-      view: (slug: string): string => `/article/${slug}`,
+      view: (slug: string): string => `/noticias/${slug}`,
     },
     comment: {
       createComment: (articleId: string) => `/comments/${articleId}/new`,
