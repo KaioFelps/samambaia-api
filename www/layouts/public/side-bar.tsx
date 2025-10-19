@@ -19,7 +19,7 @@ export const SideBar = memo(() => {
   const { featuredUsers } = usePage().props;
 
   return (
-    <aside className="flex flex-1 basis-[336px] max-w-[336px] flex-col gap-2">
+    <aside className="flex flex-1 basis-[336px] max-w-[336px] flex-col gap-2 h-fit sticky top-2">
       <AnnouncementsSlider />
 
       {/* GOSSIPING AND COMPLAINING */}
