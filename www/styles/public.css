@@ -139,7 +139,8 @@
   transition-property: all;
   transition-timing-function: var(
     --tw-ease,
-    var(--default-transition-timing-function) /* cubic-bezier(0.4, 0, 0.2, 1) */
+    var(--default-transition-timing-function)
+    /* cubic-bezier(0.4, 0, 0.2, 1) */
   );
   transition-duration: 150ms;
   will-change: shadow, filter;
@@ -186,7 +187,8 @@
   transition-property: all;
   transition-timing-function: var(
     --tw-ease,
-    var(--default-transition-timing-function) /* cubic-bezier(0.4, 0, 0.2, 1) */
+    var(--default-transition-timing-function)
+    /* cubic-bezier(0.4, 0, 0.2, 1) */
   );
   transition-duration: 150ms;
   will-change: shadow, filter;
@@ -218,6 +220,30 @@
       inset 0 -2px 0 0 var(--btn-bottom-shadow),
       var(--tw-ring-offset-shadow),
       var(--tw-ring-shadow);
+  }
+}
+
+@utility btn-ghost-blue {
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: calc(var(--spacing) * 2.5);
+  color: var(--color-blue-500);
+  border-radius: calc(var(--spacing) * 1.5);
+  will-change: background-color;
+  background: transparent;
+
+  @variant button-like-enabled {
+    background: var(--color-blue-200);
+
+    &:hover {
+      background-color: var(--color-blue-250);
+    }
+
+    &:active {
+      background-color: var(--color-blue-300);
+    }
   }
 }
 
