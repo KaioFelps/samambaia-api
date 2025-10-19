@@ -4,7 +4,8 @@ use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::journalism::articles::{
-    fetch_many_articles_service_factory, get_expanded_article_service_factory,
+    fetch_many_articles_service_factory,
+    get_expanded_article_service_factory,
 };
 use crate::domain::services::journalism::articles::fetch_articles_services::FetchArticlesParams;
 use crate::domain::services::journalism::articles::get_expanded_article_service::GetExpandedArticleParams;
