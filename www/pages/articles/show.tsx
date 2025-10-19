@@ -6,9 +6,13 @@ import type { ExpandedArticle } from "@/types/expanded-article";
 import { ArticleContainer } from "@/ui/articles/article-container";
 import { ArticleFooter } from "@/ui/articles/article-footer";
 import { CommentsSection } from "@/ui/articles/comments-section";
+import { Paginated } from "@/types/pagination";
+import { Article } from "@/types/article";
+import { ArticleFeed } from "@/ui/articles/article-feed";
 
 type Props = PageProps & {
   article: ExpandedArticle;
+  feed: Paginated<Article[]>;
 };
 
 export default function ShowArticle() {
@@ -38,12 +42,7 @@ export default function ShowArticle() {
         />
       </Main>
 
-      <aside className="card flex-1 h-fit">
-        <header className="section-header gray">
-          <h2>Feed de notícias</h2>
-        </header>
-        {/* TODO: Articles Feed */}
-      </aside>
+      <ArticleFeed {...props.feed} />
     </>
   );
 }
