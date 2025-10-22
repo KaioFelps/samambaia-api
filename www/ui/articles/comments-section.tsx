@@ -18,6 +18,8 @@ type Props = {
 
 export function CommentsSection({ auth, comments, articleId, pagination }: Props) {
   const paginator = useMemo(() => {
+    if (typeof window === "undefined") return null;
+
     return new PaginatorBuilder()
       .ignoreOverflowErrors()
       .setVisibleButtons(7)
@@ -35,6 +37,8 @@ export function CommentsSection({ auth, comments, articleId, pagination }: Props
         preserveScroll: true,
       });
   }, [pagination, paginator]);
+
+  if (!paginator) return null;
 
   return (
     <Pagination.Root paginator={paginator}>
