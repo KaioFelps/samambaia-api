@@ -127,6 +127,7 @@ impl ArticlesController {
                 description,
                 staff: &user,
                 tags,
+                script: None,
             })
             .await?;
 

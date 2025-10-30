@@ -15,6 +15,7 @@ pub struct CreateArticleParams<'a> {
     pub content: String,
     pub description: String,
     pub tags: Vec<i32>,
+    pub script: Option<String>,
 }
 pub struct CreateArticleService<
     ArticleRepository: ArticleRepositoryTrait,
@@ -24,10 +25,11 @@ pub struct CreateArticleService<
     article_tag_repository: ArticleTagRepository,
 }
 
-impl<
-        ArticleRepository: ArticleRepositoryTrait,
-        ArticleTagRepository: ArticleTagRepositoryTrait,
-    > CreateArticleService<ArticleRepository, ArticleTagRepository>
+impl<ArticleRepository, ArticleTagRepository>
+    CreateArticleService<ArticleRepository, ArticleTagRepository>
+where
+    ArticleRepository: ArticleRepositoryTrait,
+    ArticleTagRepository: ArticleTagRepositoryTrait,
 {
     pub fn new(
         article_repository: ArticleRepository,
@@ -61,6 +63,7 @@ impl<
             params.cover_url,
             params.description,
             tags,
+            params.script,
         );
 
         self.article_repository
@@ -112,6 +115,7 @@ mod test {
                 title: "Fake title".to_string(),
                 description: "A humble description...".into(),
                 tags: vec![tag.id()],
+                script: None,
             })
             .await;
 

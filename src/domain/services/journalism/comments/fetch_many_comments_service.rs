@@ -221,6 +221,7 @@ mod test {
             "url do cover".into(),
             "baz".into(),
             vec![foo_tag.clone()],
+            None,
         );
 
         comment_repository

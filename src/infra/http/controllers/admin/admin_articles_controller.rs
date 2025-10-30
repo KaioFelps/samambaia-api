@@ -250,6 +250,7 @@ impl AdminArticlesController {
                 description: body.description,
                 staff: &auth.user,
                 tags: body.tags,
+                script: None,
             })
             .await?;
 

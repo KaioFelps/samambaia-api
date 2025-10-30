@@ -101,6 +101,7 @@ mod test {
             "cover".into(),
             "desc".into(),
             vec![],
+            None,
         );
 
         article_repository
@@ -145,6 +146,7 @@ mod test {
             "coverurl.inicial".to_string(),
             "Bar baz!".into(),
             vec![tag],
+            None,
         );
 
         let non_author_user = User::new("Flori".into(), "".into(), Some(Role::Admin));
@@ -191,6 +193,7 @@ mod test {
             "coverurl.inicial".to_string(),
             "Bar baz!".into(),
             vec![tag],
+            None,
         );
 
         let principal = User::new("Flori".into(), "".into(), Some(Role::Principal));
@@ -237,6 +240,7 @@ mod test {
             "coverurl.inicial".to_string(),
             "Bar baz!".into(),
             vec![tag],
+            None,
         );
 
         article_db.lock().unwrap().push(article.clone());

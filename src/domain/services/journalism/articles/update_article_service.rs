@@ -28,10 +28,11 @@ pub struct UpdateArticleService<
     article_tag_repository: ArticleTagRepository,
 }
 
-impl<
-        ArticleRepository: ArticleRepositoryTrait,
-        ArticleTagRepository: ArticleTagRepositoryTrait,
-    > UpdateArticleService<ArticleRepository, ArticleTagRepository>
+impl<ArticleRepository, ArticleTagRepository>
+    UpdateArticleService<ArticleRepository, ArticleTagRepository>
+where
+    ArticleRepository: ArticleRepositoryTrait,
+    ArticleTagRepository: ArticleTagRepositoryTrait,
 {
     pub fn new(
         article_repository: ArticleRepository,
@@ -200,6 +201,7 @@ mod test {
             "initial.coverurl".to_string(),
             "Initial description".into(),
             vec![tag.clone()],
+            None,
         );
 
         let article_tag = ArticleTag::new_from_existing(2, "Bar".to_string());
@@ -254,6 +256,7 @@ mod test {
             "url".into(),
             "description".into(),
             Vec::new(),
+            None,
         );
         article.set_approved(true);
 
@@ -296,6 +299,7 @@ mod test {
             "url".into(),
             "description".into(),
             Vec::new(),
+            None,
         );
         article.set_approved(true);
 
@@ -373,6 +377,7 @@ mod test {
             "url".into(),
             "description".into(),
             vec![tag_1.clone(), tag_2.clone()],
+            None,
         );
 
         article.set_approved(true);
