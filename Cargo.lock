@@ -2194,9 +2194,9 @@ dependencies = [
 
 [[package]]
 name = "inertia-rust"
-version = "2.4.1"
+version = "2.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38f4ed0132e9b49b8de3f7c297919bf1947a3d32a512571ce5b8989c9658d537"
+checksum = "60fe842714781839c620acfc656e021361b1ee9d1e469c1913ef3c3e5727f2ea"
 dependencies = [
  "actix-web",
  "async-trait",
@@ -2207,7 +2207,6 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "tokio",
  "validator",
  "vite-rust",
 ]
