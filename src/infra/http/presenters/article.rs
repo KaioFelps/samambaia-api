@@ -23,6 +23,7 @@ pub struct MappedArticle {
     updated_at: Option<DateTime>,
     slug: String,
     tags: Vec<MappedArticleTag>,
+    script: Option<String>,
 }
 
 pub struct ArticlePresenter;
@@ -46,6 +47,7 @@ impl PresenterTrait<Article, MappedArticle> for ArticlePresenter {
                 .cloned()
                 .map(ArticleTagPresenter::to_http)
                 .collect(),
+            script: article.get_script().map(ToString::to_string),
         }
     }
 }
