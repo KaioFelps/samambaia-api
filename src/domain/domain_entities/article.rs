@@ -164,7 +164,11 @@ impl Article {
     }
 
     pub fn get_script(&self) -> Option<&str> {
-        self.script.as_ref().map(String::as_str)
+        self.script.as_deref()
+    }
+
+    pub fn has_been_touched(&self) -> bool {
+        self.touched
     }
 
     // SETTERS
