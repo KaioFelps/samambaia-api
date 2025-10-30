@@ -18,6 +18,8 @@ pub struct Model {
     #[sea_orm(unique)]
     pub slug: String,
     pub description: String,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub script: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
