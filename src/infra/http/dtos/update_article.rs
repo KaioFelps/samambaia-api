@@ -18,4 +18,9 @@ pub struct UpdateArticleDto {
     pub approved: Option<bool>,
 
     pub tags: Option<Vec<i32>>,
+
+    // if `undefined`, `None`,
+    // if `null`, `Some(None)`,
+    // if `string`, `Some(Some(<string>))`.
+    pub script: Option<Option<String>>,
 }

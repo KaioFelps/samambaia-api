@@ -286,6 +286,7 @@ impl AdminArticlesController {
                 description: None,
                 title: None,
                 tags: None,
+                script: None,
             })
             .await
         {
@@ -325,6 +326,7 @@ impl AdminArticlesController {
                 author_id: body.author_id,
                 user: &auth.user,
                 tags: body.tags,
+                script: body.script,
             })
             .await
         {

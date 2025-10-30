@@ -19,6 +19,7 @@ pub struct UpdateArticleParams<'a> {
     pub approved: Option<bool>,
     pub author_id: Option<Uuid>,
     pub tags: Option<Vec<i32>>,
+    pub script: Option<Option<String>>,
 }
 pub struct UpdateArticleService<
     ArticleRepository: ArticleRepositoryTrait,
@@ -138,6 +139,10 @@ where
             article.set_tags(tags?);
         }
 
+        if let Some(script) = params.script {
+            article.set_script(script);
+        }
+
         // ensures that uusers wont modify an article after it has been approved making public a content that actually
         // wouldn't be approved
 
@@ -235,6 +240,7 @@ mod test {
                 cover_url: None,
                 author_id: None,
                 tags: Some(Vec::new()),
+                script: None,
             })
             .await;
 
@@ -278,6 +284,7 @@ mod test {
                 author_id: None,
                 tags: None,
                 user: &writer,
+                script: None,
             })
             .await;
 
@@ -336,6 +343,7 @@ mod test {
                 cover_url: None,
                 author_id: None,
                 tags: Some(vec![tag.id()]),
+                script: Some(Some("console.log('hello world');".to_string())),
             })
             .await;
 
@@ -345,6 +353,9 @@ mod test {
         assert_eq!("updated title", result.title());
         assert_eq!("updated description", result.description());
         assert_eq!("updated content", result.content());
+        assert!(result
+            .get_script()
+            .is_some_and(|script| script.eq("console.log('hello world');")));
 
         assert!(!result.get_tags().is_empty());
         assert_eq!("Bar", result.get_tags().first().unwrap().value());
@@ -377,7 +388,7 @@ mod test {
             "url".into(),
             "description".into(),
             vec![tag_1.clone(), tag_2.clone()],
-            None,
+            Some("invalid_js_code!".into()),
         );
 
         article.set_approved(true);
@@ -401,6 +412,7 @@ mod test {
                 cover_url: None,
                 author_id: None,
                 tags: Some(vec![tag_3.id()]),
+                script: Some(None),
             })
             .await;
 
@@ -410,6 +422,7 @@ mod test {
         assert_eq!("updated title", result.title());
         assert_eq!("updated description", result.description());
         assert_eq!("updated content", result.content());
+        assert!(result.get_script().is_none());
 
         assert!(!result.get_tags().is_empty());
         assert!([tag_3].iter().all(|tag| result.get_tags().contains(&tag)));
