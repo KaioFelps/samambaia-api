@@ -20,6 +20,7 @@ impl SeaArticleMapper {
             updated_at: entity.updated_at(),
             slug: entity.slug().to_string(),
             description: entity.description().to_string(),
+            script: entity.get_script().map(ToString::to_string),
         }
     }
 
@@ -35,6 +36,10 @@ impl SeaArticleMapper {
             updated_at: entity.updated_at().into_active_value(),
             slug: entity.slug().to_string().into_active_value(),
             description: entity.description().to_owned().into_active_value(),
+            script: entity
+                .get_script()
+                .map(ToString::to_string)
+                .into_active_value(),
         }
     }
 
@@ -54,6 +59,7 @@ impl SeaArticleMapper {
             Slug::new_from_existing(active_model.slug.unwrap()),
             active_model.description.unwrap(),
             tags,
+            active_model.script.unwrap(),
         )
     }
 
@@ -70,6 +76,7 @@ impl SeaArticleMapper {
             Slug::new_from_existing(model.slug),
             model.description,
             tags,
+            model.script,
         )
     }
 }
