@@ -21,7 +21,8 @@ has been introduced.
 ### Changed
 - Article now may have many tags (previously, 0..1 tag only);
 - changed rustfmt workflow to use nightly rust toolchain;
-- changed some of tests mocked repository factories to `InMemory` repositories which implement the repositories traits.
+- changed some of tests mocked repository factories to `InMemory` repositories which implement the repositories traits;
+- bumped `inertia-rust` version to v2.4.4.
 
 ## Samambaia@0.5.0
 ### Added
