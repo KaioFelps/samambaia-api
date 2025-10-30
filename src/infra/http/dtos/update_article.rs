@@ -1,8 +1,10 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use uuid::Uuid;
 use validator::Validate;
 
-#[derive(Serialize, Deserialize, Validate)]
+use crate::libs::custom_deserializers::deserialize_optional_option;
+
+#[derive(Deserialize, Validate)]
 pub struct UpdateArticleDto {
     pub author_id: Option<Uuid>,
 
@@ -19,8 +21,6 @@ pub struct UpdateArticleDto {
 
     pub tags: Option<Vec<i32>>,
 
-    // if `undefined`, `None`,
-    // if `null`, `Some(None)`,
-    // if `string`, `Some(Some(<string>))`.
+    #[serde(default, deserialize_with = "deserialize_optional_option")]
     pub script: Option<Option<String>>,
 }
