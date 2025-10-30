@@ -22,6 +22,7 @@ pub struct Article {
     slug: Slug,
     touched: bool,
     tags: ChangeSet<ArticleTag>,
+    script: Option<String>,
 }
 
 impl Article {
@@ -33,6 +34,7 @@ impl Article {
         cover_url: String,
         description: String,
         tags: Vec<ArticleTag>,
+        script: Option<String>,
     ) -> Self {
         let id = Uuid::new_v4();
 
@@ -55,6 +57,7 @@ impl Article {
             description,
             touched: false,
             tags: ChangeSet::Filled(tags_changeset),
+            script,
         }
     }
 
@@ -71,6 +74,7 @@ impl Article {
         slug: Slug,
         description: String,
         tags: Vec<ArticleTag>,
+        script: Option<String>,
     ) -> Self {
         Article {
             id,
@@ -85,6 +89,7 @@ impl Article {
             description,
             touched: false,
             tags: ChangeSet::new(tags),
+            script,
         }
     }
 
@@ -158,6 +163,10 @@ impl Article {
         self.tags.get_current()
     }
 
+    pub fn get_script(&self) -> Option<&str> {
+        self.script.as_ref().map(String::as_str)
+    }
+
     // SETTERS
 
     pub fn set_author_id(&mut self, author_id: Uuid) {
@@ -197,6 +206,11 @@ impl Article {
 
     pub fn set_description(&mut self, description: String) {
         self.description = description;
+        self.touch();
+    }
+
+    pub fn set_script(&mut self, script: Option<String>) {
+        self.script = script;
         self.touch();
     }
 
