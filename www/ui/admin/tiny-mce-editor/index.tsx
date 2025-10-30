@@ -55,15 +55,6 @@ type TinyMCEEditorProps = Omit<IAllProps, "licenseKey"> & {
 };
 
 export function TinyMCEEditor({ validationError, ...props }: TinyMCEEditorProps) {
-  // ensure it's only rendered on client-side, since editor make heavy usage of `window`
-  // (not available during server-side rendering).
-  // this should fix a render error tracked in production:
-  // ReferenceError: window is not defined
-  //     at mediaMatch (/application/node_modules/tinymce/tinymce.js:957:57)
-  //     at DeviceType (/application/node_modules/tinymce/tinymce.js:615:35)
-  // ...
-  if (typeof window === "undefined") return null;
-
   return (
     <div className="article-content">
       <span className="block text-black text-sm ml-1 mb-2">Editor HTML</span>
