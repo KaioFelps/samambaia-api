@@ -3,7 +3,7 @@ import type { FormHTMLAttributes } from "react";
 
 type FormRootProps = FormHTMLAttributes<HTMLFormElement>;
 
-export const FormRoot = ({ className, ...props }: FormRootProps) => {
+export const AdminFormRoot = ({ className, ...props }: FormRootProps) => {
   return (
     <form
       className={clsx(
