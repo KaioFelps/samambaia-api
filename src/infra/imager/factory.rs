@@ -1,10 +1,10 @@
 use crate::configs::hotels::{AvailableHotel, HOTELS_CONFIG};
+use crate::infra::imager::Imager;
 use crate::infra::imager::providers::{
     HabbletImagerProvider,
     HabbliveImagerProvider,
     ImagerProvider,
 };
-use crate::infra::imager::Imager;
 
 pub struct ImagerFactory;
 

@@ -1,5 +1,5 @@
 use super::params::FetchArticlesParams;
-use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
+use crate::core::pagination::{DEFAULT_PER_PAGE, PaginationParameters, PaginationResponse};
 use crate::domain::aggregations::article_preview::ArticlePreview;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;

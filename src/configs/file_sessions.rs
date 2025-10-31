@@ -3,15 +3,15 @@ use std::io;
 use std::str::FromStr;
 
 use actix_session::storage::{
-    generate_session_key,
     LoadError,
     SaveError,
     SessionKey,
     SessionStore,
     UpdateError,
+    generate_session_key,
 };
 use chrono::{DateTime, Duration, Utc};
-use tokio::fs::{read_dir, read_to_string, remove_file, DirBuilder, DirEntry, File};
+use tokio::fs::{DirBuilder, DirEntry, File, read_dir, read_to_string, remove_file};
 use tokio::io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt};
 
 use super::app::APP_CONFIG;
@@ -238,18 +238,17 @@ impl FileSessionStore<'_> {
     }
 
     async fn maybe_create_session_directory(&self) {
-        if !std::path::Path::new(self.get_sessions_dir()).is_dir() {
-            if let Err(err) = DirBuilder::new()
+        if !std::path::Path::new(self.get_sessions_dir()).is_dir()
+            && let Err(err) = DirBuilder::new()
                 .recursive(true)
                 .create(self.get_sessions_dir())
                 .await
-            {
-                log::error!(
-                    "Session storage does not exist and couldn't be created. Consider creating the directory '{}' yourself. Error: {}",
-                    self.get_sessions_dir(),
-                    err
-                );
-            }
+        {
+            log::error!(
+                "Session storage does not exist and couldn't be created. Consider creating the directory '{}' yourself. Error: {}",
+                self.get_sessions_dir(),
+                err
+            );
         }
     }
 
@@ -337,13 +336,13 @@ async fn file_should_be_cleaned(file: &DirEntry) -> bool {
 mod tests {
     use std::collections::HashMap;
 
-    use actix_session::storage::{generate_session_key, LoadError, SessionStore};
+    use actix_session::storage::{LoadError, SessionStore, generate_session_key};
     use actix_web::cookie::time;
     use inertia_rust::hashmap;
-    use tokio::fs::{read_dir, remove_dir_all, File};
+    use tokio::fs::{File, read_dir, remove_dir_all};
     use tokio::io::AsyncWriteExt;
 
-    use super::{inner_clean_expired_sessions, FileSessionStore};
+    use super::{FileSessionStore, inner_clean_expired_sessions};
 
     async fn write_session(session_key: &str, content: &str, store: &FileSessionStore<'_>) {
         store.maybe_create_session_directory().await;

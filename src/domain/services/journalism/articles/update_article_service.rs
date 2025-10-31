@@ -7,7 +7,7 @@ use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct UpdateArticleParams<'a> {
     pub user: &'a User,
@@ -353,9 +353,11 @@ mod test {
         assert_eq!("updated title", result.title());
         assert_eq!("updated description", result.description());
         assert_eq!("updated content", result.content());
-        assert!(result
-            .get_script()
-            .is_some_and(|script| script.eq("console.log('hello world');")));
+        assert!(
+            result
+                .get_script()
+                .is_some_and(|script| script.eq("console.log('hello world');"))
+        );
 
         assert!(!result.get_tags().is_empty());
         assert_eq!("Bar", result.get_tags().first().unwrap().value());

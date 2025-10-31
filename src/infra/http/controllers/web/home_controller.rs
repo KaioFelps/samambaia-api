@@ -1,6 +1,6 @@
-use actix_web::web::{self, Data};
 use actix_web::HttpRequest;
-use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
+use actix_web::web::{self, Data};
+use inertia_rust::{Inertia, InertiaFacade, InertiaProp, hashmap};
 
 use crate::domain::factories::journalism::articles::fetch_articles_previews_service_factory;
 use crate::domain::factories::journalism::free_badges::fetch_many_free_badges_service_factory;
@@ -11,8 +11,8 @@ use crate::domain::services::journalism::free_badges::fetch_many_free_badges_ser
     FetchManyFreeBadgesResponse,
 };
 use crate::error::IntoSamambaiaError;
-use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::AppResponse;
+use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::dtos::controllers::home::HomeQueryDto;
 use crate::infra::http::middlewares::WebAuthUserMiddleware;
 use crate::infra::http::presenters::article_preview::ArticlePreviewPresenter;

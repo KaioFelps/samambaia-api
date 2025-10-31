@@ -27,8 +27,8 @@ use crate::domain::repositories::article_tag_repository::{
     FindManyArticleTagsResponse,
 };
 use crate::error::SamambaiaError;
-use crate::infra::sea::mappers::sea_article_tag_mapper::SeaArticleTagMapper;
 use crate::infra::sea::mappers::SeaMapper;
+use crate::infra::sea::mappers::sea_article_tag_mapper::SeaArticleTagMapper;
 use crate::util::generate_service_internal_error;
 
 pub struct SeaArticleTagRepository<'a, C: ConnectionTrait> {

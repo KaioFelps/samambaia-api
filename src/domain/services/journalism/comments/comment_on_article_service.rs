@@ -34,7 +34,10 @@ impl<CR: CommentRepositoryTrait, AR: ArticleRepositoryTrait> CommentOnArticleSer
         let article_on_db = self.article_repository.find_by_id(params.article_id).await;
 
         if article_on_db.is_err() {
-            error!("{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while fetching article from db:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}", article_on_db.unwrap_err());
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while fetching article from db:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}",
+                article_on_db.unwrap_err()
+            );
             return Err(SamambaiaError::internal_err());
         }
 
@@ -47,7 +50,10 @@ impl<CR: CommentRepositoryTrait, AR: ArticleRepositoryTrait> CommentOnArticleSer
         let response = self.comment_repository.create(comment).await;
 
         if response.is_err() {
-            error!("{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while creating comment transaction:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}", response.unwrap_err());
+            error!(
+                "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on comment_on_article_service.rs, while creating comment transaction:{R_EOL}{:#?}{R_EOL}{LOG_SEP}{R_EOL}",
+                response.unwrap_err()
+            );
             return Err(SamambaiaError::internal_err());
         }
 

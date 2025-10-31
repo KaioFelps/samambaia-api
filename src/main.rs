@@ -1,5 +1,5 @@
 use actix_web::web::Data;
-use actix_web::{middleware, HttpServer};
+use actix_web::{HttpServer, middleware};
 use dotenvy::dotenv;
 use env_logger::{self, Target};
 use log::{error, info};
@@ -54,11 +54,9 @@ async fn main() -> std::io::Result<()> {
 
     let server = server.run().await;
 
-    if is_production {
-        if let Some(node_process) = node_process {
-            node_process.kill().await?;
-            info!("Inertia SSR server has shutdown.");
-        }
+    if is_production && let Some(node_process) = node_process {
+        node_process.kill().await?;
+        info!("Inertia SSR server has shutdown.");
     }
 
     sea_service.db.get_postgres_connection_pool().close().await;

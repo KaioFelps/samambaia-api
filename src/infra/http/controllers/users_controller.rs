@@ -1,12 +1,12 @@
 use std::str::FromStr;
 
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use serde_json::json;
 use uuid::Uuid;
 use validator::Validate;
 
-use super::controller::ControllerTrait;
 use super::AppResponse;
+use super::controller::ControllerTrait;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::factories::identity::{

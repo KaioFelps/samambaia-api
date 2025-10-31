@@ -1,24 +1,24 @@
 use std::sync::Arc;
 
 use actix_session::{SessionExt, SessionMiddleware};
+use actix_web::HttpMessage;
 use actix_web::body::BoxBody;
 use actix_web::cookie::{Key, SameSite};
 use actix_web::dev::{ServiceRequest, ServiceResponse};
 use actix_web::http::StatusCode;
-use actix_web::middleware::{from_fn, Next};
+use actix_web::middleware::{Next, from_fn};
 use actix_web::web::{self, Data};
-use actix_web::HttpMessage;
-use base64::prelude::BASE64_STANDARD;
 use base64::Engine;
+use base64::prelude::BASE64_STANDARD;
 use inertia_rust::actix::InertiaMiddleware;
 use inertia_rust::{
-    hashmap,
-    prop_resolver,
     Inertia,
     InertiaFacade,
     InertiaProp,
     IntoInertiaError,
     IntoInertiaPropResult,
+    hashmap,
+    prop_resolver,
 };
 use serde_json::json;
 
@@ -37,11 +37,11 @@ use crate::infra::http::controllers::web::comment_reports_controller::CommentRep
 use crate::infra::http::controllers::web::comments_controller::CommentsController;
 use crate::infra::http::controllers::web::home_controller::HomeController;
 use crate::infra::http::controllers::web::sessions_controller::SessionsController;
+use crate::infra::http::middlewares::web::WebRequestUser;
 use crate::infra::http::middlewares::web::has_permission::{
     PermissionComparisonMode,
     WebHasPermissionMiddleware,
 };
-use crate::infra::http::middlewares::web::WebRequestUser;
 use crate::infra::http::middlewares::{
     GarbageCollectorMiddleware,
     ReflashTemporarySessionMiddleware,

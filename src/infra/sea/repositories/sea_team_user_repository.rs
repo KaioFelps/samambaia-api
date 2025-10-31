@@ -21,8 +21,8 @@ use crate::domain::repositories::team_user_repository::{
     TeamUserQueryType,
     TeamUserRepositoryTrait,
 };
-use crate::infra::sea::mappers::sea_team_user_mapper::SeaTeamUserMapper;
 use crate::infra::sea::mappers::SeaMapper;
+use crate::infra::sea::mappers::sea_team_user_mapper::SeaTeamUserMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaTeamUserRepository<'a> {

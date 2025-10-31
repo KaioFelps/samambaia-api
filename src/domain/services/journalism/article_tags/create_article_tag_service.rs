@@ -2,7 +2,7 @@ use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct CreateArticleTagParams {
     pub value: String,

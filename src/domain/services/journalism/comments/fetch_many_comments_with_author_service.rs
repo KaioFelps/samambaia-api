@@ -1,7 +1,7 @@
 use log::error;
 use uuid::Uuid;
 
-use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
+use crate::core::pagination::{DEFAULT_PER_PAGE, PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::repositories::comment_user_article_repository::{
     CommentUserArticleRepositoryTrait,

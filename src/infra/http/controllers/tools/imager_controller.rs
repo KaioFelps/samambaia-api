@@ -23,7 +23,7 @@ impl ImagerController {
         let nickname = match params.remove("user") {
             None => {
                 return Err(SamambaiaError::bad_request_err()
-                    .with_message("Missing `user` query parameter."))
+                    .with_message("Missing `user` query parameter."));
             }
             Some(nickname) => nickname,
         };

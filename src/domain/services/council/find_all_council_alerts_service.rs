@@ -2,7 +2,7 @@ use crate::domain::domain_entities::council_alert::CouncilAlert;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::council_alerts_repository::CouncilAlertRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct GetCouncilAlertsParams<'a> {
     pub user: &'a User,

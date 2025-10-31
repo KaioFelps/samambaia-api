@@ -1,11 +1,11 @@
-use std::future::{ready, Future, Ready};
+use std::future::{Future, Ready, ready};
 use std::pin::Pin;
 use std::rc::Rc;
 
 use actix_session::SessionExt;
 use actix_web::body::EitherBody;
-use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
-use actix_web::{web, Error, HttpMessage, ResponseError};
+use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready};
+use actix_web::{Error, HttpMessage, ResponseError, web};
 use uuid::Uuid;
 
 use super::{WebAuthUser, WebRequestUser};

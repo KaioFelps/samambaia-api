@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
+use crate::core::pagination::{DEFAULT_PER_PAGE, PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::comment_with_author::CommentWithAuthor;
 use crate::domain::domain_entities::role::Role;
@@ -13,7 +13,7 @@ use crate::domain::repositories::comment_user_article_repository::{
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::domain::value_objects::slug::Slug;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct GetExpandedArticleParams<'exec> {
     pub article_slug: Slug,

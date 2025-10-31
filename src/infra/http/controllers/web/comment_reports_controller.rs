@@ -1,6 +1,6 @@
 use actix_session::Session;
-use actix_web::web::{self, Data, Json, Path, Redirect};
 use actix_web::HttpRequest;
+use actix_web::web::{self, Data, Json, Path, Redirect};
 use inertia_rust::validators::InertiaValidateOrRedirect;
 use inertia_rust::{Inertia, InertiaFacade};
 use uuid::Uuid;
@@ -11,8 +11,8 @@ use crate::domain::services::security::create_comment_report_service::CreateComm
 use crate::infra::extensions::sessions::SessionHelpers;
 use crate::infra::http::controllers::AppResponse;
 use crate::infra::http::dtos::create_comment_report::CreateCommentReportDto;
-use crate::infra::http::middlewares::web::WebAuthUser;
 use crate::infra::http::middlewares::WebAuthUserMiddleware;
+use crate::infra::http::middlewares::web::WebAuthUser;
 use crate::infra::http::routes::route::RouteTrait;
 use crate::infra::sea::sea_service::SeaService;
 

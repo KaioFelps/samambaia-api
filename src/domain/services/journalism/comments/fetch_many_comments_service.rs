@@ -40,10 +40,8 @@ pub struct FetchManyCommentsResponse {
 
 type ExecFuncReturn = Result<FetchManyCommentsResponse, SamambaiaError>;
 
-impl<
-        ArticleCommentRepository: ArticleCommentRepositoryTrait,
-        UserRepository: UserRepositoryTrait,
-    > FetchManyCommentsService<ArticleCommentRepository, UserRepository>
+impl<ArticleCommentRepository: ArticleCommentRepositoryTrait, UserRepository: UserRepositoryTrait>
+    FetchManyCommentsService<ArticleCommentRepository, UserRepository>
 {
     // CONSTRUCTOR
     pub fn new(

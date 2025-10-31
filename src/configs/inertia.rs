@@ -1,16 +1,16 @@
 use std::io;
 
-use actix_web::web::Redirect;
 use actix_web::HttpRequest;
+use actix_web::web::Redirect;
 use inertia_rust::template_resolvers::ViteHBSTemplateResolver;
 use inertia_rust::{
-    hashmap,
     Inertia,
     InertiaConfig,
     InertiaError,
     InertiaFacade,
     InertiaVersion,
     IntoInertiaError,
+    hashmap,
 };
 
 use super::vite::initialize_vite;

@@ -1,13 +1,13 @@
 use actix_web::cookie::{Cookie, SameSite};
-use actix_web::{web, HttpRequest, HttpResponse, Responder};
+use actix_web::{HttpRequest, HttpResponse, Responder, web};
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{DecodingKey, EncodingKey};
 use log::info;
 use serde_json::json;
 use validator::Validate;
 
-use super::controller::ControllerTrait;
 use super::AppResponse;
+use super::controller::ControllerTrait;
 use crate::configs::app::APP_CONFIG;
 use crate::domain::factories::identity::authenticate_user_service_factory;
 use crate::domain::services::identity::authenticate_user_service::AuthenticateUserParams;
