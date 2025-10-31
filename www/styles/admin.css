@@ -55,7 +55,7 @@
 }
 
 @layer base {
-  #editor {
+  #editor, .editor-styles {
     border: 1px solid color-mix(in oklab, var(--color-black) 20%, transparent);
     border-radius: var(--radius-lg);
     padding: calc(var(--spacing) * 2.5);
