@@ -3,7 +3,7 @@ use uuid::Uuid;
 use crate::domain::repositories::announcements_repository::AnnouncementRepositoryTrait;
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct DeleteAnnouncementParams<'a> {
     pub user_id: &'a Uuid,

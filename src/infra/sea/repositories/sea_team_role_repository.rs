@@ -21,8 +21,8 @@ use crate::domain::repositories::team_role_repository::{
     TeamRoleQueryType,
     TeamRoleRepositoryTrait,
 };
-use crate::infra::sea::mappers::sea_team_role_mapper::SeaTeamRoleMapper;
 use crate::infra::sea::mappers::SeaMapper;
+use crate::infra::sea::mappers::sea_team_role_mapper::SeaTeamRoleMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaTeamRoleRepository<'a> {

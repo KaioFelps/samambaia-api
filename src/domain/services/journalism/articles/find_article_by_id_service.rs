@@ -5,7 +5,7 @@ use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct FindArticleByIdParams<'a> {
     pub user: Option<&'a User>,
@@ -104,9 +104,11 @@ mod test {
             .await;
 
         assert!(response.is_ok());
-        assert!(response
-            .unwrap()
-            .is_some_and(|_article| _article.eq(&article)));
+        assert!(
+            response
+                .unwrap()
+                .is_some_and(|_article| _article.eq(&article))
+        );
     }
 
     #[tokio::test]

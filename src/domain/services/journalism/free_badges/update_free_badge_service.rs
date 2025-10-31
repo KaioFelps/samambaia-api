@@ -5,7 +5,7 @@ use crate::domain::domain_entities::free_badge::FreeBadge;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::free_badge_repository::FreeBadgeRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct UpdateFreeBadgeParams {
     pub free_badge_id: Uuid,

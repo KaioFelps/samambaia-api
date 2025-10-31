@@ -6,7 +6,7 @@ use super::user::User;
 use crate::domain::value_objects::changeset::{BlankChangeSet, ChangeSet, Changes};
 use crate::domain::value_objects::slug::Slug;
 use crate::libs::time::TimeHelper;
-use crate::util::{verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, verify_role_has_permission};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Article {

@@ -25,8 +25,8 @@ use crate::domain::repositories::comment_report_repository::{
     CommentReportRepositoryTrait,
     FindManyCommentReportsResponse,
 };
-use crate::infra::sea::mappers::sea_comment_report_mapper::SeaCommentReportMapper;
 use crate::infra::sea::mappers::SeaMapper;
+use crate::infra::sea::mappers::sea_comment_report_mapper::SeaCommentReportMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaCommentReportRepository<'a> {

@@ -3,7 +3,7 @@ use std::error::Error;
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use super::{get_local_db, LocalDb};
+use super::{LocalDb, get_local_db};
 use crate::core::pagination::PaginationParameters;
 use crate::domain::domain_entities::article_tag::{ArticleTag, DraftArticleTag};
 use crate::domain::repositories::article_tag_repository::{

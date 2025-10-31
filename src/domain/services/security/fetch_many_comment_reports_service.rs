@@ -43,10 +43,8 @@ pub struct FetchManyCommentReportsService<
     user_repository: UserRepository,
 }
 
-impl<
-        CommentReportRepository: CommentReportRepositoryTrait,
-        UserRepository: UserRepositoryTrait,
-    > FetchManyCommentReportsService<CommentReportRepository, UserRepository>
+impl<CommentReportRepository: CommentReportRepositoryTrait, UserRepository: UserRepositoryTrait>
+    FetchManyCommentReportsService<CommentReportRepository, UserRepository>
 {
     pub fn new(
         comment_report_repository: CommentReportRepository,

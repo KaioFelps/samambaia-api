@@ -23,8 +23,8 @@ use crate::domain::repositories::announcements_repository::{
     AnnouncementRepositoryTrait,
     FindManyAnnouncementsResponse,
 };
-use crate::infra::sea::mappers::sea_announcement_mapper::SeaAnnouncementMapper;
 use crate::infra::sea::mappers::SeaMapper;
+use crate::infra::sea::mappers::sea_announcement_mapper::SeaAnnouncementMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaAnnouncementRepository<'a> {

@@ -1,11 +1,11 @@
 use std::collections::HashMap;
-use std::future::{ready, Ready};
+use std::future::{Ready, ready};
 
 use actix_session::SessionExt;
-use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
+use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready};
 use actix_web::{Error, HttpMessage};
 use actix_web_lab::__reexports::futures_util::future::LocalBoxFuture;
-use inertia_rust::actix::{is_inertia_response, SessionErrors};
+use inertia_rust::actix::{SessionErrors, is_inertia_response};
 use inertia_rust::{InertiaSessionToReflash, InertiaTemporarySession};
 use log::error;
 use serde_json::Map;
@@ -90,15 +90,13 @@ where
             // If it's not a Inertia neither redirect response, it might be assets response
             // then, reflash everything
             let (prev_url, curr_url, optional_errors) = if !is_inertia_response(&res) {
-                if let Some(flash_messages) = session.remove(SESSION_FLASH_KEY) {
-                    if let Ok(flash_messages) =
+                if let Some(flash_messages) = session.remove(SESSION_FLASH_KEY)
+                    && let Ok(flash_messages) =
                         serde_json::from_str::<HashMap<String, String>>(&flash_messages)
-                    {
-                        if let Err(err) = session.insert(SESSION_FLASH_KEY, flash_messages) {
-                            error!("Failed to reflash flash messages: {}", err);
-                        };
-                    }
-                }
+                    && let Err(err) = session.insert(SESSION_FLASH_KEY, flash_messages)
+                {
+                    error!("Failed to reflash flash messages: {}", err);
+                };
 
                 (before_prev_url, prev_url, errors)
             } else {

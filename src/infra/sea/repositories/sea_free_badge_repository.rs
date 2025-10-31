@@ -11,8 +11,8 @@ use crate::domain::repositories::free_badge_repository::{
     FindManyFreeBadgesResponse,
     FreeBadgeRepositoryTrait,
 };
-use crate::infra::sea::mappers::sea_free_badge_mapper::SeaFreeBadgeMapper;
 use crate::infra::sea::mappers::SeaMapper;
+use crate::infra::sea::mappers::sea_free_badge_mapper::SeaFreeBadgeMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaFreeBadgeRepository<'a> {

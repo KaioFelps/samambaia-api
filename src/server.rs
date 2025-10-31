@@ -1,5 +1,5 @@
 use actix_web::dev::{ServiceFactory, ServiceRequest, ServiceResponse};
-use actix_web::{middleware, web, App, HttpResponse};
+use actix_web::{App, HttpResponse, middleware, web};
 use serde_json::json;
 
 use crate::infra::http::routes::api::ApiRoutes;

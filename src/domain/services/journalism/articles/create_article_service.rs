@@ -5,7 +5,7 @@ use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct CreateArticleParams<'a> {
     pub staff: &'a User,
@@ -24,10 +24,8 @@ pub struct CreateArticleService<
     article_tag_repository: ArticleTagRepository,
 }
 
-impl<
-        ArticleRepository: ArticleRepositoryTrait,
-        ArticleTagRepository: ArticleTagRepositoryTrait,
-    > CreateArticleService<ArticleRepository, ArticleTagRepository>
+impl<ArticleRepository: ArticleRepositoryTrait, ArticleTagRepository: ArticleTagRepositoryTrait>
+    CreateArticleService<ArticleRepository, ArticleTagRepository>
 {
     pub fn new(
         article_repository: ArticleRepository,

@@ -39,9 +39,9 @@ use crate::domain::repositories::article_repository::{
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::domain::value_objects::slug::Slug;
 use crate::error::SamambaiaError;
+use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::mappers::sea_article_mapper::SeaArticleMapper;
 use crate::infra::sea::mappers::sea_article_tag_mapper::SeaArticleTagMapper;
-use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 use crate::util::generate_service_internal_error;
 
@@ -104,21 +104,21 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
     async fn save(&self, mut article: Article) -> Result<Article, Box<dyn Error>> {
         let transaction = self.sea_service.db.begin().await?;
 
-        if let Some(changeset) = article.get_tags_changeset() {
-            if changeset.has_changes() {
-                let sea_article_tag_repository = SeaArticleTagRepository::new(&transaction);
+        if let Some(changeset) = article.get_tags_changeset()
+            && changeset.has_changes()
+        {
+            let sea_article_tag_repository = SeaArticleTagRepository::new(&transaction);
 
-                tokio::try_join!(
-                    sea_article_tag_repository.disassociate_tags_from_article(
-                        article.id(),
-                        changeset.removed.iter().map(|tag| tag.id()).collect()
-                    ),
-                    sea_article_tag_repository.associate_tags_to_article(
-                        article.id(),
-                        changeset.added.iter().map(|tag| tag.id()).collect()
-                    )
-                )?;
-            }
+            tokio::try_join!(
+                sea_article_tag_repository.disassociate_tags_from_article(
+                    article.id(),
+                    changeset.removed.iter().map(|tag| tag.id()).collect()
+                ),
+                sea_article_tag_repository.associate_tags_to_article(
+                    article.id(),
+                    changeset.added.iter().map(|tag| tag.id()).collect()
+                )
+            )?;
         }
 
         let active_article = SeaArticleMapper::entity_into_active_model(article.clone());
@@ -397,9 +397,9 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
                 Slug::new_from_existing(slug),
             ));
 
-            if tag_id.is_some() && tag_value.is_some() {
-                let (tag_id, tag_value) = (tag_id.unwrap(), tag_value.unwrap());
-
+            if let Some(tag_id) = tag_id
+                && let Some(tag_value) = tag_value
+            {
                 article
                     .get_tags_mut()
                     .push(ArticleTag::new_from_existing(tag_id, tag_value));

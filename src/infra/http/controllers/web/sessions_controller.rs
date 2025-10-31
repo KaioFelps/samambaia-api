@@ -1,8 +1,8 @@
 use actix_session::{Session, SessionExt};
-use actix_web::web::{self, Redirect};
 use actix_web::HttpRequest;
+use actix_web::web::{self, Redirect};
 use inertia_rust::validators::InertiaValidateOrRedirect;
-use inertia_rust::{hashmap, Inertia, InertiaFacade};
+use inertia_rust::{Inertia, InertiaFacade, hashmap};
 
 use crate::configs::app::{APP_CONFIG, SESSION_USER_KEY};
 use crate::configs::inertia::IntoInertiaRedirect;
@@ -15,8 +15,8 @@ use crate::domain::services::identity::authenticate_user_service::AuthenticateUs
 use crate::domain::services::identity::create_user_service::CreateUserParams;
 use crate::domain::services::identity::verify_verification_code_service::VerifyVerificationCodeParams;
 use crate::infra::extensions::sessions::SessionHelpers;
-use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::AppResponse;
+use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::dtos::create_user::CreateUserDto;
 use crate::infra::http::dtos::login::LoginDto;
 use crate::infra::http::middlewares::WebAuthUserMiddleware;

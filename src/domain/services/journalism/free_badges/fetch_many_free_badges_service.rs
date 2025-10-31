@@ -1,4 +1,4 @@
-use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
+use crate::core::pagination::{DEFAULT_PER_PAGE, PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::free_badge::FreeBadge;
 use crate::domain::repositories::free_badge_repository::{
     FindManyFreeBadgesResponse,
@@ -132,6 +132,10 @@ mod test {
             result.pagination.current_page, 1,
             "Expected current page to be 1 by default."
         );
-        assert_eq!(result.data.len(), 3, "Expected data to have length 3, since it's what have been passed to the service parameters.");
+        assert_eq!(
+            result.data.len(),
+            3,
+            "Expected data to have length 3, since it's what have been passed to the service parameters."
+        );
     }
 }

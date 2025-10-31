@@ -1,4 +1,4 @@
-use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
+use crate::core::pagination::{DEFAULT_PER_PAGE, PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::repositories::article_tag_repository::{
     ArticleTagQueryType,
@@ -63,7 +63,7 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
         if let Err(err) = response {
             return Err(generate_service_internal_error(
                 "Error occurred in Fetch Many Article Tags Service, while finding many tags from the database",
-                err
+                err,
             ));
         }
 

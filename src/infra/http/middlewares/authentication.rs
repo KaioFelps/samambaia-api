@@ -1,4 +1,4 @@
-use std::future::{ready, Ready};
+use std::future::{Ready, ready};
 
 use actix_web::body::EitherBody;
 use actix_web::dev::{self, Service, ServiceRequest, ServiceResponse, Transform};
@@ -49,7 +49,9 @@ pub async fn authentication_middleware<B>(
     let has_user = req.extensions().contains::<ReqUser>();
 
     if !has_user {
-        log::debug!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
+        log::debug!(
+            "Request will be blocked by Authentication Middleware because there is no authenticated user."
+        );
 
         let http_res = SamambaiaError::unauthorized_err().error_response();
         let (http_req, _) = req.into_parts();
@@ -132,7 +134,9 @@ where
         let has_user = request.extensions().contains::<ReqUser>();
 
         if !has_user {
-            log::debug!("Request will be blocked by Authentication Middleware because there is no authenticated user.");
+            log::debug!(
+                "Request will be blocked by Authentication Middleware because there is no authenticated user."
+            );
 
             let http_res = SamambaiaError::unauthorized_err()
                 .error_response()
