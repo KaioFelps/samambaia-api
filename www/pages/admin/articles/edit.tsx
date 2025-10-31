@@ -19,6 +19,7 @@ import type { Article } from "@/types/article";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import { TinyMCEEditor } from "@/ui/admin/tiny-mce-editor";
+import { equalHtml } from "@/utils/comparators";
 import { copyHtmlToClipboard } from "./shared";
 
 type AdminEditArticlePageProps = PageProps & {
@@ -33,7 +34,15 @@ type EditArticleForm = {
   description?: string;
   tags?: number[];
   author_id?: string;
+  script?: string | null;
 };
+
+function haveTagsChanged(newTagsIDs: number[], currentTagsIDs: number[]): boolean {
+  return (
+    newTagsIDs.length !== currentTagsIDs.length ||
+    !newTagsIDs.every((value) => currentTagsIDs.includes(value))
+  );
+}
 
 function setTagsIfChanged(
   currentTags: ArticleTag[],
@@ -41,26 +50,24 @@ function setTagsIfChanged(
   data: EditArticleForm,
   setData: (_data: EditArticleForm) => void,
 ) {
-  const currentTagsSet = new Set(currentTags.map((tag) => tag.id));
-  const newTagsSet = new Set(newTags.map((tag) => Number(tag.value)));
-
-  const hasChanges =
-    currentTagsSet.size !== newTagsSet.size ||
-    !newTagsSet.values().every((value) => currentTagsSet.has(value));
-
-  setData({
-    ...data,
-    tags: hasChanges
-      ? newTagsSet
-          .values()
-          .map((tagId) => Number(tagId))
-          .toArray()
-      : undefined,
-  });
+  const currentTagsIDs = currentTags.map((tag) => tag.id);
+  // Remove duplicated IDs
+  const newTagsIDs = new Set(newTags.map((tag) => Number(tag.value))).values().toArray();
+  const hasChanged = haveTagsChanged(newTagsIDs, currentTagsIDs);
+  setData({ ...data, tags: hasChanged ? newTagsIDs : undefined });
 }
 
 export default function AdminEditArticlePage({ article, tags, flash }: AdminEditArticlePageProps) {
-  const { data, setData, errors, clearErrors, processing, put } = useForm<EditArticleForm>({});
+  const { data, setData, errors, clearErrors, processing, put, transform } =
+    useForm<EditArticleForm>({
+      author_id: article?.authorId,
+      content: article?.content,
+      cover_url: article?.coverUrl,
+      description: article?.description,
+      script: article?.script,
+      tags: article?.tags.map((tag) => tag.id),
+      title: article?.title,
+    });
 
   const userCanPublishInNameOfOthers = useCanSee(Permission.ChangeArticleAuthor);
 
@@ -81,6 +88,22 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
   const handleCopyHtml = async () => {
     await copyHtmlToClipboard(tinymce);
   };
+
+  transform((data) => {
+    if (!article) return data;
+    if (data.title === article.title) delete data.title;
+    if (data.description === article.description) delete data.description;
+    if (data.cover_url === article.coverUrl) delete data.cover_url;
+    if (data.author_id === article.authorId) delete data.author_id;
+    if (equalHtml(data.content, article.content)) delete data.content;
+    if (data.script === article.script) delete data.script;
+    else if (!data.script?.trim()) data.script = null;
+
+    const articleTagsIDs = article.tags.map((tag) => tag.id);
+    if (data.tags && !haveTagsChanged(data.tags, articleTagsIDs)) delete data.tags;
+
+    return data;
+  });
 
   function handleEditArticle(e: FormEvent) {
     e.preventDefault();
@@ -149,13 +172,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             required
             defaultValue={article.title}
             validationError={errors.title}
-            onInput={(e) => {
-              const value = e.currentTarget.value;
-              setData({
-                ...data,
-                title: value === article.title ? undefined : value,
-              });
-            }}
+            onInput={(e) => setData({ ...data, title: e.currentTarget.value })}
           />
 
           <Form.Input
@@ -165,13 +182,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             required
             defaultValue={article.description}
             validationError={errors.description}
-            onInput={(e) => {
-              const value = e.currentTarget.value;
-              setData({
-                ...data,
-                description: value === article.description ? undefined : value,
-              });
-            }}
+            onInput={(e) => setData({ ...data, description: e.currentTarget.value })}
           />
 
           <Form.Input
@@ -181,14 +192,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             required
             defaultValue={article.coverUrl}
             validationError={errors.cover_url}
-            onInput={(e) => {
-              const value = e.currentTarget.value;
-
-              setData({
-                ...data,
-                cover_url: value === article.coverUrl ? undefined : value,
-              });
-            }}
+            onInput={(e) => setData({ ...data, cover_url: e.currentTarget.value })}
           />
 
           {userCanPublishInNameOfOthers && (
@@ -199,13 +203,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
                 name="author_id"
                 defaultValue={article.authorId}
                 validationError={errors.author_id}
-                onInput={(e) => {
-                  const value = e.currentTarget.value;
-                  setData({
-                    ...data,
-                    author_id: value === article.authorId ? undefined : value,
-                  });
-                }}
+                onInput={(e) => setData({ ...data, author_id: e.currentTarget.value })}
               />
               <p className="text-sm font-light ml-1 text-gray-800">
                 Ao preencher esse campo, a notícia será publicada no usuário com o ID especificado.
@@ -228,14 +226,26 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
 
           <TinyMCEEditor
             validationError={errors.content}
-            onEditorChange={(_content) => {
-              setData({
-                ...data,
-                content: _content === article.content ? undefined : _content,
-              });
-            }}
+            onEditorChange={(content) => setData({ ...data, content })}
             initialValue={article.content}
           />
+
+          <div>
+            <Form.Input
+              asChild
+              label="Script"
+              placeholder={`console.log("Hello world");`}
+              name="script"
+              validationError={errors.script}
+              defaultValue={article.script}
+              onInput={(e) => setData({ ...data, script: e.currentTarget.value })}>
+              <textarea rows={10} />
+            </Form.Input>
+            <p className="text-sm font-light ml-1 text-gray-800">
+              Esses scripts serão executados assim que a notícia carregar. Preencha somente se
+              necessário.
+            </p>
+          </div>
 
           <div className="mt-3 flex items-center gap-1.5">
             <Button admin variant="default" theme="success" size="lg" disabled={processing}>
