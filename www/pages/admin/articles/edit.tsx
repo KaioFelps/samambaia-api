@@ -9,7 +9,7 @@ import tinymce from "tinymce";
 import MultiSelect, { type SelectOption, type SelectOptions } from "@/components/admin/multiselect";
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
-import Form from "@/components/form";
+import Form from "@/components/form/admin-form";
 import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 import { Head } from "@/components/head";
 import Header from "@/components/header";
@@ -143,7 +143,6 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
 
         <Form.Root onSubmit={handleEditArticle} className="flex flex-col gap-3">
           <Form.Input
-            admin
             label="Título"
             placeholder="Abracadabra"
             name="title"
@@ -160,7 +159,6 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
           />
 
           <Form.Input
-            admin
             label="Descrição"
             name="description"
             placeholder="Amor, oh-na-na. Abra. Cadabra. Morta, oh-ga-ga."
@@ -177,7 +175,6 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
           />
 
           <Form.Input
-            admin
             label="Topstory"
             placeholder="https://i.imgur.com/..."
             name="cover_url"
@@ -197,7 +194,6 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
           {userCanPublishInNameOfOthers && (
             <div>
               <Form.Input
-                admin
                 label="ID do autor"
                 placeholder="37824kef-vduih27i2-4289328v-489uf"
                 name="author_id"

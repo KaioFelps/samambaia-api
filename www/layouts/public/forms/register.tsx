@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { Alert } from "@/components/alert";
 import PublicButton from "@/components/button/public-button";
 import Dialog from "@/components/dialog";
-import { Input } from "@/components/form/input";
+import PublicForm from "@/components/form/public-form";
 import { appConfig } from "@/config/app";
 import type { AuthenticationDialogProps } from "../user-box";
 
@@ -62,7 +62,7 @@ export const RegisterForm = memo(
           {errors.error && <Alert type="error" message={errors.error} className="mb-4" />}
 
           <form onSubmit={handleFormSubmit}>
-            <Input
+            <PublicForm.Input
               label="Nickname"
               type="text"
               placeholder="FãDoFloricultor"
@@ -76,7 +76,7 @@ export const RegisterForm = memo(
               }}
             />
 
-            <Input
+            <PublicForm.Input
               label="Senha"
               type="password"
               placeholder="**********"
@@ -90,7 +90,7 @@ export const RegisterForm = memo(
               }}
             />
 
-            <Input
+            <PublicForm.Input
               label="Repita sua senha"
               type="password"
               placeholder="**********"
@@ -104,7 +104,7 @@ export const RegisterForm = memo(
               }}
             />
 
-            <Input
+            <PublicForm.Input
               label="Cole na sua missão"
               type="text"
               value={verificationMotto}

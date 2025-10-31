@@ -87,7 +87,6 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
 
         <Form.Root onSubmit={handleCreateArticle} className="flex flex-col gap-3">
           <Form.Input
-            admin
             label="Título"
             placeholder="Abracadabra"
             name="title"
@@ -97,7 +96,6 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
           />
 
           <Form.Input
-            admin
             label="Descrição"
             name="description"
             placeholder="Amor, oh-na-na. Abra. Cadabra. Morta, oh-ga-ga."
@@ -107,7 +105,6 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
           />
 
           <Form.Input
-            admin
             label="Topstory"
             placeholder="https://i.imgur.com/..."
             name="cover_url"
@@ -119,7 +116,6 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
           {userCanPublishInNameOfOthers && (
             <div>
               <Form.Input
-                admin
                 label="ID do autor"
                 placeholder="37824kef-vduih27i2-4289328v-489uf"
                 name="author_id"

@@ -4,7 +4,7 @@ import { type FormEvent, memo, useEffect } from "react";
 import { Alert } from "@/components/alert";
 import PublicButton from "@/components/button/public-button";
 import Dialog from "@/components/dialog";
-import { Input } from "@/components/form/input";
+import PublicForm from "@/components/form/public-form";
 import { appConfig } from "@/config/app";
 import type { AuthenticationDialogProps } from "../user-box";
 
@@ -54,7 +54,7 @@ export const LoginForm = memo(
           )}
 
           <form onSubmit={handleFormSubmit}>
-            <Input
+            <PublicForm.Input
               name="login-nickname"
               containerClassName="mb-4"
               label="Nickname"
@@ -70,7 +70,7 @@ export const LoginForm = memo(
               }
             />
 
-            <Input
+            <PublicForm.Input
               name="login-senha"
               containerClassName="mb-4"
               validationError={errors.password}
