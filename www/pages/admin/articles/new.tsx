@@ -8,7 +8,7 @@ import tinymce from "tinymce";
 
 import MultiSelect, { type SelectOption } from "@/components/admin/multiselect";
 import Button from "@/components/button";
-import Form from "@/components/form";
+import Form from "@/components/form/admin-form";
 import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 import { Head } from "@/components/head";
 import Header from "@/components/header";
@@ -30,16 +30,19 @@ type CreateArticleForm = {
   description: string;
   tags: number[];
   author_id?: string;
+  script?: string;
 };
 
 export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageProps) {
-  const { data, setData, errors, clearErrors, processing, post } = useForm<CreateArticleForm>({
-    content: "",
-    cover_url: "",
-    description: "",
-    title: "",
-    tags: [],
-  });
+  const { data, setData, errors, clearErrors, processing, post, transform } =
+    useForm<CreateArticleForm>({
+      content: "",
+      cover_url: "",
+      description: "",
+      title: "",
+      tags: [],
+      script: "",
+    });
 
   const tagsOptions = tags.map(
     (tag) => ({ label: tag.value, value: tag.id.toString() }) satisfies SelectOption,
@@ -51,26 +54,23 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
     await copyHtmlToClipboard(tinymce);
   };
 
+  transform((data) => {
+    if (data.script?.trim() === "") delete data.script;
+    if (data.author_id?.trim() === "") delete data.author_id;
+    return data;
+  });
+
   const handleCreateArticle = (e: FormEvent) => {
     e.preventDefault();
     clearErrors();
-
     post("/gremio/noticias/criar", {
       onSuccess: () => {
-        const timer = 3000;
-
-        toast("Notícia criada com sucesso! Peça para que a revisem.", {
-          type: "success",
-          autoClose: timer,
-        });
+        toast.success("Notícia criada com sucesso! Peça para que a revisem.", { autoClose: 3000 });
       },
       onError: (errors) => {
-        if ("error" in errors) {
-          console.error(errors.error);
-          toast("Não foi possível publicar a notícia. Por favor, contate um desenvolvedor.", {
-            type: "error",
-          });
-        }
+        if (!("error" in errors)) return;
+        console.error(errors.error);
+        toast.error("Não foi possível publicar a notícia. Por favor, contate um desenvolvedor.");
       },
     });
   };
@@ -121,9 +121,7 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
                 name="author_id"
                 validationError={errors.author_id}
                 onInput={(e) => {
-                  const value = e.currentTarget.value;
-                  const authorId = value || undefined;
-                  setData({ ...data, author_id: authorId });
+                  setData({ ...data, author_id: e.currentTarget.value });
                 }}
               />
               <p className="text-sm font-light ml-1 text-gray-800">
@@ -150,6 +148,24 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
             validationError={errors.content}
             onEditorChange={(content) => setData({ ...data, content })}
           />
+
+          <div>
+            <Form.Input
+              asChild
+              label="Script"
+              placeholder={`console.log("Hello world");`}
+              name="script"
+              validationError={errors.script}
+              onInput={(e) => {
+                setData({ ...data, script: e.currentTarget.value });
+              }}>
+              <textarea rows={10} />
+            </Form.Input>
+            <p className="text-sm font-light ml-1 text-gray-800">
+              Esses scripts serão executados assim que a notícia carregar. Preencha somente se
+              necessário.
+            </p>
+          </div>
 
           <div className="mt-3 flex items-center gap-1.5">
             <Button admin variant="default" theme="success" size="lg" disabled={processing}>
