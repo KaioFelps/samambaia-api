@@ -2,7 +2,7 @@ import { useForm } from "@inertiajs/react";
 import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { type FormEvent, useRef } from "react";
+import { type FormEvent, lazy, Suspense, useRef } from "react";
 import { toast } from "react-toastify";
 import type { Editor } from "tinymce";
 
@@ -16,8 +16,10 @@ import { Main } from "@/components/main";
 import { useCanSee } from "@/hooks/useCanSee";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
-import { TinyMCEEditor } from "@/ui/admin/tiny-mce-editor";
+import { TinyMCEEditorSkeleton } from "@/ui/admin/tiny-mce-editor/skeleton";
 import { copyHtmlToClipboard } from "./shared";
+
+const TinyMCEEditor = lazy(() => import("@/ui/admin/tiny-mce-editor"));
 
 type AdminCreateArticlePageProps = {
   tags: ArticleTag[];
@@ -145,11 +147,13 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
             />
           </div>
 
-          <TinyMCEEditor
-            validationError={errors.content}
-            onEditorChange={(content) => setData({ ...data, content })}
-            editorRef={tinymce}
-          />
+          <Suspense fallback={<TinyMCEEditorSkeleton />}>
+            <TinyMCEEditor
+              validationError={errors.content}
+              onEditorChange={(content) => setData({ ...data, content })}
+              editorRef={tinymce}
+            />
+          </Suspense>
 
           <div>
             <Form.Input
