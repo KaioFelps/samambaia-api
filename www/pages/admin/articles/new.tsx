@@ -2,9 +2,9 @@ import { useForm } from "@inertiajs/react";
 import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
-import type { FormEvent } from "react";
+import { type FormEvent, useRef } from "react";
 import { toast } from "react-toastify";
-import tinymce from "tinymce";
+import type { Editor } from "tinymce";
 
 import MultiSelect, { type SelectOption } from "@/components/admin/multiselect";
 import Button from "@/components/button";
@@ -34,6 +34,7 @@ type CreateArticleForm = {
 };
 
 export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageProps) {
+  const tinymce = useRef<Editor>(null);
   const { data, setData, errors, clearErrors, processing, post, transform } =
     useForm<CreateArticleForm>({
       content: "",
@@ -51,7 +52,7 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
   const userCanPublishInNameOfOthers = useCanSee(Permission.ChangeArticleAuthor);
 
   const handleCopyHtml = async () => {
-    await copyHtmlToClipboard(tinymce);
+    await copyHtmlToClipboard(tinymce.current);
   };
 
   transform((data) => {
@@ -147,6 +148,7 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
           <TinyMCEEditor
             validationError={errors.content}
             onEditorChange={(content) => setData({ ...data, content })}
+            editorRef={tinymce}
           />
 
           <div>
