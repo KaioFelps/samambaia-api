@@ -5,7 +5,7 @@ edition.workspace = true
 
 [workspace.package]
 version = "0.5.0"
-edition = "2021"
+edition = "2024"
 
 [workspace]
 members = [".", "migration", "entities", "cli", "tests"]
