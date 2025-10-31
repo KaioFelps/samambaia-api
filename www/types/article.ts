@@ -12,4 +12,5 @@ export type Article = {
   updatedAt?: Date | string;
   slug: string;
   tags: ArticleTag[];
+  script: string;
 };
