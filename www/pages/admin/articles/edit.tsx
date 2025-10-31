@@ -3,9 +3,9 @@ import { useForm } from "@inertiajs/react";
 import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { type FormEvent, useMemo } from "react";
+import { type FormEvent, lazy, Suspense, useMemo, useRef } from "react";
 import { toast } from "react-toastify";
-import tinymce from "tinymce";
+import type { Editor } from "tinymce";
 import MultiSelect, { type SelectOption, type SelectOptions } from "@/components/admin/multiselect";
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
@@ -18,9 +18,11 @@ import { useCanSee } from "@/hooks/useCanSee";
 import type { Article } from "@/types/article";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
-import { TinyMCEEditor } from "@/ui/admin/tiny-mce-editor";
+import { TinyMCEEditorSkeleton } from "@/ui/admin/tiny-mce-editor/skeleton";
 import { equalHtml } from "@/utils/comparators";
 import { copyHtmlToClipboard } from "./shared";
+
+const TinyMCEEditor = lazy(() => import("@/ui/admin/tiny-mce-editor"));
 
 type AdminEditArticlePageProps = PageProps & {
   article: Article | null;
@@ -58,6 +60,7 @@ function setTagsIfChanged(
 }
 
 export default function AdminEditArticlePage({ article, tags, flash }: AdminEditArticlePageProps) {
+  const tinymce = useRef<Editor>(null);
   const { data, setData, errors, clearErrors, processing, put, transform } =
     useForm<EditArticleForm>({
       author_id: article?.authorId,
@@ -86,7 +89,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
   );
 
   const handleCopyHtml = async () => {
-    await copyHtmlToClipboard(tinymce);
+    await copyHtmlToClipboard(tinymce.current);
   };
 
   transform((data) => {
@@ -224,11 +227,14 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             />
           </div>
 
-          <TinyMCEEditor
-            validationError={errors.content}
-            onEditorChange={(content) => setData({ ...data, content })}
-            initialValue={article.content}
-          />
+          <Suspense fallback={<TinyMCEEditorSkeleton />}>
+            <TinyMCEEditor
+              validationError={errors.content}
+              onEditorChange={(content) => setData({ ...data, content })}
+              initialValue={article.content}
+              editorRef={tinymce}
+            />
+          </Suspense>
 
           <div>
             <Form.Input

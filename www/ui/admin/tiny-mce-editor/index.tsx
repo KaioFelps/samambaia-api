@@ -45,23 +45,25 @@ import "tinymce/plugins/wordcount";
 import "tinymce/skins/ui/oxide/content.inline";
 import "tinymce/skins/ui/oxide/content.inline.min.css";
 
-import { Editor, type IAllProps } from "@tinymce/tinymce-react";
+import { Editor as EditorComponent, type IAllProps } from "@tinymce/tinymce-react";
 import clsx from "clsx";
-
+import type { RefObject } from "react";
+import type { Editor } from "tinymce/tinymce";
 import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 
 type TinyMCEEditorProps = Omit<IAllProps, "licenseKey"> & {
   validationError?: string;
+  editorRef: RefObject<Editor | null>;
 };
 
-export function TinyMCEEditor({ validationError, ...props }: TinyMCEEditorProps) {
+export function TinyMCEEditor({ validationError, editorRef, ...props }: TinyMCEEditorProps) {
   return (
     <div className="article-content">
       <span className="block text-black text-sm ml-1 mb-2">Editor HTML</span>
 
       <ValidationErrorSpan validationError={validationError} />
 
-      <Editor
+      <EditorComponent
         {...props}
         plugins={["code", "lists", "image", "anchor", "link", "quickbars", "autoresize", "table"]}
         toolbar={[
@@ -140,8 +142,13 @@ export function TinyMCEEditor({ validationError, ...props }: TinyMCEEditorProps)
           valid_children: "+body[style]",
           extended_valid_elements: "script[src|async|defer|type|charset],style,div[*],center",
           custom_elements: "style,script,center,div",
+          setup(editor) {
+            editorRef.current = editor;
+          },
         }}
       />
     </div>
   );
 }
+
+export default TinyMCEEditor;
