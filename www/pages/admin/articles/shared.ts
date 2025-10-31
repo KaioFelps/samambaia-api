@@ -1,8 +1,8 @@
 import { toast } from "react-toastify";
-import type { TinyMCE } from "tinymce";
+import type { Editor } from "tinymce";
 
-export const copyHtmlToClipboard = async (editor: TinyMCE) => {
-  const content = editor.activeEditor?.getContent();
+export const copyHtmlToClipboard = async (editor: Editor | null) => {
+  const content = editor?.getContent();
   if (!content) {
     toast("Não há conteúdo a ser copiado.", { type: "error" });
     return;
