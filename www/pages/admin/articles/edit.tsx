@@ -19,6 +19,7 @@ import type { Article } from "@/types/article";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import { TinyMCEEditorSkeleton } from "@/ui/admin/tiny-mce-editor/skeleton";
+import { equalHtml } from "@/utils/comparators";
 import { copyHtmlToClipboard } from "./shared";
 
 const TinyMCEEditor = lazy(() => import("@/ui/admin/tiny-mce-editor"));
@@ -60,7 +61,6 @@ function setTagsIfChanged(
 
 export default function AdminEditArticlePage({ article, tags, flash }: AdminEditArticlePageProps) {
   const tinymce = useRef<Editor>(null);
-
   const { data, setData, errors, clearErrors, processing, put, transform } =
     useForm<EditArticleForm>({
       author_id: article?.authorId,

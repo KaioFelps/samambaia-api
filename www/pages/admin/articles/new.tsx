@@ -173,6 +173,24 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
             </p>
           </div>
 
+          <div>
+            <Form.Input
+              asChild
+              label="Script"
+              placeholder={`console.log("Hello world");`}
+              name="script"
+              validationError={errors.script}
+              onInput={(e) => {
+                setData({ ...data, script: e.currentTarget.value });
+              }}>
+              <textarea rows={10} />
+            </Form.Input>
+            <p className="text-sm font-light ml-1 text-gray-800">
+              Esses scripts serão executados assim que a notícia carregar. Preencha somente se
+              necessário.
+            </p>
+          </div>
+
           <div className="mt-3 flex items-center gap-1.5">
             <Button admin variant="default" theme="success" size="lg" disabled={processing}>
               {processing ? (
