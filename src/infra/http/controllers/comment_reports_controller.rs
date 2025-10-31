@@ -1,11 +1,11 @@
 use actix_web::middleware::from_fn;
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use serde_json::json;
 use uuid::Uuid;
 use validator::Validate;
 
-use super::controller::ControllerTrait;
 use super::AppResponse;
+use super::controller::ControllerTrait;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::security::{
     create_comment_report_service_factory,

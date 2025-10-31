@@ -1,10 +1,10 @@
 use actix_web::middleware::from_fn;
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use uuid::Uuid;
 use validator::Validate;
 
-use super::controller::ControllerTrait;
 use super::AppResponse;
+use super::controller::ControllerTrait;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::teams::{
     create_team_role_service_factory,

@@ -1,8 +1,8 @@
-use std::future::{ready, Future, Ready};
+use std::future::{Future, Ready, ready};
 use std::pin::Pin;
 
 use actix_web::body::EitherBody;
-use actix_web::dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform};
+use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready};
 use actix_web::{Error, HttpMessage, ResponseError};
 
 use super::WebRequestUser;

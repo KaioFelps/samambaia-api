@@ -2,7 +2,7 @@ use crate::domain::domain_entities::council_alert::{CouncilAlert, CouncilAlertDr
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::council_alerts_repository::CouncilAlertRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct CreateCouncilAlertParams<'a> {
     pub title: String,
@@ -102,8 +102,10 @@ mod test {
         let db_lock = repository.council_alert_db.lock().unwrap();
 
         assert!(!db_lock.is_empty());
-        assert!(db_lock
-            .first()
-            .is_some_and(|alert| alert.eq(&council_alert)));
+        assert!(
+            db_lock
+                .first()
+                .is_some_and(|alert| alert.eq(&council_alert))
+        );
     }
 }

@@ -1,4 +1,4 @@
-use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
+use crate::core::pagination::{DEFAULT_PER_PAGE, PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::announcement::Announcement;
 use crate::domain::repositories::announcements_repository::{
     AnnouncementQueryType,

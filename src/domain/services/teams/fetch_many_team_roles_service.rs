@@ -1,6 +1,6 @@
 use log::error;
 
-use crate::core::pagination::{PaginationParameters, PaginationResponse, DEFAULT_PER_PAGE};
+use crate::core::pagination::{DEFAULT_PER_PAGE, PaginationParameters, PaginationResponse};
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::{
     FindManyTeamRolesResponse,
@@ -45,11 +45,7 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<Team
 
         let page = if params.page.is_some() {
             let params_page = params.page.unwrap();
-            if params_page == 0 {
-                1
-            } else {
-                params_page
-            }
+            if params_page == 0 { 1 } else { params_page }
         } else {
             1
         };

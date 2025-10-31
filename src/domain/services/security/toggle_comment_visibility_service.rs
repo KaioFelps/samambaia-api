@@ -4,7 +4,7 @@ use crate::domain::domain_entities::comment::Comment;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct ToggleCommentVisibilityParams<'exec> {
     pub user_role: &'exec Role,

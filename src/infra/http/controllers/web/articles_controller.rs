@@ -1,6 +1,6 @@
-use actix_web::web::{self, Data, Path, Query};
 use actix_web::HttpRequest;
-use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
+use actix_web::web::{self, Data, Path, Query};
+use inertia_rust::{Inertia, InertiaFacade, InertiaProp, hashmap};
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::journalism::articles::{
@@ -11,8 +11,8 @@ use crate::domain::services::journalism::articles::fetch_articles_services::Fetc
 use crate::domain::services::journalism::articles::get_expanded_article_service::GetExpandedArticleParams;
 use crate::domain::value_objects::slug::Slug;
 use crate::error::IntoSamambaiaError;
-use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::AppResponse;
+use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::dtos::controllers::articles::ShowArticleQueryDto;
 use crate::infra::http::middlewares::web::WebRequestUser;
 use crate::infra::http::presenters::article::ArticlePresenter;

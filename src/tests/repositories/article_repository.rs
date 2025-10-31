@@ -51,22 +51,22 @@ impl<ATR: ArticleTagRepositoryTrait + Send + Sync> ArticleRepositoryTrait
     for InMemoryArticleRepository<ATR>
 {
     async fn create(&self, mut article: Article) -> Result<Article, Box<dyn Error>> {
-        if let Some(changes) = article.get_tags_changeset() {
-            if changes.has_changes() {
-                self.article_tag_repository
-                    .associate_tags_to_article(
-                        article.id(),
-                        changes.added.iter().map(|tag| tag.id()).collect(),
-                    )
-                    .await?;
+        if let Some(changes) = article.get_tags_changeset()
+            && changes.has_changes()
+        {
+            self.article_tag_repository
+                .associate_tags_to_article(
+                    article.id(),
+                    changes.added.iter().map(|tag| tag.id()).collect(),
+                )
+                .await?;
 
-                self.article_tag_repository
-                    .disassociate_tags_from_article(
-                        article.id(),
-                        changes.removed.iter().map(|tag| tag.id()).collect(),
-                    )
-                    .await?;
-            }
+            self.article_tag_repository
+                .disassociate_tags_from_article(
+                    article.id(),
+                    changes.removed.iter().map(|tag| tag.id()).collect(),
+                )
+                .await?;
         }
 
         article.flush_tags();
@@ -108,8 +108,7 @@ impl<ATR: ArticleTagRepositoryTrait + Send + Sync> ArticleRepositoryTrait
 
         let mut articles: Vec<Article> = Vec::new();
 
-        if query.is_some() {
-            let query = query.unwrap();
+        if let Some(query) = query {
             match query {
                 ArticleQueryType::Title(content) => {
                     for item in self.article_db.lock().unwrap().iter() {
@@ -179,10 +178,10 @@ impl<ATR: ArticleTagRepositoryTrait + Send + Sync> ArticleRepositoryTrait
         let mut parsed_articles = vec![];
 
         for article in articles {
-            if let Some(approved) = show_only_approved_state {
-                if article.approved() != approved {
-                    continue;
-                }
+            if let Some(approved) = show_only_approved_state
+                && article.approved() != approved
+            {
+                continue;
             }
 
             let author = match users.iter().find(|user| user.id().eq(&article.author_id())) {
@@ -231,22 +230,22 @@ impl<ATR: ArticleTagRepositoryTrait + Send + Sync> ArticleRepositoryTrait
             Some(i) => i,
         };
 
-        if let Some(changes) = article.get_tags_changeset() {
-            if changes.has_changes() {
-                self.article_tag_repository
-                    .associate_tags_to_article(
-                        article.id(),
-                        changes.added.iter().map(|tag| tag.id()).collect(),
-                    )
-                    .await?;
+        if let Some(changes) = article.get_tags_changeset()
+            && changes.has_changes()
+        {
+            self.article_tag_repository
+                .associate_tags_to_article(
+                    article.id(),
+                    changes.added.iter().map(|tag| tag.id()).collect(),
+                )
+                .await?;
 
-                self.article_tag_repository
-                    .disassociate_tags_from_article(
-                        article.id(),
-                        changes.removed.iter().map(|tag| tag.id()).collect(),
-                    )
-                    .await?;
-            }
+            self.article_tag_repository
+                .disassociate_tags_from_article(
+                    article.id(),
+                    changes.removed.iter().map(|tag| tag.id()).collect(),
+                )
+                .await?;
         }
 
         article.flush_tags();

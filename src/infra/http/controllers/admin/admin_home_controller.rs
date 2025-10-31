@@ -1,13 +1,13 @@
 use actix_web::web::Data;
-use actix_web::{web, HttpRequest};
-use inertia_rust::{hashmap, Inertia, InertiaFacade, InertiaProp};
+use actix_web::{HttpRequest, web};
+use inertia_rust::{Inertia, InertiaFacade, InertiaProp, hashmap};
 
 use crate::domain::factories::analytics::get_summary_service_factory;
 use crate::domain::factories::council::find_all_council_alerts_service_factory;
 use crate::domain::services::council::find_all_council_alerts_service::GetCouncilAlertsParams;
 use crate::error::IntoSamambaiaError;
-use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::AppResponse;
+use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::middlewares::web::WebAuthUser;
 use crate::infra::http::presenters::council_alert::CouncilAlertPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;

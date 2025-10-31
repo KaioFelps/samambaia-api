@@ -2,7 +2,7 @@ use crate::domain::domain_entities::role::Role;
 use crate::domain::domain_entities::team_role::TeamRole;
 use crate::domain::repositories::team_role_repository::TeamRoleRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct CreateTeamRoleParams {
     pub title: String,

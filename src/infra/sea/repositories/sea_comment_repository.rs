@@ -7,8 +7,8 @@ use uuid::Uuid;
 
 use crate::domain::domain_entities::comment::Comment;
 use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
-use crate::infra::sea::mappers::sea_comment_mapper::SeaCommentMapper;
 use crate::infra::sea::mappers::SeaMapper;
+use crate::infra::sea::mappers::sea_comment_mapper::SeaCommentMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaCommentRepository<'a> {

@@ -1,7 +1,7 @@
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::comment_report_repository::CommentReportRepositoryTrait;
 use crate::error::SamambaiaError;
-use crate::util::{generate_service_internal_error, verify_role_has_permission, RolePermissions};
+use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
 pub struct DeleteCommentReportParams {
     pub staff_role: Role,

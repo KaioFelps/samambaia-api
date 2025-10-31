@@ -23,9 +23,9 @@ use crate::domain::repositories::user_repository::{
     UserQueryType,
     UserRepositoryTrait,
 };
+use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::mappers::sea_role_mapper::SeaRoleMapper;
 use crate::infra::sea::mappers::sea_user_mapper::SeaUserMapper;
-use crate::infra::sea::mappers::SeaMapper;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct SeaUserRepository<'a> {

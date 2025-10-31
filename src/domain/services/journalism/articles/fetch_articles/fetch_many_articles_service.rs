@@ -201,9 +201,11 @@ mod test {
             "Expected queried article to have title \"Article 2 title\"."
         );
 
-        assert!(query_by_title_request.data[0]
-            .get_tags()
-            .contains(&&foo_tag));
+        assert!(
+            query_by_title_request.data[0]
+                .get_tags()
+                .contains(&&foo_tag)
+        );
     }
 
     #[tokio::test]
