@@ -1,5 +1,5 @@
 import { router } from "@inertiajs/react";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { PublicAlert } from "@/components/alert/public-alert";
 import Pagination from "@/components/pagination";
 import type { Auth } from "@/types/auth";
@@ -17,18 +17,14 @@ type Props = {
 };
 
 export function CommentsSection({ auth, comments, articleId, pagination }: Props) {
-  const paginator = useMemo(() => {
-    if (typeof window === "undefined") return null;
-
-    return new PaginatorBuilder()
-      .ignoreOverflowErrors()
-      .setVisibleButtons(7)
-      .setAlign("left")
-      .setLastPage(pagination.totalPages)
-      .setCurrentPage(pagination.currentPage)
-      .setPageQuery("commentsPage")
-      .build();
-  }, [pagination]);
+  const paginator = new PaginatorBuilder()
+    .ignoreOverflowErrors()
+    .setVisibleButtons(7)
+    .setAlign("left")
+    .setLastPage(pagination.totalPages)
+    .setCurrentPage(pagination.currentPage)
+    .setPageQuery("commentsPage")
+    .build();
 
   useEffect(() => {
     const commentsPage = Number(new URL(window.location.href).searchParams.get("commentsPage"));
