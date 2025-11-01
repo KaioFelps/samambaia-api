@@ -38,7 +38,7 @@ export const pageResolver: PageResolver = async (name) => {
 declare module "@inertiajs/core/types" {
   export interface PageProps {
     auth?: Auth;
-    announcements: { data: AnnouncementShort[]; paginationn: Pagination };
+    announcements: { data: AnnouncementShort[]; pagination: Pagination };
     featuredUsers: { data: FeaturedUser[]; pagination: Pagination };
     flash: Record<string, string>;
     verificationMotto: string;
