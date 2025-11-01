@@ -72,7 +72,7 @@ export const SideBar = memo(() => {
                 ">
                   <div
                     aria-hidden
-                    className="pixelated w-[150px] h-[114px] absolute -bottom-[1px]"
+                    className="pixelated w-[150px] h-[114px] absolute -bottom-px"
                     style={{
                       backgroundImage: `url("${iconsSprite}")`,
                       backgroundPosition: "-570px 0",
