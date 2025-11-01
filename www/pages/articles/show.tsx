@@ -1,5 +1,5 @@
 import type { PageProps } from "@inertiajs/core/types";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { Head } from "@/components/head";
 import { Main } from "@/components/main";
 import type { Article } from "@/types/article";
@@ -21,18 +21,29 @@ function resolveScriptAsNull(rawScript?: string | null): string | null {
 }
 
 export default function ShowArticle(props: Props) {
+  const scriptId = useId();
   useEffect(() => {
     const articleScript = resolveScriptAsNull(props.article.script);
     if (!articleScript) return;
 
-    const scriptElement = document.createElement("script");
-    scriptElement.innerHTML = articleScript;
-    document.body.appendChild(scriptElement);
+    // this *is* a hack to get this inserted after the dom has been stabilized
+    // it will be processed after dom has been finished being painted
+    // see: https://stackoverflow.com/questions/779379/why-is-settimeoutfn-0-sometimes-useful
+    const renderTimeout = setTimeout(() => {
+      const scriptElement = document.createElement("script");
+      scriptElement.textContent = articleScript;
+      scriptElement.type = "module";
+      scriptElement.id = scriptId;
+
+      document.body.appendChild(scriptElement);
+    }, 100);
 
     return () => {
-      document.body.removeChild(scriptElement);
+      clearTimeout(renderTimeout);
+      const scriptElement = document.getElementById(scriptId);
+      if (scriptElement) document.body.removeChild(scriptElement);
     };
-  }, [props.article.script]);
+  }, [props.article.script, scriptId]);
 
   return (
     <>
