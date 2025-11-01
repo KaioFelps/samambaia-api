@@ -1,7 +1,12 @@
+import { Slot } from "@radix-ui/react-slot";
 import clsx from "clsx";
 import { useId } from "react";
-import type { InputProps } from "./input";
-import { ValidationErrorSpan } from "./validation-error-alert";
+import type { InputProps } from "../input";
+import { ValidationErrorSpan } from "../validation-error-alert";
+
+type Props = Omit<InputProps, "admin"> & {
+  asChild?: boolean;
+};
 
 export function AdminInput({
   id,
@@ -10,9 +15,11 @@ export function AdminInput({
   className,
   validationError,
   containerClassName,
+  asChild = false,
   ...rest
-}: Omit<InputProps, "admin">) {
+}: Props) {
   const inputId = useId();
+  const Input = asChild ? Slot : "input";
   return (
     <div className={containerClassName}>
       <label htmlFor={id ?? `${label}-${inputId}`} className="block text-sm mb-1 ml-1">
@@ -21,7 +28,7 @@ export function AdminInput({
 
       <ValidationErrorSpan validationError={validationError} />
 
-      <input
+      <Input
         id={id ?? `${label}-${inputId}`}
         name={name}
         className={clsx(

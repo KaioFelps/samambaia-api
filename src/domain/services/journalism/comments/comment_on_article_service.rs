@@ -110,6 +110,7 @@ mod test {
                 Slug::new(article_id, "title".into()),
                 "description".into(),
                 vec![foo_tag.clone()],
+                None,
             ));
 
         let sut = CommentOnArticleService::new(mocked_comment_repo, mocked_article_repo);

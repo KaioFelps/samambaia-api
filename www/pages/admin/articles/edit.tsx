@@ -3,13 +3,13 @@ import { useForm } from "@inertiajs/react";
 import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { type FormEvent, useMemo } from "react";
+import { type FormEvent, lazy, Suspense, useMemo, useRef } from "react";
 import { toast } from "react-toastify";
-import tinymce from "tinymce";
+import type { Editor } from "tinymce";
 import MultiSelect, { type SelectOption, type SelectOptions } from "@/components/admin/multiselect";
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
-import Form from "@/components/form";
+import Form from "@/components/form/admin-form";
 import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 import { Head } from "@/components/head";
 import Header from "@/components/header";
@@ -18,8 +18,11 @@ import { useCanSee } from "@/hooks/useCanSee";
 import type { Article } from "@/types/article";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
-import { TinyMCEEditor } from "@/ui/admin/tiny-mce-editor";
+import { TinyMCEEditorSkeleton } from "@/ui/admin/tiny-mce-editor/skeleton";
+import { equalHtml } from "@/utils/comparators";
 import { copyHtmlToClipboard } from "./shared";
+
+const TinyMCEEditor = lazy(() => import("@/ui/admin/tiny-mce-editor"));
 
 type AdminEditArticlePageProps = PageProps & {
   article: Article | null;
@@ -33,7 +36,15 @@ type EditArticleForm = {
   description?: string;
   tags?: number[];
   author_id?: string;
+  script?: string | null;
 };
+
+function haveTagsChanged(newTagsIDs: number[], currentTagsIDs: number[]): boolean {
+  return (
+    newTagsIDs.length !== currentTagsIDs.length ||
+    !newTagsIDs.every((value) => currentTagsIDs.includes(value))
+  );
+}
 
 function setTagsIfChanged(
   currentTags: ArticleTag[],
@@ -41,26 +52,25 @@ function setTagsIfChanged(
   data: EditArticleForm,
   setData: (_data: EditArticleForm) => void,
 ) {
-  const currentTagsSet = new Set(currentTags.map((tag) => tag.id));
-  const newTagsSet = new Set(newTags.map((tag) => Number(tag.value)));
-
-  const hasChanges =
-    currentTagsSet.size !== newTagsSet.size ||
-    !newTagsSet.values().every((value) => currentTagsSet.has(value));
-
-  setData({
-    ...data,
-    tags: hasChanges
-      ? newTagsSet
-          .values()
-          .map((tagId) => Number(tagId))
-          .toArray()
-      : undefined,
-  });
+  const currentTagsIDs = currentTags.map((tag) => tag.id);
+  // Remove duplicated IDs
+  const newTagsIDs = new Set(newTags.map((tag) => Number(tag.value))).values().toArray();
+  const hasChanged = haveTagsChanged(newTagsIDs, currentTagsIDs);
+  setData({ ...data, tags: hasChanged ? newTagsIDs : undefined });
 }
 
 export default function AdminEditArticlePage({ article, tags, flash }: AdminEditArticlePageProps) {
-  const { data, setData, errors, clearErrors, processing, put } = useForm<EditArticleForm>({});
+  const tinymce = useRef<Editor>(null);
+  const { data, setData, errors, clearErrors, processing, put, transform } =
+    useForm<EditArticleForm>({
+      author_id: article?.authorId,
+      content: article?.content,
+      cover_url: article?.coverUrl,
+      description: article?.description,
+      script: article?.script,
+      tags: article?.tags.map((tag) => tag.id),
+      title: article?.title,
+    });
 
   const userCanPublishInNameOfOthers = useCanSee(Permission.ChangeArticleAuthor);
 
@@ -79,8 +89,24 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
   );
 
   const handleCopyHtml = async () => {
-    await copyHtmlToClipboard(tinymce);
+    await copyHtmlToClipboard(tinymce.current);
   };
+
+  transform((data) => {
+    if (!article) return data;
+    if (data.title === article.title) delete data.title;
+    if (data.description === article.description) delete data.description;
+    if (data.cover_url === article.coverUrl) delete data.cover_url;
+    if (data.author_id === article.authorId) delete data.author_id;
+    if (equalHtml(data.content, article.content)) delete data.content;
+    if (data.script === article.script) delete data.script;
+    else if (!data.script?.trim()) data.script = null;
+
+    const articleTagsIDs = article.tags.map((tag) => tag.id);
+    if (data.tags && !haveTagsChanged(data.tags, articleTagsIDs)) delete data.tags;
+
+    return data;
+  });
 
   function handleEditArticle(e: FormEvent) {
     e.preventDefault();
@@ -143,73 +169,44 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
 
         <Form.Root onSubmit={handleEditArticle} className="flex flex-col gap-3">
           <Form.Input
-            admin
             label="Título"
             placeholder="Abracadabra"
             name="title"
             required
             defaultValue={article.title}
             validationError={errors.title}
-            onInput={(e) => {
-              const value = e.currentTarget.value;
-              setData({
-                ...data,
-                title: value === article.title ? undefined : value,
-              });
-            }}
+            onInput={(e) => setData({ ...data, title: e.currentTarget.value })}
           />
 
           <Form.Input
-            admin
             label="Descrição"
             name="description"
             placeholder="Amor, oh-na-na. Abra. Cadabra. Morta, oh-ga-ga."
             required
             defaultValue={article.description}
             validationError={errors.description}
-            onInput={(e) => {
-              const value = e.currentTarget.value;
-              setData({
-                ...data,
-                description: value === article.description ? undefined : value,
-              });
-            }}
+            onInput={(e) => setData({ ...data, description: e.currentTarget.value })}
           />
 
           <Form.Input
-            admin
             label="Topstory"
             placeholder="https://i.imgur.com/..."
             name="cover_url"
             required
             defaultValue={article.coverUrl}
             validationError={errors.cover_url}
-            onInput={(e) => {
-              const value = e.currentTarget.value;
-
-              setData({
-                ...data,
-                cover_url: value === article.coverUrl ? undefined : value,
-              });
-            }}
+            onInput={(e) => setData({ ...data, cover_url: e.currentTarget.value })}
           />
 
           {userCanPublishInNameOfOthers && (
             <div>
               <Form.Input
-                admin
                 label="ID do autor"
                 placeholder="37824kef-vduih27i2-4289328v-489uf"
                 name="author_id"
                 defaultValue={article.authorId}
                 validationError={errors.author_id}
-                onInput={(e) => {
-                  const value = e.currentTarget.value;
-                  setData({
-                    ...data,
-                    author_id: value === article.authorId ? undefined : value,
-                  });
-                }}
+                onInput={(e) => setData({ ...data, author_id: e.currentTarget.value })}
               />
               <p className="text-sm font-light ml-1 text-gray-800">
                 Ao preencher esse campo, a notícia será publicada no usuário com o ID especificado.
@@ -230,16 +227,31 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             />
           </div>
 
-          <TinyMCEEditor
-            validationError={errors.content}
-            onEditorChange={(_content) => {
-              setData({
-                ...data,
-                content: _content === article.content ? undefined : _content,
-              });
-            }}
-            initialValue={article.content}
-          />
+          <Suspense fallback={<TinyMCEEditorSkeleton />}>
+            <TinyMCEEditor
+              validationError={errors.content}
+              onEditorChange={(content) => setData({ ...data, content })}
+              initialValue={article.content}
+              editorRef={tinymce}
+            />
+          </Suspense>
+
+          <div>
+            <Form.Input
+              asChild
+              label="Script"
+              placeholder={`console.log("Hello world");`}
+              name="script"
+              validationError={errors.script}
+              defaultValue={article.script}
+              onInput={(e) => setData({ ...data, script: e.currentTarget.value })}>
+              <textarea rows={10} />
+            </Form.Input>
+            <p className="text-sm font-light ml-1 text-gray-800">
+              Esses scripts serão executados assim que a notícia carregar. Preencha somente se
+              necessário.
+            </p>
+          </div>
 
           <div className="mt-3 flex items-center gap-1.5">
             <Button admin variant="default" theme="success" size="lg" disabled={processing}>

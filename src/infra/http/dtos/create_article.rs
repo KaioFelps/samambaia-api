@@ -16,4 +16,6 @@ pub struct CreateArticleDto {
     pub title: String,
 
     pub tags: Vec<i32>,
+
+    pub script: Option<String>,
 }

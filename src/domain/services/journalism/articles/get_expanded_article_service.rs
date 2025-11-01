@@ -47,8 +47,11 @@ where
     comment_user_article_repository: CUAR,
 }
 
-impl<UR: UserRepositoryTrait, AR: ArticleRepositoryTrait, CUAR: CommentUserArticleRepositoryTrait>
-    GetExpandedArticleService<UR, AR, CUAR>
+impl<UR, AR, CUAR> GetExpandedArticleService<UR, AR, CUAR>
+where
+    UR: UserRepositoryTrait,
+    AR: ArticleRepositoryTrait,
+    CUAR: CommentUserArticleRepositoryTrait,
 {
     pub fn new(
         user_repository: UR,
@@ -206,6 +209,7 @@ mod test {
             "url_da_cover.com".into(),
             "Mocked description".into(),
             vec![tag.clone()],
+            None,
         );
 
         let mocked_article_id = mocked_article.id();

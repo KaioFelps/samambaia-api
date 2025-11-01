@@ -116,6 +116,7 @@ impl ArticlesController {
             title,
             description,
             tags,
+            script,
         } = body;
 
         let article = service
@@ -127,6 +128,7 @@ impl ArticlesController {
                 description,
                 staff: &user,
                 tags,
+                script,
             })
             .await?;
 
@@ -233,6 +235,7 @@ impl ArticlesController {
             author_id,
             description,
             tags,
+            script,
         } = body
             .validate()
             .map(|_| body.into_inner())
@@ -263,6 +266,7 @@ impl ArticlesController {
                 author_id,
                 description,
                 tags,
+                script,
             })
             .await?;
 

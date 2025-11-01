@@ -1,10 +1,11 @@
 import { router } from "@inertiajs/react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { PublicAlert } from "@/components/alert/public-alert";
 import Pagination from "@/components/pagination";
 import type { Auth } from "@/types/auth";
 import type { Comment } from "@/types/comment";
 import type { Pagination as TPagination } from "@/types/pagination";
+import type { Paginator } from "@/utils/paginator";
 import { PaginatorBuilder } from "@/utils/paginator/builder";
 import { CommentBox } from "./comment-box";
 import { CreateCommentForm } from "./comment-form";
@@ -17,26 +18,33 @@ type Props = {
 };
 
 export function CommentsSection({ auth, comments, articleId, pagination }: Props) {
-  const paginator = useMemo(() => {
-    if (typeof window === "undefined") return null;
+  const [paginator, setPaginator] = useState<Paginator | null>(null);
 
-    return new PaginatorBuilder()
-      .ignoreOverflowErrors()
-      .setVisibleButtons(7)
-      .setAlign("left")
-      .setLastPage(pagination.totalPages)
-      .setCurrentPage(pagination.currentPage)
-      .setPageQuery("commentsPage")
-      .build();
-  }, [pagination]);
+  const updatePaginator = useEffectEvent(() => {
+    setPaginator(
+      new PaginatorBuilder()
+        .ignoreOverflowErrors()
+        .setVisibleButtons(7)
+        .setAlign("left")
+        .setLastPage(pagination.totalPages)
+        .setCurrentPage(pagination.currentPage)
+        .setPageQuery("commentsPage")
+        .build(),
+    );
+  });
+
+  const rewindPaginationIfOverflowed = useEffectEvent((pagination: TPagination) => {
+    const commentsPage = Number(new URL(window.location.href).searchParams.get("commentsPage"));
+    if (commentsPage <= pagination.totalPages || !paginator) return;
+    router.visit(paginator.getPaginationLinkForPage(pagination.totalPages).link, {
+      preserveScroll: true,
+    });
+  });
 
   useEffect(() => {
-    const commentsPage = Number(new URL(window.location.href).searchParams.get("commentsPage"));
-    if (commentsPage > pagination.totalPages && paginator)
-      router.visit(paginator.getPaginationLinkForPage(pagination.totalPages).link, {
-        preserveScroll: true,
-      });
-  }, [pagination, paginator]);
+    updatePaginator();
+    rewindPaginationIfOverflowed(pagination);
+  }, [pagination]);
 
   if (!paginator) return null;
 
@@ -81,3 +89,5 @@ export function CommentsSection({ auth, comments, articleId, pagination }: Props
     </Pagination.Root>
   );
 }
+
+export default CommentsSection;

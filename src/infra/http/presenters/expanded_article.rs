@@ -28,10 +28,9 @@ pub struct MappedExpandedArticle {
     slug: String,
 
     author: MappedUser,
-
     comments: MappedExpandedArticleComments,
-
     tags: Vec<MappedArticleTag>,
+    script: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -79,6 +78,8 @@ impl ExpandedArticlePresenter {
                 .into_iter()
                 .map(ArticleTagPresenter::to_http)
                 .collect::<Vec<_>>(),
+
+            script: article.get_script().map(ToString::to_string),
         }
     }
 }

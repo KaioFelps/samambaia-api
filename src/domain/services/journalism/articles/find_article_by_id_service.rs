@@ -76,6 +76,7 @@ mod test {
             "imgur.com".into(),
             "Description".into(),
             vec![],
+            None,
         )
     });
 

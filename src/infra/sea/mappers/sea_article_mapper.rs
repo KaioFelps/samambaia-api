@@ -20,10 +20,13 @@ impl SeaArticleMapper {
             updated_at: entity.updated_at(),
             slug: entity.slug().to_string(),
             description: entity.description().to_string(),
+            script: entity.get_script().map(ToString::to_string),
         }
     }
 
     pub fn entity_into_active_model(entity: Article) -> ArticleActiveModel {
+        let script_as_value = entity.get_script().map(ToString::to_string);
+
         ArticleActiveModel {
             id: entity.id().into_active_value(),
             author_id: entity.author_id().into_active_value(),
@@ -35,6 +38,11 @@ impl SeaArticleMapper {
             updated_at: entity.updated_at().into_active_value(),
             slug: entity.slug().to_string().into_active_value(),
             description: entity.description().to_owned().into_active_value(),
+            script: if entity.has_been_touched() {
+                Some(script_as_value).into_active_value()
+            } else {
+                script_as_value.into_active_value()
+            },
         }
     }
 
@@ -54,6 +62,7 @@ impl SeaArticleMapper {
             Slug::new_from_existing(active_model.slug.unwrap()),
             active_model.description.unwrap(),
             tags,
+            active_model.script.unwrap(),
         )
     }
 
@@ -70,6 +79,7 @@ impl SeaArticleMapper {
             Slug::new_from_existing(model.slug),
             model.description,
             tags,
+            model.script,
         )
     }
 }

@@ -57,6 +57,7 @@ mod test {
                     "".into(),
                     "foo description".into(),
                     vec![tag.clone()],
+                    None,
                 ),
                 Article::new(
                     Uuid::new_v4(),
@@ -65,6 +66,7 @@ mod test {
                     "".into(),
                     "bar description".into(),
                     vec![tag.clone()],
+                    None,
                 ),
             ];
 

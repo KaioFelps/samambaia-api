@@ -16,4 +16,5 @@ export type ExpandedArticle = {
   author: User;
   comments: Paginated<Comment[]>;
   tags: Array<ArticleTag>;
+  script?: string;
 };
