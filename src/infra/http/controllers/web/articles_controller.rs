@@ -4,7 +4,7 @@ use inertia_rust::{Inertia, InertiaFacade, InertiaProp, hashmap};
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::journalism::articles::{
-    fetch_many_articles_service_factory,
+    fetch_articles_previews_service_factory,
     get_expanded_article_service_factory,
 };
 use crate::domain::services::journalism::articles::fetch_articles_services::FetchArticlesParams;
@@ -15,7 +15,7 @@ use crate::infra::http::controllers::AppResponse;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::dtos::controllers::articles::ShowArticleQueryDto;
 use crate::infra::http::middlewares::web::WebRequestUser;
-use crate::infra::http::presenters::article::ArticlePresenter;
+use crate::infra::http::presenters::article_preview::ArticlePreviewPresenter;
 use crate::infra::http::presenters::expanded_article::ExpandedArticlePresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
@@ -46,7 +46,7 @@ impl ArticlesController {
         };
 
         let get_expanded_article_service = get_expanded_article_service_factory::exec(&db_conn);
-        let fetch_articles_service = fetch_many_articles_service_factory::exec(&db_conn);
+        let fetch_articles_service = fetch_articles_previews_service_factory::exec(&db_conn);
 
         const ARTICLES_AMOUNT_TO_DISPLAY_IN_FEED: u8 = 16;
         let user_id = auth_user.as_ref().map(|auth| auth.user.id());
@@ -74,7 +74,7 @@ impl ArticlesController {
             (expanded_article.comments.pagination, DEFAULT_PER_PAGE),
         );
 
-        let last_16_articles = ArticlePresenter::to_json_paginated_wrapper(
+        let last_16_articles = ArticlePreviewPresenter::to_json_paginated_wrapper(
             last_16_articles.data,
             last_16_articles.pagination,
             ARTICLES_AMOUNT_TO_DISPLAY_IN_FEED,
