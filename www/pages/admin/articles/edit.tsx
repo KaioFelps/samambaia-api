@@ -19,7 +19,7 @@ import type { Article } from "@/types/article";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import { TinyMCEEditorSkeleton } from "@/ui/admin/tiny-mce-editor/skeleton";
-import { equalHtml } from "@/utils/comparators";
+import { contentsAreEquivalent, decodeQuotes, encodeQuotes } from "@/utils/quotes";
 import { copyHtmlToClipboard } from "./shared";
 
 const TinyMCEEditor = lazy(() => import("@/ui/admin/tiny-mce-editor"));
@@ -64,10 +64,10 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
   const { data, setData, errors, clearErrors, processing, put, transform } =
     useForm<EditArticleForm>({
       author_id: article?.authorId,
-      content: article?.content,
+      content: article ? decodeQuotes(article.content) : "",
       cover_url: article?.coverUrl,
       description: article?.description,
-      script: article?.script,
+      script: article?.script ? decodeQuotes(article.script) : "",
       tags: article?.tags.map((tag) => tag.id),
       title: article?.title,
     });
@@ -92,15 +92,21 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
     await copyHtmlToClipboard(tinymce.current);
   };
 
-  transform((data) => {
+  transform((_data) => {
+    const data = { ..._data };
     if (!article) return data;
+
     if (data.title === article.title) delete data.title;
     if (data.description === article.description) delete data.description;
     if (data.cover_url === article.coverUrl) delete data.cover_url;
     if (data.author_id === article.authorId) delete data.author_id;
-    if (equalHtml(data.content, article.content)) delete data.content;
-    if (data.script === article.script) delete data.script;
+
+    if (contentsAreEquivalent(data.content, article.content)) delete data.content;
+    else if (data.content) data.content = encodeQuotes(data.content);
+
+    if (data.script && contentsAreEquivalent(data.script, article.script)) delete data.script;
     else if (!data.script?.trim()) data.script = null;
+    else data.script = encodeQuotes(data.script);
 
     const articleTagsIDs = article.tags.map((tag) => tag.id);
     if (data.tags && !haveTagsChanged(data.tags, articleTagsIDs)) delete data.tags;
@@ -231,7 +237,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             <TinyMCEEditor
               validationError={errors.content}
               onEditorChange={(content) => setData({ ...data, content })}
-              initialValue={article.content}
+              initialValue={data.content}
               editorRef={tinymce}
             />
           </Suspense>
@@ -243,7 +249,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
               placeholder={`console.log("Hello world");`}
               name="script"
               validationError={errors.script}
-              defaultValue={article.script}
+              defaultValue={data.script ?? ""}
               onInput={(e) => setData({ ...data, script: e.currentTarget.value })}>
               <textarea rows={10} />
             </Form.Input>
