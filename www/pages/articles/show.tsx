@@ -2,7 +2,7 @@ import type { PageProps } from "@inertiajs/core/types";
 import { useEffect, useId } from "react";
 import { Head } from "@/components/head";
 import { Main } from "@/components/main";
-import type { Article } from "@/types/article";
+import type { ArticlePreview } from "@/types/article-preview";
 import type { ExpandedArticle } from "@/types/expanded-article";
 import type { Paginated } from "@/types/pagination";
 import { ArticleContainer } from "@/ui/articles/article-container";
@@ -12,7 +12,7 @@ import { CommentsSection } from "@/ui/articles/comments-section";
 
 type Props = PageProps & {
   article: ExpandedArticle;
-  feed: Paginated<Article[]>;
+  feed: Paginated<ArticlePreview[]>;
 };
 
 function resolveScriptAsNull(rawScript?: string | null): string | null {
@@ -21,6 +21,11 @@ function resolveScriptAsNull(rawScript?: string | null): string | null {
 }
 
 export default function ShowArticle(props: Props) {
+  const articleContent = useMemo(
+    () => decodeQuotes(props.article.content),
+    [props.article.content],
+  );
+
   const scriptId = useId();
   useEffect(() => {
     const articleScript = resolveScriptAsNull(props.article.script);
@@ -54,7 +59,11 @@ export default function ShowArticle(props: Props) {
       />
 
       <Main className="flex-1 max-w-main-center-content basis-main-center-content">
-        <ArticleContainer {...props.article} />
+        <ArticleContainer
+          title={props.article.title}
+          tags={props.article.tags}
+          content={articleContent}
+        />
 
         <ArticleFooter
           authorNickname={props.article.author.nickname}
