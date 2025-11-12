@@ -3,13 +3,13 @@ import { memo } from "react";
 import { PublicAlert } from "@/components/alert/public-alert";
 import PublicButton from "@/components/button/public-button";
 import { Sprite } from "@/components/sprite";
-import type { Article } from "@/types/article";
+import type { ArticlePreview } from "@/types/article-preview";
 import type { Paginated } from "@/types/pagination";
 import { ArticleFeedLink } from "./article-feed-link";
 
-type Props = Paginated<Article[]>;
+type Props = Paginated<ArticlePreview[]>;
 
-export const ArticleFeed = memo(({ data, pagination }: Props) => {
+export const ArticleFeed = memo(({ data }: Props) => {
   return (
     <aside className="card flex-1 h-fit sticky top-2">
       <header className="section-header gray mb-3">
