@@ -1,5 +1,5 @@
 import type { PageProps } from "@inertiajs/core/types";
-import { useEffect, useId } from "react";
+import { useMemo } from "react";
 import { Head } from "@/components/head";
 import { Main } from "@/components/main";
 import type { ArticlePreview } from "@/types/article-preview";
@@ -8,17 +8,14 @@ import type { Paginated } from "@/types/pagination";
 import { ArticleContainer } from "@/ui/articles/article-container";
 import { ArticleFeed } from "@/ui/articles/article-feed";
 import { ArticleFooter } from "@/ui/articles/article-footer";
+import { ArticleScript } from "@/ui/articles/article-script";
 import { CommentsSection } from "@/ui/articles/comments-section";
+import { decodeQuotes } from "@/utils/quotes";
 
 type Props = PageProps & {
   article: ExpandedArticle;
   feed: Paginated<ArticlePreview[]>;
 };
-
-function resolveScriptAsNull(rawScript?: string | null): string | null {
-  const script = rawScript?.trim() ?? "";
-  return script === "" ? null : script;
-}
 
 export default function ShowArticle(props: Props) {
   const articleContent = useMemo(
@@ -26,29 +23,10 @@ export default function ShowArticle(props: Props) {
     [props.article.content],
   );
 
-  const scriptId = useId();
-  useEffect(() => {
-    const articleScript = resolveScriptAsNull(props.article.script);
-    if (!articleScript) return;
-
-    // this *is* a hack to get this inserted after the dom has been stabilized
-    // it will be processed after dom has been finished being painted
-    // see: https://stackoverflow.com/questions/779379/why-is-settimeoutfn-0-sometimes-useful
-    const renderTimeout = setTimeout(() => {
-      const scriptElement = document.createElement("script");
-      scriptElement.textContent = articleScript;
-      scriptElement.type = "module";
-      scriptElement.id = scriptId;
-
-      document.body.appendChild(scriptElement);
-    }, 100);
-
-    return () => {
-      clearTimeout(renderTimeout);
-      const scriptElement = document.getElementById(scriptId);
-      if (scriptElement) document.body.removeChild(scriptElement);
-    };
-  }, [props.article.script, scriptId]);
+  const script = useMemo(() => {
+    const script = props.article.script?.trim() ?? "";
+    return script === "" ? null : decodeQuotes(script);
+  }, [props.article.script]);
 
   return (
     <>
@@ -79,6 +57,8 @@ export default function ShowArticle(props: Props) {
       </Main>
 
       <ArticleFeed {...props.feed} />
+
+      {script && <ArticleScript script={script} />}
     </>
   );
 }
