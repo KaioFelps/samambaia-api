@@ -24,6 +24,8 @@ pub struct MappedArticle {
     slug: String,
     tags: Vec<MappedArticleTag>,
     script: Option<String>,
+    #[serde(rename = "cleanupScript")]
+    cleanup_script: Option<String>,
 }
 
 pub struct ArticlePresenter;
@@ -48,6 +50,7 @@ impl PresenterTrait<Article, MappedArticle> for ArticlePresenter {
                 .map(ArticleTagPresenter::to_http)
                 .collect(),
             script: article.get_script().map(ToString::to_string),
+            cleanup_script: article.get_cleanup_script().map(ToString::to_string),
         }
     }
 }

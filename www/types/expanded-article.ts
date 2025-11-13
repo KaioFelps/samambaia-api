@@ -17,4 +17,5 @@ export type ExpandedArticle = {
   comments: Paginated<Comment[]>;
   tags: Array<ArticleTag>;
   script?: string;
+  cleanupScript?: string;
 };

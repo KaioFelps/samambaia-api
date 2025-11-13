@@ -13,4 +13,5 @@ export type Article = {
   slug: string;
   tags: ArticleTag[];
   script?: string;
+  cleanupScript?: string;
 };

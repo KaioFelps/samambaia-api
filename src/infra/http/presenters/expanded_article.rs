@@ -31,6 +31,8 @@ pub struct MappedExpandedArticle {
     comments: MappedExpandedArticleComments,
     tags: Vec<MappedArticleTag>,
     script: Option<String>,
+    #[serde(rename = "cleanupScript")]
+    cleanup_script: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -80,6 +82,7 @@ impl ExpandedArticlePresenter {
                 .collect::<Vec<_>>(),
 
             script: article.get_script().map(ToString::to_string),
+            cleanup_script: article.get_cleanup_script().map(ToString::to_string),
         }
     }
 }

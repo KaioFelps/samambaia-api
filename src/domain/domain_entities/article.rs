@@ -23,10 +23,12 @@ pub struct Article {
     touched: bool,
     tags: ChangeSet<ArticleTag>,
     script: Option<String>,
+    cleanup_script: Option<String>,
 }
 
 impl Article {
     // CONSTRUCTORS
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         author_id: Uuid,
         title: String,
@@ -35,6 +37,7 @@ impl Article {
         description: String,
         tags: Vec<ArticleTag>,
         script: Option<String>,
+        cleanup_script: Option<String>,
     ) -> Self {
         let id = Uuid::new_v4();
 
@@ -58,6 +61,7 @@ impl Article {
             touched: false,
             tags: ChangeSet::Filled(tags_changeset),
             script,
+            cleanup_script,
         }
     }
 
@@ -75,6 +79,7 @@ impl Article {
         description: String,
         tags: Vec<ArticleTag>,
         script: Option<String>,
+        cleanup_script: Option<String>,
     ) -> Self {
         Article {
             id,
@@ -90,6 +95,7 @@ impl Article {
             touched: false,
             tags: ChangeSet::new(tags),
             script,
+            cleanup_script,
         }
     }
 
@@ -167,6 +173,10 @@ impl Article {
         self.script.as_deref()
     }
 
+    pub fn get_cleanup_script(&self) -> Option<&str> {
+        self.cleanup_script.as_deref()
+    }
+
     pub fn has_been_touched(&self) -> bool {
         self.touched
     }
@@ -215,6 +225,11 @@ impl Article {
 
     pub fn set_script(&mut self, script: Option<String>) {
         self.script = script;
+        self.touch();
+    }
+
+    pub fn set_cleanup_script(&mut self, script: Option<String>) {
+        self.cleanup_script = script;
         self.touch();
     }
 
