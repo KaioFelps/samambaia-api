@@ -9,17 +9,28 @@ use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTra
 use crate::error::SamambaiaError;
 use crate::util::{RolePermissions, generate_service_internal_error, verify_role_has_permission};
 
+#[cfg_attr(test, derive(derive_builder::Builder))]
 pub struct UpdateArticleParams<'a> {
     pub user: &'a User,
     pub article_id: Uuid,
+    #[cfg_attr(test, builder(default))]
     pub cover_url: Option<String>,
+    #[cfg_attr(test, builder(default))]
     pub title: Option<String>,
+    #[cfg_attr(test, builder(default))]
     pub content: Option<String>,
+    #[cfg_attr(test, builder(default))]
     pub description: Option<String>,
+    #[cfg_attr(test, builder(default))]
     pub approved: Option<bool>,
+    #[cfg_attr(test, builder(default))]
     pub author_id: Option<Uuid>,
+    #[cfg_attr(test, builder(default))]
     pub tags: Option<Vec<i32>>,
+    #[cfg_attr(test, builder(default))]
     pub script: Option<Option<String>>,
+    #[cfg_attr(test, builder(default))]
+    pub cleanup_script: Option<Option<String>>,
 }
 pub struct UpdateArticleService<
     ArticleRepository: ArticleRepositoryTrait,
@@ -151,6 +162,10 @@ where
             article.set_script(script);
         }
 
+        if let Some(script) = params.cleanup_script {
+            article.set_cleanup_script(script);
+        }
+
         // ensures that uusers wont modify an article after it has been approved making public a content that actually
         // wouldn't be approved
 
@@ -177,7 +192,10 @@ mod test {
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
-    use crate::domain::services::journalism::articles::update_article_service::UpdateArticleService;
+    use crate::domain::services::journalism::articles::update_article_service::{
+        UpdateArticleParamsBuilder,
+        UpdateArticleService,
+    };
     use crate::tests::repositories::article_repository::InMemoryArticleRepository;
     use crate::tests::repositories::article_tag_repository::{
         ArticleTagArticle,
@@ -215,6 +233,7 @@ mod test {
             "Initial description".into(),
             vec![tag.clone()],
             None,
+            None,
         );
 
         let article_tag = ArticleTag::new_from_existing(2, "Bar".to_string());
@@ -249,6 +268,7 @@ mod test {
                 author_id: None,
                 tags: Some(Vec::new()),
                 script: None,
+                cleanup_script: None,
             })
             .await;
 
@@ -270,6 +290,7 @@ mod test {
             "url".into(),
             "description".into(),
             Vec::new(),
+            None,
             None,
         );
         article.set_approved(true);
@@ -293,6 +314,7 @@ mod test {
                 tags: None,
                 user: &writer,
                 script: None,
+                cleanup_script: None,
             })
             .await;
 
@@ -314,6 +336,7 @@ mod test {
             "url".into(),
             "description".into(),
             Vec::new(),
+            None,
             None,
         );
         article.set_approved(true);
@@ -351,7 +374,8 @@ mod test {
                 cover_url: None,
                 author_id: None,
                 tags: Some(vec![tag.id()]),
-                script: Some(Some("console.log('hello world');".to_string())),
+                script: None,
+                cleanup_script: None,
             })
             .await;
 
@@ -361,14 +385,8 @@ mod test {
         assert_eq!("updated title", result.title());
         assert_eq!("updated description", result.description());
         assert_eq!("updated content", result.content());
-        assert!(
-            result
-                .get_script()
-                .is_some_and(|script| script.eq("console.log('hello world');"))
-        );
-
-        assert!(!result.get_tags().is_empty());
         assert_eq!("Bar", result.get_tags().first().unwrap().value());
+        assert!(!result.get_tags().is_empty());
     }
 
     #[tokio::test]
@@ -398,7 +416,8 @@ mod test {
             "url".into(),
             "description".into(),
             vec![tag_1.clone(), tag_2.clone()],
-            Some("invalid_js_code!".into()),
+            None,
+            None,
         );
 
         article.set_approved(true);
@@ -422,7 +441,8 @@ mod test {
                 cover_url: None,
                 author_id: None,
                 tags: Some(vec![tag_3.id()]),
-                script: Some(None),
+                script: None,
+                cleanup_script: None,
             })
             .await;
 
@@ -436,5 +456,87 @@ mod test {
 
         assert!(!result.get_tags().is_empty());
         assert!([tag_3].iter().all(|tag| result.get_tags().contains(&tag)));
+    }
+
+    #[tokio::test]
+    async fn only_principal_or_higher_should_be_allowed_to_edit_scripts() {
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
+
+        let admin = User::new("John".into(), "123".into(), Some(Role::Admin));
+        let manager = User::new("CardiB".into(), "123".into(), Some(Role::Principal));
+
+        let mut article = Article::new(
+            Uuid::new_v4(),
+            "Title".into(),
+            "<h1>Content</h1>".into(),
+            "url".into(),
+            "description".into(),
+            vec![],
+            Some("invalid_js_code!".into()),
+            None,
+        );
+
+        article.set_approved(true);
+
+        article_repository
+            .article_db
+            .lock()
+            .unwrap()
+            .push(article.clone());
+
+        let sut = UpdateArticleService::new(article_repository.clone(), article_tag_repository);
+
+        let result = sut
+            .exec(
+                UpdateArticleParamsBuilder::default()
+                    .user(&admin)
+                    .article_id(article.id())
+                    .script(Some(None))
+                    .build()
+                    .unwrap(),
+            )
+            .await;
+
+        assert!(result.is_err());
+        assert!(
+            article_repository.article_db.lock().unwrap()[0]
+                .get_script()
+                .is_some()
+        );
+
+        let result = sut
+            .exec(
+                UpdateArticleParamsBuilder::default()
+                    .user(&admin)
+                    .article_id(article.id())
+                    .cleanup_script(Some(Some("foo".into())))
+                    .build()
+                    .unwrap(),
+            )
+            .await;
+
+        assert!(result.is_err());
+        assert!(
+            article_repository.article_db.lock().unwrap()[0]
+                .get_cleanup_script()
+                .is_none()
+        );
+        let result = sut
+            .exec(
+                UpdateArticleParamsBuilder::default()
+                    .user(&manager)
+                    .article_id(article.id())
+                    .script(Some(None))
+                    .cleanup_script(Some(Some("foo".into())))
+                    .build()
+                    .unwrap(),
+            )
+            .await;
+
+        assert!(result.is_ok());
+        let repo_article = &article_repository.article_db.lock().unwrap()[0];
+        assert!(repo_article.get_script().is_none());
+        assert!(repo_article.get_cleanup_script().is_some());
     }
 }

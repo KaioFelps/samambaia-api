@@ -16,6 +16,7 @@ pub struct CreateArticleParams<'a> {
     pub description: String,
     pub tags: Vec<i32>,
     pub script: Option<String>,
+    pub cleanup_script: Option<String>,
 }
 pub struct CreateArticleService<
     ArticleRepository: ArticleRepositoryTrait,
@@ -73,6 +74,7 @@ where
             params.description,
             tags,
             params.script,
+            params.cleanup_script,
         );
 
         self.article_repository
@@ -97,7 +99,7 @@ mod test {
     use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
 
     #[tokio::test]
-    async fn test() {
+    async fn should_create_an_article_if_valid() {
         let article_tag_repository = InMemoryArticleTagRepository::default();
         let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
 
@@ -125,9 +127,75 @@ mod test {
                 description: "A humble description...".into(),
                 tags: vec![tag.id()],
                 script: None,
+                cleanup_script: None,
             })
             .await;
 
         assert_eq!("Article content right here!", result.unwrap().content());
+    }
+
+    #[tokio::test]
+    async fn only_principal_or_higher_should_be_allowed_to_use_scripts() {
+        let article_tag_repository = InMemoryArticleTagRepository::default();
+        let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
+
+        let admin = User::new("John".into(), "123".into(), Some(Role::Admin));
+        let manager = User::new("CardiB".into(), "123".into(), Some(Role::Principal));
+
+        let service = super::CreateArticleService {
+            article_repository: article_repository.clone(),
+            article_tag_repository,
+        };
+
+        let result = service
+            .exec(CreateArticleParams {
+                custom_author_id: None,
+                staff: &admin,
+                content: "Article content right here!".to_string(),
+                cover_url: "https://i.url/to/cover".to_string(),
+                title: "Fake title".to_string(),
+                description: "A humble description...".into(),
+                tags: vec![],
+                script: Some("Foo".into()),
+                cleanup_script: None,
+            })
+            .await;
+
+        assert!(result.is_err());
+        assert!(article_repository.article_db.lock().unwrap().is_empty());
+
+        let result = service
+            .exec(CreateArticleParams {
+                custom_author_id: None,
+                staff: &admin,
+                content: "Article content right here!".to_string(),
+                cover_url: "https://i.url/to/cover".to_string(),
+                title: "Fake title".to_string(),
+                description: "A humble description...".into(),
+                tags: vec![],
+                script: None,
+                cleanup_script: Some("Foo".into()),
+            })
+            .await;
+
+        assert!(result.is_err());
+        assert!(article_repository.article_db.lock().unwrap().is_empty());
+
+        let result = service
+            .exec(CreateArticleParams {
+                custom_author_id: None,
+                staff: &manager,
+                content: "Article content right here!".to_string(),
+                cover_url: "https://i.url/to/cover".to_string(),
+                title: "Fake title".to_string(),
+                description: "A humble description...".into(),
+                tags: vec![],
+                script: Some("Foo".into()),
+                cleanup_script: Some("Bar".into()),
+            })
+            .await;
+
+        assert!(result.is_ok());
+        assert!(!article_repository.article_db.lock().unwrap().is_empty());
     }
 }

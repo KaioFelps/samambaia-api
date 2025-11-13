@@ -134,6 +134,7 @@ mod test {
             "Description".into(),
             vec![foo_tag.clone()],
             None,
+            None,
         );
         approved_article.set_approved(true);
 
@@ -146,6 +147,7 @@ mod test {
                 "url".to_string(),
                 "Description".into(),
                 vec![foo_tag.clone()],
+                None,
                 None,
             ))
             .await

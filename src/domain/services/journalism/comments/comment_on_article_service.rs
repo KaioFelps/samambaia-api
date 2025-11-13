@@ -111,6 +111,7 @@ mod test {
                 "description".into(),
                 vec![foo_tag.clone()],
                 None,
+                None,
             ));
 
         let sut = CommentOnArticleService::new(mocked_comment_repo, mocked_article_repo);

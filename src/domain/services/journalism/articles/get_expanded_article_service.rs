@@ -210,6 +210,7 @@ mod test {
             "Mocked description".into(),
             vec![tag.clone()],
             None,
+            None,
         );
 
         let mocked_article_id = mocked_article.id();

@@ -112,6 +112,7 @@ mod test {
                 "Descrição da notícia 1".into(),
                 vec![tag_foo.clone()],
                 None,
+                None,
             ))
             .await
             .unwrap();
@@ -124,6 +125,7 @@ mod test {
                 "Descrição da notícia 2".into(),
                 vec![tag_foo.clone()],
                 None,
+                None,
             ))
             .await
             .unwrap();
@@ -135,6 +137,7 @@ mod test {
                 "url".to_string(),
                 "Descrição da notícia 3".into(),
                 vec![tag_foo.clone()],
+                None,
                 None,
             ))
             .await

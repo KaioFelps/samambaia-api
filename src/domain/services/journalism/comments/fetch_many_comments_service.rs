@@ -220,6 +220,7 @@ mod test {
             "baz".into(),
             vec![foo_tag.clone()],
             None,
+            None,
         );
 
         comment_repository

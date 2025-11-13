@@ -102,6 +102,7 @@ mod test {
             "desc".into(),
             vec![],
             None,
+            None,
         );
 
         article_repository
@@ -146,6 +147,7 @@ mod test {
             "coverurl.inicial".to_string(),
             "Bar baz!".into(),
             vec![tag],
+            None,
             None,
         );
 
@@ -194,6 +196,7 @@ mod test {
             "Bar baz!".into(),
             vec![tag],
             None,
+            None,
         );
 
         let principal = User::new("Flori".into(), "".into(), Some(Role::Principal));
@@ -240,6 +243,7 @@ mod test {
             "coverurl.inicial".to_string(),
             "Bar baz!".into(),
             vec![tag],
+            None,
             None,
         );
 

@@ -139,6 +139,7 @@ mod test {
             "baz".into(),
             vec![foo_tag],
             None,
+            None,
         );
         let article_id = article.id();
 
