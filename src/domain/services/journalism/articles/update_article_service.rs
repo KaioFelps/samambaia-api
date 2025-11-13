@@ -85,10 +85,18 @@ where
         let user_can_disapprove =
             verify_role_has_permission(&user_role, RolePermissions::DisapproveArticle);
 
+        let user_can_use_scripts =
+            verify_role_has_permission(&user_role, RolePermissions::UseArticleScripts);
+
         if !user_can_approve && params.approved.is_some() {
             return Err(SamambaiaError::unauthorized_err());
         }
+
         if !user_can_disapprove && params.approved.is_some() && !params.approved.unwrap() {
+            return Err(SamambaiaError::unauthorized_err());
+        }
+
+        if !user_can_use_scripts && (params.script.is_some() || params.cleanup_script.is_some()) {
             return Err(SamambaiaError::unauthorized_err());
         }
 

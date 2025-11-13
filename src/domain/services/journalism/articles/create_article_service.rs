@@ -42,10 +42,19 @@ where
     }
 
     pub async fn exec(&self, params: CreateArticleParams<'_>) -> Result<Article, SamambaiaError> {
-        if !verify_role_has_permission(
+        let user_can_create_article = verify_role_has_permission(
             &params.staff.role().unwrap(),
             RolePermissions::CreateArticle,
-        ) {
+        );
+
+        let user_can_use_scripts = verify_role_has_permission(
+            params.staff.role().as_ref().unwrap(),
+            RolePermissions::UseArticleScripts,
+        );
+
+        let user_tried_to_use_scripts = params.script.is_some() || params.cleanup_script.is_some();
+
+        if !user_can_create_article || (!user_can_use_scripts && user_tried_to_use_scripts) {
             return Err(SamambaiaError::unauthorized_err());
         }
 
