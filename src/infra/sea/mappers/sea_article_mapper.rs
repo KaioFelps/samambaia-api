@@ -21,11 +21,13 @@ impl SeaArticleMapper {
             slug: entity.slug().to_string(),
             description: entity.description().to_string(),
             script: entity.get_script().map(ToString::to_string),
+            cleanup_script: entity.get_cleanup_script().map(ToString::to_string),
         }
     }
 
     pub fn entity_into_active_model(entity: Article) -> ArticleActiveModel {
         let script_as_value = entity.get_script().map(ToString::to_string);
+        let cleanup_script_as_value = entity.get_cleanup_script().map(ToString::to_string);
 
         ArticleActiveModel {
             id: entity.id().into_active_value(),
@@ -42,6 +44,11 @@ impl SeaArticleMapper {
                 Some(script_as_value).into_active_value()
             } else {
                 script_as_value.into_active_value()
+            },
+            cleanup_script: if entity.has_been_touched() {
+                Some(cleanup_script_as_value).into_active_value()
+            } else {
+                cleanup_script_as_value.into_active_value()
             },
         }
     }
@@ -63,6 +70,7 @@ impl SeaArticleMapper {
             active_model.description.unwrap(),
             tags,
             active_model.script.unwrap(),
+            active_model.cleanup_script.unwrap(),
         )
     }
 
@@ -80,6 +88,7 @@ impl SeaArticleMapper {
             model.description,
             tags,
             model.script,
+            model.cleanup_script,
         )
     }
 }
