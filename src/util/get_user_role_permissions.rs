@@ -16,6 +16,7 @@ pub enum RolePermissions {
     SeeUnapprovedArticle,
     ChangeArticleAuthor,
     DeleteArticle,
+    UseArticleScripts,
 
     InactivateComment,
     DeleteComment,
@@ -95,6 +96,7 @@ impl RolePermissions {
                 //
                 DeleteArticle,
                 DeleteReport,
+                UseArticleScripts,
                 //
                 CreateNewTeamRole,
                 UpdateTeamRole,
