@@ -66,11 +66,7 @@ mod test {
     use std::sync::Arc;
 
     use super::*;
-    use crate::domain::domain_entities::article::Article;
-    use crate::domain::domain_entities::article_tag::DraftArticleTag;
-    use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
-    use crate::domain::value_objects::slug::Slug;
-    use crate::libs::time::TimeHelper;
+    use crate::tests::entities_fakers::article::ArticleFakerBuilder;
     use crate::tests::relationship_managers::comment_article::CommentArticleRelationInMemoryManager;
     use crate::tests::repositories::article_repository::InMemoryArticleRepository;
     use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
@@ -86,33 +82,16 @@ mod test {
         let (_, mocked_comment_repo) =
             get_comment_repository(None, comment_article_manager.clone());
 
-        let foo_tag = article_tags_repository
-            .create(DraftArticleTag::new("Foo".into()))
-            .await
-            .unwrap();
-
         let user_id = Uuid::new_v4();
         let article_id = Uuid::new_v4();
 
-        mocked_article_repo
-            .article_db
-            .lock()
+        let article = ArticleFakerBuilder::default()
+            .id(article_id)
+            .build()
             .unwrap()
-            .push(Article::new_from_existing(
-                article_id,
-                user_id,
-                "cover_url".into(),
-                "title".into(),
-                "content".into(),
-                false,
-                TimeHelper::now(),
-                None,
-                Slug::new(article_id, "title".into()),
-                "description".into(),
-                vec![foo_tag.clone()],
-                None,
-                None,
-            ));
+            .into_entity();
+
+        mocked_article_repo.article_db.lock().unwrap().push(article);
 
         let sut = CommentOnArticleService::new(mocked_comment_repo, mocked_article_repo);
 

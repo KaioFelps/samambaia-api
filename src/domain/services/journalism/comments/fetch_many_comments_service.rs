@@ -167,13 +167,13 @@ mod test {
     use tokio;
 
     use super::*;
-    use crate::domain::domain_entities::article::Article;
     use crate::domain::domain_entities::article_tag::DraftArticleTag;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
     use crate::domain::repositories::comment_repository::CommentRepositoryTrait;
     use crate::libs::time::TimeHelper;
+    use crate::tests::entities_fakers::article::ArticleFakerBuilder;
     use crate::tests::relationship_managers::comment_article::CommentArticleRelationInMemoryManager;
     use crate::tests::repositories::article_comment_repository::get_article_comment_repository;
     use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
@@ -212,16 +212,11 @@ mod test {
             .await
             .unwrap();
 
-        let article = Article::new(
-            user.id(),
-            "Título da notícia".into(),
-            "Conteúdo da notícia".into(),
-            "url do cover".into(),
-            "baz".into(),
-            vec![foo_tag.clone()],
-            None,
-            None,
-        );
+        let article = ArticleFakerBuilder::default()
+            .tags(vec![foo_tag.clone()])
+            .build()
+            .unwrap()
+            .into_entity();
 
         comment_repository
             .create(Comment::new(

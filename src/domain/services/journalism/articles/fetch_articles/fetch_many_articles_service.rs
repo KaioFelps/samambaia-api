@@ -99,6 +99,7 @@ mod test {
     use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
     use crate::domain::services::journalism::articles::fetch_articles::params::FetchArticleQuery;
+    use crate::tests::entities_fakers::article::ArticleFakerBuilder;
     use crate::tests::repositories::article_repository::InMemoryArticleRepository;
     use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
     use crate::tests::repositories::users_repository::get_user_repository;
@@ -126,30 +127,33 @@ mod test {
 
         let user = user_repo.create(user).await.unwrap();
 
-        let mut approved_article = Article::new(
-            user.id(),
-            "Article 1 title".to_string(),
-            "Article 1 content here".to_string(),
-            "url".to_string(),
-            "Description".into(),
-            vec![foo_tag.clone()],
-            None,
-            None,
-        );
-        approved_article.set_approved(true);
+        let approved_article = ArticleFakerBuilder::default()
+            .author_id(user.id())
+            .title("Article 1 title")
+            .content("Article 1 content here")
+            .cover_url("url")
+            .description("Description")
+            .tags(vec![foo_tag.clone()])
+            .approved(true)
+            .build()
+            .unwrap()
+            .into();
 
         let approved_article = article_repo.create(approved_article).await.unwrap();
         article_repo
-            .create(Article::new(
-                user.id(),
-                "Article 2 title".to_string(),
-                "Article 2 content here".to_string(),
-                "url".to_string(),
-                "Description".into(),
-                vec![foo_tag.clone()],
-                None,
-                None,
-            ))
+            .create(
+                ArticleFakerBuilder::default()
+                    .author_id(user.id())
+                    .title("Article 2 title")
+                    .content("Article 2 content here")
+                    .cover_url("url")
+                    .description("Description")
+                    .tags(vec![foo_tag.clone()])
+                    .approved(false)
+                    .build()
+                    .unwrap()
+                    .into(),
+            )
             .await
             .unwrap();
 

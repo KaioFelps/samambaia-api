@@ -167,6 +167,7 @@ mod test {
     use crate::domain::domain_entities::role::Role;
     use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
     use crate::libs::time::TimeHelper;
+    use crate::tests::entities_fakers::article::ArticleFakerBuilder;
     use crate::tests::repositories::article_repository::InMemoryArticleRepository;
     use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
     use crate::tests::repositories::comment_with_user_repository::InMemoryCommentUserRepository;
@@ -202,16 +203,12 @@ mod test {
             .unwrap()
             .push(user.clone());
 
-        let mocked_article = Article::new(
-            user.id(),
-            "Notícia 1".into(),
-            "Conteúdo da notícia 1.".into(),
-            "url_da_cover.com".into(),
-            "Mocked description".into(),
-            vec![tag.clone()],
-            None,
-            None,
-        );
+        let mocked_article: Article = ArticleFakerBuilder::default()
+            .author_id(user.id())
+            .tags(vec![tag.clone()])
+            .build()
+            .unwrap()
+            .into();
 
         let mocked_article_id = mocked_article.id();
         let mocked_article_slug = mocked_article.slug().clone();

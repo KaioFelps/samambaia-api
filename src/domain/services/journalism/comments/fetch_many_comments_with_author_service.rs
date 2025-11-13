@@ -101,13 +101,11 @@ mod test {
     use tokio;
 
     use super::*;
-    use crate::domain::domain_entities::article::Article;
-    use crate::domain::domain_entities::article_tag::DraftArticleTag;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
-    use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
     use crate::domain::repositories::comment_user_article_repository::MockCommentUserArticleRepositoryTrait;
     use crate::libs::time::TimeHelper;
+    use crate::tests::entities_fakers::article::ArticleFakerBuilder;
     use crate::tests::repositories::article_repository::InMemoryArticleRepository;
     use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
 
@@ -119,11 +117,6 @@ mod test {
         let article_tag_repository = InMemoryArticleTagRepository::default();
         let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
 
-        let foo_tag = article_tag_repository
-            .create(DraftArticleTag::new("Foo".into()))
-            .await
-            .unwrap();
-
         let mut db: Vec<CommentWithAuthor> = Vec::new();
 
         let user = User::new(
@@ -131,17 +124,11 @@ mod test {
             "password".to_string(),
             Some(Role::Principal),
         );
-        let article = Article::new(
-            user.id(),
-            "Título da notícia".into(),
-            "Conteúdo da notícia".into(),
-            "url do cover".into(),
-            "baz".into(),
-            vec![foo_tag],
-            None,
-            None,
-        );
-        let article_id = article.id();
+
+        let article = ArticleFakerBuilder::default()
+            .build()
+            .unwrap()
+            .into_entity();
 
         article_repository
             .article_db
@@ -208,7 +195,7 @@ mod test {
 
         let response = fetch_many_comments_service
             .exec(
-                article_id,
+                article.id(),
                 FetchManyArticleCommentsWithAuthorParams {
                     page: None,
                     per_page: None,

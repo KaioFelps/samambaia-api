@@ -59,26 +59,20 @@ impl<AR: ArticleRepositoryTrait> FindArticleByIdService<AR> {
 mod test {
     use std::sync::LazyLock;
 
-    use uuid::Uuid;
-
     use crate::domain::domain_entities::article::Article;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
     use crate::libs::time::TimeHelper;
+    use crate::tests::entities_fakers::article::ArticleFakerBuilder;
     use crate::tests::repositories::article_repository::InMemoryArticleRepository;
     use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
 
     static ARTICLE: LazyLock<Article> = LazyLock::new(|| {
-        Article::new(
-            Uuid::new_v4(),
-            "Foo".into(),
-            "Content".into(),
-            "imgur.com".into(),
-            "Description".into(),
-            vec![],
-            None,
-            None,
-        )
+        ArticleFakerBuilder::default()
+            .approved(false)
+            .build()
+            .unwrap()
+            .into()
     });
 
     #[tokio::test]

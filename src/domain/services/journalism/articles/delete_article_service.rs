@@ -76,6 +76,7 @@ mod test {
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
+    use crate::tests::entities_fakers::article::ArticleFakerBuilder;
     use crate::tests::relationship_managers::comment_article::CommentArticleRelationInMemoryManager;
     use crate::tests::repositories::article_comment_repository::get_article_comment_repository;
     use crate::tests::repositories::article_repository::InMemoryArticleRepository;
@@ -94,16 +95,11 @@ mod test {
         );
 
         let user = User::new("Flori".into(), "".into(), Some(Role::Writer));
-        let article = Article::new(
-            user.id(),
-            "Title".into(),
-            "Content".into(),
-            "cover".into(),
-            "desc".into(),
-            vec![],
-            None,
-            None,
-        );
+        let article: Article = ArticleFakerBuilder::default()
+            .author_id(user.id())
+            .build()
+            .unwrap()
+            .into();
 
         article_repository
             .article_db
@@ -135,21 +131,7 @@ mod test {
             relationship_manager,
         );
 
-        let tag = article_tag_repository
-            .create(DraftArticleTag::new("Foo".into()))
-            .await
-            .unwrap();
-
-        let article = Article::new(
-            Uuid::new_v4(),
-            "Título inicial".to_string(),
-            "Conteúdo inicial".to_string(),
-            "coverurl.inicial".to_string(),
-            "Bar baz!".into(),
-            vec![tag],
-            None,
-            None,
-        );
+        let article: Article = ArticleFakerBuilder::default().build().unwrap().into();
 
         let non_author_user = User::new("Flori".into(), "".into(), Some(Role::Admin));
 
@@ -188,16 +170,11 @@ mod test {
             .await
             .unwrap();
 
-        let article = Article::new(
-            Uuid::new_v4(),
-            "Título inicial".to_string(),
-            "Conteúdo inicial".to_string(),
-            "coverurl.inicial".to_string(),
-            "Bar baz!".into(),
-            vec![tag],
-            None,
-            None,
-        );
+        let article: Article = ArticleFakerBuilder::default()
+            .tags(vec![tag])
+            .build()
+            .unwrap()
+            .into();
 
         let principal = User::new("Flori".into(), "".into(), Some(Role::Principal));
 
@@ -236,16 +213,11 @@ mod test {
             .await
             .unwrap();
 
-        let article = Article::new(
-            Uuid::new_v4(),
-            "Título inicial".to_string(),
-            "Conteúdo inicial".to_string(),
-            "coverurl.inicial".to_string(),
-            "Bar baz!".into(),
-            vec![tag],
-            None,
-            None,
-        );
+        let article: Article = ArticleFakerBuilder::default()
+            .tags(vec![tag])
+            .build()
+            .unwrap()
+            .into();
 
         article_db.lock().unwrap().push(article.clone());
 

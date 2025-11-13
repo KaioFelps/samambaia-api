@@ -196,6 +196,7 @@ mod test {
         UpdateArticleParamsBuilder,
         UpdateArticleService,
     };
+    use crate::tests::entities_fakers::article::ArticleFakerBuilder;
     use crate::tests::repositories::article_repository::InMemoryArticleRepository;
     use crate::tests::repositories::article_tag_repository::{
         ArticleTagArticle,
@@ -225,16 +226,11 @@ mod test {
                 article_tag_id: tag.id(),
             });
 
-        let article = Article::new(
-            article_id,
-            "Initial title".to_string(),
-            "Initial content".to_string(),
-            "initial.coverurl".to_string(),
-            "Initial description".into(),
-            vec![tag.clone()],
-            None,
-            None,
-        );
+        let article = ArticleFakerBuilder::default()
+            .id(article_id)
+            .build()
+            .unwrap()
+            .into_entity();
 
         let article_tag = ArticleTag::new_from_existing(2, "Bar".to_string());
 
@@ -283,17 +279,12 @@ mod test {
 
         let writer = User::new("John".into(), "".into(), Some(Role::Writer));
 
-        let mut article = Article::new(
-            writer.id(),
-            "Title".into(),
-            "<h1>Contentm</h1>".into(),
-            "url".into(),
-            "description".into(),
-            Vec::new(),
-            None,
-            None,
-        );
-        article.set_approved(true);
+        let article: Article = ArticleFakerBuilder::default()
+            .author_id(writer.id())
+            .approved(true)
+            .build()
+            .unwrap()
+            .into();
 
         article_repository
             .article_db
@@ -329,17 +320,15 @@ mod test {
 
         let editor = User::new("John".into(), "".into(), Some(Role::Editor));
 
-        let mut article = Article::new(
-            Uuid::new_v4(),
-            "Title".into(),
-            "<h1>Contentm</h1>".into(),
-            "url".into(),
-            "description".into(),
-            Vec::new(),
-            None,
-            None,
-        );
-        article.set_approved(true);
+        let article: Article = ArticleFakerBuilder::default()
+            .author_id(editor.id())
+            .title("Title")
+            .content("<h1>Content</h1>")
+            .description("description")
+            .approved(true)
+            .build()
+            .unwrap()
+            .into();
 
         article_repository
             .article_db
@@ -409,18 +398,16 @@ mod test {
             .await
             .unwrap();
 
-        let mut article = Article::new(
-            Uuid::new_v4(),
-            "Title".into(),
-            "<h1>Contentm</h1>".into(),
-            "url".into(),
-            "description".into(),
-            vec![tag_1.clone(), tag_2.clone()],
-            None,
-            None,
-        );
-
-        article.set_approved(true);
+        let article = ArticleFakerBuilder::default()
+            .author_id(Uuid::new_v4())
+            .title("Title")
+            .content("<h1>Content</h1>")
+            .description("description")
+            .approved(true)
+            .tags(vec![tag_1.clone(), tag_2.clone()])
+            .build()
+            .unwrap()
+            .into_entity();
 
         article_repository
             .article_db
@@ -466,18 +453,16 @@ mod test {
         let admin = User::new("John".into(), "123".into(), Some(Role::Admin));
         let manager = User::new("CardiB".into(), "123".into(), Some(Role::Principal));
 
-        let mut article = Article::new(
-            Uuid::new_v4(),
-            "Title".into(),
-            "<h1>Content</h1>".into(),
-            "url".into(),
-            "description".into(),
-            vec![],
-            Some("invalid_js_code!".into()),
-            None,
-        );
-
-        article.set_approved(true);
+        let article = ArticleFakerBuilder::default()
+            .author_id(Uuid::new_v4())
+            .title("Title")
+            .content("<h1>Content</h1>")
+            .description("description")
+            .approved(true)
+            .script("invalid_js_code!")
+            .build()
+            .unwrap()
+            .into_entity();
 
         article_repository
             .article_db

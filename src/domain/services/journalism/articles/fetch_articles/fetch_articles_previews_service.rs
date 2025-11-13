@@ -77,17 +77,17 @@ mod test {
     use tokio;
 
     use super::*;
-    use crate::domain::domain_entities::article::Article;
     use crate::domain::domain_entities::article_tag::DraftArticleTag;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
+    use crate::tests::entities_fakers::article::ArticleFakerBuilder;
     use crate::tests::repositories::article_repository::InMemoryArticleRepository;
     use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
     use crate::tests::repositories::users_repository::get_user_repository;
 
     #[tokio::test]
-    async fn test() {
+    async fn it_should_bring_latest_articles_previews_when_no_pagination_is_given() {
         let article_tag_repository = InMemoryArticleTagRepository::default();
         let article_repository = InMemoryArticleRepository::default(article_tag_repository.clone());
         let (users_db, user_repository) =
@@ -104,42 +104,41 @@ mod test {
         users_db.lock().unwrap().push(author);
 
         article_repository
-            .create(Article::new(
-                author_id,
-                "Título da notícia 1".to_string(),
-                "Conteúdo da primeira notícia".to_string(),
-                "url".to_string(),
-                "Descrição da notícia 1".into(),
-                vec![tag_foo.clone()],
-                None,
-                None,
-            ))
+            .create(
+                ArticleFakerBuilder::default()
+                    .author_id(author_id)
+                    .tags(vec![tag_foo.clone()])
+                    .approved(true)
+                    .build()
+                    .unwrap()
+                    .into(),
+            )
             .await
             .unwrap();
+
         article_repository
-            .create(Article::new(
-                author_id,
-                "Título da notícia 2".to_string(),
-                "Conteúdo da segunda notícia".to_string(),
-                "url".to_string(),
-                "Descrição da notícia 2".into(),
-                vec![tag_foo.clone()],
-                None,
-                None,
-            ))
+            .create(
+                ArticleFakerBuilder::default()
+                    .author_id(author_id)
+                    .tags(vec![tag_foo.clone()])
+                    .approved(true)
+                    .build()
+                    .unwrap()
+                    .into(),
+            )
             .await
             .unwrap();
+
         article_repository
-            .create(Article::new(
-                author_id,
-                "Título da notícia 3".to_string(),
-                "Conteúdo da terceira notícia".to_string(),
-                "url".to_string(),
-                "Descrição da notícia 3".into(),
-                vec![tag_foo.clone()],
-                None,
-                None,
-            ))
+            .create(
+                ArticleFakerBuilder::default()
+                    .author_id(author_id)
+                    .approved(true)
+                    .tags(vec![tag_foo.clone()])
+                    .build()
+                    .unwrap()
+                    .into(),
+            )
             .await
             .unwrap();
 

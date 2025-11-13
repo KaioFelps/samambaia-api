@@ -24,14 +24,12 @@ impl<SR: SummaryRepositoryTrait> GetSummaryService<SR> {
 
 #[cfg(test)]
 mod test {
-    use uuid::Uuid;
-
-    use crate::domain::domain_entities::article::Article;
     use crate::domain::domain_entities::article_tag::DraftArticleTag;
     use crate::domain::domain_entities::role::Role;
     use crate::domain::domain_entities::user::User;
     use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
     use crate::domain::value_objects::count_summary::CountSummary;
+    use crate::tests::entities_fakers::article::ArticleFakerBuilder;
     use crate::tests::repositories::article_tag_repository::InMemoryArticleTagRepository;
     use crate::tests::repositories::summary_repository::get_summary_repository;
 
@@ -50,26 +48,16 @@ mod test {
         {
             let mut db_mut = db_mut.write().unwrap();
             db_mut.article = vec![
-                Article::new(
-                    Uuid::new_v4(),
-                    "foo".into(),
-                    "foo content".into(),
-                    "".into(),
-                    "foo description".into(),
-                    vec![tag.clone()],
-                    None,
-                    None,
-                ),
-                Article::new(
-                    Uuid::new_v4(),
-                    "bar".into(),
-                    "bar content".into(),
-                    "".into(),
-                    "bar description".into(),
-                    vec![tag.clone()],
-                    None,
-                    None,
-                ),
+                ArticleFakerBuilder::default()
+                    .tags(vec![tag.clone()])
+                    .build()
+                    .unwrap()
+                    .into(),
+                ArticleFakerBuilder::default()
+                    .tags(vec![tag.clone()])
+                    .build()
+                    .unwrap()
+                    .into(),
             ];
 
             db_mut.user = vec![User::new("JohnDoe".into(), "".into(), Some(Role::User))];
