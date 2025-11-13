@@ -20,6 +20,8 @@ pub struct Model {
     pub description: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub script: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub cleanup_script: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
