@@ -1,3 +1,4 @@
+import type { PageProps } from "@inertiajs/core/types";
 import { useForm } from "@inertiajs/react";
 import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
@@ -5,7 +6,6 @@ import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
 import { type FormEvent, useRef } from "react";
 import { toast } from "react-toastify";
 import type { Editor } from "tinymce";
-
 import MultiSelect, { type SelectOption } from "@/components/admin/multiselect";
 import Button from "@/components/button";
 import DynamicNoSsr from "@/components/dynamic-no-ssr";
@@ -19,10 +19,11 @@ import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import type { TinyMCEEditorProps } from "@/ui/admin/tiny-mce-editor";
 import { TinyMCEEditorSkeleton } from "@/ui/admin/tiny-mce-editor/skeleton";
+import { can } from "@/utils/can";
 import { encodeQuotes } from "@/utils/quotes";
 import { copyHtmlToClipboard } from "./shared";
 
-type AdminCreateArticlePageProps = {
+type AdminCreateArticlePageProps = PageProps & {
   tags: ArticleTag[];
 };
 
@@ -37,7 +38,7 @@ type CreateArticleForm = {
   cleanup_script?: string;
 };
 
-export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageProps) {
+export default function AdminCreateArticlePage({ tags, auth }: AdminCreateArticlePageProps) {
   const tinymce = useRef<Editor>(null);
   const { data, setData, errors, clearErrors, processing, post, transform } =
     useForm<CreateArticleForm>({
@@ -164,41 +165,44 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
             onEditorChange={(content) => setData({ ...data, content })}
             editorRef={tinymce}
           />
+          {can(auth?.permissions, Permission.UseArticleScripts) && (
+            <>
+              <div>
+                <Form.Input
+                  asChild
+                  label="Script"
+                  placeholder={`console.log("Hello world");`}
+                  name="script"
+                  validationError={errors.script}
+                  onInput={(e) => {
+                    setData({ ...data, script: e.currentTarget.value });
+                  }}>
+                  <textarea rows={10} />
+                </Form.Input>
+                <p className="text-sm font-light ml-1 text-gray-800">
+                  Esses scripts serão executados assim que a notícia carregar. Preencha somente se
+                  necessário.
+                </p>
+              </div>
 
-          <div>
-            <Form.Input
-              asChild
-              label="Script"
-              placeholder={`console.log("Hello world");`}
-              name="script"
-              validationError={errors.script}
-              onInput={(e) => {
-                setData({ ...data, script: e.currentTarget.value });
-              }}>
-              <textarea rows={10} />
-            </Form.Input>
-            <p className="text-sm font-light ml-1 text-gray-800">
-              Esses scripts serão executados assim que a notícia carregar. Preencha somente se
-              necessário.
-            </p>
-          </div>
-
-          <div>
-            <Form.Input
-              asChild
-              label="Script"
-              placeholder={`window.removeEventListener("click", () => {});`}
-              name="script"
-              validationError={errors.cleanup_script}
-              onInput={(e) => setData({ ...data, cleanup_script: e.currentTarget.value })}>
-              <textarea rows={10} />
-            </Form.Input>
-            <p className="text-sm font-light ml-1 text-gray-800">
-              Esse script será executado quando a página atual for desmontada. Utilize-o para
-              remover elementos adicionados fora da notícia ou outras manipulações que não são
-              automaticamente revertidas.
-            </p>
-          </div>
+              <div>
+                <Form.Input
+                  asChild
+                  label="Script"
+                  placeholder={`window.removeEventListener("click", () => {});`}
+                  name="script"
+                  validationError={errors.cleanup_script}
+                  onInput={(e) => setData({ ...data, cleanup_script: e.currentTarget.value })}>
+                  <textarea rows={10} />
+                </Form.Input>
+                <p className="text-sm font-light ml-1 text-gray-800">
+                  Esse script será executado quando a página atual for desmontada. Utilize-o para
+                  remover elementos adicionados fora da notícia ou outras manipulações que não são
+                  automaticamente revertidas.
+                </p>
+              </div>
+            </>
+          )}
 
           <div className="mt-3 flex items-center gap-1.5">
             <Button admin variant="default" theme="success" size="lg" disabled={processing}>

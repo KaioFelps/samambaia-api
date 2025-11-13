@@ -21,6 +21,7 @@ import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import type { TinyMCEEditorProps } from "@/ui/admin/tiny-mce-editor";
 import { TinyMCEEditorSkeleton } from "@/ui/admin/tiny-mce-editor/skeleton";
+import { can } from "@/utils/can";
 import { contentsAreEquivalent, decodeQuotes, encodeQuotes } from "@/utils/quotes";
 import { copyHtmlToClipboard } from "./shared";
 
@@ -60,7 +61,12 @@ function setTagsIfChanged(
   setData({ ...data, tags: hasChanged ? newTagsIDs : undefined });
 }
 
-export default function AdminEditArticlePage({ article, tags, flash }: AdminEditArticlePageProps) {
+export default function AdminEditArticlePage({
+  article,
+  tags,
+  flash,
+  auth,
+}: AdminEditArticlePageProps) {
   const tinymce = useRef<Editor>(null);
   const { data, setData, errors, clearErrors, processing, put, transform } =
     useForm<EditArticleForm>({
@@ -249,40 +255,44 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             editorRef={tinymce}
           />
 
-          <div>
-            <Form.Input
-              asChild
-              label="Script"
-              placeholder={`console.log("Hello world");`}
-              name="script"
-              validationError={errors.script}
-              defaultValue={data.script ?? ""}
-              onInput={(e) => setData({ ...data, script: e.currentTarget.value })}>
-              <textarea rows={10} />
-            </Form.Input>
-            <p className="text-sm font-light ml-1 text-gray-800">
-              Esses scripts serão executados assim que a notícia carregar. Preencha somente se
-              necessário.
-            </p>
-          </div>
+          {can(auth?.permissions, Permission.UseArticleScripts) && (
+            <>
+              <div>
+                <Form.Input
+                  asChild
+                  label="Script"
+                  placeholder={`console.log("Hello world");`}
+                  name="script"
+                  validationError={errors.script}
+                  defaultValue={data.script ?? ""}
+                  onInput={(e) => setData({ ...data, script: e.currentTarget.value })}>
+                  <textarea rows={10} />
+                </Form.Input>
+                <p className="text-sm font-light ml-1 text-gray-800">
+                  Esses scripts serão executados assim que a notícia carregar. Preencha somente se
+                  necessário.
+                </p>
+              </div>
 
-          <div>
-            <Form.Input
-              asChild
-              label="Script"
-              placeholder={`window.removeEventListener("click", () => {});`}
-              name="script"
-              validationError={errors.cleanup_script}
-              defaultValue={data.cleanup_script ?? ""}
-              onInput={(e) => setData({ ...data, cleanup_script: e.currentTarget.value })}>
-              <textarea rows={10} />
-            </Form.Input>
-            <p className="text-sm font-light ml-1 text-gray-800">
-              Esse script será executado quando a página atual for desmontada. Utilize-o para
-              remover elementos adicionados fora da notícia ou outras manipulações que não são
-              automaticamente revertidas.
-            </p>
-          </div>
+              <div>
+                <Form.Input
+                  asChild
+                  label="Script"
+                  placeholder={`window.removeEventListener("click", () => {});`}
+                  name="script"
+                  validationError={errors.cleanup_script}
+                  defaultValue={data.cleanup_script ?? ""}
+                  onInput={(e) => setData({ ...data, cleanup_script: e.currentTarget.value })}>
+                  <textarea rows={10} />
+                </Form.Input>
+                <p className="text-sm font-light ml-1 text-gray-800">
+                  Esse script será executado quando a página atual for desmontada. Utilize-o para
+                  remover elementos adicionados fora da notícia ou outras manipulações que não são
+                  automaticamente revertidas.
+                </p>
+              </div>
+            </>
+          )}
 
           <div className="mt-3 flex items-center gap-1.5">
             <Button admin variant="default" theme="success" size="lg" disabled={processing}>

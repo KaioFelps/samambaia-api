@@ -7,6 +7,7 @@ export const Permission = {
   CreateArticle: "CreateArticle",
   UpdateArticle: "UpdateArticle",
   ApproveArticle: "ApproveArticle",
+  UseArticleScripts: "UseArticleScripts",
   DisapproveArticle: "DisapproveArticle",
   SeeUnapprovedArticle: "SeeUnapprovedArticle",
   ChangeArticleAuthor: "ChangeArticleAuthor",
