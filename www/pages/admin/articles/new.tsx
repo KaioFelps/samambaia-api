@@ -188,7 +188,7 @@ export default function AdminCreateArticlePage({ tags, auth }: AdminCreateArticl
               <div>
                 <Form.Input
                   asChild
-                  label="Script"
+                  label="Script de saída"
                   placeholder={`window.removeEventListener("click", () => {});`}
                   name="script"
                   validationError={errors.cleanup_script}
