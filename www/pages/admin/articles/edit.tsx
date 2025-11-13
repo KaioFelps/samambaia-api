@@ -37,6 +37,7 @@ type EditArticleForm = {
   tags?: number[];
   author_id?: string;
   script?: string | null;
+  cleanup_script?: string | null;
 };
 
 function haveTagsChanged(newTagsIDs: number[], currentTagsIDs: number[]): boolean {
@@ -68,6 +69,7 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
       cover_url: article?.coverUrl,
       description: article?.description,
       script: article?.script ? decodeQuotes(article.script) : "",
+      cleanup_script: article?.cleanupScript ? decodeQuotes(article.cleanupScript) : "",
       tags: article?.tags.map((tag) => tag.id),
       title: article?.title,
     });
@@ -107,6 +109,11 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
     if (data.script && contentsAreEquivalent(data.script, article.script)) delete data.script;
     else if (!data.script?.trim()) data.script = null;
     else data.script = encodeQuotes(data.script);
+
+    if (data.cleanup_script && contentsAreEquivalent(data.cleanup_script, article.cleanupScript))
+      delete data.cleanup_script;
+    else if (!data.cleanup_script?.trim()) data.cleanup_script = null;
+    else data.cleanup_script = encodeQuotes(data.cleanup_script);
 
     const articleTagsIDs = article.tags.map((tag) => tag.id);
     if (data.tags && !haveTagsChanged(data.tags, articleTagsIDs)) delete data.tags;
@@ -256,6 +263,24 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             <p className="text-sm font-light ml-1 text-gray-800">
               Esses scripts serão executados assim que a notícia carregar. Preencha somente se
               necessário.
+            </p>
+          </div>
+
+          <div>
+            <Form.Input
+              asChild
+              label="Script"
+              placeholder={`window.removeEventListener("click", () => {});`}
+              name="script"
+              validationError={errors.cleanup_script}
+              defaultValue={data.cleanup_script ?? ""}
+              onInput={(e) => setData({ ...data, cleanup_script: e.currentTarget.value })}>
+              <textarea rows={10} />
+            </Form.Input>
+            <p className="text-sm font-light ml-1 text-gray-800">
+              Esse script será executado quando a página atual for desmontada. Utilize-o para
+              remover elementos adicionados fora da notícia ou outras manipulações que não são
+              automaticamente revertidas.
             </p>
           </div>
 

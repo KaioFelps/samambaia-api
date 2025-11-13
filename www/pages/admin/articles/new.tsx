@@ -19,6 +19,7 @@ import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import type { TinyMCEEditorProps } from "@/ui/admin/tiny-mce-editor";
 import { TinyMCEEditorSkeleton } from "@/ui/admin/tiny-mce-editor/skeleton";
+import { encodeQuotes } from "@/utils/quotes";
 import { copyHtmlToClipboard } from "./shared";
 
 type AdminCreateArticlePageProps = {
@@ -33,6 +34,7 @@ type CreateArticleForm = {
   tags: number[];
   author_id?: string;
   script?: string;
+  cleanup_script?: string;
 };
 
 export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageProps) {
@@ -45,6 +47,7 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
       title: "",
       tags: [],
       script: "",
+      cleanup_script: "",
     });
 
   const tagsOptions = tags.map(
@@ -59,6 +62,13 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
 
   transform((data) => {
     if (data.script?.trim() === "") delete data.script;
+    else if (data.script) data.script = encodeQuotes(data.script);
+
+    if (data.cleanup_script?.trim() === "") delete data.cleanup_script;
+    else if (data.cleanup_script) data.cleanup_script = encodeQuotes(data.cleanup_script);
+
+    data.content = encodeQuotes(data.content);
+
     if (data.author_id?.trim() === "") delete data.author_id;
     return data;
   });
@@ -170,6 +180,23 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
             <p className="text-sm font-light ml-1 text-gray-800">
               Esses scripts serão executados assim que a notícia carregar. Preencha somente se
               necessário.
+            </p>
+          </div>
+
+          <div>
+            <Form.Input
+              asChild
+              label="Script"
+              placeholder={`window.removeEventListener("click", () => {});`}
+              name="script"
+              validationError={errors.cleanup_script}
+              onInput={(e) => setData({ ...data, cleanup_script: e.currentTarget.value })}>
+              <textarea rows={10} />
+            </Form.Input>
+            <p className="text-sm font-light ml-1 text-gray-800">
+              Esse script será executado quando a página atual for desmontada. Utilize-o para
+              remover elementos adicionados fora da notícia ou outras manipulações que não são
+              automaticamente revertidas.
             </p>
           </div>
 
