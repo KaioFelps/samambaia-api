@@ -51,7 +51,7 @@ import type { RefObject } from "react";
 import type { Editor } from "tinymce/tinymce";
 import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 
-type TinyMCEEditorProps = Omit<IAllProps, "licenseKey"> & {
+export type TinyMCEEditorProps = Omit<IAllProps, "licenseKey"> & {
   validationError?: string;
   editorRef: RefObject<Editor | null>;
 };

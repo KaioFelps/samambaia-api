@@ -2,12 +2,13 @@ import { useForm } from "@inertiajs/react";
 import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { type FormEvent, lazy, Suspense, useRef } from "react";
+import { type FormEvent, useRef } from "react";
 import { toast } from "react-toastify";
 import type { Editor } from "tinymce";
 
 import MultiSelect, { type SelectOption } from "@/components/admin/multiselect";
 import Button from "@/components/button";
+import DynamicNoSsr from "@/components/dynamic-no-ssr";
 import Form from "@/components/form/admin-form";
 import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 import { Head } from "@/components/head";
@@ -16,10 +17,9 @@ import { Main } from "@/components/main";
 import { useCanSee } from "@/hooks/useCanSee";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
+import type { TinyMCEEditorProps } from "@/ui/admin/tiny-mce-editor";
 import { TinyMCEEditorSkeleton } from "@/ui/admin/tiny-mce-editor/skeleton";
 import { copyHtmlToClipboard } from "./shared";
-
-const TinyMCEEditor = lazy(() => import("@/ui/admin/tiny-mce-editor"));
 
 type AdminCreateArticlePageProps = {
   tags: ArticleTag[];
@@ -147,13 +147,13 @@ export default function AdminCreateArticlePage({ tags }: AdminCreateArticlePageP
             />
           </div>
 
-          <Suspense fallback={<TinyMCEEditorSkeleton />}>
-            <TinyMCEEditor
-              validationError={errors.content}
-              onEditorChange={(content) => setData({ ...data, content })}
-              editorRef={tinymce}
-            />
-          </Suspense>
+          <DynamicNoSsr<TinyMCEEditorProps>
+            importFn={() => import("@/ui/admin/tiny-mce-editor")}
+            fallback={<TinyMCEEditorSkeleton />}
+            validationError={errors.content}
+            onEditorChange={(content) => setData({ ...data, content })}
+            editorRef={tinymce}
+          />
 
           <div>
             <Form.Input

@@ -3,12 +3,13 @@ import { useForm } from "@inertiajs/react";
 import { ClipboardIcon } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
-import { type FormEvent, lazy, Suspense, useMemo, useRef } from "react";
+import { type FormEvent, useMemo, useRef } from "react";
 import { toast } from "react-toastify";
 import type { Editor } from "tinymce";
 import MultiSelect, { type SelectOption, type SelectOptions } from "@/components/admin/multiselect";
 import { Alert } from "@/components/alert";
 import Button from "@/components/button";
+import DynamicNoSsr from "@/components/dynamic-no-ssr";
 import Form from "@/components/form/admin-form";
 import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 import { Head } from "@/components/head";
@@ -18,11 +19,10 @@ import { useCanSee } from "@/hooks/useCanSee";
 import type { Article } from "@/types/article";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
+import type { TinyMCEEditorProps } from "@/ui/admin/tiny-mce-editor";
 import { TinyMCEEditorSkeleton } from "@/ui/admin/tiny-mce-editor/skeleton";
 import { contentsAreEquivalent, decodeQuotes, encodeQuotes } from "@/utils/quotes";
 import { copyHtmlToClipboard } from "./shared";
-
-const TinyMCEEditor = lazy(() => import("@/ui/admin/tiny-mce-editor"));
 
 type AdminEditArticlePageProps = PageProps & {
   article: Article | null;
@@ -233,14 +233,14 @@ export default function AdminEditArticlePage({ article, tags, flash }: AdminEdit
             />
           </div>
 
-          <Suspense fallback={<TinyMCEEditorSkeleton />}>
-            <TinyMCEEditor
-              validationError={errors.content}
-              onEditorChange={(content) => setData({ ...data, content })}
-              initialValue={data.content}
-              editorRef={tinymce}
-            />
-          </Suspense>
+          <DynamicNoSsr<TinyMCEEditorProps>
+            importFn={() => import("@/ui/admin/tiny-mce-editor")}
+            fallback={<TinyMCEEditorSkeleton />}
+            validationError={errors.content}
+            onEditorChange={(content) => setData({ ...data, content })}
+            initialValue={data.content}
+            editorRef={tinymce}
+          />
 
           <div>
             <Form.Input
