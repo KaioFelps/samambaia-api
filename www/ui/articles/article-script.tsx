@@ -2,12 +2,13 @@ import { useEffect, useId } from "react";
 
 type Props = {
   script: string;
+  cleanupScript: string | null;
 };
 
 const event: keyof WindowEventMap = "load";
 const HAS_INJECTED_SCRIPT_KEY = "__clientside_script_has_been_injected";
 
-export function ArticleScript({ script }: Props) {
+export function ArticleScript({ script, cleanupScript }: Props) {
   const scriptId = useId();
   useEffect(() => {
     const setHasInjectedScript = (value: boolean) => {
@@ -49,8 +50,14 @@ export function ArticleScript({ script }: Props) {
       window.removeEventListener(event, injectScriptsOnce);
       removeScripts();
       setHasInjectedScript(false);
+
+      if (cleanupScript) {
+        console.log(cleanupScript);
+        const cleanup = new Function(cleanupScript);
+        cleanup();
+      }
     };
-  }, [script, scriptId]);
+  }, [script, cleanupScript, scriptId]);
 
   return null;
 }

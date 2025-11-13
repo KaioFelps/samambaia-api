@@ -28,6 +28,12 @@ export default function ShowArticle(props: Props) {
     return script === "" ? null : decodeQuotes(script);
   }, [props.article.script]);
 
+  const cleanupScript = useMemo(() => {
+    if (!script) return null;
+    const cleanupScript = props.article.cleanupScript?.trim() ?? "";
+    return cleanupScript === "" ? null : decodeQuotes(cleanupScript);
+  }, [props.article.cleanupScript, script]);
+
   return (
     <>
       <Head
@@ -58,7 +64,7 @@ export default function ShowArticle(props: Props) {
 
       <ArticleFeed {...props.feed} />
 
-      {script && <ArticleScript script={script} />}
+      {script && <ArticleScript script={script} cleanupScript={cleanupScript} />}
     </>
   );
 }
