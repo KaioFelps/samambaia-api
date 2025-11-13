@@ -23,4 +23,7 @@ pub struct UpdateArticleDto {
 
     #[serde(default, deserialize_with = "deserialize_optional_option")]
     pub script: Option<Option<String>>,
+
+    #[serde(default, deserialize_with = "deserialize_optional_option")]
+    pub cleanup_script: Option<Option<String>>,
 }

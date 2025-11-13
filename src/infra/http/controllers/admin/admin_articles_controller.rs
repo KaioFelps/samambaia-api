@@ -243,14 +243,15 @@ impl AdminArticlesController {
         let service = create_article_service_factory::exec(&db_conn);
         let _article = service
             .exec(CreateArticleParams {
-                title: body.title,
-                content: body.content,
-                cover_url: body.cover_url,
+                title: body.title.unwrap(),
+                content: body.content.unwrap(),
+                cover_url: body.cover_url.unwrap(),
                 custom_author_id: body.author_id,
-                description: body.description,
+                description: body.description.unwrap(),
                 staff: &auth.user,
                 tags: body.tags,
                 script: None,
+                cleanup_script: None,
             })
             .await?;
 
@@ -287,6 +288,7 @@ impl AdminArticlesController {
                 title: None,
                 tags: None,
                 script: None,
+                cleanup_script: None,
             })
             .await
         {
@@ -327,6 +329,7 @@ impl AdminArticlesController {
                 user: &auth.user,
                 tags: body.tags,
                 script: body.script,
+                cleanup_script: body.cleanup_script,
             })
             .await
         {

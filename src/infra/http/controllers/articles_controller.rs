@@ -117,18 +117,20 @@ impl ArticlesController {
             description,
             tags,
             script,
+            cleanup_script,
         } = body;
 
         let article = service
             .exec(CreateArticleParams {
                 custom_author_id: author_id,
-                content,
-                cover_url,
-                title,
-                description,
+                content: content.unwrap(),
+                cover_url: cover_url.unwrap(),
+                title: title.unwrap(),
+                description: description.unwrap(),
                 staff: &user,
                 tags,
                 script,
+                cleanup_script,
             })
             .await?;
 
@@ -236,6 +238,7 @@ impl ArticlesController {
             description,
             tags,
             script,
+            cleanup_script,
         } = body
             .validate()
             .map(|_| body.into_inner())
@@ -267,6 +270,7 @@ impl ArticlesController {
                 description,
                 tags,
                 script,
+                cleanup_script,
             })
             .await?;
 
