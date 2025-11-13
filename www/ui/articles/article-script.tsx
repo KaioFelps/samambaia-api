@@ -52,7 +52,6 @@ export function ArticleScript({ script, cleanupScript }: Props) {
       setHasInjectedScript(false);
 
       if (cleanupScript) {
-        console.log(cleanupScript);
         const cleanup = new Function(cleanupScript);
         cleanup();
       }
