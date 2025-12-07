@@ -250,8 +250,8 @@ impl AdminArticlesController {
                 description: body.description.unwrap(),
                 staff: &auth.user,
                 tags: body.tags,
-                script: None,
-                cleanup_script: None,
+                script: body.script,
+                cleanup_script: body.cleanup_script,
             })
             .await?;
 
