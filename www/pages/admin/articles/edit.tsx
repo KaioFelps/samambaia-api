@@ -251,7 +251,7 @@ export default function AdminEditArticlePage({
             fallback={<TinyMCEEditorSkeleton />}
             validationError={errors.content}
             onEditorChange={(content) => setData({ ...data, content })}
-            initialValue={data.content}
+            initialValue={decodeQuotes(article.content)}
             editorRef={tinymce}
           />
 
