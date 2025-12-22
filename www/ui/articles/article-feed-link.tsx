@@ -9,8 +9,8 @@ type Props = {
 };
 
 export const ArticleFeedLink = memo(({ title, slug }: Props) => {
-  const url = usePage().url;
-  const isActive = url.endsWith(slug);
+  const url = new URL(usePage().url, "http://localhost"); // base ain't important here
+  const isActive = url.pathname.endsWith(slug);
 
   const LinkOrSpan = useMemo(() => (isActive ? "span" : Link), [isActive]);
 
