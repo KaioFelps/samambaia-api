@@ -5,6 +5,7 @@ import {
   forwardRef,
   type ReactElement,
   useCallback,
+  useEffect,
   useId,
 } from "react";
 import { toast } from "react-toastify";
@@ -29,7 +30,9 @@ export const ReportCommentDialog = forwardRef<HTMLButtonElement, Props>(
   ({ trigger, comment, open, setOpen, ...props }, ref) => {
     const formId = useId();
 
-    const { post, processing, errors, setData } = useForm<ReportCommentFormData>({ content: "" });
+    const { post, processing, errors, setData, wasSuccessful } = useForm<ReportCommentFormData>({
+      content: "",
+    });
 
     const handleReportComment = useCallback(
       (e: FormEvent) => {
@@ -39,6 +42,7 @@ export const ReportCommentDialog = forwardRef<HTMLButtonElement, Props>(
             toast.success("Denúncia realizada com sucesso.");
             setOpen(false);
           },
+          preserveScroll: true,
         });
       },
       [post, comment, setOpen],
@@ -89,8 +93,8 @@ export const ReportCommentDialog = forwardRef<HTMLButtonElement, Props>(
             </Dialog.Close>
 
             <PublicButton.Default
-              disabled={processing}
-              aria-busy={processing}
+              disabled={processing || wasSuccessful}
+              aria-busy={processing || wasSuccessful}
               type="submit"
               form={`report-comment-form-${formId}`}
               variant="yellow">
