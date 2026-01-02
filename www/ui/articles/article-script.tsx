@@ -1,5 +1,6 @@
 import { usePage } from "@inertiajs/react";
 import { useEffect, useId, useMemo } from "react";
+import { toast } from "react-toastify";
 import type { ShowArticleProps } from "@/pages/articles/show";
 import { decodeQuotes } from "@/utils/quotes";
 
@@ -45,19 +46,21 @@ export function ArticleScript() {
       scriptElement.id = scriptId;
 
       document.body.appendChild(scriptElement);
+
+      setTimeout(() => {
+        setHasInjectedScript(true);
+      }, 0);
     };
 
     const removeScripts = () => {
       const scriptElement = document.getElementById(scriptId);
       if (scriptElement) document.body.removeChild(scriptElement);
+      setHasInjectedScript(false);
     };
 
     const injectScriptsOnce = () => {
-      if (hasInjectedScript()) return;
-      setHasInjectedScript(true);
-
-      injectScripts();
       window.removeEventListener(event, injectScriptsOnce);
+      if (!hasInjectedScript()) injectScripts();
     };
 
     window.addEventListener(event, injectScriptsOnce);
@@ -66,13 +69,18 @@ export function ArticleScript() {
 
     return () => {
       window.removeEventListener(event, injectScriptsOnce);
-      removeScripts();
-      setHasInjectedScript(false);
 
-      if (cleanupScript) {
+      if (cleanupScript && hasInjectedScript()) {
         const cleanup = new Function(cleanupScript);
-        cleanup();
+        try {
+          cleanup();
+        } catch (error) {
+          console.error("An error occurred when running cleanup script", error);
+          toast.error("Houve um problema ao rodar o script de limpeza desta notícia.");
+        }
       }
+
+      removeScripts();
     };
   }, [script, cleanupScript, scriptId, page]);
 
