@@ -39,6 +39,7 @@ export const ReportCommentDialog = forwardRef<HTMLButtonElement, Props>(
             toast.success("Denúncia realizada com sucesso.");
             setOpen(false);
           },
+          preserveScroll: true,
         });
       },
       [post, comment, setOpen],
