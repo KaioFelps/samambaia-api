@@ -12,27 +12,16 @@ import { ArticleScript } from "@/ui/articles/article-script";
 import { CommentsSection } from "@/ui/articles/comments-section";
 import { decodeQuotes } from "@/utils/quotes";
 
-type Props = PageProps & {
+export type ShowArticleProps = PageProps & {
   article: ExpandedArticle;
   feed: Paginated<ArticlePreview[]>;
 };
 
-export default function ShowArticle(props: Props) {
+export default function ShowArticle(props: ShowArticleProps) {
   const articleContent = useMemo(
     () => decodeQuotes(props.article.content),
     [props.article.content],
   );
-
-  const script = useMemo(() => {
-    const script = props.article.script?.trim() ?? "";
-    return script === "" ? null : decodeQuotes(script);
-  }, [props.article.script]);
-
-  const cleanupScript = useMemo(() => {
-    if (!script) return null;
-    const cleanupScript = props.article.cleanupScript?.trim() ?? "";
-    return cleanupScript === "" ? null : decodeQuotes(cleanupScript);
-  }, [props.article.cleanupScript, script]);
 
   return (
     <>
@@ -64,7 +53,7 @@ export default function ShowArticle(props: Props) {
 
       <ArticleFeed {...props.feed} />
 
-      {script && <ArticleScript script={script} cleanupScript={cleanupScript} />}
+      <ArticleScript />
     </>
   );
 }

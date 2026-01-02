@@ -1,23 +1,41 @@
-import { useEffect, useId } from "react";
+import { usePage } from "@inertiajs/react";
+import { useEffect, useId, useMemo } from "react";
+import type { ShowArticleProps } from "@/pages/articles/show";
+import { decodeQuotes } from "@/utils/quotes";
 
-type Props = {
-  script: string;
-  cleanupScript: string | null;
-};
+type ExtendedWindow = Window &
+  typeof globalThis & {
+    [HAS_INJECTED_SCRIPT_KEY]: boolean | undefined;
+  };
 
 const event: keyof WindowEventMap = "load";
 const HAS_INJECTED_SCRIPT_KEY = "__clientside_script_has_been_injected";
 
-export function ArticleScript({ script, cleanupScript }: Props) {
+export function ArticleScript() {
+  const page = usePage<ShowArticleProps>();
   const scriptId = useId();
+
+  const script = useMemo(() => {
+    const script = page.props.article.script?.trim() ?? "";
+    return script === "" ? null : decodeQuotes(script);
+  }, [page.props.article.script]);
+
+  const cleanupScript = useMemo(() => {
+    if (!script) return null;
+    const cleanupScript = page.props.article.cleanupScript?.trim() ?? "";
+    return cleanupScript === "" ? null : decodeQuotes(cleanupScript);
+  }, [page.props.article.cleanupScript, script]);
+
   useEffect(() => {
+    if (!page.props.article.script || !script) return;
+
     const setHasInjectedScript = (value: boolean) => {
-      (window as unknown as Record<string, unknown>)[HAS_INJECTED_SCRIPT_KEY] = value;
+      (window as ExtendedWindow)[HAS_INJECTED_SCRIPT_KEY] = value;
     };
 
     const hasInjectedScript = (): boolean => {
-      const hasInjected = (window as unknown as Record<string, unknown>)[HAS_INJECTED_SCRIPT_KEY];
-      return (hasInjected as boolean) ?? false;
+      const hasInjected = (window as ExtendedWindow)[HAS_INJECTED_SCRIPT_KEY];
+      return hasInjected ?? false;
     };
 
     const injectScripts = () => {
@@ -56,7 +74,7 @@ export function ArticleScript({ script, cleanupScript }: Props) {
         cleanup();
       }
     };
-  }, [script, cleanupScript, scriptId]);
+  }, [script, cleanupScript, scriptId, page]);
 
   return null;
 }
