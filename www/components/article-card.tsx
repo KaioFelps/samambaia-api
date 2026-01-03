@@ -22,7 +22,7 @@ export function ArticleCard({
         "overflow-hidden rounded-lg border-2 border-gray-700 hover:bg-gray-100",
         "hover:shadow-black/10 hover:shadow-md p-2 flex gap-2 relative",
         // before
-        "before:bg-gray-250 before:absolute before:bottom-1 before:inset-x-1 before:h-[40px]",
+        "before:bg-gray-250 before:absolute before:bottom-1 before:inset-x-1 before:h-10",
         "hover:before:h-16 before:rounded-md before:pointer-events-none",
         "before:transition-[height] before:duration-100",
         // after
@@ -38,9 +38,9 @@ export function ArticleCard({
         }}
         className={clsx(
           "pixelated min-w-32 min-h-[100px] rounded-lg relative top-0 group-hover:-top-1",
-          "shadow-black/25 group-hover:shadow-black/30",
-          "shadow-[inset_0_0_0_2px] group-hover:shadow-md",
-          "transition-all duration-150 will-change-[shadow,_top]",
+          "ring-inset ring-2 ring-black/25",
+          "group-hover:shadow-black/30 group-hover:shadow-md",
+          "transition-all duration-150 will-change-[shadow,top]",
         )}
       />
 
