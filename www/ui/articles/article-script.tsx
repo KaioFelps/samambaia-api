@@ -1,43 +1,21 @@
-import { usePage } from "@inertiajs/react";
-import { useEffect, useId, useMemo } from "react";
+import { memo, useEffect, useId } from "react";
 import { toast } from "react-toastify";
-import type { ShowArticleProps } from "@/pages/articles/show";
-import { decodeQuotes } from "@/utils/quotes";
-
-type ExtendedWindow = Window &
-  typeof globalThis & {
-    [HAS_INJECTED_SCRIPT_KEY]: boolean | undefined;
-  };
 
 const event: keyof WindowEventMap = "load";
-const HAS_INJECTED_SCRIPT_KEY = "__clientside_script_has_been_injected";
 
-export function ArticleScript() {
-  const page = usePage<ShowArticleProps>();
+let HAS_INJECTED_SCRIPT = false;
+let HAS_EXECUTED_SCRIPT = false;
+
+type Props = {
+  script: string | null;
+  cleanupScript: string | null;
+};
+
+export const ArticleScript = memo(({ script, cleanupScript }: Props) => {
   const scriptId = useId();
 
-  const script = useMemo(() => {
-    const script = page.props.article.script?.trim() ?? "";
-    return script === "" ? null : decodeQuotes(script);
-  }, [page.props.article.script]);
-
-  const cleanupScript = useMemo(() => {
-    if (!script) return null;
-    const cleanupScript = page.props.article.cleanupScript?.trim() ?? "";
-    return cleanupScript === "" ? null : decodeQuotes(cleanupScript);
-  }, [page.props.article.cleanupScript, script]);
-
   useEffect(() => {
-    if (!page.props.article.script || !script) return;
-
-    const setHasInjectedScript = (value: boolean) => {
-      (window as ExtendedWindow)[HAS_INJECTED_SCRIPT_KEY] = value;
-    };
-
-    const hasInjectedScript = (): boolean => {
-      const hasInjected = (window as ExtendedWindow)[HAS_INJECTED_SCRIPT_KEY];
-      return hasInjected ?? false;
-    };
+    if (!script) return;
 
     const injectScripts = () => {
       const scriptElement = document.createElement("script");
@@ -46,21 +24,22 @@ export function ArticleScript() {
       scriptElement.id = scriptId;
 
       document.body.appendChild(scriptElement);
+      HAS_INJECTED_SCRIPT = true;
 
       setTimeout(() => {
-        setHasInjectedScript(true);
+        HAS_EXECUTED_SCRIPT = true;
       }, 0);
     };
 
     const removeScripts = () => {
       const scriptElement = document.getElementById(scriptId);
       if (scriptElement) document.body.removeChild(scriptElement);
-      setHasInjectedScript(false);
+      HAS_INJECTED_SCRIPT = false;
     };
 
     const injectScriptsOnce = () => {
       window.removeEventListener(event, injectScriptsOnce);
-      if (!hasInjectedScript()) injectScripts();
+      if (!HAS_INJECTED_SCRIPT) injectScripts();
     };
 
     window.addEventListener(event, injectScriptsOnce);
@@ -70,7 +49,7 @@ export function ArticleScript() {
     return () => {
       window.removeEventListener(event, injectScriptsOnce);
 
-      if (cleanupScript && hasInjectedScript()) {
+      if (cleanupScript && HAS_EXECUTED_SCRIPT) {
         const cleanup = new Function(cleanupScript);
         try {
           cleanup();
@@ -79,10 +58,10 @@ export function ArticleScript() {
           toast.error("Houve um problema ao rodar o script de limpeza desta notícia.");
         }
       }
-
+      HAS_EXECUTED_SCRIPT = false;
       removeScripts();
     };
-  }, [script, cleanupScript, scriptId, page]);
+  });
 
   return null;
-}
+});

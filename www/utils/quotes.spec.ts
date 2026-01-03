@@ -58,6 +58,47 @@ describe("Articles Double Quotes Encoding", () => {
     expect(contentsAreEquivalent("<p>Foo&amp;apos;</p>", "<p>Foo&amp;quot;</p>")).toBeFalsy();
     expect(contentsAreEquivalent("a", "b")).toBeFalsy();
   });
+
+  it("should loosely assert equivalency on non-breaking spaces and regular spaces", () => {
+    expect(contentsAreEquivalent("Foo bar", "Foo&nbsp;bar")).toBeTruthy();
+  });
+
+  it("", () => {
+    expect(
+      contentsAreEquivalent(
+        `<span id="closeModalBtn" class="close">×</span>`,
+        `<span id="closeModalBtn" class="close">&times;</span>`,
+      ),
+    ).toBeTruthy();
+
+    expect(
+      contentsAreEquivalent(
+        `<p>Nos arquivos empoeirados do antigo instituto, há menção a um método que pouco se comenta pelos corredores: o tratamento de choque. Criado sob o pretexto de curar mentes perturbadas e traumas do subconsciente humano, logo acabou tornando-se uma prática de puro tormento.</p>`,
+        `<p>Nos arquivos empoeirados do antigo instituto, h&aacute; men&ccedil;&atilde;o a um m&eacute;todo que pouco se comenta pelos corredores: o tratamento de choque. Criado sob o pretexto de curar mentes perturbadas e traumas do subconsciente humano, logo&nbsp;acabou tornando-se uma pr&aacute;tica de puro tormento.</p>`,
+      ),
+    ).toBeTruthy();
+
+    expect(
+      contentsAreEquivalent(
+        `<p>Contam que nos corredores úmidos daquele refúgio, o ar vibrava com um zumbido metálico ao primeiro grito. Os pacientes amarrados em macas enferrujadas, sofriam com as descargas que prometiam libertá-los da loucura, mas após o estalo da corrente elétrica, a insanidade pairava.</p>`,
+        `<p>Contam que&nbsp;nos corredores &uacute;midos daquele ref&uacute;gio, o ar vibrava com um zumbido met&aacute;lico ao primeiro grito. Os pacientes amarrados em&nbsp;macas enferrujadas, sofriam com as descargas que prometiam libert&aacute;-los da loucura, mas ap&oacute;s o estalo da corrente el&eacute;trica, a insanidade pairava.</p>`,
+      ),
+    ).toBeTruthy();
+
+    expect(
+      contentsAreEquivalent(
+        `<p><em>Na <strong>Caixa da Ruptura</strong>, existem dezoito itens possíveis. Combine-os na <strong>Mesa de Choque</strong> para a geração dos voodoos Pennywise, Samara, Chucky, Jigsaw, Freddy Krueger e Leatherface. Ao final da campanha, os raros serão emplacados. Assim, atento ao limite, apresse-se para obter!</em></p>`,
+        `<p><em>Na <strong>Caixa da&nbsp;Ruptura</strong>, existem dezoito&nbsp;itens poss&iacute;veis. Combine-os na <strong>Mesa de Choque</strong> para a gera&ccedil;&atilde;o dos&nbsp;voodoos&nbsp;Pennywise, Samara, Chucky, Jigsaw, Freddy&nbsp;Krueger e Leatherface. Ao final&nbsp;da campanha, os raros ser&atilde;o emplacados. Assim, atento&nbsp;ao limite, apresse-se para obter!</em></p>`,
+      ),
+    ).toBeTruthy();
+
+    expect(
+      contentsAreEquivalent(
+        `<h2 class="oiiw" style="left: 315px !important;">Mesa de Criação</h2>`,
+        `<h2 class="oiiw" style="left: 315px !important;">Mesa de Cria&ccedil;&atilde;o</h2>`,
+      ),
+    ).toBeTruthy();
+  });
 });
 
 // describe("Articles Double Quotes Decoding", () => {

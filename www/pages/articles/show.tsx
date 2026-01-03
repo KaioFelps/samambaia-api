@@ -1,5 +1,4 @@
 import type { PageProps } from "@inertiajs/core/types";
-import { useMemo } from "react";
 import { Head } from "@/components/head";
 import { Main } from "@/components/main";
 import type { ArticlePreview } from "@/types/article-preview";
@@ -10,7 +9,7 @@ import { ArticleFeed } from "@/ui/articles/article-feed";
 import { ArticleFooter } from "@/ui/articles/article-footer";
 import { ArticleScript } from "@/ui/articles/article-script";
 import { CommentsSection } from "@/ui/articles/comments-section";
-import { decodeQuotes } from "@/utils/quotes";
+import { useSynchronizedAndMemoizedArticleData } from "./hooks";
 
 export type ShowArticleProps = PageProps & {
   article: ExpandedArticle;
@@ -18,10 +17,13 @@ export type ShowArticleProps = PageProps & {
 };
 
 export default function ShowArticle(props: ShowArticleProps) {
-  const articleContent = useMemo(
-    () => decodeQuotes(props.article.content),
-    [props.article.content],
-  );
+  const {
+    content,
+    cleanupScript,
+    script,
+    tags,
+    version: articleMemoizationVersion,
+  } = useSynchronizedAndMemoizedArticleData(props.article);
 
   return (
     <>
@@ -33,9 +35,10 @@ export default function ShowArticle(props: ShowArticleProps) {
 
       <Main className="flex-1 max-w-main-center-content basis-main-center-content">
         <ArticleContainer
+          key={`article-content-memoization-v${articleMemoizationVersion}-content`}
           title={props.article.title}
-          tags={props.article.tags}
-          content={articleContent}
+          tags={tags}
+          content={content}
         />
 
         <ArticleFooter
@@ -53,7 +56,11 @@ export default function ShowArticle(props: ShowArticleProps) {
 
       <ArticleFeed {...props.feed} />
 
-      <ArticleScript />
+      <ArticleScript
+        key={`article-content-memoization-v${articleMemoizationVersion}-script`}
+        script={script}
+        cleanupScript={cleanupScript}
+      />
     </>
   );
 }
