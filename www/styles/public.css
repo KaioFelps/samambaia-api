@@ -6,17 +6,11 @@
 }
 
 @utility main-screen-centralized {
-  @apply max-w-(--breakpoint-main) w-[calc(100%_-_48px)] mx-auto;
+  @apply max-w-(--breakpoint-main) w-full-mx mx-auto;
 }
 
 @utility navbar-item {
-  @apply relative border-r-2 border-black flex items-center
-        justify-center gap-3 px-6 text-white font-bold select-none
-
-        ring-purple-500 ring-0 focus-visible:ring-4 transition-all duration-100
-        focus-visible:z-10 outline-hidden
-
-        hover:bg-black/10 active:bg-black/20;
+  @apply relative border-r-2 border-black flex items-center justify-center gap-3 px-6 text-white font-bold select-none ring-purple-500 ring-0 focus-visible:ring-4 transition-all duration-100 focus-visible:z-10 outline-hidden hover:bg-black/10 active:bg-black/20;
 }
 
 @utility section-header {
@@ -27,6 +21,7 @@
   & > :where(h1, h2, h3, h4, h5, h6) {
     color: var(--color-white);
     font-size: var(--text-lg);
+    line-height: 27px;
     font-weight: var(--font-weight-bold);
     text-shadow: 0 2.5px color-mix(in oklab, var(--color-black) 30%, transparent);
   }
@@ -273,18 +268,11 @@
 
 @utility btn-arrow-green {
   /* arrow buttons */
-  @apply grid place-items-center size-7 rounded-md border-2 border-black transition-[background] duration-100
-            bg-green-500 shadow-white/40 shadow-[inset_0_0_0_2px]
-            enabled:hover:bg-green-600 enabled:active:bg-green-700 enabled:active:brightness-95
-            outline-hidden ring-0 focus:ring-4 ring-green-300
-            disabled:saturate-0;
+  @apply grid place-items-center size-7 rounded-md border-2 border-black transition-[background] duration-100 bg-green-500 shadow-white/40 shadow-[inset_0_0_0_2px] enabled:hover:bg-green-600 enabled:active:bg-green-700 enabled:active:brightness-95 outline-hidden ring-0 focus:ring-4 ring-green-300 disabled:saturate-0;
 }
 
 @utility text-input {
-  @apply block w-full bg-white px-4 py-3 rounded-md border-2 border-gray-400 text-sm placeholder:text-gray-700
-        text-gray-800 outline-hidden ring-0 enabled:shadow-black/10 enabled:shadow-[inset_0_2px__0_0]
-        focus-visible:border-purple-700 ring-purple-500/40 focus-visible:ring-4 transition-all will-change-[box-shadow]
-        data-invalid:border-red-700 data-invalid:ring-red-700/40;
+  @apply block w-full bg-white px-4 py-3 rounded-md border-2 border-gray-400 text-sm placeholder:text-gray-700 text-gray-800 outline-hidden ring-0 enabled:shadow-black/10 enabled:shadow-[inset_0_2px__0_0] focus-visible:border-purple-700 ring-purple-500/40 focus-visible:ring-4 transition-all will-change-[box-shadow] data-invalid:border-red-700 data-invalid:ring-red-700/40;
 
   &:disabled,
   &.disabled {
@@ -297,9 +285,7 @@
 }
 
 @utility dialog-close-btn {
-  @apply transition-all duration-150 will-change-[shadow]
-            outline-hidden ring-0 focus-visible:ring-4 ring-purple-100 rounded-md
-            hover:brightness-90 active:brightness-75;
+  @apply transition-all duration-150 will-change-[shadow] outline-hidden ring-0 focus-visible:ring-4 ring-purple-100 rounded-md hover:brightness-90 active:brightness-75;
 }
 
 @utility public-droppable-arrow-bottom-drop-shadow {

@@ -1,7 +1,7 @@
 import { Head, Link, router } from "@inertiajs/react";
-import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import clsx from "clsx";
 import { memo, useCallback } from "react";
-
 import { Alert } from "@/components/alert";
 import { ArticleCard } from "@/components/article-card";
 import { BadgeCard } from "@/components/badge-card";
@@ -45,12 +45,11 @@ const ArticlesSection = memo(({ articles }: { articles: ArticlePreview[] }) => (
             0 2px 0 0 color-mix(in oklab, var(--color-white) 25%, transparent),
             inset 0 2px 0 0 color-mix(in oklab, var(--color-white) 50%, transparent)`,
         }}
-        className="
-          flex items-center gap-1 text-white text-sm font-medium
-          border-2 border-gray-800 bg-blue-500 px-2 py-[5.5px] rounded-[6px]
-          leading-tight
-          ">
-        <Plus size={16} weight="bold" />
+        className={clsx(
+          "flex items-center gap-1 text-white text-sm font-medium border-2",
+          "border-gray-800 bg-blue-500 px-2 py-[5.5px] -my-1 rounded-md leading-normal",
+        )}>
+        <PlusIcon size={16} weight="bold" />
         Ver mais notícias
       </Link>
     </header>
@@ -104,9 +103,7 @@ const FreeBadgeSection = memo(({ badges, currentPage }: FreeBadgeSectionProps) =
       </header>
 
       {badges.length > 0 ? (
-        <div className="grid grid-cols-[repeat(13,minmax(0,1fr))] grid-flow-row gap-1">
-          {badges.map(BadgeCard)}
-        </div>
+        <div className="grid grid-cols-13 grid-flow-row gap-1">{badges.map(BadgeCard)}</div>
       ) : (
         <Alert className="mt-3" type="warning" message="Não tem nenhum emblema grátis!" />
       )}
