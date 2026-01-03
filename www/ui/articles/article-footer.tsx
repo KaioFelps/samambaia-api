@@ -20,9 +20,9 @@ export function ArticleFooter({ authorNickname, publishmentDate }: Props) {
               head_direction: "3",
               size: "m",
               img_format: "png",
-            })}) no-repeat calc((90px - 64px) / 2 * -1) -14px`,
+            })}) no-repeat calc((90px - 64px) / 2 * -1) -26px`,
           }}
-          className="pixelated w-16 h-[72px]"
+          className="pixelated w-16 h-[60px] my-0.5"
         />
         <div className="flex flex-col justify-center items-start text-sm text-gray-700">
           <span className="flex gap-0.5 items-center">
