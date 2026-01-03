@@ -32,7 +32,8 @@ export function contentsAreEquivalent(a?: string, b?: string) {
   if (a.includes("&amp;quot;")) a = decodeQuotes(a);
   if (b.includes("&amp;quot;")) b = decodeQuotes(b);
 
-  const decodedA = decode(a);
-  const decodedB = decode(b);
+  const decodedA = decode(a).replaceAll("\u00A0", " ");
+  const decodedB = decode(b).replaceAll("\u00A0", " ");
+
   return decodedA === decodedB;
 }
