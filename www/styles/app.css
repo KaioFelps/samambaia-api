@@ -278,7 +278,7 @@
     display: block;
     word-wrap: break-word;
 
-    &:not(:last-child) {
+    &:not(:last-child, :has(+ style:last-child)) {
       margin-bottom: calc(var(--spacing) * 3);
     }
   }
