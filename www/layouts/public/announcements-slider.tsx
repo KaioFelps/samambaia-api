@@ -36,6 +36,7 @@ export const AnnouncementsSlider = memo(() => {
           setAnnouncements([]);
         },
         preserveState: true,
+        preserveScroll: true,
       },
     );
   });
