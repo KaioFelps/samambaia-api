@@ -66,15 +66,15 @@ export const ArticleListCard = memo(
           {title}
         </span>
 
-        <div className="max-w-3/5 flex gap-2 items-center justify-end grow">
-          <div className="overflow-x-auto no-scrollbar snap-mandatory snap-x flex gap-2 items-center">
+        <div className="max-w-3/5 flex gap-2 items-center justify-end">
+          <div className="overflow-x-auto no-scrollbar snap-mandatory snap-x flex gap-2 items-center rounded-full">
             {tags.map((tag) => (
               <Chip
                 key={`article-list-card-${id}-tag-${tag.id}`}
                 icon={TagIcon}
                 text={tag.value}
                 size="sm"
-                className="whitespace-nowrap snap-center snap-normal"
+                className="whitespace-nowrap snap-center snap-normal bg-purple-300/10"
               />
             ))}
           </div>
@@ -94,7 +94,7 @@ export const ArticleListCard = memo(
           />
         </div>
 
-        <div className="flex items-center justify-end gap-1 grow max-w-20">
+        <div className="flex items-center justify-end gap-1 max-w-20 shrink-0">
           <DeleteArticleButton articleId={id} articleTitle={title} />
 
           {(auth?.user.id === author.id || can(auth?.permissions, Permission.UpdateArticle)) && (
