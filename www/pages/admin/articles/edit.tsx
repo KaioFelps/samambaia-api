@@ -15,6 +15,7 @@ import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 import { Head } from "@/components/head";
 import Header from "@/components/header";
 import { Main } from "@/components/main";
+import { routes } from "@/config/routes";
 import { useCanSee } from "@/hooks/useCanSee";
 import type { Article } from "@/types/article";
 import type { ArticleTag } from "@/types/article-tag";
@@ -132,9 +133,8 @@ export default function AdminEditArticlePage({
     clearErrors();
 
     if (!article) return;
-    const endpoint = `/gremio/noticias/${article.id}/atualizar`;
 
-    put(endpoint, {
+    put(routes.admin.articles.updateChanges(article.id), {
       onSuccess: () => {
         toast("Notícia editada.", { type: "success" });
       },

@@ -8,6 +8,7 @@ import { Head } from "@/components/head";
 import Header from "@/components/header";
 import { Main } from "@/components/main";
 import Pagination from "@/components/pagination";
+import { routes } from "@/config/routes";
 import { useMemoizedPaginatorParameters } from "@/hooks/pagination";
 import { useCanSee } from "@/hooks/useCanSee";
 import type { ArticlePreview } from "@/types/article-preview";
@@ -51,7 +52,7 @@ export default function AdminArticleHome({ articles, flash }: AdminArticleHomePr
           <Header.Divisor />
           <Header.Actions>
             {userCanCreateArticle && (
-              <Button admin asLink href="/gremio/noticias/nova" variant="default">
+              <Button admin asLink href={routes.admin.articles.create} variant="default">
                 Criar notícia
               </Button>
             )}

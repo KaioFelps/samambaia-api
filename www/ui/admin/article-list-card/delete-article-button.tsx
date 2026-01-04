@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import Dialog from "@/components/admin/dialog";
 import Button from "@/components/button";
 import { IconButton } from "@/components/icon-button";
+import { routes } from "@/config/routes";
 import { useCanSee } from "@/hooks/useCanSee";
 import { Permission } from "@/types/auth";
 
@@ -18,8 +19,7 @@ export const DeleteArticleButton = memo(({ articleId, articleTitle }: DeleteArti
   const [processing, setProcessing] = useState(false);
 
   const handleDeleteArticleAndComments = useCallback(() => {
-    const endpoint = `/gremio/noticias/${articleId}/apagar`;
-    router.delete(endpoint, {
+    router.delete(routes.admin.articles.delete(articleId), {
       onStart: () => setProcessing(true),
       onFinish: () => setProcessing(false),
       onError: (errors) => {

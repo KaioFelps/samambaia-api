@@ -1,3 +1,5 @@
+import type { Article } from "@/types/article";
+
 export const routes = {
   tools: {
     imager: "/tools/imager",
@@ -19,7 +21,13 @@ export const routes = {
   admin: {
     home: "/gremio",
     articles: {
+      list: "/gremio/noticias",
       create: "/gremio/noticias/nova",
+      edit: (articleId: Article["id"]) => `/gremio/noticias/${articleId}/editar`,
+      updateChanges: (articleId: Article["id"]) => `/gremio/noticias/${articleId}/atualizar`,
+      storeNewArticle: "/gremio/noticias/criar",
+      toggleApproved: (articleId: string) => `/gremio/noticias/${articleId}/alterar-aprovado`,
+      delete: (articleId: Article["id"]) => `/gremio/noticias/${articleId}/apagar`,
     },
   },
 } as const;

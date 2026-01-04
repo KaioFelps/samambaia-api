@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 
 import { Chip } from "@/components/chip";
 import { IconButton } from "@/components/icon-button";
+import { routes } from "@/config/routes";
 import type { ArticlePreview } from "@/types/article-preview";
 import { Permission } from "@/types/auth";
 import { can } from "@/utils/can";
@@ -31,7 +32,7 @@ export const ArticleListCard = memo(
 
     const handleToggleApproved = useCallback(() => {
       clearErrors();
-      const endpoint = `/gremio/noticias/${id}/alterar-aprovado`;
+      const endpoint = routes.admin.articles.toggleApproved(id);
 
       patch(endpoint, {
         errorBag: `change-article-approved-${id}`,
@@ -105,7 +106,7 @@ export const ArticleListCard = memo(
               theme="warn"
               icon={PencilSimple}
               asLink
-              href={`/gremio/noticias/${id}/editar`}
+              href={routes.admin.articles.edit(id)}
             />
           )}
 
@@ -116,7 +117,7 @@ export const ArticleListCard = memo(
             theme="info"
             icon={Eye}
             asLink
-            href={`/noticias/${slug}`}
+            href={routes.web.article.view(slug)}
           />
         </div>
       </article>

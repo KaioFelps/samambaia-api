@@ -14,6 +14,7 @@ import { ValidationErrorSpan } from "@/components/form/validation-error-alert";
 import { Head } from "@/components/head";
 import Header from "@/components/header";
 import { Main } from "@/components/main";
+import { routes } from "@/config/routes";
 import { useCanSee } from "@/hooks/useCanSee";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
@@ -77,7 +78,7 @@ export default function AdminCreateArticlePage({ tags, auth }: AdminCreateArticl
   const handleCreateArticle = (e: FormEvent) => {
     e.preventDefault();
     clearErrors();
-    post("/gremio/noticias/criar", {
+    post(routes.admin.articles.storeNewArticle, {
       onSuccess: () => {
         toast.success("Notícia criada com sucesso! Peça para que a revisem.", { autoClose: 3000 });
       },
