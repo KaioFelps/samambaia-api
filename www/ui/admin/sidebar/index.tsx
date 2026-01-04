@@ -20,7 +20,7 @@ import { SidebarSectionTitle } from "./sidebar-section-title";
 
 export const SidebarMenu = memo(() => {
   return (
-    <aside className={clsx("[grid-area:_aside] ml-6 w-80")}>
+    <aside className={clsx("[grid-area:aside] ml-6 w-80")}>
       <div className="sticky top-6 max-h-full">
         <Accordion.Root type="multiple" className="flex flex-col gap-2">
           <SidebarMenuLink icon={HouseIcon} href="/gremio" label="Home" />
@@ -34,11 +34,17 @@ export const SidebarMenu = memo(() => {
             requires={{
               permissions: ["CreateArticle", "DeleteArticle", "UpdateArticle", "ApproveArticle"],
             }}>
-            <SidebarMenuItem href="/gremio/noticias" label="Gerenciar notícias" />
+            <SidebarMenuItem href={routes.admin.articles.list} label="Gerenciar notícias" />
+            <SidebarMenuItem href={routes.admin.tags.list} label="Gerenciar tags de notícias" />
             <SidebarMenuItem
               href={routes.admin.articles.create}
               label="Nova notícia"
               requires="CreateArticle"
+            />
+            <SidebarMenuItem
+              href={routes.admin.tags.create}
+              label="Nova tag"
+              requires="CreateArticleTag"
             />
           </SidebarMenuSection>
 
