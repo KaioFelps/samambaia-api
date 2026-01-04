@@ -36,6 +36,7 @@ export const routes = {
       edit: (tagId: ArticleTag["id"]) => `/gremio/tags/${tagId}/editar`,
       delete: (tagId: ArticleTag["id"]) => `/gremio/tags/${tagId}/apagar`,
       storeNewTag: "/gremio/tags/criar",
+      updateChanges: (tagId: ArticleTag["id"]) => `/gremio/tags/${tagId}/atualizar`,
     },
   },
 } as const;

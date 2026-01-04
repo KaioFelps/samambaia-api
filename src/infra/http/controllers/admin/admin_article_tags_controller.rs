@@ -1,5 +1,5 @@
 use actix_session::Session;
-use actix_web::web::{self, Data, Json, Query, Redirect};
+use actix_web::web::{self, Data, Json, Path, Query, Redirect};
 use actix_web::{Either, HttpRequest};
 use inertia_rust::validators::InertiaValidateOrRedirect;
 use inertia_rust::{Inertia, InertiaFacade, InertiaProp, hashmap};
@@ -8,15 +8,20 @@ use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::journalism::article_tags::{
     create_article_tag_service_factory,
     fetch_many_article_tags_service_factory,
+    find_article_tag_by_id_service_factory,
+    update_article_tag_service_factory,
 };
 use crate::domain::services::journalism::article_tags::create_article_tag_service::CreateArticleTagParams;
 use crate::domain::services::journalism::article_tags::fetch_many_article_tags_service::FetchManyArticleTagsParams;
+use crate::domain::services::journalism::article_tags::find_article_tag_by_id_service::FindArticleTagByIdParams;
+use crate::domain::services::journalism::article_tags::update_article_tag_service::UpdateArticleTagParams;
 use crate::error::IntoSamambaiaError;
 use crate::infra::extensions::sessions::SessionHelpers;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::{AppResponse, AppResponseRedirect};
 use crate::infra::http::dtos::create_article_tag::CreateArticleTagDto;
 use crate::infra::http::dtos::list_article_tags::ListArticleTagsDto;
+use crate::infra::http::dtos::update_article_tag::UpdateArticleTagDto;
 use crate::infra::http::middlewares::web::WebAuthUser;
 use crate::infra::http::middlewares::web::has_permission::{
     PermissionComparisonMode,
@@ -59,6 +64,24 @@ impl ControllerTrait for AdminArticleTagsController {
                             PermissionComparisonMode::Any,
                         ))
                         .to(Self::store),
+                )
+                .route(
+                    "{tag_id}/editar",
+                    web::get()
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![RolePermissions::UpdateArticleTag],
+                            PermissionComparisonMode::Any,
+                        ))
+                        .to(Self::edit),
+                )
+                .route(
+                    "{tag_id}/atualizar",
+                    web::put()
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![RolePermissions::UpdateArticleTag],
+                            PermissionComparisonMode::Any,
+                        ))
+                        .to(Self::update),
                 ),
         );
     }
@@ -140,6 +163,57 @@ impl AdminArticleTagsController {
                 tag.value(),
                 tag.id()
             ),
+        );
+
+        Ok(Inertia::back(&req))
+    }
+
+    async fn edit(req: HttpRequest, tag_id: Path<u32>, db_conn: Data<SeaService>) -> AppResponse {
+        let find_tag_service = find_article_tag_by_id_service_factory::exec(&db_conn);
+
+        let tag_id = tag_id.into_inner();
+        let tag = find_tag_service
+            .exec(FindArticleTagByIdParams { tag_id })
+            .await
+            .map(|response| response.tag.map(ArticleTagPresenter::to_http))?;
+
+        Inertia::render_with_props(
+            &req,
+            "admin/articles/tags/edit".into(),
+            hashmap![
+                "tag" => InertiaProp::data(tag)
+            ],
+        )
+        .await
+        .map_err(IntoSamambaiaError::into_samambaia_error)
+    }
+
+    async fn update(
+        req: HttpRequest,
+        tag_id: Path<u32>,
+        body: Json<UpdateArticleTagDto>,
+        db_conn: Data<SeaService>,
+        auth_user: WebAuthUser,
+    ) -> AppResponse<Redirect> {
+        let body = match body.validate_or_back(&req) {
+            Err(redirect) => return Ok(redirect),
+            Ok(body) => body,
+        };
+
+        let update_tag_service = update_article_tag_service_factory::exec(&db_conn);
+
+        let tag = update_tag_service
+            .exec(UpdateArticleTagParams {
+                tag_id: tag_id.into_inner() as i32,
+                user_role: auth_user.user.role().unwrap(),
+                value: body.value,
+            })
+            .await?;
+
+        Session::flash_silently(
+            &req,
+            "updateArticleTagSuccess",
+            format!("Tag {} atualizada com sucesso!", tag.value()),
         );
 
         Ok(Inertia::back(&req))
