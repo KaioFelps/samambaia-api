@@ -35,7 +35,7 @@ export const SidebarMenu = memo(() => {
               permissions: ["CreateArticle", "DeleteArticle", "UpdateArticle", "ApproveArticle"],
             }}>
             <SidebarMenuItem href={routes.admin.articles.list} label="Gerenciar notícias" />
-            <SidebarMenuItem href={routes.admin.tags.list} label="Gerenciar tags de notícias" />
+            <SidebarMenuItem href={routes.admin.tags.list} label="Gerenciar tags" />
             <SidebarMenuItem
               href={routes.admin.articles.create}
               label="Nova notícia"
