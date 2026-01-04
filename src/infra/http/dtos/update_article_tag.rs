@@ -3,6 +3,9 @@ use validator::Validate;
 
 #[derive(Serialize, Deserialize, Validate)]
 pub struct UpdateArticleTagDto {
-    #[validate(length(min = 1, message = "Article tag value must be at least one char long."))]
+    #[validate(length(
+        min = 1,
+        message = "O conteúdo de uma tag de notícia precisa ter pelo menos 1 caractere."
+    ))]
     pub value: Option<String>,
 }
