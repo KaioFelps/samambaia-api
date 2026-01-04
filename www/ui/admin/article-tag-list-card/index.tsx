@@ -2,6 +2,7 @@ import { usePage } from "@inertiajs/react";
 import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import { memo } from "react";
 import { AdminIconButton } from "@/components/icon-button/admin-icon-button";
+import { routes } from "@/config/routes";
 import type { ArticleTag } from "@/types/article-tag";
 import { Permission } from "@/types/auth";
 import { can } from "@/utils/can";
@@ -26,7 +27,7 @@ export const ArticleTagListCard = memo(({ id, value }: Props) => {
             theme="warn"
             icon={PencilSimpleIcon}
             asLink
-            href={`/gremio/noticias/${id}/editar`}
+            href={routes.admin.tags.edit(id)}
           />
         )}
       </div>
