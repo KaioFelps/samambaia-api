@@ -7,15 +7,17 @@ use inertia_rust::{Inertia, InertiaFacade, InertiaProp, hashmap};
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::journalism::article_tags::{
     create_article_tag_service_factory,
+    delete_article_tag_service_factory,
     fetch_many_article_tags_service_factory,
     find_article_tag_by_id_service_factory,
     update_article_tag_service_factory,
 };
 use crate::domain::services::journalism::article_tags::create_article_tag_service::CreateArticleTagParams;
+use crate::domain::services::journalism::article_tags::delete_article_tag_service::DeleteArticleTagParams;
 use crate::domain::services::journalism::article_tags::fetch_many_article_tags_service::FetchManyArticleTagsParams;
 use crate::domain::services::journalism::article_tags::find_article_tag_by_id_service::FindArticleTagByIdParams;
 use crate::domain::services::journalism::article_tags::update_article_tag_service::UpdateArticleTagParams;
-use crate::error::IntoSamambaiaError;
+use crate::error::{IntoSamambaiaError, SamambaiaError};
 use crate::infra::extensions::sessions::SessionHelpers;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::{AppResponse, AppResponseRedirect};
@@ -82,6 +84,15 @@ impl ControllerTrait for AdminArticleTagsController {
                             PermissionComparisonMode::Any,
                         ))
                         .to(Self::update),
+                )
+                .route(
+                    "{tag_id}/apagar",
+                    web::delete()
+                        .wrap(WebHasPermissionMiddleware::new(
+                            vec![RolePermissions::DeleteArticleTag],
+                            PermissionComparisonMode::Any,
+                        ))
+                        .to(Self::delete),
                 ),
         );
     }
@@ -217,5 +228,34 @@ impl AdminArticleTagsController {
         );
 
         Ok(Inertia::back(&req))
+    }
+
+    async fn delete(
+        req: HttpRequest,
+        tag_id: Path<u32>,
+        auth_user: WebAuthUser,
+        db_conn: Data<SeaService>,
+    ) -> Redirect {
+        let service = delete_article_tag_service_factory::exec(&db_conn);
+
+        if let Err(err) = service
+            .exec(DeleteArticleTagParams {
+                tag_id: tag_id.into_inner() as i32,
+                user_role: auth_user.user.role().as_ref().unwrap(),
+            })
+            .await
+        {
+            return Inertia::back_with_errors(
+                &req,
+                hashmap!["error" => match err {
+                    SamambaiaError::Unauthorized(msg) => msg.to_string().into(),
+                    _ => "Não foi possível deletar esta tag. Contate um desenvolvedor.".to_string().into()
+                }],
+            );
+        }
+
+        Session::flash_silently(&req, "deleteArticleTagSuccess", "Tag deletada com sucesso.");
+
+        Inertia::back(&req)
     }
 }

@@ -21,8 +21,7 @@ export function DeleteArticleTagButton({ tagId, tagValue }: Props) {
       preserveScroll: true,
       onSuccess: () => toast.success(`Tag ${tagValue} removida com sucesso.`),
       onError: (errors) => {
-        toast.error(`Não foi possível remover a tag ${tagValue}.`);
-        if ("error" in errors) console.error(errors.error);
+        if ("error" in errors) toast.error(errors.error);
       },
       onStart: () => setIsProcessing(true),
       onFinish: () => setIsProcessing(false),
@@ -52,14 +51,16 @@ export function DeleteArticleTagButton({ tagId, tagValue }: Props) {
           <hr />
 
           <div className="flex items-center justify-end gap-2">
-            <AdminButton
-              variant="default"
-              theme="danger"
-              size="lg"
-              disabled={isProcessing}
-              onClick={handleDeleteArticleTag}>
-              {isProcessing ? "Apagando..." : "Apagar"}
-            </AdminButton>
+            <Dialog.Close asChild>
+              <AdminButton
+                variant="default"
+                theme="danger"
+                size="lg"
+                disabled={isProcessing}
+                onClick={handleDeleteArticleTag}>
+                {isProcessing ? "Apagando..." : "Apagar"}
+              </AdminButton>
+            </Dialog.Close>
             <Dialog.Close asChild>
               <AdminButton size="lg" disabled={isProcessing}>
                 Deixa baixo

@@ -13,12 +13,13 @@ type Props = ArticleTag;
 export const ArticleTagListCard = memo(({ id, value }: Props) => {
   const auth = usePage().props.auth;
   const userCanEditTag = can(auth?.permissions, Permission.UpdateArticleTag);
+  const userCanDeleteTag = can(auth?.permissions, Permission.DeleteArticleTag);
 
   return (
     <li className="admin-list-card list-none">
       <span className="flex-1/2 text-sm line-clamp-1 text-gray-800">{value}</span>
       <div className="flex items-center justify-end gap-1 grow max-w-20">
-        <DeleteArticleTagButton tagId={id} tagValue={value} />
+        {userCanDeleteTag && <DeleteArticleTagButton tagId={id} tagValue={value} />}
 
         {userCanEditTag && (
           <AdminIconButton
