@@ -233,6 +233,15 @@
   }
 }
 
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 @utility w-full-mx {
   width: calc(100% - 48px);
 }

@@ -62,19 +62,24 @@ export const ArticleListCard = memo(
 
     return (
       <article className="admin-list-card">
-        <span className="flex-1/2 text-sm line-clamp-1 text-gray-800">{title}</span>
+        <span title={title} className="flex-1/2 text-sm line-clamp-1 text-gray-800">
+          {title}
+        </span>
 
-        <div className="flex gap-2 items-center justify-end grow">
+        <div className="max-w-3/5 flex gap-2 items-center justify-end grow">
+          <div className="overflow-x-auto no-scrollbar snap-mandatory snap-x flex gap-2 items-center">
+            {tags.map((tag) => (
+              <Chip
+                key={`article-list-card-${id}-tag-${tag.id}`}
+                icon={TagIcon}
+                text={tag.value}
+                size="sm"
+                className="whitespace-nowrap snap-center snap-normal"
+              />
+            ))}
+          </div>
+
           <Chip icon={UserIcon} text={author.nickname} size="sm" />
-
-          {tags.map((tag) => (
-            <Chip
-              key={`article-list-card-${id}-tag-${tag.id}`}
-              icon={TagIcon}
-              text={tag.value}
-              size="sm"
-            />
-          ))}
 
           <Chip
             icon={CalendarBlankIcon}
