@@ -7,7 +7,7 @@ import { UserIcon } from "@phosphor-icons/react/dist/ssr/User";
 import { memo, useCallback, useState } from "react";
 import { toast } from "react-toastify";
 
-import { Chip } from "@/components/chip";
+import { AdminChip } from "@/components/admin/chip";
 import { IconButton } from "@/components/icon-button";
 import { routes } from "@/config/routes";
 import type { ArticlePreview } from "@/types/article-preview";
@@ -69,7 +69,7 @@ export const ArticleListCard = memo(
         <div className="max-w-3/5 flex gap-2 items-center justify-end">
           <div className="overflow-x-auto no-scrollbar snap-mandatory snap-x flex gap-2 items-center rounded-full">
             {tags.map((tag) => (
-              <Chip
+              <AdminChip
                 key={`article-list-card-${id}-tag-${tag.id}`}
                 icon={TagIcon}
                 text={tag.value}
@@ -79,9 +79,9 @@ export const ArticleListCard = memo(
             ))}
           </div>
 
-          <Chip icon={UserIcon} text={author.nickname} size="sm" />
+          <AdminChip icon={UserIcon} text={author.nickname} size="sm" />
 
-          <Chip
+          <AdminChip
             icon={CalendarBlankIcon}
             text={new Date(createdAt).toLocaleDateString("pt-BR")}
             size="sm"
