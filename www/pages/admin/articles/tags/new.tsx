@@ -1,5 +1,4 @@
 import { router, useForm } from "@inertiajs/react";
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
 import type { FormEvent } from "react";
@@ -73,8 +72,11 @@ export default function AdminCreateArticleTagPage() {
                 </>
               )}
             </AdminButton>
-            <AdminButton onClick={() => window.history.back()} size="lg" type="button">
-              <ArrowLeftIcon size={16} weight="bold" />
+            <AdminButton
+              onClick={() => window.history.back()}
+              size="lg"
+              variant="ghost"
+              type="button">
               Voltar
             </AdminButton>
           </div>
