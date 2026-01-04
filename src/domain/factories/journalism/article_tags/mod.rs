@@ -1,4 +1,5 @@
 pub mod create_article_tag_service_factory;
 pub mod delete_article_tag_service_factory;
 pub mod fetch_many_article_tags_service_factory;
+pub mod find_article_tag_by_id_service_factory;
 pub mod update_article_tag_service_factory;
