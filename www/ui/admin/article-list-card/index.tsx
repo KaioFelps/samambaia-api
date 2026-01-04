@@ -1,10 +1,9 @@
 import { useForm, usePage } from "@inertiajs/react";
-import { CalendarBlank } from "@phosphor-icons/react/dist/ssr/CalendarBlank";
-import { Eye } from "@phosphor-icons/react/dist/ssr/Eye";
-import { PencilSimple } from "@phosphor-icons/react/dist/ssr/PencilSimple";
-import { Tag } from "@phosphor-icons/react/dist/ssr/Tag";
-import { User } from "@phosphor-icons/react/dist/ssr/User";
-import clsx from "clsx";
+import { CalendarBlankIcon } from "@phosphor-icons/react/dist/ssr/CalendarBlank";
+import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
+import { TagIcon } from "@phosphor-icons/react/dist/ssr/Tag";
+import { UserIcon } from "@phosphor-icons/react/dist/ssr/User";
 import { memo, useCallback, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -14,7 +13,6 @@ import { routes } from "@/config/routes";
 import type { ArticlePreview } from "@/types/article-preview";
 import { Permission } from "@/types/auth";
 import { can } from "@/utils/can";
-
 import { ApproveToggleButton } from "./approve-toggle-button";
 import { DeleteArticleButton } from "./delete-article-button";
 
@@ -63,27 +61,23 @@ export const ArticleListCard = memo(
     }, [id, clearErrors, patch, data, setData]);
 
     return (
-      <article
-        className={clsx(
-          "flex items-center gap-12 py-2 px-5 border-b border-gray-300",
-          "hover:bg-white/30",
-        )}>
+      <article className="admin-list-card">
         <span className="flex-1/2 text-sm line-clamp-1 text-gray-800">{title}</span>
 
         <div className="flex gap-2 items-center justify-end grow">
-          <Chip icon={User} text={author.nickname} size="sm" />
+          <Chip icon={UserIcon} text={author.nickname} size="sm" />
 
           {tags.map((tag) => (
             <Chip
               key={`article-list-card-${id}-tag-${tag.id}`}
-              icon={Tag}
+              icon={TagIcon}
               text={tag.value}
               size="sm"
             />
           ))}
 
           <Chip
-            icon={CalendarBlank}
+            icon={CalendarBlankIcon}
             text={new Date(createdAt).toLocaleDateString("pt-BR")}
             size="sm"
           />
@@ -104,7 +98,7 @@ export const ArticleListCard = memo(
               size="sm"
               variant="ghost"
               theme="warn"
-              icon={PencilSimple}
+              icon={PencilSimpleIcon}
               asLink
               href={routes.admin.articles.edit(id)}
             />
@@ -115,7 +109,7 @@ export const ArticleListCard = memo(
             size="sm"
             variant="ghost"
             theme="info"
-            icon={Eye}
+            icon={EyeIcon}
             asLink
             href={routes.web.article.view(slug)}
           />

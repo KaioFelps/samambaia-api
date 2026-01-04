@@ -1,25 +1,17 @@
 @utility admin-btn {
-  @apply select-none
-          flex items-center p-2 gap-2 rounded-lg border border-black/20 leading-none
-          text-sm bg-transparent transition-all duration-100
-          hover:bg-gray-400/15 active:bg-gray-700/10
-          outline-hidden ring-0 focus-visible:ring-4 ring-purple-500/40 focus-visible:border-purple-700;
+  @apply select-none flex items-center p-2 gap-2 rounded-lg border border-black/20 leading-none text-sm bg-transparent transition-all duration-100 hover:bg-gray-400/15 active:bg-gray-700/10 outline-hidden ring-0 focus-visible:ring-4 ring-purple-500/40 focus-visible:border-purple-700;
 }
 
 @utility admin-dropdown-content {
   @apply bg-purple-100 rounded-lg border border-gray-400 shadow-black/10 shadow-md;
 
   &.individual-focus {
-    @apply has-[.admin-dropdown-content-clickable:hover]:[&_.admin-dropdown-content-clickable]:blur-[1px]
-            [&_.admin-dropdown-content-clickable]:hover:blur-none!;
+    @apply has-[.admin-dropdown-content-clickable:hover]:[&_.admin-dropdown-content-clickable]:blur-[1px] [&_.admin-dropdown-content-clickable]:hover:blur-none!;
   }
 }
 
 @utility admin-dropdown-content-clickable {
-  @apply flex items-center gap-2
-        px-3 py-0.5 transition-all duration-75 rounded-md hover:bg-purple-500/20 active:bg-purple-500/40
-        cursor-default active:cursor-pointer
-        outline-hidden ring-purple-500/40 ring-0 focus-visible:ring-2;
+  @apply flex items-center gap-2 px-3 py-0.5 transition-all duration-75 rounded-md hover:bg-purple-500/20 active:bg-purple-500/40 cursor-default active:cursor-pointer outline-hidden ring-purple-500/40 ring-0 focus-visible:ring-2;
 }
 
 @utility admin-layout {
@@ -54,8 +46,22 @@
   }
 }
 
+@utility admin-list-card {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 12);
+  padding-block: calc(var(--spacing) * 2);
+  padding-inline: calc(var(--spacing) * 5);
+  border-bottom: 1px solid var(--color-gray-300);
+
+  &:hover {
+    background: color-mix(in oklab, var(--color-white) 30%, transparent);
+  }
+}
+
 @layer base {
-  #editor, .editor-styles {
+  #editor,
+  .editor-styles {
     border: 1px solid color-mix(in oklab, var(--color-black) 20%, transparent);
     border-radius: var(--radius-lg);
     padding: calc(var(--spacing) * 2.5);
