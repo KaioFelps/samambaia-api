@@ -9,7 +9,7 @@ type ChipProps = {
   size: "sm";
 };
 
-export const Chip = memo(({ text, size, className, icon: I }: ChipProps) => {
+export const AdminChip = memo(({ text, size, className, icon: I }: ChipProps) => {
   return (
     <div
       className={clsx(

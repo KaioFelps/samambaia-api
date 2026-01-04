@@ -29,6 +29,7 @@ use crate::configs::file_sessions::FileSessionStore;
 use crate::core::pagination::DEFAULT_PER_PAGE;
 use crate::domain::factories::announcements::fetch_many_announcements_service_factory;
 use crate::domain::services::announcements::fetch_many_announcements_service::FetchManyAnnouncementsParams;
+use crate::infra::http::controllers::admin::admin_article_tags_controller::AdminArticleTagsController;
 use crate::infra::http::controllers::admin::admin_articles_controller::AdminArticlesController;
 use crate::infra::http::controllers::admin::admin_home_controller::AdminHomeController;
 use crate::infra::http::controllers::controller::ControllerTrait;
@@ -150,6 +151,7 @@ impl RouteTrait for WebRoutes {
                             PermissionComparisonMode::All,
                         ))
                         .wrap(WebAuthUserMiddleware)
+                        .configure(AdminArticleTagsController::register)
                         .configure(AdminArticlesController::register)
                         // needs to be the last, since captures everything else by having "" in its scope.
                         .configure(AdminHomeController::register)

@@ -1,4 +1,5 @@
 import type { Article } from "@/types/article";
+import type { ArticleTag } from "@/types/article-tag";
 
 export const routes = {
   tools: {
@@ -28,6 +29,14 @@ export const routes = {
       storeNewArticle: "/gremio/noticias/criar",
       toggleApproved: (articleId: string) => `/gremio/noticias/${articleId}/alterar-aprovado`,
       delete: (articleId: Article["id"]) => `/gremio/noticias/${articleId}/apagar`,
+    },
+    tags: {
+      list: "/gremio/tags",
+      create: "/gremio/tags/nova",
+      edit: (tagId: ArticleTag["id"]) => `/gremio/tags/${tagId}/editar`,
+      delete: (tagId: ArticleTag["id"]) => `/gremio/tags/${tagId}/apagar`,
+      storeNewTag: "/gremio/tags/criar",
+      updateChanges: (tagId: ArticleTag["id"]) => `/gremio/tags/${tagId}/atualizar`,
     },
   },
 } as const;

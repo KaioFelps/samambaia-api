@@ -26,6 +26,7 @@
   --color-blue-500: #0997e8;
   --color-blue-600: #097ee3;
   --color-blue-700: #0075ff;
+  --color-blue-800: #0044e2;
 
   --color-green-300: #14ff48;
   --color-green-500: #27c13f;
@@ -231,6 +232,15 @@
   &:is(button:not(:disabled), button:enabled, [role="button"][data-disabled="enabled"]) {
     @slot;
   }
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @utility w-full-mx {

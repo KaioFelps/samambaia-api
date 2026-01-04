@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { Chip } from "@/components/chip";
 import type { ArticleTag } from "@/types/article-tag";
 
 type Props = {
@@ -16,9 +17,9 @@ export const ArticleContainer = memo(({ title, tags, content }: Props) => {
         </header>
 
         {tags.length > 0 && (
-          <div id="article-tags-container" className="flex flex-wrap items-row gap-1 mb-3">
+          <div id="article-tags-container" className="flex flex-wrap items-row gap-1">
             {tags.map((tag) => (
-              <span key={`article-tag-${tag.id}`}>{tag.value}</span>
+              <Chip key={`article-tag-${tag.id}`}>{tag.value}</Chip>
             ))}
           </div>
         )}

@@ -7,7 +7,7 @@ import { UserIcon } from "@phosphor-icons/react/dist/ssr/User";
 import { memo, useCallback, useState } from "react";
 import { toast } from "react-toastify";
 
-import { Chip } from "@/components/chip";
+import { AdminChip } from "@/components/admin/chip";
 import { IconButton } from "@/components/icon-button";
 import { routes } from "@/config/routes";
 import type { ArticlePreview } from "@/types/article-preview";
@@ -62,21 +62,26 @@ export const ArticleListCard = memo(
 
     return (
       <article className="admin-list-card">
-        <span className="flex-1/2 text-sm line-clamp-1 text-gray-800">{title}</span>
+        <span title={title} className="flex-1/2 text-sm line-clamp-1 text-gray-800">
+          {title}
+        </span>
 
-        <div className="flex gap-2 items-center justify-end grow">
-          <Chip icon={UserIcon} text={author.nickname} size="sm" />
+        <div className="max-w-3/5 flex gap-2 items-center justify-end">
+          <div className="overflow-x-auto no-scrollbar snap-mandatory snap-x flex gap-2 items-center rounded-full">
+            {tags.map((tag) => (
+              <AdminChip
+                key={`article-list-card-${id}-tag-${tag.id}`}
+                icon={TagIcon}
+                text={tag.value}
+                size="sm"
+                className="whitespace-nowrap snap-center snap-normal bg-purple-300/10"
+              />
+            ))}
+          </div>
 
-          {tags.map((tag) => (
-            <Chip
-              key={`article-list-card-${id}-tag-${tag.id}`}
-              icon={TagIcon}
-              text={tag.value}
-              size="sm"
-            />
-          ))}
+          <AdminChip icon={UserIcon} text={author.nickname} size="sm" />
 
-          <Chip
+          <AdminChip
             icon={CalendarBlankIcon}
             text={new Date(createdAt).toLocaleDateString("pt-BR")}
             size="sm"
@@ -89,7 +94,7 @@ export const ArticleListCard = memo(
           />
         </div>
 
-        <div className="flex items-center justify-end gap-1 grow max-w-20">
+        <div className="flex items-center justify-end gap-1 max-w-20 shrink-0">
           <DeleteArticleButton articleId={id} articleTitle={title} />
 
           {(auth?.user.id === author.id || can(auth?.permissions, Permission.UpdateArticle)) && (
