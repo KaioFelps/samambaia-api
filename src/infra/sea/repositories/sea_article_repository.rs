@@ -134,7 +134,6 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<Article>, Box<dyn Error>> {
         let mut article = ArticleEntity::find_by_id(id)
             .find_with_related(entities::article_tag::Entity)
-            .limit(1)
             .all(&self.sea_service.db)
             .await?;
 
@@ -158,7 +157,6 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
         let mut article = ArticleEntity::find()
             .filter(ArticleColumn::Slug.eq(slug.to_string()))
             .find_with_related(entities::article_tag::Entity)
-            .limit(1)
             .all(&self.sea_service.db)
             .await?;
 
