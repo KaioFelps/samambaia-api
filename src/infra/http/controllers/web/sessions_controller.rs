@@ -90,10 +90,13 @@ impl SessionsController {
         db_conn: web::Data<SeaService>,
         body: web::Json<CreateUserDto>,
     ) -> Redirect {
-        let CreateUserDto { nickname, password } = match body.validate_or_back(&req) {
+        let body = match body.validate_or_back(&req) {
             Err(err_redirect) => return err_redirect,
             Ok(dto) => dto,
         };
+
+        let nickname = body.nickname.unwrap();
+        let password = body.password.unwrap();
 
         let code_verification_service = verify_verification_code_service_factory::exec();
         let code_authorization = match code_verification_service

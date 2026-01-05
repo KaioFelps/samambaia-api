@@ -70,10 +70,14 @@ impl ControllerTrait for UsersController {
 
 impl UsersController {
     async fn create(db_conn: web::Data<SeaService>, body: web::Json<CreateUserDto>) -> AppResponse {
-        let CreateUserDto { nickname, password } = body
+        let body = body
             .validate()
             .map(|_| body.into_inner())
             .map_err(IntoSamambaiaError::into_samambaia_error)?;
+
+        let nickname = body.nickname.unwrap();
+        let password = body.password.unwrap();
+
         let create_user_service = create_user_service_factory::exec(&db_conn);
 
         let user = create_user_service
