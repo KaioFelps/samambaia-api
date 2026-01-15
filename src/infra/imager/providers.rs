@@ -1,7 +1,10 @@
 use core::panic;
+use std::borrow::Cow;
+use std::ops::Deref;
 use std::time::Duration;
 
 use async_trait::async_trait;
+use moka::future::{Cache, CacheBuilder};
 use reqwest::Client;
 use serde::Deserialize;
 use url::Url;
@@ -23,6 +26,7 @@ pub struct HabbletImagerProvider<'this> {
     api_url: &'this str,
     imager_url: &'this str,
     http_client: Client,
+    cache: Cache<String, Cow<'static, str>>,
 }
 
 pub struct HabbliveImagerProvider<'this> {
@@ -49,10 +53,17 @@ impl<'this> HabbletImagerProvider<'this> {
                 )
             })?;
 
+        let cache = CacheBuilder::new(10_000)
+            .name("habblet user's figures")
+            .time_to_live(Duration::from_mins(15))
+            .time_to_idle(Duration::from_mins(5))
+            .build();
+
         Ok(Self {
             api_url,
             imager_url,
             http_client,
+            cache,
         })
     }
 }
@@ -66,30 +77,46 @@ impl<'this> HabbliveImagerProvider<'this> {
 #[async_trait]
 impl<'this> ImagerProvider for HabbletImagerProvider<'this> {
     async fn get_image_base_url(&self, nickname: &str) -> Result<Url, SamambaiaError> {
-        let response = self
-            .http_client
-            .get(format!("{}/player/{nickname}", self.api_url))
-            .send()
-            .await
-            .map_err(|err| {
-                generate_service_internal_error(
-                    "Failed to fetch user data on Habblet API",
-                    Box::new(err),
-                )
-            })?;
+        let user_figure = match self.cache.get(nickname).await {
+            Some(cached_figure) => {
+                log::debug!("pegou do cache");
+                cached_figure
+            }
+            None => {
+                let response = self
+                    .http_client
+                    .get(format!("{}/player/{nickname}", self.api_url))
+                    .send()
+                    .await
+                    .map_err(|err| {
+                        generate_service_internal_error(
+                            "Failed to fetch user data on Habblet API",
+                            Box::new(err),
+                        )
+                    })?;
 
-        let response = response.json::<UserMinimalData>().await.map_err(|err| {
-            generate_service_internal_error(
-                "Failed to serialize user data fetched from Habblet API",
-                Box::new(err),
-            )
-        })?;
+                let response = response.json::<UserMinimalData>().await.map_err(|err| {
+                    generate_service_internal_error(
+                        "Failed to serialize user data fetched from Habblet API",
+                        Box::new(err),
+                    )
+                })?;
+
+                let figure = Cow::<'static, str>::Owned(response.figure);
+
+                self.cache
+                    .insert(nickname.to_string(), figure.clone())
+                    .await;
+
+                figure
+            }
+        };
 
         let mut url = Url::parse(self.imager_url).unwrap_or_else(|err| {
             panic!("The given Habblet Imager URL set in Hotels Config is invalid, change it in configs crate: {err}");
         });
 
-        url.set_query(Some(&format!("figure={}", response.figure)));
+        url.set_query(Some(&format!("figure={}", user_figure.deref())));
         Ok(url)
     }
 }
