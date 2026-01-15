@@ -1,6 +1,8 @@
 use core::panic;
+use std::time::Duration;
 
 use async_trait::async_trait;
+use reqwest::Client;
 use serde::Deserialize;
 use url::Url;
 
@@ -20,6 +22,7 @@ pub trait ImagerProvider {
 pub struct HabbletImagerProvider<'this> {
     api_url: &'this str,
     imager_url: &'this str,
+    http_client: Client,
 }
 
 pub struct HabbliveImagerProvider<'this> {
@@ -27,11 +30,30 @@ pub struct HabbliveImagerProvider<'this> {
 }
 
 impl<'this> HabbletImagerProvider<'this> {
-    pub fn new(api_url: &'this str, imager_url: &'this str) -> Self {
-        Self {
+    pub fn new(api_url: &'this str, imager_url: &'this str) -> Result<Self, SamambaiaError> {
+        let mut headers = reqwest::header::HeaderMap::new();
+        let fake_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+        headers.insert(
+            "User-Agent",
+            reqwest::header::HeaderValue::from_static(fake_user_agent),
+        );
+
+        let http_client = reqwest::Client::builder()
+            .default_headers(headers)
+            .timeout(Duration::from_secs(5))
+            .build()
+            .map_err(|err| {
+                generate_service_internal_error(
+                    "Error occurred when instantiating `HabbletImagerProvider`",
+                    Box::new(err),
+                )
+            })?;
+
+        Ok(Self {
             api_url,
             imager_url,
-        }
+            http_client,
+        })
     }
 }
 
@@ -44,7 +66,10 @@ impl<'this> HabbliveImagerProvider<'this> {
 #[async_trait]
 impl<'this> ImagerProvider for HabbletImagerProvider<'this> {
     async fn get_image_base_url(&self, nickname: &str) -> Result<Url, SamambaiaError> {
-        let response = reqwest::get(&format!("{}/player/{nickname}", self.api_url))
+        let response = self
+            .http_client
+            .get(format!("{}/player/{nickname}", self.api_url))
+            .send()
             .await
             .map_err(|err| {
                 generate_service_internal_error(
