@@ -78,10 +78,7 @@ impl<'this> HabbliveImagerProvider<'this> {
 impl<'this> ImagerProvider for HabbletImagerProvider<'this> {
     async fn get_image_base_url(&self, nickname: &str) -> Result<Url, SamambaiaError> {
         let user_figure = match self.cache.get(nickname).await {
-            Some(cached_figure) => {
-                log::debug!("pegou do cache");
-                cached_figure
-            }
+            Some(cached_figure) => cached_figure,
             None => {
                 let response = self
                     .http_client
