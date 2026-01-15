@@ -67,6 +67,7 @@ base64 = "0.22.1"
 sqlx = "0.8"
 url = "2.5.7"
 reqwest = "0.12.23"
+moka = { version = "0.12.12", features = ["future"] }
 
 [dev-dependencies]
 mockall = "0.13.0"

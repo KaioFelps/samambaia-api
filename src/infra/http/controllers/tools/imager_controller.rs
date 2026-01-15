@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use actix_web::web;
-use actix_web::web::Redirect;
+use actix_web::http::header;
+use actix_web::web::Data;
+use actix_web::{HttpResponse, web};
 
 use crate::error::SamambaiaError;
 use crate::infra::http::controllers::controller::ControllerTrait;
-use crate::infra::imager::factory::ImagerFactory;
-
+use crate::infra::imager::Imager;
 pub struct ImagerController;
 
 impl ControllerTrait for ImagerController {
@@ -18,7 +18,8 @@ impl ControllerTrait for ImagerController {
 impl ImagerController {
     async fn get_image(
         query: web::Query<HashMap<String, String>>,
-    ) -> Result<Redirect, SamambaiaError> {
+        imager: Data<Imager>,
+    ) -> Result<HttpResponse, SamambaiaError> {
         let mut params = query.into_inner();
         let nickname = match params.remove("user") {
             None => {
@@ -28,11 +29,12 @@ impl ImagerController {
             Some(nickname) => nickname,
         };
 
-        let imager_url = ImagerFactory::get_imager()
-            .mount_imager_url(&nickname, params)
-            .await?;
+        let imager_url = imager.mount_imager_url(&nickname, params).await?;
 
-        Ok(Redirect::to(imager_url).see_other())
+        Ok(HttpResponse::SeeOther()
+            .insert_header((header::LOCATION, imager_url))
+            .insert_header((header::REFERRER_POLICY, "no-referrer"))
+            .finish())
 
         // let image = reqwest::get(&imager_url).await.map_err(|err| {
         //     generate_service_internal_error(
