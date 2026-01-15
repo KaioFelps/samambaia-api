@@ -23,7 +23,7 @@ impl HotelsConfig {
         Self {
             active_hotel: AvailableHotel::Habblet,
             habblet: HotelInfo {
-                imager_url: "https://www.habblet.city/habblet-imaging/avatarimage",
+                imager_url: "https://imaging.habblet.city/avatarimage",
                 api_base_url: "https://api.habblet.city",
             },
             habblive: HotelInfo {
