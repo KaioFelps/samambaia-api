@@ -1,4 +1,5 @@
 use actix_web::dev::{ServiceFactory, ServiceRequest, ServiceResponse};
+use actix_web::http::header;
 use actix_web::{App, HttpResponse, middleware, web};
 use serde_json::json;
 
@@ -24,6 +25,11 @@ impl ServerFactory {
             .wrap(middleware::NormalizePath::new(
                 middleware::TrailingSlash::Trim,
             ))
+            .wrap(
+                middleware::DefaultHeaders::new()
+                    .add((header::SERVER, "actix"))
+                    .add(("x-powered-by", "rust")),
+            )
             .configure(ApiRoutes::register)
             .configure(ToolsRouter::register)
             .configure(WebRoutes::register)
