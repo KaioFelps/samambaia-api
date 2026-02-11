@@ -36,6 +36,36 @@ impl<'a> FileSessionStore<'a> {
     }
 }
 
+impl FileSessionStore<'_> {
+    async fn atomic_write(&self, session_key: &str, data: &[u8]) -> Result<(), anyhow::Error> {
+        let final_path = self.get_session_path(session_key);
+        let temp_path = format!("{}.tmp", final_path);
+
+        let mut file = File::create(&temp_path).await.map_err(|err| {
+            anyhow::Error::new(err).context("Failed to create temporary session file")
+        })?;
+
+        file.write_all(data)
+            .await
+            .map_err(|err| anyhow::Error::new(err).context("Failed to write to temp file"))?;
+
+        file.flush()
+            .await
+            .map_err(|err| anyhow::Error::new(err).context("Failed to flush temp file"))?;
+
+        drop(file);
+
+        tokio::fs::rename(temp_path, final_path)
+            .await
+            .map_err(|err| {
+                anyhow::Error::new(err)
+                    .context("Failed to rename temporary session file to final destination")
+            })?;
+
+        Ok(())
+    }
+}
+
 impl SessionStore for FileSessionStore<'_> {
     async fn load(&self, session_key: &SessionKey) -> Result<Option<SessionState>, LoadError> {
         match File::open(self.get_session_path(session_key.as_ref())).await {
@@ -145,21 +175,12 @@ impl SessionStore for FileSessionStore<'_> {
                 });
         }
 
-        let _ = file.set_len(0).await;
-        let _ = file.seek(std::io::SeekFrom::End(0)).await;
-
         let session = self
             .serialize_session_state(&self.set_expiration_date(session_state, ttl))
             .map_err(UpdateError::Serialization)?;
 
-        file.write_all(&session)
+        self.atomic_write(session_key.as_ref(), &session)
             .await
-            .map_err(Into::into)
-            .map_err(UpdateError::Other)?;
-
-        file.flush()
-            .await
-            .map_err(Into::into)
             .map_err(UpdateError::Other)?;
 
         Ok(session_key)
@@ -176,8 +197,8 @@ impl SessionStore for FileSessionStore<'_> {
             .open(self.get_session_path(session_key.as_ref()))
             .await
         {
-            Err(_) => {
-                return Err(anyhow::Error::msg("Session does not exist."));
+            Err(err) => {
+                return Err(anyhow::Error::new(err).context("Session does not exist."));
             }
             Ok(file) => file,
         };
@@ -186,14 +207,8 @@ impl SessionStore for FileSessionStore<'_> {
         let session_state = self.set_expiration_date(session_state, ttl);
         let session_state = self.serialize_session_state(&session_state)?;
 
-        file.write_all(&session_state)
+        self.atomic_write(session_key.as_ref(), &session_state)
             .await
-            .map_err(Into::into)
-            .map_err(UpdateError::Other)?;
-
-        file.flush()
-            .await
-            .map_err(Into::into)
             .map_err(UpdateError::Other)?;
 
         Ok(())
@@ -202,10 +217,7 @@ impl SessionStore for FileSessionStore<'_> {
     async fn delete(&self, session_key: &SessionKey) -> Result<(), anyhow::Error> {
         remove_file(self.get_session_path(session_key.as_ref()))
             .await
-            .map_err(|err| {
-                log::debug!("{:#?}", err);
-                anyhow::Error::msg("Failed to delete session.")
-            })?;
+            .map_err(|err| anyhow::Error::new(err).context("Failed to delete session."))?;
 
         Ok(())
     }
@@ -263,15 +275,20 @@ impl FileSessionStore<'_> {
 
     async fn read_and_serialize(&self, file: &mut File) -> Result<SessionState, anyhow::Error> {
         let mut session_state = String::new();
-        file.read_to_string(&mut session_state)
+        let result = file.read_to_string(&mut session_state).await;
+
+        let _ = file
+            .rewind()
             .await
+            .map_err(anyhow::Error::new)
             .map_err(|err| {
-                log::debug!("{:#?}", err);
-                anyhow::Error::msg("Failed to read session state.")
+                err.context("Failed to rewind session file's cursor. Next read/write might fail.")
             })?;
 
+        result.map_err(|err| anyhow::Error::new(err).context("Failed to read session state."))?;
+
         serde_json::from_slice(session_state.as_bytes())
-            .map_err(|_| anyhow::Error::msg("Failed to serialize session state."))
+            .map_err(|err| anyhow::Error::new(err).context("Failed to serialize session state."))
     }
 }
 
