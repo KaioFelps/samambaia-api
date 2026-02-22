@@ -5,7 +5,7 @@ use actix_web::HttpMessage;
 use actix_web::body::BoxBody;
 use actix_web::cookie::{Key, SameSite};
 use actix_web::dev::{ServiceRequest, ServiceResponse};
-use actix_web::http::StatusCode;
+use actix_web::http::{StatusCode, header};
 use actix_web::middleware::{Next, from_fn};
 use actix_web::web::{self, Data};
 use base64::Engine;
@@ -168,7 +168,23 @@ async fn default_error_handler(
     req: ServiceRequest,
     next: Next<BoxBody>,
 ) -> Result<ServiceResponse<BoxBody>, actix_web::error::Error> {
+    let is_inertia_request = Inertia::check_is_inertia_request(req.request());
+
+    let accepts_views_as_response = req
+        .headers()
+        .get(header::ACCEPT)
+        .and_then(|h| h.to_str().ok())
+        .map(|s| s.contains("text/html"))
+        .unwrap_or(false);
+
     let res = next.call(req).await?;
+
+    let can_send_error_view = is_inertia_request || accepts_views_as_response;
+
+    if !can_send_error_view {
+        return Ok(res);
+    }
+
     let status = res.status().as_u16();
 
     if [503, 500, 404, 403, 401].contains(&status) {
