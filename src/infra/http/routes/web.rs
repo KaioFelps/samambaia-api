@@ -67,6 +67,8 @@ impl RouteTrait for WebRoutes {
 
         let storage = FileSessionStore::default();
 
+        cfg.service(actix_files::Files::new("/bundle/", "./public/bundle/").prefer_utf8(true));
+
         cfg.service(
             web::scope("")
                 .wrap(from_fn(default_error_handler))
