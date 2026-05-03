@@ -213,21 +213,47 @@ impl AdminArticleTagsController {
 
         let update_tag_service = update_article_tag_service_factory::exec(&db_conn);
 
-        let tag = update_tag_service
+        let tag_update = update_tag_service
             .exec(UpdateArticleTagParams {
                 tag_id: tag_id.into_inner() as i32,
                 user_role: auth_user.user.role().unwrap(),
                 value: body.value,
             })
-            .await?;
+            .await;
 
-        Session::flash_silently(
-            &req,
-            "updateArticleTagSuccess",
-            format!("Tag {} atualizada com sucesso!", tag.value()),
-        );
+        let response = match tag_update {
+            Ok(tag) => {
+                Session::flash_silently(
+                    &req,
+                    "updateArticleTagSuccess",
+                    format!("Tag {} atualizada com sucesso!", tag.value()),
+                );
 
-        Ok(Inertia::back(&req))
+                Inertia::back(&req)
+            }
+            Err(err) => {
+                if matches!(&err, SamambaiaError::BadRequest(_)) {
+                    Session::flash_silently(
+                        &req,
+                        "updateArticleTagSuccess",
+                        "Não havia nada para atualizar.",
+                    );
+
+                    Inertia::back(&req)
+                } else {
+                    let error_msg = match err {
+                        SamambaiaError::Unauthorized(msg) => msg.to_string().into(),
+                        _ => "Não foi possível atualizar esta tag. Contate um desenvolvedor."
+                            .to_string()
+                            .into(),
+                    };
+
+                    Inertia::back_with_errors(&req, hashmap!["error" => error_msg])
+                }
+            }
+        };
+
+        Ok(response)
     }
 
     async fn delete(
