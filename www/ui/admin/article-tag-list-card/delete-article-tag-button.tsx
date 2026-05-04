@@ -37,7 +37,7 @@ export function DeleteArticleTagButton({ tagId, tagValue }: Props) {
       <Dialog.Content>
         <Dialog.Header
           title={`Apagar tag "${tagValue}"`}
-          description={`Formulário para apagar a notícia ${tagValue} de ID ${tagId}.`}
+          description={`Formulário para apagar a tag ${tagValue} de ID ${tagId}.`}
         />
 
         <Dialog.Container className="flex flex-col gap-4 text-gray-800">
