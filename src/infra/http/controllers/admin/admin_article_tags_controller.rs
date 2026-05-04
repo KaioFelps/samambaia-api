@@ -9,13 +9,11 @@ use crate::domain::factories::journalism::article_tags::{
     create_article_tag_service_factory,
     delete_article_tag_service_factory,
     fetch_many_article_tags_service_factory,
-    find_article_tag_by_id_service_factory,
     update_article_tag_service_factory,
 };
 use crate::domain::services::journalism::article_tags::create_article_tag_service::CreateArticleTagParams;
 use crate::domain::services::journalism::article_tags::delete_article_tag_service::DeleteArticleTagParams;
 use crate::domain::services::journalism::article_tags::fetch_many_article_tags_service::FetchManyArticleTagsParams;
-use crate::domain::services::journalism::article_tags::find_article_tag_by_id_service::FindArticleTagByIdParams;
 use crate::domain::services::journalism::article_tags::update_article_tag_service::UpdateArticleTagParams;
 use crate::error::{IntoSamambaiaError, SamambaiaError};
 use crate::infra::extensions::sessions::SessionHelpers;
@@ -66,15 +64,6 @@ impl ControllerTrait for AdminArticleTagsController {
                             PermissionComparisonMode::Any,
                         ))
                         .to(Self::store),
-                )
-                .route(
-                    "{tag_id}/editar",
-                    web::get()
-                        .wrap(WebHasPermissionMiddleware::new(
-                            vec![RolePermissions::UpdateArticleTag],
-                            PermissionComparisonMode::Any,
-                        ))
-                        .to(Self::edit),
                 )
                 .route(
                     "{tag_id}/atualizar",
@@ -177,26 +166,6 @@ impl AdminArticleTagsController {
         );
 
         Ok(Inertia::back(&req))
-    }
-
-    async fn edit(req: HttpRequest, tag_id: Path<u32>, db_conn: Data<SeaService>) -> AppResponse {
-        let find_tag_service = find_article_tag_by_id_service_factory::exec(&db_conn);
-
-        let tag_id = tag_id.into_inner();
-        let tag = find_tag_service
-            .exec(FindArticleTagByIdParams { tag_id })
-            .await
-            .map(|response| response.tag.map(ArticleTagPresenter::to_http))?;
-
-        Inertia::render_with_props(
-            &req,
-            "admin/articles/tags/edit".into(),
-            hashmap![
-                "tag" => InertiaProp::data(tag)
-            ],
-        )
-        .await
-        .map_err(IntoSamambaiaError::into_samambaia_error)
     }
 
     async fn update(
