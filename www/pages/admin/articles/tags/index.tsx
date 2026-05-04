@@ -40,7 +40,7 @@ export default function AdminArticleTagsHome({ tags }: AdminArticleTagsPageProps
       </TableHeader.Root>
       <div className="flex flex-col gap-1">
         {tags.data.map((tag) => (
-          <ArticleTagListCard key={`admin-article-tag-list-${tag.id}`} {...tag} />
+          <ArticleTagListCard key={`admin-article-tag-list-${tag.id}`} tag={tag} />
         ))}
       </div>
     </Wrapper>
