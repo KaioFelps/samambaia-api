@@ -28,6 +28,6 @@ pub trait IntoIoError {
 
 impl IntoIoError for SamambaiaCliError {
     fn into_io_err(self) -> io::Error {
-        io::Error::new(io::ErrorKind::Other, self.to_string())
+        io::Error::other(self.to_string())
     }
 }
