@@ -5,7 +5,6 @@ import {
   forwardRef,
   type ReactElement,
   useCallback,
-  useEffect,
   useId,
 } from "react";
 import { toast } from "react-toastify";
