@@ -1,6 +1,5 @@
 import { useForm } from "@inertiajs/react";
 import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr/Spinner";
 import { type FormEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -99,7 +98,7 @@ export function UpdateArticleTagButton({ tag }: Props) {
                   </>
                 ) : (
                   <>
-                    <PlusIcon size={16} weight="bold" />
+                    <PencilSimpleIcon size={16} weight="bold" />
                     Salvar
                   </>
                 )}
