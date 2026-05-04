@@ -48,9 +48,7 @@ export function DeleteArticleTagButton({ tagId, tagValue }: Props) {
 
           <p className="font-light">Você tem certeza do que está fazendo?</p>
 
-          <hr />
-
-          <div className="flex items-center justify-end gap-2">
+          <Dialog.ActionsFooter>
             <Dialog.Close asChild>
               <AdminButton
                 variant="default"
@@ -66,7 +64,7 @@ export function DeleteArticleTagButton({ tagId, tagValue }: Props) {
                 Deixa baixo
               </AdminButton>
             </Dialog.Close>
-          </div>
+          </Dialog.ActionsFooter>
         </Dialog.Container>
       </Dialog.Content>
     </Dialog.Root>

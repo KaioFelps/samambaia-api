@@ -79,9 +79,13 @@ export function UpdateArticleTagButton({ tag }: Props) {
               value={data.value}
             />
 
-            <hr />
+            <Dialog.ActionsFooter>
+              <Dialog.Close asChild>
+                <AdminButton size="lg" disabled={processing}>
+                  Deixa baixo
+                </AdminButton>
+              </Dialog.Close>
 
-            <div className="flex items-center justify-end gap-2">
               <AdminButton
                 variant="default"
                 theme="success"
@@ -100,12 +104,7 @@ export function UpdateArticleTagButton({ tag }: Props) {
                   </>
                 )}
               </AdminButton>
-              <Dialog.Close asChild>
-                <AdminButton size="lg" disabled={processing}>
-                  Deixa baixo
-                </AdminButton>
-              </Dialog.Close>
-            </div>
+            </Dialog.ActionsFooter>
           </form>
         </Dialog.Container>
       </Dialog.Content>

@@ -57,9 +57,7 @@ export const DeleteArticleButton = memo(({ articleId, articleTitle }: DeleteArti
 
           <p className="font-light">Você tem certeza do que está fazendo?</p>
 
-          <hr />
-
-          <div className="flex items-center gap-2">
+          <Dialog.ActionsFooter>
             <Button
               admin
               variant="default"
@@ -74,7 +72,7 @@ export const DeleteArticleButton = memo(({ articleId, articleTitle }: DeleteArti
                 Deixa baixo
               </Button>
             </Dialog.Close>
-          </div>
+          </Dialog.ActionsFooter>
         </Dialog.Container>
       </Dialog.Content>
     </Dialog.Root>
