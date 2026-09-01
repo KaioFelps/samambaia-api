@@ -33,19 +33,8 @@ impl<UserRepository: UserRepositoryTrait> FetchManyUsersService<UserRepository> 
         &self,
         params: FetchManyUsersParams,
     ) -> Result<FetchManyUsersResponse, SamambaiaError> {
-        let items_per_page = if params.per_page.is_some() {
-            params.per_page.unwrap()
-        } else {
-            DEFAULT_PER_PAGE as u32
-        };
-
-        let page = if params.page.is_some() {
-            let params_page = params.page.unwrap();
-            if params_page == 0 { 1 } else { params_page }
-        } else {
-            1
-        };
-
+        let items_per_page = params.per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
+        let page = params.page.unwrap_or(1).max(1);
         let response = self
             .user_repository
             .find_many(PaginationParameters {

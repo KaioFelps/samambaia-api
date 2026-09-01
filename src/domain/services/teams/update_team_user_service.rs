@@ -54,24 +54,24 @@ impl<TeamUserRepository: TeamUserRepositoryTrait> UpdateTeamUserService<TeamUser
         };
 
         // updating the team user properties
-        if params.team_role_id.is_some() {
-            team_user.set_team_role_id(params.team_role_id.unwrap());
+        if let Some(team_role_id) = params.team_role_id {
+            team_user.set_team_role_id(team_role_id);
         }
 
-        if params.discord.is_some() {
-            team_user.set_discord(params.discord.unwrap());
+        if let Some(discord) = params.discord {
+            team_user.set_discord(discord);
         }
 
-        if params.twitter.is_some() {
-            team_user.set_twitter(params.twitter.unwrap());
+        if let Some(twitter) = params.twitter {
+            team_user.set_twitter(twitter);
         }
 
-        if params.nickname.is_some() {
-            team_user.set_nickname(params.nickname.unwrap());
+        if let Some(nickname) = params.nickname {
+            team_user.set_nickname(nickname);
         }
 
-        if params.user_function.is_some() {
-            team_user.set_user_function(params.user_function.unwrap());
+        if let Some(user_function) = params.user_function {
+            team_user.set_user_function(user_function);
         }
 
         // saving the changes

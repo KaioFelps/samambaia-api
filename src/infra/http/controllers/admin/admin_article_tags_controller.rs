@@ -41,47 +41,47 @@ impl ControllerTrait for AdminArticleTagsController {
                 .route(
                     "",
                     web::get()
+                        .to(Self::manage)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![RolePermissions::CreateArticle],
                             PermissionComparisonMode::Any,
-                        ))
-                        .to(Self::manage),
+                        )),
                 )
                 .route(
                     "nova",
                     web::get()
+                        .to(Self::create)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![RolePermissions::CreateArticleTag],
                             PermissionComparisonMode::Any,
-                        ))
-                        .to(Self::create),
+                        )),
                 )
                 .route(
                     "criar",
                     web::post()
+                        .to(Self::store)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![RolePermissions::CreateArticleTag],
                             PermissionComparisonMode::Any,
-                        ))
-                        .to(Self::store),
+                        )),
                 )
                 .route(
                     "{tag_id}/atualizar",
                     web::put()
+                        .to(Self::update)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![RolePermissions::UpdateArticleTag],
                             PermissionComparisonMode::Any,
-                        ))
-                        .to(Self::update),
+                        )),
                 )
                 .route(
                     "{tag_id}/apagar",
                     web::delete()
+                        .to(Self::delete)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![RolePermissions::DeleteArticleTag],
                             PermissionComparisonMode::Any,
-                        ))
-                        .to(Self::delete),
+                        )),
                 ),
         );
     }

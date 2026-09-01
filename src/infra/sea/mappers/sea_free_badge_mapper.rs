@@ -27,7 +27,7 @@ impl SeaMapper<FreeBadge, FreeBadgeModel, FreeBadgeActiveModel> for SeaFreeBadge
             link: entity.link().to_owned().into_active_value(),
             link_is_external: entity.link_is_external().into_active_value(),
             created_at: entity.created_at().into_active_value(),
-            available_until: entity.available_until().into_active_value(),
+            available_until: entity.available_until().into_active_value().into(),
         }
     }
 

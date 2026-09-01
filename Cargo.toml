@@ -11,12 +11,13 @@ edition = "2024"
 members = [".", "migration", "entities", "cli", "tests"]
 
 [workspace.dependencies]
-actix-web = "4.9.0"
-actix-web-lab = "0.23.0"
+tokio = { version = "1.42", features = ["full"] }
+actix-web = "4.15.0"
+actix-web-lab = "0.27.0"
 dotenvy = "0.15.7"
 log = "0.4"
-env_logger = "0.11.1"
-sea-orm = { version = "1.1", features = [
+env_logger = "0.11.11"
+sea-orm = { version = "2.0.2", features = [
     "sqlx-postgres",
     "runtime-tokio-rustls",
     "macros",
@@ -32,13 +33,13 @@ end-to-end-test = []
 [dependencies]
 migration = { path = "migration" }
 entities = { path = "entities" }
-tokio = { version = "1.42", features = ["full"] }
+tokio.workspace = true
 serde_json = "1.0"
-serde-envfile = "0.1.0"
-uuid = { version = "1.11", features = ["v4"] }
+serde-envfile = "0.4.1"
+uuid = { version = "1.26", features = ["v4"] }
 chrono = { version = "0.4", features = ["clock"] }
 config = "0.15.4"
-validator = { version = "0.20", features = ["derive"] }
+validator = { version = "0.21", features = ["derive"] }
 jsonwebtoken = "9.3.0"
 http = "1.2.0"
 password-auth = "1.0.0"
@@ -59,12 +60,12 @@ inertia-rust = { version = "2.4.6", features = [
     "actix-validator",
 ] }
 vite-rust = "0.2.4"
-actix-files = "0.6.6"
-actix-session = "0.10"
+actix-files = "0.7.0"
+actix-session = "0.11"
 anyhow = "1.0.95"
 rand = "0.8.5"
 base64 = "0.22.1"
-sqlx = "0.8"
+sqlx = "0.9"
 url = "2.5.7"
 reqwest = "0.12.23"
 moka = { version = "0.12.12", features = ["future"] }

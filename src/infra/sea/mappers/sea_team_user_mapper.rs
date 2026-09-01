@@ -25,8 +25,8 @@ impl SeaMapper<TeamUser, TeamUserModel, TeamUserActiveModel> for SeaTeamUserMapp
             team_role_id: entity.team_role_id().into_active_value(),
             nickname: entity.nickname().to_string().into_active_value(),
             user_function: entity.user_function().to_string().into_active_value(),
-            twitter: entity.twitter().into_active_value(),
-            discord: entity.discord().into_active_value(),
+            twitter: entity.twitter().into_active_value().into(),
+            discord: entity.discord().into_active_value().into(),
             created_at: entity.created_at().into_active_value(),
         }
     }

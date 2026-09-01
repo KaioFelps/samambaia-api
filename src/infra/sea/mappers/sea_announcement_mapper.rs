@@ -29,7 +29,7 @@ impl SeaMapper<Announcement, AnnouncementModel, AnnouncementActiveModel> for Sea
             image: entity.image().to_owned().into_active_value(),
             external: entity.external().into_active_value(),
             created_at: entity.created_at().into_active_value(),
-            updated_at: entity.updated_at().into_active_value(),
+            updated_at: entity.updated_at().into_active_value().into(),
         }
     }
 

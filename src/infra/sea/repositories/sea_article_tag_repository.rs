@@ -9,6 +9,7 @@ use sea_orm::{
     Condition,
     ConnectionTrait,
     EntityTrait,
+    ExprTrait,
     IntoActiveValue,
     PaginatorTrait,
     QueryFilter,
@@ -105,7 +106,6 @@ impl<C: ConnectionTrait> ArticleTagRepositoryTrait for SeaArticleTagRepository<'
 
         let article_tags_count = ArticleTagEntity::find()
             .apply_if(params.query, filter)
-            .offset(leap)
             .count(self.db)
             .await?;
 
@@ -123,12 +123,7 @@ impl<C: ConnectionTrait> ArticleTagRepositoryTrait for SeaArticleTagRepository<'
 
     async fn save(&self, article_tag: ArticleTag) -> Result<ArticleTag, Box<dyn Error>> {
         let active_article_tag = SeaArticleTagMapper::entity_into_active_model(article_tag.clone());
-
-        let _ = ArticleTagEntity::update(active_article_tag)
-            .filter(ArticleTagColumn::Id.eq(article_tag.id()))
-            .exec(self.db)
-            .await?;
-
+        active_article_tag.update(self.db).await?;
         Ok(article_tag)
     }
 

@@ -34,10 +34,10 @@ impl<CR: CommentRepositoryTrait, CRR: CommentReportRepositoryTrait>
     ) -> Result<CommentReport, SamambaiaError> {
         let comment_on_db = self.comment_repository.find_by_id(params.comment_id).await;
 
-        if comment_on_db.is_err() {
+        if let Err(error) = comment_on_db {
             error!(
                 "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create Comment Report Service, while fetching comment from database:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                comment_on_db.as_ref().unwrap_err()
+                error
             );
 
             return Err(SamambaiaError::internal_err());
@@ -56,10 +56,10 @@ impl<CR: CommentRepositoryTrait, CRR: CommentReportRepositoryTrait>
 
         let response = self.comment_report_repository.create(comment_report).await;
 
-        if response.is_err() {
+        if let Err(error) = response {
             error!(
                 "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Create Comment Report Service, while creating the comment report:{R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                response.as_ref().unwrap_err()
+                error
             );
             return Err(SamambaiaError::internal_err());
         }

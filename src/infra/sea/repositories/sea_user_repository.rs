@@ -5,8 +5,8 @@ use entities::user::{Column as UserColumn, Entity as UserEntity};
 use migration::{Alias, Expr, Func};
 use sea_orm::{
     ActiveModelTrait,
-    ColumnTrait,
     EntityTrait,
+    ExprTrait,
     IntoSimpleExpr,
     PaginatorTrait,
     QueryFilter,
@@ -80,13 +80,8 @@ impl UserRepositoryTrait for SeaUserRepository<'_> {
     }
 
     async fn save(&self, user: User) -> Result<User, Box<dyn Error>> {
-        let user_id = user.id();
-
-        let user = SeaUserMapper::entity_into_active_model(user.clone());
-
-        let user = UserEntity::update(user.clone())
-            .filter(UserColumn::Id.eq(user_id))
-            .exec(&self.sea_service.db)
+        let user = SeaUserMapper::entity_into_active_model(user.clone())
+            .update(&self.sea_service.db)
             .await?;
 
         let user = SeaUserMapper::model_into_entity(user);
@@ -117,7 +112,6 @@ impl UserRepositoryTrait for SeaUserRepository<'_> {
             .apply_if(params.query, |query_builder, query| {
                 self.find_many_get_filters(query_builder, query)
             })
-            .offset(leap)
             .count(&self.sea_service.db)
             .await?;
 

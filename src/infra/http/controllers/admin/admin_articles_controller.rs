@@ -60,71 +60,71 @@ impl ControllerTrait for AdminArticlesController {
                 .route(
                     "",
                     web::get()
+                        .to(Self::manage_articles)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![
                                 RolePermissions::SeeUnapprovedArticle,
                                 RolePermissions::CreateArticle,
                             ],
                             PermissionComparisonMode::Any,
-                        ))
-                        .to(Self::manage_articles),
+                        )),
                 )
                 .route(
                     "nova",
                     web::get()
+                        .to(Self::create_article)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![RolePermissions::CreateArticle],
                             PermissionComparisonMode::All,
-                        ))
-                        .to(Self::create_article),
+                        )),
                 )
                 .route(
                     "criar",
                     web::post()
+                        .to(Self::store_article)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![RolePermissions::CreateArticle],
                             PermissionComparisonMode::All,
-                        ))
-                        .to(Self::store_article),
+                        )),
                 )
                 .route(
                     "{article_id}/alterar-aprovado",
-                    web::patch()
-                        .wrap(WebHasPermissionMiddleware::new(
+                    web::patch().to(Self::toggle_article_approved).wrap(
+                        WebHasPermissionMiddleware::new(
                             vec![RolePermissions::ApproveArticle],
                             PermissionComparisonMode::Any,
-                        ))
-                        .to(Self::toggle_article_approved),
+                        ),
+                    ),
                 )
                 .route(
                     "{article_id}/editar",
                     web::get()
+                        .to(Self::edit_article)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![RolePermissions::UpdateArticle],
                             PermissionComparisonMode::All,
-                        ))
-                        .to(Self::edit_article),
+                        )),
                 )
                 .route(
                     "{article_id}/atualizar",
                     web::put()
+                        .to(Self::update_article)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![RolePermissions::UpdateArticle],
                             PermissionComparisonMode::All,
-                        ))
-                        .to(Self::update_article),
+                        )),
                 )
                 .route(
                     "{article_id}/apagar",
                     web::delete()
+                        .to(Self::delete_article)
                         .wrap(WebHasPermissionMiddleware::new(
                             vec![
                                 RolePermissions::DeleteArticle,
                                 RolePermissions::DeleteComment,
                             ],
                             PermissionComparisonMode::All,
-                        ))
-                        .to(Self::delete_article),
+                        )),
                 ),
         );
     }

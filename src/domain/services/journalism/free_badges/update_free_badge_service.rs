@@ -51,24 +51,24 @@ impl<FreeBadgeRepository: FreeBadgeRepositoryTrait> UpdateFreeBadgeService<FreeB
                 Some(badge) => badge,
             };
 
-        if params.code.is_some() {
-            free_badge.set_code(params.code.unwrap());
+        if let Some(code) = params.code {
+            free_badge.set_code(code);
         }
 
-        if params.image.is_some() {
-            free_badge.set_image(params.image.unwrap());
+        if let Some(image) = params.image {
+            free_badge.set_image(image);
         }
 
-        if params.link.is_some() {
-            free_badge.set_link(params.link.unwrap());
+        if let Some(link) = params.link {
+            free_badge.set_link(link);
         }
 
-        if params.link_is_external.is_some() {
-            free_badge.set_link_is_external(params.link_is_external.unwrap());
+        if let Some(link_is_external) = params.link_is_external {
+            free_badge.set_link_is_external(link_is_external);
         }
 
-        if params.available_until.is_some() {
-            free_badge.set_available_until(params.available_until.unwrap());
+        if let Some(available_until) = params.available_until {
+            free_badge.set_available_until(available_until);
         }
 
         self.free_badge_repository

@@ -7,6 +7,7 @@ use sea_orm::{
     ActiveModelTrait,
     ColumnTrait,
     EntityTrait,
+    ExprTrait,
     PaginatorTrait,
     QueryFilter,
     QueryOrder,
@@ -15,11 +16,7 @@ use sea_orm::{
 };
 
 use crate::core::pagination::PaginationParameters;
-use crate::domain::domain_entities::comment_report::{
-    CommentReport,
-    CommentReportIdTrait,
-    DraftCommentReport,
-};
+use crate::domain::domain_entities::comment_report::{CommentReport, DraftCommentReport};
 use crate::domain::repositories::comment_report_repository::{
     CommentReportQueryType,
     CommentReportRepositoryTrait,
@@ -102,7 +99,6 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository<'_> {
                     self.find_many_get_filters(query_builder, query)
                 },
             )
-            .offset(leap)
             .count(&self.sea_service.db)
             .await?;
 
@@ -119,13 +115,8 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository<'_> {
     }
 
     async fn save(&self, comment_report: CommentReport) -> Result<CommentReport, Box<dyn Error>> {
-        let comm_rep_id = comment_report.id();
-
-        let comment_report = SeaCommentReportMapper::entity_into_active_model(comment_report);
-
-        let comment_report = CommentReportEntity::update(comment_report)
-            .filter(CommentReportColumn::Id.eq(comm_rep_id))
-            .exec(&self.sea_service.db)
+        let comment_report = SeaCommentReportMapper::entity_into_active_model(comment_report)
+            .update(&self.sea_service.db)
             .await?;
 
         let comment_report = SeaCommentReportMapper::model_into_entity(comment_report);

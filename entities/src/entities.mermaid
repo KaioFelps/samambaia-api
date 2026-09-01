@@ -1,0 +1,99 @@
+erDiagram
+    announcement {
+        uuid id PK
+        varchar url
+        varchar image
+        bool external
+        varchar description
+        datetime created_at
+        datetime updated_at
+        uuid author_id FK
+    }
+    article {
+        uuid id PK
+        varchar title
+        text content
+        uuid author_id FK
+        datetime created_at
+        varchar cover_url
+        datetime updated_at
+        bool approved
+        varchar slug UK
+        varchar description
+        text script
+        text cleanup_script
+    }
+    article_tag {
+        int id PK
+        varchar value UK
+    }
+    articles_tags_rel {
+        uuid article_id PK,FK
+        int tag_id PK,FK
+    }
+    comment {
+        uuid id PK
+        uuid author_id FK
+        text content
+        datetime created_at
+        bool is_active
+        uuid article_id FK
+    }
+    comment_report {
+        int id PK
+        uuid comment_id FK
+        uuid user_id FK
+        text message
+        datetime created_at
+        uuid solved_by FK
+    }
+    council_alert {
+        int id PK
+        varchar title
+        varchar content
+        bool pinned
+        datetime created_at
+    }
+    free_badge {
+        uuid id PK
+        varchar image
+        varchar code
+        varchar link
+        bool link_is_external
+        datetime created_at
+        datetime available_until
+    }
+    team_role {
+        uuid id PK
+        varchar title
+        varchar description
+        datetime created_at
+    }
+    team_user {
+        uuid id PK
+        varchar nickname
+        varchar user_function
+        varchar twitter
+        varchar discord
+        datetime created_at
+        uuid team_role_id FK
+    }
+    user {
+        uuid id PK
+        varchar nickname UK
+        varchar password
+        datetime created_at
+        datetime last_login
+        enum role
+    }
+    announcement }o--|| user : "author_id"
+    article }o--|| user : "author_id"
+    article }o--o{ article_tag : "[articles_tags_rel]"
+    articles_tags_rel }o--|| article : "article_id"
+    articles_tags_rel }o--|| article_tag : "tag_id"
+    comment }o--|| article : "article_id"
+    comment }o--|| user : "author_id"
+    comment_report }o--|| comment : "comment_id"
+    comment_report }o--|| user : "solved_by"
+    comment_report }o--|| user : "user_id"
+    team_user }o--|| team_role : "team_role_id"

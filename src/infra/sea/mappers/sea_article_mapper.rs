@@ -37,18 +37,18 @@ impl SeaArticleMapper {
             content: entity.content().to_owned().into_active_value(),
             approved: entity.approved().into_active_value(),
             created_at: entity.created_at().into_active_value(),
-            updated_at: entity.updated_at().into_active_value(),
+            updated_at: entity.updated_at().into_active_value().into(),
             slug: entity.slug().to_string().into_active_value(),
             description: entity.description().to_owned().into_active_value(),
             script: if entity.has_been_touched() {
                 Some(script_as_value).into_active_value()
             } else {
-                script_as_value.into_active_value()
+                script_as_value.into_active_value().into()
             },
             cleanup_script: if entity.has_been_touched() {
                 Some(cleanup_script_as_value).into_active_value()
             } else {
-                cleanup_script_as_value.into_active_value()
+                cleanup_script_as_value.into_active_value().into()
             },
         }
     }

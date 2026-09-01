@@ -33,7 +33,7 @@ impl SeaMapper<CommentReport, CommentReportModel, CommentReportActiveModel>
             user_id: entity.user_id().into_active_value(),
             comment_id: entity.comment_id().into_active_value(),
             message: entity.message().into_active_value(),
-            solved_by: entity.solved_by().into_active_value(),
+            solved_by: entity.solved_by().into_active_value().into(),
             created_at: entity.created_at().into_active_value(),
             id: entity.id().into_active_value(),
         }
@@ -70,7 +70,7 @@ impl SeaCommentReportMapper {
             user_id: draft_entity.user_id().into_active_value(),
             comment_id: draft_entity.comment_id().into_active_value(),
             message: draft_entity.message().into_active_value(),
-            solved_by: draft_entity.solved_by().into_active_value(),
+            solved_by: draft_entity.solved_by().into_active_value().into(),
             created_at: draft_entity.created_at().into_active_value(),
             ..Default::default()
         }

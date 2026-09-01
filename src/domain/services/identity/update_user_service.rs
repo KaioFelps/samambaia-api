@@ -65,20 +65,20 @@ impl<UserRepositoryType: UserRepositoryTrait, Hasher: HasherTrait>
             return Err(SamambaiaError::unauthorized_err());
         }
 
-        user.set_nickname(if params.nickname.is_some() {
-            params.nickname.unwrap()
+        user.set_nickname(if let Some(nickname) = params.nickname {
+            nickname
         } else {
             user.nickname().to_string()
         });
 
-        user.set_password(if params.password.is_some() {
-            self.hasher.hash(params.password.unwrap())
+        user.set_password(if let Some(password) = params.password {
+            self.hasher.hash(password)
         } else {
             user.password().to_string()
         });
 
-        user.set_role(if params.role.is_some() {
-            params.role
+        user.set_role(if let Some(role) = params.role {
+            Some(role)
         } else {
             user.role()
         });

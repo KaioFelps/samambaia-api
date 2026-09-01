@@ -7,6 +7,7 @@ use migration::{Expr, Func};
 use sea_orm::{
     ColumnTrait,
     EntityTrait,
+    ExprTrait,
     PaginatorTrait,
     QueryFilter,
     QueryOrder,
@@ -77,7 +78,6 @@ impl CommentUserArticleRepositoryTrait for SeaCommentUserArticleRepository<'_> {
             .apply_if(params.clone().query, |query_builder, query| {
                 self.find_many_get_filters(query_builder, query)
             })
-            .offset(leap)
             .count(&self.sea_service.db)
             .await?;
 
