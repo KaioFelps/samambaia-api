@@ -84,15 +84,16 @@ where
         };
 
         let user_can_see_article = {
-            if params.user_id.is_none() || params.user_role.is_none() {
-                false
-            } else if article.author_id().eq(params.user_id.unwrap()) {
-                true
+            if let Some(user_id) = params.user_id
+                && let Some(user_role) = params.user_role
+            {
+                let is_author = article.author_id().eq(user_id);
+                let has_permission =
+                    verify_role_has_permission(user_role, RolePermissions::SeeUnapprovedArticle);
+
+                is_author || has_permission
             } else {
-                verify_role_has_permission(
-                    params.user_role.unwrap(),
-                    RolePermissions::SeeUnapprovedArticle,
-                )
+                false
             }
         };
 

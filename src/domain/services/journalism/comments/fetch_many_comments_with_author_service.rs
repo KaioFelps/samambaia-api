@@ -47,19 +47,14 @@ impl<CommentUserArticleRepository: CommentUserArticleRepositoryTrait>
     ) -> ExecFuncReturn {
         let default_page = 1;
 
-        let items_per_page = if params.per_page.is_some() {
-            params.per_page.unwrap()
+        let items_per_page = if let Some(per_page) = params.per_page {
+            per_page
         } else {
             DEFAULT_PER_PAGE as u32
         };
 
-        let page = if params.page.is_some() {
-            let params_page = params.page.unwrap();
-            if params_page == 0 {
-                default_page
-            } else {
-                params_page
-            }
+        let page = if let Some(page) = params.page {
+            if page == 0 { default_page } else { page }
         } else {
             default_page
         };
@@ -77,10 +72,10 @@ impl<CommentUserArticleRepository: CommentUserArticleRepositoryTrait>
             )
             .await;
 
-        if response.is_err() {
+        if let Err(error) = response {
             error!(
                 "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Comments With Author Service, while fetching many comments from database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                response.as_ref().unwrap_err()
+                error
             );
 
             return Err(SamambaiaError::internal_err());

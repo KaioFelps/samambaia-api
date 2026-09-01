@@ -51,12 +51,12 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> UpdateTeamRoleService<TeamRole
 
         let mut team_role = team_role_on_db.unwrap();
 
-        if params.title.is_some() {
-            team_role.set_title(params.title.unwrap());
+        if let Some(title) = params.title {
+            team_role.set_title(title);
         }
 
-        if params.description.is_some() {
-            team_role.set_description(params.description.unwrap());
+        if let Some(description) = params.description {
+            team_role.set_description(description);
         }
 
         self.team_role_repository

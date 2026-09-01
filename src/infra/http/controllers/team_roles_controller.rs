@@ -101,11 +101,7 @@ impl TeamRolesController {
 
         let team_roles = service
             .exec(FetchManyTeamRolesParams {
-                per_page: if query.per_page.is_some() {
-                    Some(query.per_page.unwrap() as u32)
-                } else {
-                    None
-                },
+                per_page: query.per_page.map(|per_page| per_page as u32),
                 page: query.page,
                 query: query.title.map(TeamRoleQueryType::Title),
             })

@@ -37,15 +37,14 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<Team
         &self,
         params: FetchManyTeamRolesParams,
     ) -> Result<FetchManyTeamRolesResponse, SamambaiaError> {
-        let items_per_page = if params.per_page.is_some() {
-            params.per_page.unwrap()
+        let items_per_page = if let Some(per_page) = params.per_page {
+            per_page
         } else {
             DEFAULT_PER_PAGE as u32
         };
 
-        let page = if params.page.is_some() {
-            let params_page = params.page.unwrap();
-            if params_page == 0 { 1 } else { params_page }
+        let page = if let Some(page) = params.page {
+            if page == 0 { 1 } else { page }
         } else {
             1
         };
@@ -59,10 +58,10 @@ impl<TeamRoleRepository: TeamRoleRepositoryTrait> FetchManyTeamRolesService<Team
             })
             .await;
 
-        if response.is_err() {
+        if let Err(error) = response {
             error!(
                 "{R_EOL}{LOG_SEP}{R_EOL}Error occurred on Fetch Many Team Roles Service, while finding many team roles from database: {R_EOL}{}{R_EOL}{LOG_SEP}{R_EOL}",
-                response.as_ref().unwrap_err()
+                error
             );
 
             return Err(SamambaiaError::internal_err());

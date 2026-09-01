@@ -63,19 +63,14 @@ impl<CommentReportRepository: CommentReportRepositoryTrait, UserRepository: User
         let default_items_per_page = 9;
         let default_page = 1;
 
-        let items_per_page = if params.per_page.is_some() {
-            params.per_page.unwrap()
+        let items_per_page = if let Some(per_page) = params.per_page {
+            per_page
         } else {
             default_items_per_page
         };
 
-        let page = if params.page.is_some() {
-            let params_page = params.page.unwrap();
-            if params_page == 0 {
-                default_page
-            } else {
-                params_page
-            }
+        let page = if let Some(page) = params.page {
+            if page == 0 { default_page } else { page }
         } else {
             default_page
         };
