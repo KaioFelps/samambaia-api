@@ -68,10 +68,7 @@ impl FreeBadgeRepositoryTrait for SeaFreeBadgeRepository<'_> {
             .all(&self.sea_service.db)
             .await?;
 
-        let badges_count = FreeBadgeEntity::find()
-            .offset(leap)
-            .count(&self.sea_service.db)
-            .await?;
+        let badges_count = FreeBadgeEntity::find().count(&self.sea_service.db).await?;
 
         let mapped_badges: Vec<FreeBadge> = badges
             .into_iter()

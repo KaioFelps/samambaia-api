@@ -208,7 +208,6 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             .apply_if(show_only_approved_state, |query_builder, approved| {
                 query_builder.filter(ArticleColumn::Approved.eq(approved))
             })
-            .offset(leap)
             .count(&self.sea_service.db)
             .await?;
 

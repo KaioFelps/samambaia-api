@@ -106,7 +106,6 @@ impl<C: ConnectionTrait> ArticleTagRepositoryTrait for SeaArticleTagRepository<'
 
         let article_tags_count = ArticleTagEntity::find()
             .apply_if(params.query, filter)
-            .offset(leap)
             .count(self.db)
             .await?;
 

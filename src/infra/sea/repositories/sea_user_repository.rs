@@ -112,7 +112,6 @@ impl UserRepositoryTrait for SeaUserRepository<'_> {
             .apply_if(params.query, |query_builder, query| {
                 self.find_many_get_filters(query_builder, query)
             })
-            .offset(leap)
             .count(&self.sea_service.db)
             .await?;
 

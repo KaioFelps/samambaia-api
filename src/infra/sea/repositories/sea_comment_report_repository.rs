@@ -99,7 +99,6 @@ impl CommentReportRepositoryTrait for SeaCommentReportRepository<'_> {
                     self.find_many_get_filters(query_builder, query)
                 },
             )
-            .offset(leap)
             .count(&self.sea_service.db)
             .await?;
 
