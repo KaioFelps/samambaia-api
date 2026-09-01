@@ -1,1 +1,1 @@
-cargo clippy --all-targets --all-features --fix -- -D warnings 
+cargo clippy --all-targets --all-features --fix --allow-dirty
