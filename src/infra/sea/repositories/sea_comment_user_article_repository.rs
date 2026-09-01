@@ -7,6 +7,7 @@ use migration::{Expr, Func};
 use sea_orm::{
     ColumnTrait,
     EntityTrait,
+    ExprTrait,
     PaginatorTrait,
     QueryFilter,
     QueryOrder,

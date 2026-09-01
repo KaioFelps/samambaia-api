@@ -26,7 +26,7 @@ impl SeaMapper<User, UserModel, UserActiveModel> for SeaUserMapper {
             password: entity.password().to_string().into_active_value(),
             role: sea_orm::ActiveValue::Set(entity.role().map(SeaRoleMapper::into_model)),
             created_at: entity.created_at().into_active_value(),
-            last_login: entity.last_login().into_active_value(),
+            last_login: entity.last_login().into_active_value().into(),
         }
     }
 

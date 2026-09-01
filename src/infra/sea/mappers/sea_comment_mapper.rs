@@ -21,7 +21,7 @@ impl SeaMapper<Comment, CommentModel, CommentActiveModel> for SeaCommentMapper {
     fn entity_into_active_model(entity: Comment) -> CommentActiveModel {
         CommentActiveModel {
             id: entity.id().into_active_value(),
-            article_id: entity.article_id().into_active_value(),
+            article_id: entity.article_id().into_active_value().into(),
             author_id: entity.author_id().into_active_value(),
             content: entity.content().to_string().into_active_value(),
             is_active: entity.is_active().into_active_value(),

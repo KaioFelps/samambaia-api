@@ -7,7 +7,7 @@ use entities::article::{Column as ArticleColumn, Entity as ArticleEntity};
 use entities::article_tag::Column as ArticleTagColumn;
 use entities::user::Column as UserColumn;
 use migration::extension::postgres::PgExpr;
-use migration::{Alias, Expr, IntoIden, IntoTableRef};
+use migration::{Expr, IntoIden, IntoTableRef};
 use sea_orm::{
     ActiveModelTrait,
     ColumnTrait,
@@ -15,6 +15,7 @@ use sea_orm::{
     DatabaseTransaction,
     DbErr,
     EntityTrait,
+    ExprTrait,
     PaginatorTrait,
     QueryFilter,
     QueryOrder,
@@ -292,17 +293,17 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             .into_query();
 
         // from ($articles_query) as $articles_cte_table
-        let articles_cte_table = Alias::new("limited_articles");
+        let articles_cte_table = "limited_articles";
         let articles_query = sea_orm::sea_query::SelectStatement::new()
-            .from_subquery(limited_articles_cte, articles_cte_table.clone())
+            .from_subquery(limited_articles_cte, articles_cte_table)
             .columns([
-                (articles_cte_table.clone(), ArticleColumn::Id),
-                (articles_cte_table.clone(), ArticleColumn::Slug),
-                (articles_cte_table.clone(), ArticleColumn::Title),
-                (articles_cte_table.clone(), ArticleColumn::CoverUrl),
-                (articles_cte_table.clone(), ArticleColumn::Description),
-                (articles_cte_table.clone(), ArticleColumn::Approved),
-                (articles_cte_table.clone(), ArticleColumn::CreatedAt),
+                (articles_cte_table, ArticleColumn::Id),
+                (articles_cte_table, ArticleColumn::Slug),
+                (articles_cte_table, ArticleColumn::Title),
+                (articles_cte_table, ArticleColumn::CoverUrl),
+                (articles_cte_table, ArticleColumn::Description),
+                (articles_cte_table, ArticleColumn::Approved),
+                (articles_cte_table, ArticleColumn::CreatedAt),
             ])
             .columns([
                 (entities::prelude::User.into_iden(), UserColumn::Id),
@@ -320,7 +321,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             ])
             .inner_join(
                 entities::prelude::User.into_table_ref(),
-                Expr::col((articles_cte_table.clone(), ArticleColumn::AuthorId))
+                Expr::col((articles_cte_table, ArticleColumn::AuthorId))
                     .equals((entities::prelude::User.into_iden(), UserColumn::Id)),
             )
             .left_join(
@@ -329,7 +330,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
                     entities::prelude::ArticlesTagsRel.into_iden(),
                     entities::articles_tags_rel::Column::ArticleId,
                 ))
-                .equals((articles_cte_table.clone(), ArticleColumn::Id)),
+                .equals((articles_cte_table, ArticleColumn::Id)),
             )
             .left_join(
                 entities::prelude::ArticleTag.into_table_ref(),
@@ -344,13 +345,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             )
             .to_owned();
 
-        let articles_query = self
-            .sea_service
-            .db
-            .get_database_backend()
-            .build(&articles_query);
-
-        let articles_query = self.sea_service.db.query_all(articles_query);
+        let articles_query = self.sea_service.db.query_all(&articles_query);
 
         let (articles, articles_count): (Vec<QueryResult>, u64) = tokio::try_join!(
             articles_query,

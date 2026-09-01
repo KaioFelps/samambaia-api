@@ -3,7 +3,7 @@ use std::future::Future;
 
 use async_trait::async_trait;
 use entities::comment::{Column as CommentColumn, Entity as CommentEntity};
-use migration::{Expr, Func};
+use migration::Expr;
 use sea_orm::{
     ActiveModelTrait,
     ColumnTrait,
@@ -199,8 +199,7 @@ impl SeaArticleCommentRepository<'_> {
                 query_builder.filter(filter)
             }
             CommentQueryType::Content(content) => {
-                let filter = Expr::expr(Func::lower(Expr::col(CommentColumn::Content)))
-                    .like(format!("%{}%", content.to_lowercase()));
+                let filter = CommentColumn::Content.ilike(format!("%{}%", content));
                 query_builder.filter(filter)
             }
         }
