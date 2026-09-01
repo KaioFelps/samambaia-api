@@ -102,7 +102,7 @@ mod test {
             .expect_delete()
             .returning(move |_comment| {
                 let mut comment_db = mocked_comment_repo_db_clone.lock().unwrap();
-                comment_db.truncate(0);
+                comment_db.clear();
 
                 Ok(())
             });
