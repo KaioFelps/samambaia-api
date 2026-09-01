@@ -267,6 +267,8 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
 
         let offset = ((params.page - 1) * params.items_per_page) as u64;
 
+        use sea_orm::JoinType;
+
         let limited_articles_cte = ArticleEntity::find()
             .distinct()
             .select_only()
@@ -280,7 +282,13 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
                 ArticleColumn::CreatedAt,
                 ArticleColumn::AuthorId,
             ])
-            .left_join(entities::articles_tags_rel::Entity)
+            .join_rev(
+                JoinType::LeftJoin,
+                entities::articles_tags_rel::Entity::belongs_to(ArticleEntity)
+                    .from(entities::articles_tags_rel::Column::ArticleId)
+                    .to(ArticleColumn::Id)
+                    .into(),
+            )
             .apply_if(params.query.as_ref(), |query, filter| {
                 self.find_many_get_filters(query, filter)
             })
