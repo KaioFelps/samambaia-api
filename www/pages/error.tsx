@@ -48,3 +48,5 @@ export default function ErrorPage({ status }: ErrorPageProps) {
 }
 
 ErrorPage.layout = (children: ReactNode) => <RawPublicLayout>{children}</RawPublicLayout>;
+// inertia v3 requires this:
+// ErrorPage.layout = [(children: ReactNode) => <RawPublicLayout>{children}</RawPublicLayout>];
