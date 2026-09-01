@@ -5,14 +5,14 @@ use serde::{Deserialize, Serialize};
 
 #[sea_orm::model]
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "article_tag")]
+#[sea_orm(table_name = "council_alert")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    #[sea_orm(unique)]
-    pub value: String,
-    #[sea_orm(has_many, via = "articles_tags_rel")]
-    pub articles: HasMany<super::article::Entity>,
+    pub title: String,
+    pub content: String,
+    pub pinned: bool,
+    pub created_at: DateTime,
 }
 
 impl ActiveModelBehavior for ActiveModel {}

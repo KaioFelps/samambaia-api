@@ -1,0 +1,1 @@
+sea-orm-cli generate entity --output-dir entities/src --entity-format dense --with-serde both --er-diagram
