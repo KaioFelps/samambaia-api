@@ -2,6 +2,7 @@ pub mod announcement;
 pub mod article;
 pub mod article_preview;
 pub mod article_tag;
+pub mod audit_log;
 pub mod comment;
 pub mod comment_report;
 pub mod council_alert;

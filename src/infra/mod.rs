@@ -5,5 +5,6 @@ pub mod hotels;
 pub mod http;
 pub mod imager;
 pub mod jwt;
+pub mod queries;
 pub mod sea;
 pub mod sqlx;
