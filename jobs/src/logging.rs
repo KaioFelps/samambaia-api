@@ -141,6 +141,7 @@ impl JobHandler<LoggingJob> for LoggingHandler {
             .as_ref()
             .map(|target| format!("{} ({})", target.entity.name, target.t_type));
 
+        let target_type = job.payload.target.as_ref().map(|t| t.t_type.to_string());
         let target_payload = job
             .payload
             .target
@@ -153,7 +154,7 @@ impl JobHandler<LoggingJob> for LoggingHandler {
             r#"
             INSERT INTO audit_logs
             (actor_reference, target_reference, action_kind, happened_at, logged_at,
-             actor, target, old_payload, new_payload, metadata)
+             actor, target_type, target, old_payload, new_payload, metadata)
             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             "#,
         )
@@ -163,6 +164,7 @@ impl JobHandler<LoggingJob> for LoggingHandler {
         .bind(job.payload.created_at)
         .bind(job.meta.scheduled_at.unwrap_or(job.meta.created_at))
         .bind(actor_payload)
+        .bind(target_type)
         .bind(target_payload)
         .bind(job.payload.old_payload.as_ref())
         .bind(job.payload.new_payload.as_ref())
