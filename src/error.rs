@@ -24,6 +24,7 @@ pub enum SamambaiaError {
     InvalidCredentials(String),
     ResourceNotFound(String),
     Unauthorized(String),
+    Forbidden(String),
     UserAlreadyExists(String),
     Validation(String, ErrorsMap),
 }
@@ -39,6 +40,7 @@ impl SamambaiaError {
             SamambaiaError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             SamambaiaError::UserAlreadyExists(_) => StatusCode::CONFLICT,
             SamambaiaError::Validation(_, _) => StatusCode::BAD_REQUEST,
+            SamambaiaError::Forbidden(_) => StatusCode::FORBIDDEN,
         }
     }
 
@@ -51,7 +53,8 @@ impl SamambaiaError {
             | SamambaiaError::ResourceNotFound(msg)
             | SamambaiaError::Unauthorized(msg)
             | SamambaiaError::UserAlreadyExists(msg)
-            | SamambaiaError::Validation(msg, _) => msg,
+            | SamambaiaError::Validation(msg, _)
+            | SamambaiaError::Forbidden(msg) => msg,
         }
     }
 
@@ -68,6 +71,7 @@ impl SamambaiaError {
             SamambaiaError::InvalidCredentials(_) => SamambaiaError::InvalidCredentials(msg),
             SamambaiaError::ResourceNotFound(_) => SamambaiaError::ResourceNotFound(msg),
             SamambaiaError::Unauthorized(_) => SamambaiaError::Unauthorized(msg),
+            SamambaiaError::Forbidden(_) => SamambaiaError::Forbidden(msg),
             SamambaiaError::UserAlreadyExists(_) => SamambaiaError::UserAlreadyExists(msg),
             SamambaiaError::Validation(_, errors_map) => {
                 SamambaiaError::Validation(msg, errors_map)
@@ -93,6 +97,10 @@ impl SamambaiaError {
 
     pub fn resource_not_found_err() -> Self {
         SamambaiaError::ResourceNotFound("Recurso não encontrado.".into())
+    }
+
+    pub fn forbidden_err() -> Self {
+        SamambaiaError::Forbidden("Acesso restrito.".into())
     }
 
     pub fn user_already_exists_err(nickname: &str) -> Self {
@@ -122,3 +130,15 @@ impl Display for SamambaiaError {
 }
 
 impl Error for SamambaiaError {}
+
+impl From<sqlx::Error> for SamambaiaError {
+    fn from(err: sqlx::Error) -> Self {
+        match err {
+            sqlx::Error::RowNotFound => Self::resource_not_found_err(),
+            other => {
+                log::error!("Database error (error: {other:?})");
+                Self::internal_err()
+            }
+        }
+    }
+}
