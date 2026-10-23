@@ -12,8 +12,8 @@ services:
       POSTGRES_PASSWORD: docker
       POSTGRES_DB: rust-clean
     profiles:
-        - dev
-    
+      - dev
+
   pgadmin:
     container_name: postgres-admin
     image: dpage/pgadmin4
@@ -24,3 +24,21 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     profiles:
       - analytic
+
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: samambaia-api-redis
+    environment:
+      REDIS_ARGS: |
+        --requirepass ${REDIS_PASSWORD}
+        --user ${REDIS_USER}
+        on >${REDIS_PASSWORD} allkeys allcommands +@all
+    ports:
+      - ${REDIS_PORT}:6379
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - dev
