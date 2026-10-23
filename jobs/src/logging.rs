@@ -11,7 +11,7 @@ use crate::job::{Job, JobError, JobHandler};
 
 pub const LOGGING_JOB_TYPE: &str = "audit";
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum TargetType {
     User,
     Article,
@@ -37,7 +37,7 @@ impl Display for TargetType {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum ActionKind {
     Create,
     Delete,
