@@ -110,6 +110,12 @@ pub struct LoggingJob {
     pub created_at: DateTime<Utc>,
 }
 
+impl LoggingJob {
+    pub fn into_job(self) -> Job<Self> {
+        Job::new(LOGGING_JOB_TYPE, self)
+    }
+}
+
 pub struct LoggingHandler {
     // does not need to be a reference or wrapped in Arc since PgPool is already Arc-wrapped
     pool: PgPool,
