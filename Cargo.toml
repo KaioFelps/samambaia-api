@@ -8,7 +8,7 @@ version = "0.5.0"
 edition = "2024"
 
 [workspace]
-members = [".", "migration", "entities", "cli", "tests"]
+members = [".", "migration", "entities", "cli", "tests", "jobs"]
 
 [workspace.dependencies]
 deadpool-redis = "0.23.1"
@@ -78,6 +78,7 @@ sqlx.workspace = true
 url = "2.5.7"
 reqwest = "0.12.23"
 moka = { version = "0.12.12", features = ["future"] }
+jobs = { path = "jobs" }
 deadpool-redis.workspace = true
 
 [dev-dependencies]

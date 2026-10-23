@@ -1,0 +1,19 @@
+[package]
+name = "jobs"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+serde_json.workspace = true
+redis.workspace = true
+derive_builder = "0.20.2"
+tokio.workspace = true
+thiserror.workspace = true
+log.workspace = true
+async-trait.workspace = true
+sqlx.workspace = true
+deadpool-redis.workspace = true
+indoc = "2.0.8"
