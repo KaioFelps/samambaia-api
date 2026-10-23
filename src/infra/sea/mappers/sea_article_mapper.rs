@@ -25,7 +25,7 @@ impl SeaArticleMapper {
         }
     }
 
-    pub fn entity_into_active_model(entity: Article) -> ArticleActiveModel {
+    pub fn entity_into_active_model(entity: &Article) -> ArticleActiveModel {
         let script_as_value = entity.get_script().map(ToString::to_string);
         let cleanup_script_as_value = entity.get_cleanup_script().map(ToString::to_string);
 

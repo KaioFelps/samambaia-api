@@ -45,6 +45,6 @@ pub trait ArticleCommentRepositoryTrait {
 
     async fn delete_article_and_inactivate_comments(
         &self,
-        article: Article,
+        article: &Article,
     ) -> Result<(), Box<dyn Error>>;
 }

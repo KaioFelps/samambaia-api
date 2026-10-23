@@ -1,5 +1,6 @@
 use uuid::Uuid;
 
+use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_comment_repository::ArticleCommentRepositoryTrait;
 use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
@@ -23,7 +24,10 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait> DeleteArtic
         }
     }
 
-    pub async fn exec(&self, params: DeleteArticleParams<'_>) -> Result<(), SamambaiaError> {
+    pub async fn exec(
+        &self,
+        params: DeleteArticleParams<'_>,
+    ) -> Result<Option<Article>, SamambaiaError> {
         let article = match self
             .article_repository
             .find_by_id(params.article_id)
@@ -34,7 +38,7 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait> DeleteArtic
                     err,
                 )
             })? {
-            None => return Err(SamambaiaError::resource_not_found_err()),
+            None => return Ok(None),
             Some(article) => article,
         };
 
@@ -50,14 +54,16 @@ impl<AR: ArticleRepositoryTrait, ACR: ArticleCommentRepositoryTrait> DeleteArtic
         }
 
         self.article_comment_repository
-            .delete_article_and_inactivate_comments(article)
+            .delete_article_and_inactivate_comments(&article)
             .await
             .map_err(|err| {
                 generate_service_internal_error(
                     "Error occurred on Delete Article Service, while deleting the article",
                     err,
                 )
-            })
+            })?;
+
+        Ok(Some(article))
     }
 }
 

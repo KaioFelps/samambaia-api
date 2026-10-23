@@ -82,7 +82,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             .map(|article| (*article).clone())
             .collect::<Vec<_>>();
 
-        let article = SeaArticleMapper::entity_into_active_model(article)
+        let article = SeaArticleMapper::entity_into_active_model(&article)
             .insert(&self.sea_service.db)
             .await
             .map_err(|err| generate_service_internal_error(
@@ -122,7 +122,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             )?;
         }
 
-        let active_article = SeaArticleMapper::entity_into_active_model(article.clone());
+        let active_article = SeaArticleMapper::entity_into_active_model(&article);
 
         let _ = active_article.update(&transaction).await?;
         transaction.commit().await?;
