@@ -23,3 +23,6 @@ pub struct PaginationParameters<QT: Clone> {
 }
 
 pub const DEFAULT_PER_PAGE: u8 = 9;
+pub const MAX_PER_PAGE: usize = 100;
+/// For search strings using things like pg_tgrm
+pub const MAX_SEARCH_LEN: usize = 200;
