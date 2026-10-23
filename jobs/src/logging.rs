@@ -155,7 +155,7 @@ impl JobHandler<LoggingJob> for LoggingHandler {
             INSERT INTO audit_logs
             (actor_reference, target_reference, action_kind, happened_at, logged_at,
              actor, target_type, target, old_payload, new_payload, metadata)
-            values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             "#,
         )
         .bind(actor_reference)
