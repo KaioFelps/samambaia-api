@@ -1,12 +1,16 @@
 use actix_session::Session;
 use actix_web::http::StatusCode;
-use actix_web::web::{self, Data, Json, Path, Query, Redirect};
+use actix_web::web::{self, Data, Json, Path, Query, Redirect, ThinData};
 use actix_web::{Either, HttpRequest};
 use inertia_rust::validators::InertiaValidateOrRedirect;
 use inertia_rust::{Inertia, InertiaFacade, InertiaProp, hashmap};
+use jobs::logging::{ActionKind, Actor, EntitySnapshot, LoggingJobBuilder, Target, TargetType};
+use jobs::queue::JobQueue;
+use serde::Serialize;
 use uuid::Uuid;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
+use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::user::User;
 use crate::domain::factories::journalism::article_tags::fetch_many_article_tags_service_factory;
 use crate::domain::factories::journalism::articles::{
@@ -48,6 +52,7 @@ use crate::infra::http::presenters::article_preview::{
 };
 use crate::infra::http::presenters::article_tag::ArticleTagPresenter;
 use crate::infra::http::presenters::presenter::{JsonWrappedPaginatedEntity, PresenterTrait};
+use crate::infra::http::presenters::user::UserPresenter;
 use crate::infra::sea::sea_service::SeaService;
 use crate::util::{RolePermissions, verify_role_has_permission};
 
@@ -234,6 +239,7 @@ impl AdminArticlesController {
         db_conn: Data<SeaService>,
         body: Json<CreateArticleDto>,
         auth: WebAuthUser,
+        job_queue: ThinData<JobQueue>,
     ) -> AppResponse<Redirect> {
         let body = match body.validate_or_back(&req) {
             Ok(body) => body,
@@ -241,19 +247,30 @@ impl AdminArticlesController {
         };
 
         let service = create_article_service_factory::exec(&db_conn);
-        let _article = service
+        let m_body = body.clone();
+        let article = service
             .exec(CreateArticleParams {
-                title: body.title.unwrap(),
-                content: body.content.unwrap(),
-                cover_url: body.cover_url.unwrap(),
-                custom_author_id: body.author_id,
-                description: body.description.unwrap(),
+                title: m_body.title.unwrap(),
+                content: m_body.content.unwrap(),
+                cover_url: m_body.cover_url.unwrap(),
+                custom_author_id: m_body.author_id,
+                description: m_body.description.unwrap(),
                 staff: &auth.user,
-                tags: body.tags,
-                script: body.script,
-                cleanup_script: body.cleanup_script,
+                tags: m_body.tags,
+                script: m_body.script,
+                cleanup_script: m_body.cleanup_script,
             })
             .await?;
+
+        enqueue_article_audit_log(
+            &job_queue,
+            ActionKind::Create,
+            &auth.user,
+            &article,
+            None::<&()>,
+            Some(&body),
+        )
+        .await;
 
         Session::flash_silently(&req, "createArticleSuccess", "Notícia criada com sucesso!");
 
@@ -267,6 +284,7 @@ impl AdminArticlesController {
         body: Json<PatchArticleApprovedDto>,
         auth: WebAuthUser,
         article_id: Path<Uuid>,
+        job_queue: ThinData<JobQueue>,
     ) -> AppResponse<Redirect> {
         let body = match body.validate_or_back(&req) {
             Ok(body) => body,
@@ -274,9 +292,9 @@ impl AdminArticlesController {
         };
 
         let article_id = article_id.into_inner();
-
         let service = update_article_service_factory::exec(&db_conn);
-        if let Err(err) = service
+
+        match service
             .exec(UpdateArticleParams {
                 user: &auth.user,
                 article_id,
@@ -292,15 +310,26 @@ impl AdminArticlesController {
             })
             .await
         {
-            return Ok(Inertia::back_with_errors(
+            Err(err) => Ok(Inertia::back_with_errors(
                 &req,
                 hashmap![
                    "error" => err.get_message().to_string().into()
                 ],
-            ));
-        }
+            )),
+            Ok(article) => {
+                enqueue_article_audit_log(
+                    &job_queue,
+                    ActionKind::Edit,
+                    &auth.user,
+                    &article,
+                    None::<&()>,
+                    Some(&body),
+                )
+                .await;
 
-        Ok(Inertia::back(&req))
+                Ok(Inertia::back(&req))
+            }
+        }
     }
 
     async fn update_article(
@@ -309,6 +338,7 @@ impl AdminArticlesController {
         path: Path<Uuid>,
         body: Json<UpdateArticleDto>,
         db_conn: Data<SeaService>,
+        job_queue: ThinData<JobQueue>,
     ) -> AppResponse<Redirect> {
         let body = match body.validate_or_back(&req) {
             Ok(body) => body,
@@ -317,19 +347,20 @@ impl AdminArticlesController {
 
         let service = update_article_service_factory::exec(&db_conn);
 
+        let m_body = body.clone();
         match service
             .exec(UpdateArticleParams {
-                title: body.title,
-                description: body.description,
-                content: body.content,
-                approved: body.approved,
-                cover_url: body.cover_url,
+                title: m_body.title,
+                description: m_body.description,
+                content: m_body.content,
+                approved: m_body.approved,
+                cover_url: m_body.cover_url,
                 article_id: path.into_inner(),
-                author_id: body.author_id,
+                author_id: m_body.author_id,
                 user: &auth.user,
-                tags: body.tags,
-                script: body.script,
-                cleanup_script: body.cleanup_script,
+                tags: m_body.tags,
+                script: m_body.script,
+                cleanup_script: m_body.cleanup_script,
             })
             .await
         {
@@ -339,7 +370,17 @@ impl AdminArticlesController {
                     "error" => err.get_message().to_string().into()
                 ],
             )),
-            Ok(_article) => {
+            Ok(article) => {
+                enqueue_article_audit_log(
+                    &job_queue,
+                    ActionKind::Edit,
+                    &auth.user,
+                    &article,
+                    None::<&()>,
+                    Some(&body),
+                )
+                .await;
+
                 Session::flash_silently(
                     &req,
                     "editArticleSuccess",
@@ -355,26 +396,45 @@ impl AdminArticlesController {
         auth: WebAuthUser,
         path: Path<Uuid>,
         db_conn: Data<SeaService>,
+        job_queue: ThinData<JobQueue>,
     ) -> AppResponse<Redirect> {
         let service = delete_article_service_factory::exec(&db_conn);
 
-        if let Err(err) = service
+        match service
             .exec(DeleteArticleParams {
                 article_id: path.into_inner(),
                 user: &auth.user,
             })
             .await
         {
-            return Ok(Inertia::back_with_errors(
+            Err(err) => Ok(Inertia::back_with_errors(
                 &req,
                 hashmap![
                     "error" => err.get_message().to_string().into()
                 ],
-            ));
-        }
+            )),
 
-        Session::flash_silently(&req, "deleteArticleSuccess", "Notícia apagada com sucesso!");
-        Ok(Inertia::back(&req))
+            Ok(article) => {
+                if let Some(article) = article {
+                    enqueue_article_audit_log(
+                        &job_queue,
+                        ActionKind::Delete,
+                        &auth.user,
+                        &article,
+                        None::<&()>,
+                        None::<&()>,
+                    )
+                    .await;
+                }
+
+                Session::flash_silently(
+                    &req,
+                    "deleteArticleSuccess",
+                    "Notícia apagada com sucesso!",
+                );
+                Ok(Inertia::back(&req))
+            }
+        }
     }
 }
 
@@ -414,5 +474,69 @@ impl AdminArticlesController {
                     per_page,
                 )
             })
+    }
+}
+
+async fn enqueue_article_audit_log<OldDto, NewDto>(
+    job_queue: &JobQueue,
+    action: ActionKind,
+    user: &User, // Passando por referência para não consumir o owner
+    article: &Article,
+    old_payload: Option<&OldDto>,
+    new_payload: Option<&NewDto>,
+) where
+    OldDto: Serialize,
+    NewDto: Serialize,
+{
+    let Ok(actor_snapshot) = EntitySnapshot::new(
+        user.id().to_string(),
+        user.nickname().to_string(),
+        UserPresenter::to_http(user.clone()),
+    ) else {
+        log::error!("Failed to create User snapshot for audit log");
+        return;
+    };
+
+    let Ok(target_snapshot) = EntitySnapshot::new(
+        article.id().to_string(),
+        article.title().to_string(),
+        ArticlePresenter::to_http(article.clone()),
+    ) else {
+        log::error!("Failed to create Article snapshot for audit log");
+        return;
+    };
+
+    let mut builder = LoggingJobBuilder::default()
+        .action_kind(action.clone())
+        .actor(Actor::Entity(actor_snapshot))
+        .target(Target {
+            t_type: TargetType::Article,
+            entity: target_snapshot,
+        });
+
+    if let Some(old) = old_payload
+        && let Ok(val) = serde_json::to_value(old)
+    {
+        builder = builder.old_payload(val);
+    }
+
+    if let Some(new) = new_payload
+        && let Ok(val) = serde_json::to_value(new)
+    {
+        builder = builder.new_payload(val);
+    }
+
+    match builder.build() {
+        Ok(log_data) => {
+            if let Err(err) = job_queue.enqueue(log_data.into_job()).await {
+                log::error!(
+                    "Error enqueueing audit log ({:?}) for Article: {err:?}",
+                    action
+                );
+            }
+        }
+        Err(err) => {
+            log::error!("Error building audit log ({:?}) for Article: {err}", action);
+        }
     }
 }

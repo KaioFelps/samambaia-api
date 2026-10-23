@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
-#[derive(Serialize, Deserialize, Validate)]
+#[derive(Serialize, Deserialize, Validate, Clone)]
 pub struct CreateArticleDto {
     pub author_id: Option<Uuid>,
 

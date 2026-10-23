@@ -1,10 +1,10 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
 use crate::libs::custom_deserializers::deserialize_optional_option;
 
-#[derive(Deserialize, Validate)]
+#[derive(Deserialize, Serialize, Validate, Clone)]
 pub struct UpdateArticleDto {
     pub author_id: Option<Uuid>,
 
