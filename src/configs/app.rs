@@ -10,46 +10,52 @@ pub const SESSION_FLASH_KEY: &str = "__flash__";
 pub struct AppConfig<'a> {
     pub verification_motto: &'a str,
 
-    // Whether the application is running on PRODUCTION or DEVELOPMENT mode
+    /// Whether the application is running on PRODUCTION or DEVELOPMENT mode
     pub rust_env: RustEnv,
 
-    // The URL string of the database connection
+    /// The URL string of the database connection
     pub database_url: &'a str,
 
-    // The canonical domain of the application
+    /// The canonical domain of the application
     pub domain: &'a str,
 
-    // A secret using for signing JWT tokens
+    /// A secret using for signing JWT tokens
     pub jwt_secret: &'a str,
 
-    // A key used for encrypting data
+    /// A key used for encrypting data
     pub app_key: &'a str,
 
-    // The host where the server will run
+    /// The host where the server will run
     pub host: &'a str,
 
-    // The port which the server will be listening to
+    /// The port which the server will be listening to
     pub port: u16,
 
-    // If true, https protocol is used. Otherwise, http is used.
+    /// If true, https protocol is used. Otherwise, http is used.
     pub https: bool,
 
-    // The amount of workers that must be used by the actix server
+    /// The amount of workers that must be used by the actix server
     pub workers: usize,
 
-    // Just like Laravel, this is used to raffle a request to run the
-    // garbage collector, which will remove unused resources
-    // (such as expired sessions files)
+    /// Just like Laravel, this is used to raffle a request to run the
+    /// garbage collector, which will remove unused resources
+    /// (such as expired sessions files)
     pub lottery: [u8; 2],
 
-    // The directory where sessions will be stored at
+    /// The directory where sessions will be stored at
     pub sessions_dir: &'a str,
 
-    // The key that stores the expiration date inside the session json
+    /// The key that stores the expiration date inside the session json
     pub sessions_exp_key: &'a str,
 
-    // The name of the cookie which holds the user's session id
+    /// The name of the cookie which holds the user's session id
     pub session_cookie: &'a str,
+
+    /// The redis connection URL
+    pub redis_url: &'a str,
+
+    /// The ceil amount of concurrent job handlers working to process jobs.
+    pub job_queue_workers: usize,
 }
 
 impl AppConfig<'_> {
@@ -74,6 +80,10 @@ impl AppConfig<'_> {
             port: env_vars.port,
             rust_env: env_vars.rust_env,
             workers: env_vars.workers,
+
+            redis_url: Box::leak(env_vars.redis_url.into_boxed_str()),
+
+            job_queue_workers: env_vars.job_queue_workers.unwrap_or(4),
         }
     }
 }

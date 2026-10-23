@@ -22,6 +22,8 @@ pub struct EnvConfig {
     pub port: u16,
     pub https: bool,
     pub workers: usize,
+    pub redis_url: String,
+    pub job_queue_workers: Option<usize>,
 }
 
 impl EnvConfig {
