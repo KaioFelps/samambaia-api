@@ -31,6 +31,19 @@ erDiagram
         uuid article_id PK,FK
         int tag_id PK,FK
     }
+    audit_logs {
+        bigint id PK
+        varchar actor_reference
+        varchar target_reference
+        varchar action_kind
+        timestamptz happened_at
+        timestamptz logged_at
+        json actor
+        json target
+        json old_payload
+        json new_payload
+        json metadata
+    }
     comment {
         uuid id PK
         uuid author_id FK

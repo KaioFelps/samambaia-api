@@ -6,6 +6,7 @@ pub mod announcement;
 pub mod article;
 pub mod article_tag;
 pub mod articles_tags_rel;
+pub mod audit_logs;
 pub mod comment;
 pub mod comment_report;
 pub mod council_alert;
