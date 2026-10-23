@@ -11,6 +11,12 @@ edition = "2024"
 members = [".", "migration", "entities", "cli", "tests"]
 
 [workspace.dependencies]
+deadpool-redis = "0.23.1"
+sqlx = "0.9"
+async-trait = "0.1.83"
+thiserror = "2.0.21"
+redis = { version = "1.7.0", features = ["tokio-comp", "connection-manager"] }
+uuid = { version = "1.26", features = ["v4"] }
 tokio = { version = "1.42", features = ["full"] }
 actix-web = "4.15.0"
 actix-web-lab = "0.27.0"
@@ -26,24 +32,27 @@ sea-orm = { version = "2.0.2", features = [
     "with-uuid",
 ] }
 serde = "1.0"
+chrono = { version = "0.4", features = ["clock"] }
+serde_json = "1.0"
 
 [features]
 end-to-end-test = []
 
 [dependencies]
+redis.workspace = true
 migration = { path = "migration" }
 entities = { path = "entities" }
 tokio.workspace = true
-serde_json = "1.0"
+serde_json.workspace = true
 serde-envfile = "0.4.1"
-uuid = { version = "1.26", features = ["v4"] }
-chrono = { version = "0.4", features = ["clock"] }
+uuid.workspace = true
+chrono.workspace = true
 config = "0.15.4"
 validator = { version = "0.21", features = ["derive"] }
 jsonwebtoken = "9.3.0"
 http = "1.2.0"
 password-auth = "1.0.0"
-async-trait = "0.1.83"
+async-trait.workspace = true
 regex = "1.11.1"
 unicode-normalization = "0.1.24"
 duplicate = "2.0.0"
@@ -65,10 +74,11 @@ actix-session = "0.11"
 anyhow = "1.0.95"
 rand = "0.8.5"
 base64 = "0.22.1"
-sqlx = "0.9"
+sqlx.workspace = true
 url = "2.5.7"
 reqwest = "0.12.23"
 moka = { version = "0.12.12", features = ["future"] }
+deadpool-redis.workspace = true
 
 [dev-dependencies]
 mockall = "0.13.0"
