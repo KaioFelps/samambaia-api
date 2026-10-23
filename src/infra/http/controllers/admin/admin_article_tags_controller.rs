@@ -1,10 +1,24 @@
 use actix_session::Session;
-use actix_web::web::{self, Data, Json, Path, Query, Redirect};
+use actix_web::web::{self, Data, Json, Path, Query, Redirect, ThinData};
 use actix_web::{Either, HttpRequest};
 use inertia_rust::validators::InertiaValidateOrRedirect;
 use inertia_rust::{Inertia, InertiaFacade, InertiaProp, hashmap};
+use jobs::job::Job;
+use jobs::logging::{
+    ActionKind,
+    Actor,
+    EntitySnapshot,
+    LOGGING_JOB_TYPE,
+    LoggingJobBuilder,
+    Target,
+    TargetType,
+};
+use jobs::queue::JobQueue;
+use serde::Serialize;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
+use crate::domain::domain_entities::article_tag::ArticleTag;
+use crate::domain::domain_entities::user::User;
 use crate::domain::factories::journalism::article_tags::{
     create_article_tag_service_factory,
     delete_article_tag_service_factory,
@@ -29,6 +43,7 @@ use crate::infra::http::middlewares::web::has_permission::{
 };
 use crate::infra::http::presenters::article_tag::ArticleTagPresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
+use crate::infra::http::presenters::user::UserPresenter;
 use crate::infra::sea::sea_service::SeaService;
 use crate::util::RolePermissions;
 
@@ -140,6 +155,7 @@ impl AdminArticleTagsController {
         body: Json<CreateArticleTagDto>,
         db_conn: Data<SeaService>,
         auth_user: WebAuthUser,
+        job_queue: ThinData<JobQueue>,
     ) -> AppResponse<Redirect> {
         let body = match body.validate_or_back(&req) {
             Err(redirect) => return Ok(redirect),
@@ -150,10 +166,20 @@ impl AdminArticleTagsController {
 
         let tag = create_article_tag_service
             .exec(CreateArticleTagParams {
-                value: body.value,
+                value: body.value.clone(),
                 user_role: auth_user.user.role().unwrap(),
             })
             .await?;
+
+        enqueue_article_tag_audit_log(
+            &job_queue,
+            ActionKind::Create,
+            &auth_user.user,
+            &tag,
+            None::<&()>,
+            Some(&body),
+        )
+        .await;
 
         Session::flash_silently(
             &req,
@@ -174,6 +200,7 @@ impl AdminArticleTagsController {
         body: Json<UpdateArticleTagDto>,
         db_conn: Data<SeaService>,
         auth_user: WebAuthUser,
+        job_queue: ThinData<JobQueue>,
     ) -> AppResponse<Redirect> {
         let body = match body.validate_or_back(&req) {
             Err(redirect) => return Ok(redirect),
@@ -186,7 +213,7 @@ impl AdminArticleTagsController {
             .exec(UpdateArticleTagParams {
                 tag_id: tag_id.into_inner() as i32,
                 user_role: auth_user.user.role().unwrap(),
-                value: body.value,
+                value: body.value.clone(),
             })
             .await;
 
@@ -197,6 +224,16 @@ impl AdminArticleTagsController {
                     "updateArticleTagSuccess",
                     format!("Tag {} atualizada com sucesso!", tag.value()),
                 );
+
+                enqueue_article_tag_audit_log(
+                    &job_queue,
+                    ActionKind::Edit,
+                    &auth_user.user,
+                    &tag,
+                    None::<&()>,
+                    Some(&body),
+                )
+                .await;
 
                 Inertia::back(&req)
             }
@@ -230,27 +267,114 @@ impl AdminArticleTagsController {
         tag_id: Path<u32>,
         auth_user: WebAuthUser,
         db_conn: Data<SeaService>,
+        job_queue: ThinData<JobQueue>,
     ) -> Redirect {
         let service = delete_article_tag_service_factory::exec(&db_conn);
 
-        if let Err(err) = service
+        match service
             .exec(DeleteArticleTagParams {
                 tag_id: tag_id.into_inner() as i32,
                 user_role: auth_user.user.role().as_ref().unwrap(),
             })
             .await
         {
-            return Inertia::back_with_errors(
+            Err(err) => Inertia::back_with_errors(
                 &req,
                 hashmap!["error" => match err {
                     SamambaiaError::Unauthorized(msg) => msg.to_string().into(),
                     _ => "Não foi possível deletar esta tag. Contate um desenvolvedor.".to_string().into()
                 }],
+            ),
+
+            Ok(tag) => {
+                if let Some(tag) = tag {
+                    enqueue_article_tag_audit_log(
+                        &job_queue,
+                        ActionKind::Delete,
+                        &auth_user.user,
+                        &tag,
+                        None::<&()>,
+                        None::<&()>,
+                    )
+                    .await;
+                }
+
+                Session::flash_silently(
+                    &req,
+                    "deleteArticleTagSuccess",
+                    "Tag deletada com sucesso.",
+                );
+
+                Inertia::back(&req)
+            }
+        }
+    }
+}
+
+async fn enqueue_article_tag_audit_log<OldDto, NewDto>(
+    job_queue: &JobQueue,
+    action: ActionKind,
+    user: &User, // Passando por referência para não consumir o owner
+    tag: &ArticleTag,
+    old_payload: Option<&OldDto>,
+    new_payload: Option<&NewDto>,
+) where
+    OldDto: Serialize,
+    NewDto: Serialize,
+{
+    let Ok(actor_snapshot) = EntitySnapshot::new(
+        user.id().to_string(),
+        user.nickname().to_string(),
+        UserPresenter::to_http(user.clone()),
+    ) else {
+        log::error!("Failed to create User snapshot for audit log");
+        return;
+    };
+
+    let Ok(target_snapshot) = EntitySnapshot::new(
+        tag.id().to_string(),
+        tag.value().to_string(),
+        ArticleTagPresenter::to_http(tag.clone()),
+    ) else {
+        log::error!("Failed to create ArticleTag snapshot for audit log");
+        return;
+    };
+
+    let mut builder = LoggingJobBuilder::default()
+        .action_kind(action.clone())
+        .actor(Actor::Entity(actor_snapshot))
+        .target(Target {
+            t_type: TargetType::ArticleTag,
+            entity: target_snapshot,
+        });
+
+    if let Some(old) = old_payload
+        && let Ok(val) = serde_json::to_value(old)
+    {
+        builder = builder.old_payload(val);
+    }
+
+    if let Some(new) = new_payload
+        && let Ok(val) = serde_json::to_value(new)
+    {
+        builder = builder.new_payload(val);
+    }
+
+    match builder.build() {
+        Ok(log_data) => {
+            let log_job = Job::new(LOGGING_JOB_TYPE, log_data);
+            if let Err(err) = job_queue.enqueue(log_job).await {
+                log::error!(
+                    "Error enqueueing audit log ({:?}) for ArticleTag: {err:?}",
+                    action
+                );
+            }
+        }
+        Err(err) => {
+            log::error!(
+                "Error building audit log ({:?}) for ArticleTag: {err}",
+                action
             );
         }
-
-        Session::flash_silently(&req, "deleteArticleTagSuccess", "Tag deletada com sucesso.");
-
-        Inertia::back(&req)
     }
 }
