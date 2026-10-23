@@ -84,6 +84,13 @@ export const SidebarMenu = memo(() => {
             <Todo />
           </SidebarMenuSection>
 
+          <SidebarMenuSection
+            label="Auditoria"
+            icon={ClipboardTextIcon}
+            requires={{ permissions: ["ReadAuditLogs"] }}>
+            <SidebarMenuItem href={routes.admin.audit.read} label="Logs de auditoria" />
+          </SidebarMenuSection>
+
           <SidebarSectionTitle title="Promotoria" />
 
           <SidebarMenuSection label="Relatórios" icon={ClipboardTextIcon}>

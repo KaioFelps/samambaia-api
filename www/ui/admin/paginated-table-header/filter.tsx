@@ -18,17 +18,22 @@ type PaginatedTableHeaderFilterProps = {
 
 export const PaginatedTableHeaderFilter = memo(
   ({ filters, handleFilter, loading }: PaginatedTableHeaderFilterProps) => {
-    const [filter, setFilter] = useState<string | undefined>();
+    const onlyFilter = filters.length === 1 ? filters[0] : undefined;
+    const hasMultipleFilters = filters.length > 1;
+
+    const [filter, setFilter] = useState<string | undefined>(onlyFilter?.value);
     const [query, setQuery] = useState<string | undefined>();
+
+    const activeFilter = onlyFilter?.value ?? filter;
 
     const pageUrl = usePage().url;
 
     const handleSubmitFilter = useCallback(
       (event: FormEvent) => {
         event.preventDefault();
-        handleFilter({ filter, query });
+        handleFilter({ filter: activeFilter, query });
       },
-      [filter, query, handleFilter],
+      [activeFilter, query, handleFilter],
     );
 
     useEffect(() => {
@@ -53,9 +58,11 @@ export const PaginatedTableHeaderFilter = memo(
             )}>
             <MagnifyingGlass size={16} weight="bold" />
             <input
+              // biome-ignore lint/a11y/noAutofocus: i want it
+              autoFocus
               type="text"
               className="leading-none text-sm font-light p-0 outline-hidden"
-              placeholder="Busca"
+              placeholder={onlyFilter?.label ?? "Busca"}
               defaultValue={query}
               onInput={(event) => {
                 setQuery((event.target as HTMLInputElement).value);
@@ -63,27 +70,29 @@ export const PaginatedTableHeaderFilter = memo(
             />
           </label>
 
-          <Select.Root value={filter} onValueChange={setFilter}>
-            <Select.Trigger asChild>
-              <Button admin className="group" variant="ghost">
-                <Select.Value placeholder="Filtro" />
-                <AdminDroppableIndicator />
-              </Button>
-            </Select.Trigger>
+          {hasMultipleFilters && (
+            <Select.Root value={filter} onValueChange={setFilter}>
+              <Select.Trigger asChild>
+                <Button admin className="group" variant="ghost">
+                  <Select.Value placeholder="Filtro" />
+                  <AdminDroppableIndicator />
+                </Button>
+              </Select.Trigger>
 
-            <Select.Content>
-              <Select.Viewport>
-                {filters.map(({ label, value }) => (
-                  <Select.Item
-                    key={`table-header-select-${value}-option`}
-                    label={label}
-                    value={value}
-                  />
-                ))}
-              </Select.Viewport>
-              <AdminDroppableArrow component="select" />
-            </Select.Content>
-          </Select.Root>
+              <Select.Content>
+                <Select.Viewport>
+                  {filters.map(({ label, value }) => (
+                    <Select.Item
+                      key={`table-header-select-${value}-option`}
+                      label={label}
+                      value={value}
+                    />
+                  ))}
+                </Select.Viewport>
+                <AdminDroppableArrow component="select" />
+              </Select.Content>
+            </Select.Root>
+          )}
 
           <Button admin type="submit" disabled={loading} className="justify-self-end">
             {loading ? "Pesquisando..." : "Pesquisar"}

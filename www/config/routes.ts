@@ -38,6 +38,9 @@ export const routes = {
       storeNewTag: "/gremio/tags/criar",
       updateChanges: (tagId: ArticleTag["id"]) => `/gremio/tags/${tagId}/atualizar`,
     },
+    audit: {
+      read: "/gremio/auditoria",
+    },
   },
 } as const;
 
