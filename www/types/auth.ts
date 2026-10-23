@@ -35,6 +35,7 @@ export const Permission = {
   CreateCouncilAlert: "CreateCouncilAlert",
   UpdateCouncilAlert: "UpdateCouncilAlert",
   DeleteCouncilAlert: "DeleteCouncilAlert",
+  ReadAuditLogs: "ReadAuditLogs",
 } as const;
 
 export const Role = {

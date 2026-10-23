@@ -48,6 +48,8 @@ pub enum RolePermissions {
     UpdateCouncilAlert,
     DeleteCouncilAlert,
     SeeCouncilAlerts,
+
+    ReadAuditLogs,
 }
 
 impl RolePermissions {
@@ -112,6 +114,8 @@ impl RolePermissions {
                 CreateCouncilAlert,
                 UpdateCouncilAlert,
                 DeleteCouncilAlert,
+                //
+                ReadAuditLogs,
             ],
         ]
         .concat();
