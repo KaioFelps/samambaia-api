@@ -1,3 +1,4 @@
+use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::domain_entities::role::Role;
 use crate::domain::repositories::article_tag_repository::ArticleTagRepositoryTrait;
 use crate::error::SamambaiaError;
@@ -21,7 +22,10 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
         }
     }
 
-    pub async fn exec(&self, params: DeleteArticleTagParams<'_>) -> Result<(), SamambaiaError> {
+    pub async fn exec(
+        &self,
+        params: DeleteArticleTagParams<'_>,
+    ) -> Result<Option<ArticleTag>, SamambaiaError> {
         let user_can_delete_article_tag =
             verify_role_has_permission(params.user_role, RolePermissions::DeleteArticleTag);
 
@@ -44,19 +48,23 @@ impl<ArticleTagRepository: ArticleTagRepositoryTrait>
                 )
             })?;
 
-        if tag.is_none() {
-            return Ok(());
-        }
+        let tag = if let Some(tag) = tag {
+            tag
+        } else {
+            return Ok(None);
+        };
 
         self.article_tag_repository
-            .delete(tag.unwrap())
+            .delete(tag.clone())
             .await
             .map_err(|err| {
                 generate_service_internal_error(
                     "Error occurred in Delete Article Tag Service on deleting the tag from the database",
                     err
                 )
-            })
+            })?;
+
+        Ok(Some(tag))
     }
 }
 
