@@ -31,6 +31,7 @@ use crate::domain::factories::announcements::fetch_many_announcements_service_fa
 use crate::domain::services::announcements::fetch_many_announcements_service::FetchManyAnnouncementsParams;
 use crate::infra::http::controllers::admin::admin_article_tags_controller::AdminArticleTagsController;
 use crate::infra::http::controllers::admin::admin_articles_controller::AdminArticlesController;
+use crate::infra::http::controllers::admin::admin_audit_controller::AdminAuditController;
 use crate::infra::http::controllers::admin::admin_home_controller::AdminHomeController;
 use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::controllers::web::articles_controller::ArticlesController;
@@ -155,6 +156,7 @@ impl RouteTrait for WebRoutes {
                         .wrap(WebAuthUserMiddleware)
                         .configure(AdminArticleTagsController::register)
                         .configure(AdminArticlesController::register)
+                        .configure(AdminAuditController::register)
                         // needs to be the last, since captures everything else by having "" in its scope.
                         .configure(AdminHomeController::register)
                     );
