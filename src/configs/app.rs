@@ -53,6 +53,12 @@ pub struct AppConfig<'a> {
 
     /// The redis connection URL
     pub redis_url: &'a str,
+    /// The path to the redis client certification (PEM).
+    pub redis_client_cert_path: Option<&'a str>,
+    /// The path to the redis client private key.
+    pub redis_client_key_path: Option<&'a str>,
+    /// The path to the redis authority certification (CA Cert).
+    pub redis_root_cert_path: Option<&'a str>,
 
     /// The ceil amount of concurrent job handlers working to process jobs.
     pub job_queue_workers: usize,
@@ -82,6 +88,15 @@ impl AppConfig<'_> {
             workers: env_vars.workers,
 
             redis_url: Box::leak(env_vars.redis_url.into_boxed_str()),
+            redis_client_cert_path: env_vars
+                .redis_client_cert_path
+                .map(|path| &*Box::leak(path.into_boxed_str())),
+            redis_client_key_path: env_vars
+                .redis_client_key_path
+                .map(|path| &*(Box::leak(path.into_boxed_str()))),
+            redis_root_cert_path: env_vars
+                .redis_root_cert_path
+                .map(|path| &*Box::leak(path.into_boxed_str())),
 
             job_queue_workers: env_vars.job_queue_workers.unwrap_or(4),
         }

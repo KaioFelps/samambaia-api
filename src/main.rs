@@ -9,6 +9,7 @@ use jobs::queue::JobQueue;
 use jobs::worker::WorkerConfig;
 use log::{error, info};
 use migration::{Migrator, MigratorTrait};
+use redis_pool::RedisPoolTlsFiles;
 use samambaia::configs::app::APP_CONFIG;
 use samambaia::configs::env::RustEnv;
 use samambaia::configs::inertia::initialize_inertia;
@@ -30,10 +31,15 @@ async fn main() -> std::io::Result<()> {
         Ok(conn) => conn,
     };
 
-    let redis_config = deadpool_redis::Config::from_url(APP_CONFIG.redis_url);
-    let redis_pool = redis_config
-        .create_pool(Some(deadpool_redis::Runtime::Tokio1))
-        .map_err(io::Error::other)?;
+    let redis_pool = redis_pool::build_redis_pool(
+        APP_CONFIG.redis_url,
+        RedisPoolTlsFiles::try_from_paths(
+            APP_CONFIG.redis_client_cert_path,
+            APP_CONFIG.redis_client_key_path,
+            APP_CONFIG.redis_root_cert_path,
+        ),
+    )
+    .map_err(|e| io::Error::other(e.to_string()))?;
 
     let job_queue = ThinData(
         JobQueue::new(redis_pool)

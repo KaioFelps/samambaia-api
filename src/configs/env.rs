@@ -23,6 +23,9 @@ pub struct EnvConfig {
     pub https: bool,
     pub workers: usize,
     pub redis_url: String,
+    pub redis_client_cert_path: Option<String>,
+    pub redis_client_key_path: Option<String>,
+    pub redis_root_cert_path: Option<String>,
     pub job_queue_workers: Option<usize>,
 }
 
