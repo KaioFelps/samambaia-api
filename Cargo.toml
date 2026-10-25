@@ -8,14 +8,20 @@ version = "0.5.0"
 edition = "2024"
 
 [workspace]
-members = [".", "migration", "entities", "cli", "tests", "jobs"]
+members = [".", "migration", "entities", "cli", "tests", "jobs", "redis_pool"]
 
 [workspace.dependencies]
-deadpool-redis = "0.23.1"
+redis_pool.path = "redis_pool"
+redis = { version = "1.7.0", features = [
+    "tokio-comp",
+    "connection-manager",
+    "tokio-native-tls-comp",
+    "tls-native-tls",
+] }
+deadpool = { version = "0.13.1", features = ["managed", "rt_tokio_1"] }
 sqlx = "0.9"
 async-trait = "0.1.83"
 thiserror = "2.0.21"
-redis = { version = "1.7.0", features = ["tokio-comp", "connection-manager"] }
 uuid = { version = "1.26", features = ["v4"] }
 tokio = { version = "1.42", features = ["full"] }
 actix-web = "4.15.0"
@@ -79,7 +85,8 @@ url = "2.5.7"
 reqwest = "0.12.23"
 moka = { version = "0.12.12", features = ["future"] }
 jobs = { path = "jobs" }
-deadpool-redis.workspace = true
+deadpool.workspace = true
+redis_pool.workspace = true
 
 [dev-dependencies]
 mockall = "0.13.0"

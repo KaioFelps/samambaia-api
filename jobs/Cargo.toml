@@ -15,5 +15,6 @@ thiserror.workspace = true
 log.workspace = true
 async-trait.workspace = true
 sqlx.workspace = true
-deadpool-redis.workspace = true
+deadpool.workspace = true
 indoc = "2.0.8"
+redis_pool.workspace = true

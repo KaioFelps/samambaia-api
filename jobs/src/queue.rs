@@ -1,9 +1,9 @@
 use std::sync::LazyLock;
 
 use chrono::{Duration, Utc};
-use deadpool_redis::Connection;
 use indoc::indoc;
 use redis::{AsyncCommands, RedisError, Script};
+use redis_pool::{PoolError, RedisConnection, RedisPool};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use uuid::Uuid;
@@ -68,12 +68,12 @@ static DEQUEUE_SCRIPT: LazyLock<Script> = LazyLock::new(|| {
 
 #[derive(Clone)]
 pub struct JobQueue {
-    pool: deadpool_redis::Pool,
+    pool: RedisPool,
     visibility_timeout: Duration,
 }
 
 impl JobQueue {
-    pub async fn new(pool: deadpool_redis::Pool) -> Self {
+    pub async fn new(pool: RedisPool) -> Self {
         Self {
             pool,
             visibility_timeout: Duration::seconds(DEFAULT_VISIBILITY_TIMEOUT_SECS),
@@ -88,7 +88,7 @@ impl JobQueue {
         self
     }
 
-    async fn get_conn(&self) -> Result<Connection, QueueError> {
+    async fn get_conn(&self) -> Result<RedisConnection, QueueError> {
         self.pool.get().await.map_err(QueueError::RedisPool)
     }
 
@@ -112,7 +112,7 @@ impl JobQueue {
             }
         }
 
-        let _: () = pipe.query_async(&mut conn).await?;
+        let _: () = pipe.query_async(&mut *conn).await?;
 
         Ok(job_id)
     }
@@ -133,7 +133,7 @@ impl JobQueue {
             .arg(now)
             .arg(deadline)
             .arg(PROMOTE_BATCH)
-            .invoke_async(&mut conn)
+            .invoke_async(&mut *conn)
             .await?;
 
         let Some((id, payload)) = popped else {
@@ -143,15 +143,13 @@ impl JobQueue {
         match serde_json::from_str::<Job<T>>(&payload) {
             Ok(job) => Ok(Some(job)),
             Err(e) => {
-                // Payload inválido nunca vai funcionar: manda para a dead letter
-                // em vez de ficar sendo reentregue para sempre.
                 let mut pipe = redis::pipe();
                 pipe.atomic()
                     .zrem(INFLIGHT_SET, &id)
                     .ignore()
                     .rpush(DEAD_LETTER_QUEUE, &id)
                     .ignore();
-                let _: () = pipe.query_async(&mut conn).await?;
+                let _: () = pipe.query_async(&mut *conn).await?;
 
                 Err(QueueError::Serialization(e))
             }
@@ -169,7 +167,7 @@ impl JobQueue {
             .ignore()
             .hdel(PAYLOADS, &id)
             .ignore();
-        let _: () = pipe.query_async(&mut conn).await?;
+        let _: () = pipe.query_async(&mut *conn).await?;
 
         Ok(())
     }
@@ -207,7 +205,7 @@ impl JobQueue {
                 .ignore();
         }
 
-        let _: () = pipe.query_async(&mut conn).await?;
+        let _: () = pipe.query_async(&mut *conn).await?;
 
         Ok(())
     }
@@ -241,7 +239,7 @@ pub struct QueueStats {
 #[derive(Debug)]
 pub enum QueueError {
     Redis(redis::RedisError),
-    RedisPool(deadpool_redis::PoolError),
+    RedisPool(PoolError),
     Serialization(serde_json::Error),
 }
 

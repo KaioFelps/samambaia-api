@@ -1,0 +1,9 @@
+[package]
+name = "redis_pool"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+redis.workspace = true
+deadpool.workspace = true
+log.workspace = true
