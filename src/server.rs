@@ -1,3 +1,4 @@
+use actix_session::storage::SessionStore;
 use actix_web::dev::{ServiceFactory, ServiceRequest, ServiceResponse};
 use actix_web::http::header;
 use actix_web::{App, HttpResponse, middleware, web};
@@ -12,7 +13,9 @@ use crate::infra::sea::sea_service::SeaService;
 pub struct ServerFactory;
 
 impl ServerFactory {
-    pub fn exec() -> App<
+    pub fn exec<S: SessionStore + Clone + 'static>(
+        session_store: S,
+    ) -> App<
         impl ServiceFactory<
             ServiceRequest,
             Config = (),
@@ -32,7 +35,7 @@ impl ServerFactory {
             )
             .configure(ApiRoutes::register)
             .configure(ToolsRouter::register)
-            .configure(WebRoutes::register)
+            .configure(|cfg| WebRoutes::register_with_store(cfg, session_store))
             .app_data(web::JsonConfig::default().error_handler(|err, _req| {
                 actix_web::error::InternalError::from_response(
                     "",
@@ -45,8 +48,9 @@ impl ServerFactory {
             }))
     }
 
-    pub fn exec_with_sea(
+    pub fn exec_with_sea<S: SessionStore + Clone + 'static>(
         sea_service: web::Data<SeaService>,
+        session_store: S,
     ) -> App<
         impl ServiceFactory<
             ServiceRequest,
@@ -56,6 +60,6 @@ impl ServerFactory {
             InitError = (),
         >,
     > {
-        Self::exec().app_data(sea_service)
+        Self::exec(session_store).app_data(sea_service)
     }
 }

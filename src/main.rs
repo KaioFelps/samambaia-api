@@ -13,6 +13,7 @@ use redis_pool::RedisPoolTlsFiles;
 use samambaia::configs::app::APP_CONFIG;
 use samambaia::configs::env::RustEnv;
 use samambaia::configs::inertia::initialize_inertia;
+use samambaia::configs::redis_sessions::PooledRedisSessionStore;
 use samambaia::infra::sea::sea_service::SeaService;
 use samambaia::server::ServerFactory;
 use tokio::sync::broadcast;
@@ -42,7 +43,7 @@ async fn main() -> std::io::Result<()> {
     .map_err(|e| io::Error::other(e.to_string()))?;
 
     let job_queue = ThinData(
-        JobQueue::new(redis_pool)
+        JobQueue::new(redis_pool.clone())
             .await
             .with_visibility_timeout(chrono::Duration::minutes(10)),
     );
@@ -76,10 +77,13 @@ async fn main() -> std::io::Result<()> {
     let inertia_clone = inertia.clone();
 
     let server = HttpServer::new(move || {
-        ServerFactory::exec_with_sea(sea_service_clone.clone())
-            .app_data(inertia_clone.clone())
-            .app_data(job_queue.clone())
-            .wrap(middleware::Logger::default())
+        ServerFactory::exec_with_sea(
+            sea_service_clone.clone(),
+            PooledRedisSessionStore::new(redis_pool.clone()),
+        )
+        .app_data(inertia_clone.clone())
+        .app_data(job_queue.clone())
+        .wrap(middleware::Logger::default())
     })
     .bind((APP_CONFIG.host, APP_CONFIG.port))?
     .workers(APP_CONFIG.workers);

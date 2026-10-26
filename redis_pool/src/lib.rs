@@ -5,7 +5,7 @@ use redis::aio::MultiplexedConnection;
 use redis::{ClientTlsConfig, RedisError, TlsCertificates};
 
 pub struct TlsManager {
-    client: redis::Client,
+    pub client: redis::Client,
 }
 
 impl managed::Manager for TlsManager {
@@ -31,9 +31,9 @@ pub type PoolError = managed::PoolError<RedisError>;
 
 #[derive(Clone)]
 pub struct RedisPoolTlsFiles<'this> {
-    client_cert_path: &'this Path,
-    client_key_path: &'this Path,
-    root_cert_path: &'this Path,
+    pub client_cert_path: &'this Path,
+    pub client_key_path: &'this Path,
+    pub root_cert_path: &'this Path,
 }
 
 impl<'this> RedisPoolTlsFiles<'this> {

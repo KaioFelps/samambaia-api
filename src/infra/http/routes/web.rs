@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use actix_session::storage::SessionStore;
 use actix_session::{SessionExt, SessionMiddleware};
 use actix_web::HttpMessage;
 use actix_web::body::BoxBody;
@@ -58,15 +59,16 @@ use crate::util::RolePermissions;
 
 pub struct WebRoutes;
 
-impl RouteTrait for WebRoutes {
-    fn register(cfg: &mut web::ServiceConfig) {
+impl WebRoutes {
+    pub fn register_with_store<T: SessionStore + 'static>(
+        cfg: &mut web::ServiceConfig,
+        storage: T,
+    ) {
         let key_bytes = BASE64_STANDARD
             .decode(APP_CONFIG.app_key)
             .expect("Invalid APP_KEY value.");
 
         let key = Key::derive_from(key_bytes.as_slice());
-
-        let storage = FileSessionStore::default();
 
         cfg.service(actix_files::Files::new("/bundle/", "./public/bundle/").prefer_utf8(true));
 
@@ -163,6 +165,13 @@ impl RouteTrait for WebRoutes {
                 })
                 .service(actix_files::Files::new("/", "./public/").prefer_utf8(true))
             );
+    }
+}
+
+impl RouteTrait for WebRoutes {
+    fn register(cfg: &mut web::ServiceConfig) {
+        let storage = FileSessionStore::default();
+        Self::register_with_store(cfg, storage)
     }
 }
 
