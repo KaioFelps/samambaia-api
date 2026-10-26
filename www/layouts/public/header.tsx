@@ -1,14 +1,19 @@
+"use client";
+
 import { Link } from "@inertiajs/react";
 import { memo } from "react";
 
 import Dropdown from "@/components/dropdown";
 import { appConfig } from "@/config/app";
-
+import { useCanSee } from "@/hooks/useCanSee";
+import { Permission } from "@/types/auth";
 import { Sprite } from "../../components/sprite";
 import { NavDropdownContent, NavDropdownItem } from "./nav-dropdown-content";
 import { UserBox } from "./user-box";
 
 export const Header = memo(() => {
+  const canSeeTheDashboard = useCanSee(Permission.AccessDashboard);
+
   return (
     <header className="mb-2">
       <div
@@ -32,7 +37,7 @@ export const Header = memo(() => {
         <div className="h-[68px] main-screen-centralized mx-auto flex items-center justify-between">
           <nav className="flex h-full">
             <Link href="/" className="navbar-item">
-              <span className="block size-[40px]">
+              <span className="block size-10">
                 <Sprite x={-65} y={-2} width={38} height={39} />
               </span>
               Início
@@ -40,7 +45,7 @@ export const Header = memo(() => {
 
             <Dropdown.Root>
               <Dropdown.Trigger className="navbar-item group">
-                <span className="block size-[40px]">
+                <span className="block size-10">
                   <Sprite x={-128} y={0} width={36} height={40} />
                 </span>
                 Cosmic
@@ -55,23 +60,31 @@ export const Header = memo(() => {
             </Dropdown.Root>
 
             <Link href="" className="navbar-item">
-              <span className="block size-[40px]">
+              <span className="block size-10">
                 <Sprite x={0} y={0} width={40} height={40} />
               </span>
               Jornalismo
             </Link>
             <Link href="" className="navbar-item">
-              <span className="block size-[40px]">
+              <span className="block size-10">
                 <Sprite x={-258} y={0} width={37} height={39} />
               </span>
               {appConfig.hostHotel.shortName}
             </Link>
             <Link href="" className="navbar-item">
-              <span className="block size-[40px]">
+              <span className="block size-10">
                 <Sprite x={-195} y={-1} width={33} height={39} />
               </span>
               VIP
             </Link>
+            {canSeeTheDashboard && (
+              <Link href="/gremio" className="navbar-item">
+                <span className="block size-10">
+                  <Sprite x={-41} y={-145} width={40} height={39} />
+                </span>
+                Grêmio
+              </Link>
+            )}
           </nav>
 
           <UserBox />

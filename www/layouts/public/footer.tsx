@@ -1,5 +1,5 @@
 import { Link } from "@inertiajs/react";
-import { Code } from "@phosphor-icons/react/dist/ssr/Code";
+import { CodeIcon } from "@phosphor-icons/react/dist/ssr/Code";
 import clsx from "clsx";
 import { memo } from "react";
 
@@ -23,7 +23,7 @@ export const Footer = memo(() => {
       className="mt-2 bg-gray-200 h-fit">
       <header className="main-screen-centralized flex items-center justify-between py-1.5">
         <span className="text-gray-700 font-medium flex gap-2 items-center">
-          <Code size={16} weight="bold" /> Desenvolvido por{" "}
+          <CodeIcon size={16} weight="bold" /> Desenvolvido por{" "}
           <span className="text-yellow-900">Floricultor</span>
         </span>
 
