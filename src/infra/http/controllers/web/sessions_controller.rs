@@ -1,11 +1,14 @@
 use actix_session::{Session, SessionExt};
 use actix_web::HttpRequest;
-use actix_web::web::{self, Redirect};
+use actix_web::web::{self, Redirect, ThinData};
 use inertia_rust::validators::InertiaValidateOrRedirect;
 use inertia_rust::{Inertia, InertiaFacade, hashmap};
+use jobs::logging::{ActionKind, Actor, EntitySnapshot, LoggingJobBuilder, Target, TargetType};
+use jobs::queue::JobQueue;
 
 use crate::configs::app::{APP_CONFIG, SESSION_USER_KEY};
 use crate::configs::inertia::IntoInertiaRedirect;
+use crate::domain::domain_entities::user::User;
 use crate::domain::factories::identity::{
     authenticate_user_service_factory,
     create_user_service_factory,
@@ -20,6 +23,8 @@ use crate::infra::http::controllers::controller::ControllerTrait;
 use crate::infra::http::dtos::create_user::CreateUserDto;
 use crate::infra::http::dtos::login::LoginDto;
 use crate::infra::http::middlewares::WebAuthUserMiddleware;
+use crate::infra::http::presenters::presenter::PresenterTrait;
+use crate::infra::http::presenters::user::UserPresenter;
 use crate::infra::sea::sea_service::SeaService;
 
 pub struct SessionsController;
@@ -89,6 +94,7 @@ impl SessionsController {
         req: HttpRequest,
         db_conn: web::Data<SeaService>,
         body: web::Json<CreateUserDto>,
+        job_queue: ThinData<JobQueue>,
     ) -> Redirect {
         let body = match body.validate_or_back(&req) {
             Err(err_redirect) => return err_redirect,
@@ -165,11 +171,48 @@ impl SessionsController {
             ),
         );
 
+        enqueue_session_audit_log(&job_queue, ActionKind::Create, &user).await;
+
         Inertia::back(&req)
     }
 
     async fn logout(req: HttpRequest) -> Redirect {
         let _ = req.get_session().remove(SESSION_USER_KEY);
         Inertia::back(&req)
+    }
+}
+
+async fn enqueue_session_audit_log(job_queue: &JobQueue, action: ActionKind, user: &User) {
+    let _ = action;
+    let _ = job_queue;
+    let Ok(user_snapshot) = EntitySnapshot::new(
+        user.id().to_string(),
+        user.nickname().to_string(),
+        UserPresenter::to_http(user.clone()),
+    ) else {
+        log::error!("Failed to create User snapshot for audit log");
+        return;
+    };
+
+    let builder = LoggingJobBuilder::default()
+        .action_kind(action.clone())
+        .actor(Actor::System)
+        .target(Target {
+            t_type: TargetType::User,
+            entity: user_snapshot,
+        });
+
+    match builder.build() {
+        Ok(log_data) => {
+            if let Err(err) = job_queue.enqueue(log_data.into_job()).await {
+                log::error!(
+                    "Error enqueueing audit log ({:?}) for User: {err:?}",
+                    action
+                );
+            }
+        }
+        Err(err) => {
+            log::error!("Error building audit log ({:?}) for User: {err}", action);
+        }
     }
 }
