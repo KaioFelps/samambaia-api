@@ -17,6 +17,7 @@ use crate::domain::factories::identity::{
 use crate::domain::services::identity::authenticate_user_service::AuthenticateUserParams;
 use crate::domain::services::identity::create_user_service::CreateUserParams;
 use crate::domain::services::identity::verify_verification_code_service::VerifyVerificationCodeParams;
+use crate::error::SamambaiaError::{Internal, UserAlreadyExists};
 use crate::infra::extensions::sessions::SessionHelpers;
 use crate::infra::http::controllers::AppResponse;
 use crate::infra::http::controllers::controller::ControllerTrait;
@@ -135,16 +136,26 @@ impl SessionsController {
 
         let create_user_service = create_user_service_factory::exec(&db_conn);
         let user = match create_user_service
-            .exec(CreateUserParams { nickname, password })
+            .exec(CreateUserParams {
+                nickname: nickname.clone(),
+                password,
+            })
             .await
         {
-            Err(_) => {
-                return Inertia::back_with_errors(
-                    &req,
-                    hashmap![ "error" => "Alguma coisa deu errada, tente novamente mais tarde.".into() ],
-                );
-            }
             Ok(user) => user,
+            Err(err) => {
+                let error = if let UserAlreadyExists(err_msg) = err {
+                    err_msg
+                } else {
+                    if let Internal(err) = err {
+                        log::error!("Failed to register the user {nickname}: {err}",);
+                    }
+
+                    "Alguma coisa deu errada, tente novamente mais tarde.".to_string()
+                };
+
+                return Inertia::back_with_errors(&req, hashmap![ "error" => error.into() ]);
+            }
         };
 
         if let Err(err) = req
@@ -152,13 +163,14 @@ impl SessionsController {
             .insert(SESSION_USER_KEY, user.id().to_string())
         {
             log::error!(
-                "Failed to store the user id during a login request: {}",
+                "Failed to store the user id during a user account register request: {}",
                 err
             );
 
             return Inertia::back_with_errors(
                 &req,
-                hashmap!["error" => "Failed to login. Please, try again later.".into()],
+                hashmap!["error" => "Não foi possível registrar a sua conta. \
+                Por favor, tente novamente mais tarde.".into()],
             );
         };
 
