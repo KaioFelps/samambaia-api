@@ -33,7 +33,7 @@ export default function ShowArticle(props: ShowArticleProps) {
         cover={props.article.coverUrl}
       />
 
-      <Main className="flex-1 max-w-main-center-content basis-main-center-content">
+      <Main>
         <ArticleContainer
           key={`article-content-memoization-v${articleMemoizationVersion}-content`}
           title={props.article.title}
