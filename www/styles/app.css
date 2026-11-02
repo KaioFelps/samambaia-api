@@ -17,6 +17,8 @@
   --color-gray-250: #e0e0e0;
   --color-gray-300: #dddddd;
   --color-gray-400: #c0c0c0;
+  --color-gray-500: #999999;
+  --color-gray-600: #7c7b7b;
   --color-gray-700: #555555;
   --color-gray-800: #303037;
 
@@ -229,7 +231,7 @@
 }
 
 @custom-variant button-like-enabled {
-  &:is(button:not(:disabled), button:enabled, [role="button"][data-disabled="enabled"]) {
+  &:is(button:not(:disabled), button:enabled, [role="button"]:not([data-disabled="disabled"])) {
     @slot;
   }
 }
