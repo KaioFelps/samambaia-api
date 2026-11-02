@@ -5,6 +5,7 @@ import { memo } from "react";
 
 import Dropdown from "@/components/dropdown";
 import { appConfig } from "@/config/app";
+import { routes } from "@/config/routes";
 import { useCanSee } from "@/hooks/useCanSee";
 import { Permission } from "@/types/auth";
 import { Sprite } from "../../components/sprite";
@@ -59,7 +60,7 @@ export const Header = memo(() => {
               </NavDropdownContent>
             </Dropdown.Root>
 
-            <Link href="" className="navbar-item">
+            <Link href={routes.web.article.archive()} className="navbar-item">
               <span className="block size-10">
                 <Sprite x={0} y={0} width={40} height={40} />
               </span>
