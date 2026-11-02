@@ -11,6 +11,7 @@ export function PublicLabel({
   htmlFor,
   children,
   asChild = false,
+  hidden,
   ...props
 }: PublicLabelProps) {
   const Element = asChild ? Slot : "label";
@@ -18,7 +19,7 @@ export function PublicLabel({
     <Element
       htmlFor={htmlFor}
       {...props}
-      className={clsx("block text-sm mb-1 ml-1", className && className)}>
+      className={clsx("block text-sm mb-1 ml-1", hidden && "sr-only", className && className)}>
       {children}
     </Element>
   );
