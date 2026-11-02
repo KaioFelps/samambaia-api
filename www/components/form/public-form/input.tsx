@@ -11,12 +11,15 @@ export const PublicInput = ({
   className,
   validationError,
   containerClassName,
+  hiddenLabel = false,
   ...props
 }: Omit<InputProps, "admin">) => {
   const inputId = useId();
   return (
     <div className={containerClassName}>
-      <PublicLabel htmlFor={id ?? `${label}-${inputId}`}>{label}</PublicLabel>
+      <PublicLabel hidden={hiddenLabel} htmlFor={id ?? `${label}-${inputId}`}>
+        {label}
+      </PublicLabel>
 
       <ValidationErrorSpan validationError={validationError} />
 

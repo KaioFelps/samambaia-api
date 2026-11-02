@@ -5,6 +5,7 @@ export type InputProps = DetailedHTMLProps<
   HTMLInputElement
 > & {
   label: string;
+  hiddenLabel?: boolean;
   validationError?: string;
   containerClassName?: string;
   admin?: boolean;
