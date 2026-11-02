@@ -16,6 +16,7 @@ use samambaia::configs::inertia::initialize_inertia;
 use samambaia::configs::redis_sessions::PooledRedisSessionStore;
 use samambaia::infra::sea::sea_service::SeaService;
 use samambaia::server::ServerFactory;
+use serde_qs::actix::QsQueryConfig;
 use tokio::sync::broadcast;
 
 #[actix_web::main]
@@ -83,6 +84,11 @@ async fn main() -> std::io::Result<()> {
         )
         .app_data(inertia_clone.clone())
         .app_data(job_queue.clone())
+        .app_data(
+            // used to handle query params parsed like foo[]=x&foo[]=y
+            QsQueryConfig::default()
+                .qs_config(serde_qs::Config::new().max_depth(5).use_form_encoding(true)),
+        )
         .wrap(middleware::Logger::default())
     })
     .bind((APP_CONFIG.host, APP_CONFIG.port))?
