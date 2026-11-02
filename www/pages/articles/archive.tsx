@@ -48,7 +48,7 @@ export default function ArticlesArchive({ feed, tags, queryErrors }: ArticlesArc
     <>
       <Head title="Arquivo de notícias" description="A biblioteca do jornalismo fã-site." />
 
-      <Main className="card flex flex-col gap-3">
+      <Main className="card flex flex-col gap-3 h-fit">
         <div id="article-header-wrapper">
           <header id="article-header-container" className="section-header blue mb-2">
             <h1>Arquivo de notícias</h1>
