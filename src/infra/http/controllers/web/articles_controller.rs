@@ -116,7 +116,6 @@ impl ArticlesController {
 
         let (query, query_errors) = query.into_inner().validate_and_sanitize();
 
-        dbg!(&query);
         let service_queries = vec![
             query.title.map(FetchArticleQuery::Title),
             query.author.map(FetchArticleQuery::Author),
@@ -125,8 +124,6 @@ impl ArticlesController {
         .into_iter()
         .flatten()
         .collect();
-
-        dbg!(&service_queries);
 
         let (article_tags, articles) = tokio::try_join!(
             list_tags_service.exec(FetchManyArticleTagsParams {
