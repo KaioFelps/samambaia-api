@@ -13,6 +13,16 @@ const TEXT_FILTERS: { label: string; value: TextFilter }[] = [
   { label: "Autor", value: "author" },
 ];
 
+const RADIO_SELECTED = clsx(
+  "data-[state=checked]:cursor-default data-[state=checked]:bg-gray-500",
+  "data-[state=checked]:border-gray-600 data-[state=checked]:ring-gray-600/40",
+);
+
+const TAG_SELECTED = clsx(
+  "data-[active=true]:bg-gray-500",
+  "data-[active=true]:border-gray-600 data-[active=true]:ring-gray-600/40",
+);
+
 type ArticleArchiveFiltersProps = {
   tags: ArticleTag[];
   archiveFilters: ArchiveFilters;
@@ -52,7 +62,7 @@ export function ArticleArchiveFilters({ tags, archiveFilters }: ArticleArchiveFi
           />
           <PublicButton.Default variant="blue" size="lg" type="submit" disabled={processing}>
             <Sprite width={17} height={16} x={0} y={-96} />
-            {processing ? "Pesquisando..." : "Pesquisar"}
+            Pesquisar
           </PublicButton.Default>
         </form>
       </search>
@@ -61,18 +71,13 @@ export function ArticleArchiveFilters({ tags, archiveFilters }: ArticleArchiveFi
         <RadioGroup.Root
           aria-label="Buscar por"
           value={filter}
-          onValueChange={(value: TextFilter) => setFilter(value)}
+          onValueChange={(value) => setFilter(value as TextFilter)}
           disabled={processing}
           className="flex gap-1 pr-2">
           {TEXT_FILTERS.map(({ label, value }) => (
             <RadioGroup.Item key={`article-archive-text-filter-${value}`} value={value} asChild>
               <Chip asChild>
-                <button
-                  type="button"
-                  className={clsx(
-                    "self-start data-[state=checked]:cursor-default data-[state=checked]:bg-gray-500",
-                    "data-[state=checked]:border-gray-600 data-[state=checked]:ring-gray-600/40",
-                  )}>
+                <button type="button" className={clsx("self-start", RADIO_SELECTED)}>
                   {label}
                 </button>
               </Chip>
@@ -94,7 +99,8 @@ export function ArticleArchiveFilters({ tags, archiveFilters }: ArticleArchiveFi
                     aria-pressed={active}
                     data-active={active}
                     disabled={processing}
-                    onClick={() => toggleTag(tag.id)}>
+                    onClick={() => toggleTag(tag.id)}
+                    className={clsx("self-start", TAG_SELECTED)}>
                     Tag: {tag.value}
                   </button>
                 </Chip>
