@@ -51,7 +51,7 @@ impl HomeController {
             page: None,
             per_page: Some(ARTICLES_PER_PAGE as u32),
             approved_state: Some(true),
-            query: None,
+            queries: vec![],
         });
 
         let free_badge_future = free_badges_service.exec(FetchManyFreeBadgesParams {

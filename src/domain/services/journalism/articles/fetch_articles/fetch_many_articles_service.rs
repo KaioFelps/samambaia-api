@@ -1,8 +1,9 @@
 use super::params::FetchArticlesParams;
-use crate::core::pagination::{PaginationParameters, PaginationResponse};
+use crate::core::pagination::PaginationResponse;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::repositories::article_repository::{
     ArticleRepositoryTrait,
+    ArticlesPaginationParameters,
     FindManyArticlesResponse,
 };
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
@@ -56,15 +57,16 @@ impl<ArticleRepository: ArticleRepositoryTrait, UserRepository: UserRepositoryTr
             default_page
         };
 
-        let query = super::parse_article_fetch_query(&self.user_repository, params.query).await?;
+        let queries =
+            super::parse_article_fetch_query(&self.user_repository, params.queries).await?;
 
         let FindManyArticlesResponse(articles, total_items) = self
             .article_repository
             .find_many(
-                PaginationParameters {
+                ArticlesPaginationParameters {
                     items_per_page,
                     page,
-                    query,
+                    queries
                 },
                 params.approved_state,
             )
@@ -175,7 +177,7 @@ mod test {
             .exec(FetchArticlesParams {
                 page: Some(2),
                 per_page: Some(1),
-                query: Some(FetchArticleQuery::Title("article".to_string())),
+                queries: vec![FetchArticleQuery::Title("article".to_string())],
                 approved_state: None,
             })
             .await
@@ -228,7 +230,7 @@ mod test {
             .exec(FetchArticlesParams {
                 page: None,
                 per_page: None,
-                query: None,
+                queries: vec![],
                 approved_state: None,
             })
             .await
@@ -270,7 +272,7 @@ mod test {
             .exec(FetchArticlesParams {
                 page: None,
                 per_page: None,
-                query: Some(FetchArticleQuery::Author("Vamp".to_string())),
+                queries: vec![FetchArticleQuery::Author("Vamp".to_string())],
                 approved_state: None,
             })
             .await
@@ -302,7 +304,7 @@ mod test {
             .exec(FetchArticlesParams {
                 page: None,
                 per_page: None,
-                query: Some(FetchArticleQuery::Author("Floricultor".to_string())),
+                queries: vec![FetchArticleQuery::Author("Floricultor".to_string())],
                 approved_state: None,
             })
             .await
@@ -338,7 +340,7 @@ mod test {
             .exec(FetchArticlesParams {
                 page: None,
                 per_page: None,
-                query: None,
+                queries: vec![],
                 approved_state: Some(true),
             })
             .await

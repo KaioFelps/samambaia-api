@@ -63,7 +63,7 @@ impl ArticlesController {
                 approved_state: Some(true),
                 page: Some(1),
                 per_page: Some(ARTICLES_AMOUNT_TO_DISPLAY_IN_FEED as u32),
-                query: None,
+                queries: vec![],
             })
         )?;
 

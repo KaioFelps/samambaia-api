@@ -3,13 +3,13 @@ use std::error::Error;
 use uuid::Uuid;
 
 use super::LocalDb;
-use crate::core::pagination::PaginationParameters;
 use crate::domain::aggregations::article_preview::{ArticlePreview, ArticlePreviewAuthor};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::user::User;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType,
     ArticleRepositoryTrait,
+    ArticlesPaginationParameters,
     FindManyArticlesPreviewsResponse,
     FindManyArticlesResponse,
 };
@@ -97,47 +97,48 @@ impl<ATR: ArticleTagRepositoryTrait + Send + Sync> ArticleRepositoryTrait
 
     async fn find_many(
         &self,
-        params: PaginationParameters<ArticleQueryType>,
+        params: ArticlesPaginationParameters,
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesResponse, Box<dyn Error>> {
-        let PaginationParameters {
+        let ArticlesPaginationParameters {
             page,
             items_per_page,
-            query,
+            queries,
         } = params;
 
-        let mut articles: Vec<Article> = Vec::new();
+        let mut articles = self.article_db.lock().unwrap().clone();
 
-        if let Some(query) = query {
+        for query in queries {
+            let mut filtered_articles = vec![];
+
             match query {
                 ArticleQueryType::Title(content) => {
-                    for item in self.article_db.lock().unwrap().iter() {
+                    for item in articles.iter() {
                         if item
                             .title()
                             .to_lowercase()
                             .contains(&content.clone().to_lowercase())
                         {
-                            articles.push(item.clone());
+                            filtered_articles.push(item.clone());
                         }
                     }
                 }
                 ArticleQueryType::Author(content) => {
-                    for item in self.article_db.lock().unwrap().iter() {
+                    for item in articles.iter() {
                         if item.author_id().eq(&content) {
-                            articles.push(item.clone());
+                            filtered_articles.push(item.clone());
                         }
                     }
                 }
                 ArticleQueryType::Tag(tag_id) => {
-                    for item in self.article_db.lock().unwrap().iter() {
+                    for item in articles.iter() {
                         if item.get_tags().iter().any(|tag| tag.id() == tag_id) {
-                            articles.push(item.clone());
+                            filtered_articles.push(item.clone());
                         }
                     }
                 }
             }
-        } else {
-            articles = self.article_db.lock().unwrap().clone();
+            articles = filtered_articles;
         }
 
         if let Some(approved_filter) = show_only_approved_state {
@@ -167,7 +168,7 @@ impl<ATR: ArticleTagRepositoryTrait + Send + Sync> ArticleRepositoryTrait
 
     async fn find_many_previews(
         &self,
-        params: PaginationParameters<ArticleQueryType>,
+        params: ArticlesPaginationParameters,
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesPreviewsResponse, Box<dyn Error>> {
         let mut articles = self.article_db.lock().unwrap().to_vec();

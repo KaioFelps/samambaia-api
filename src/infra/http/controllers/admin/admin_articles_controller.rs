@@ -451,6 +451,14 @@ impl AdminArticlesController {
 
         let per_page = query.per_page.unwrap_or(DEFAULT_PER_PAGE);
 
+        let queries = vec![
+            query.author.map(FetchArticleQuery::Author),
+            query.title.map(FetchArticleQuery::Title),
+        ]
+        .into_iter()
+        .flatten()
+        .collect();
+
         service
             .exec(FetchArticlesParams {
                 page: query.page,
@@ -460,11 +468,7 @@ impl AdminArticlesController {
                 } else {
                     Some(false)
                 },
-                query: if let Some(author) = query.author {
-                    Some(FetchArticleQuery::Author(author))
-                } else {
-                    query.title.map(FetchArticleQuery::Title)
-                },
+                queries,
             })
             .await
             .map(|articles| {

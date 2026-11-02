@@ -1,7 +1,10 @@
 use super::params::FetchArticlesParams;
-use crate::core::pagination::{DEFAULT_PER_PAGE, PaginationParameters, PaginationResponse};
+use crate::core::pagination::{DEFAULT_PER_PAGE, PaginationResponse};
 use crate::domain::aggregations::article_preview::ArticlePreview;
-use crate::domain::repositories::article_repository::ArticleRepositoryTrait;
+use crate::domain::repositories::article_repository::{
+    ArticleRepositoryTrait,
+    ArticlesPaginationParameters,
+};
 use crate::domain::repositories::user_repository::UserRepositoryTrait;
 use crate::error::SamambaiaError;
 use crate::util::generate_service_internal_error;
@@ -39,9 +42,9 @@ where
         let items_per_page = params.per_page.unwrap_or(DEFAULT_PER_PAGE as u32);
         let page = params.page.unwrap_or(1).max(1);
 
-        let query =
-            match super::parse_article_fetch_query(&self.user_repository, params.query).await {
-                Ok(query) => query,
+        let queries =
+            match super::parse_article_fetch_query(&self.user_repository, params.queries).await {
+                Ok(queries) => queries,
                 Err(err) => {
                     if let SamambaiaError::ResourceNotFound(_) = err {
                         return Ok(FetchArticlesPreviewsResponse {
@@ -55,7 +58,7 @@ where
             };
 
         self.article_repository
-            .find_many_previews(PaginationParameters { page, items_per_page, query }, params.approved_state)
+            .find_many_previews(ArticlesPaginationParameters { page, items_per_page, queries }, params.approved_state)
             .await
             .map_err(|err| {
                 generate_service_internal_error(
@@ -147,7 +150,7 @@ mod test {
             .exec(FetchArticlesParams {
                 page: None,
                 per_page: None,
-                query: None,
+                queries: Vec::new(),
                 approved_state: None,
             })
             .await;

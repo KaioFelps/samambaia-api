@@ -6,7 +6,6 @@ use chrono::NaiveDateTime;
 use entities::article::{Column as ArticleColumn, Entity as ArticleEntity};
 use entities::article_tag::Column as ArticleTagColumn;
 use entities::user::Column as UserColumn;
-use migration::extension::postgres::PgExpr;
 use migration::{Expr, IntoIden, IntoTableRef};
 use sea_orm::{
     ActiveModelTrait,
@@ -16,24 +15,26 @@ use sea_orm::{
     DbErr,
     EntityTrait,
     ExprTrait,
+    LoaderTrait,
     PaginatorTrait,
     QueryFilter,
     QueryOrder,
     QueryResult,
     QuerySelect,
     QueryTrait,
+    Select,
     TransactionTrait,
 };
 use uuid::Uuid;
 
 use super::sea_article_tag_repository::SeaArticleTagRepository;
-use crate::core::pagination::PaginationParameters;
 use crate::domain::aggregations::article_preview::{ArticlePreview, ArticlePreviewAuthor};
 use crate::domain::domain_entities::article::Article;
 use crate::domain::domain_entities::article_tag::ArticleTag;
 use crate::domain::repositories::article_repository::{
     ArticleQueryType,
     ArticleRepositoryTrait,
+    ArticlesPaginationParameters,
     FindManyArticlesPreviewsResponse,
     FindManyArticlesResponse,
 };
@@ -179,40 +180,45 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
 
     async fn find_many(
         &self,
-        params: PaginationParameters<ArticleQueryType>,
+        params: ArticlesPaginationParameters,
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesResponse, Box<dyn Error>> {
         let current_page = params.page as u64;
         let items_per_page = params.items_per_page as u64;
 
-        let leap = (&current_page - 1) * items_per_page;
+        let leap = (current_page - 1) * items_per_page;
 
-        let articles_response = ArticleEntity::find()
-            .order_by_desc(ArticleColumn::CreatedAt)
-            .apply_if(params.query.as_ref(), |query_builder, query| {
-                self.find_many_get_filters(query_builder, query)
-            })
+        let articles_query = self
+            .apply_query_filters(ArticleEntity::find(), &params.queries)
             .apply_if(show_only_approved_state, |query_builder, approved| {
                 query_builder.filter(ArticleColumn::Approved.eq(approved))
             })
-            .find_with_related(entities::article_tag::Entity)
+            .order_by_desc(ArticleColumn::CreatedAt)
             .limit(items_per_page)
             .offset(leap)
-            .all(&self.sea_service.db)
-            .await?;
+            .all(&self.sea_service.db);
 
-        let articles_count = ArticleEntity::find()
-            .apply_if(params.query.as_ref(), |query_builder, query| {
-                self.find_many_get_filters(query_builder, query)
-            })
+        let articles_count_query = self
+            .apply_query_filters(ArticleEntity::find(), &params.queries)
             .apply_if(show_only_approved_state, |query_builder, approved| {
                 query_builder.filter(ArticleColumn::Approved.eq(approved))
             })
-            .count(&self.sea_service.db)
+            .count(&self.sea_service.db);
+
+        let (article_models, articles_count) =
+            tokio::try_join!(articles_query, articles_count_query)?;
+
+        let tags = article_models
+            .load_many_to_many(
+                entities::article_tag::Entity,
+                entities::articles_tags_rel::Entity,
+                &self.sea_service.db,
+            )
             .await?;
 
-        let articles = articles_response
+        let articles = article_models
             .into_iter()
+            .zip(tags)
             .map(|(article, tags)| {
                 let tags = tags
                     .into_iter()
@@ -228,7 +234,7 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
 
     async fn find_many_previews(
         &self,
-        params: PaginationParameters<ArticleQueryType>,
+        params: ArticlesPaginationParameters,
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesPreviewsResponse, Box<dyn Error>> {
         // SELECT
@@ -266,31 +272,20 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
 
         let offset = ((params.page - 1) * params.items_per_page) as u64;
 
-        use sea_orm::JoinType;
-
-        let limited_articles_cte = ArticleEntity::find()
-            .distinct()
-            .select_only()
-            .columns([
-                ArticleColumn::Id,
-                ArticleColumn::Slug,
-                ArticleColumn::Title,
-                ArticleColumn::CoverUrl,
-                ArticleColumn::Description,
-                ArticleColumn::Approved,
-                ArticleColumn::CreatedAt,
-                ArticleColumn::AuthorId,
-            ])
-            .join_rev(
-                JoinType::LeftJoin,
-                entities::articles_tags_rel::Entity::belongs_to(ArticleEntity)
-                    .from(entities::articles_tags_rel::Column::ArticleId)
-                    .to(ArticleColumn::Id)
-                    .into(),
+        let limited_articles_cte = self
+            .apply_query_filters(
+                ArticleEntity::find().select_only().columns([
+                    ArticleColumn::Id,
+                    ArticleColumn::Slug,
+                    ArticleColumn::Title,
+                    ArticleColumn::CoverUrl,
+                    ArticleColumn::Description,
+                    ArticleColumn::Approved,
+                    ArticleColumn::CreatedAt,
+                    ArticleColumn::AuthorId,
+                ]),
+                &params.queries,
             )
-            .apply_if(params.query.as_ref(), |query, filter| {
-                self.find_many_get_filters(query, filter)
-            })
             .apply_if(show_only_approved_state, |query, approved| {
                 query.filter(ArticleColumn::Approved.eq(approved))
             })
@@ -299,7 +294,6 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
             .limit(params.items_per_page as u64)
             .into_query();
 
-        // from ($articles_query) as $articles_cte_table
         let articles_cte_table = "limited_articles";
         let articles_query = sea_orm::sea_query::SelectStatement::new()
             .from_subquery(limited_articles_cte, articles_cte_table)
@@ -356,11 +350,10 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
 
         let (articles, articles_count): (Vec<QueryResult>, u64) = tokio::try_join!(
             articles_query,
-            ArticleEntity::find()
-                .apply_if(params.query.as_ref(), |query, filter| self
-                    .find_many_get_filters(query, filter))
-                .apply_if(show_only_approved_state, |query, approved| query
-                    .filter(ArticleColumn::Approved.eq(approved)))
+            self.apply_query_filters(ArticleEntity::find(), &params.queries)
+                .apply_if(show_only_approved_state, |query, approved| {
+                    query.filter(ArticleColumn::Approved.eq(approved))
+                })
                 .count(&self.sea_service.db)
         )
         .map_err(Box::new)
@@ -420,20 +413,47 @@ impl ArticleRepositoryTrait for SeaArticleRepository<'_> {
 impl SeaArticleRepository<'_> {
     fn find_many_get_filters(
         &self,
-        query: sea_orm::Select<ArticleEntity>,
+        query: Select<ArticleEntity>,
         filter: &ArticleQueryType,
-    ) -> sea_orm::Select<ArticleEntity> {
+    ) -> Select<ArticleEntity> {
         match filter {
-            ArticleQueryType::Author(content) => query.filter(ArticleColumn::AuthorId.eq(*content)),
-            ArticleQueryType::Title(content) => {
-                // let filter = Expr::expr(Func::lower(Expr::col(ArticleColumn::Title)))
-                // .ilike(format!("%{}%", content.to_lowercase()));
-                query.filter(Expr::col(ArticleColumn::Title).ilike(format!("%{}%", content)))
+            ArticleQueryType::Title(title) => {
+                query.filter(ArticleColumn::Title.contains(title.as_str()))
             }
-            ArticleQueryType::Tag(tag_id) => {
-                query.filter(entities::articles_tags_rel::Column::TagId.eq(*tag_id))
+            ArticleQueryType::Author(author_id) => {
+                query.filter(ArticleColumn::AuthorId.eq(*author_id))
             }
+            ArticleQueryType::Tag(tag_id) => query.filter(Expr::exists(
+                sea_orm::sea_query::Query::select()
+                    .expr(Expr::val(1))
+                    .from(entities::articles_tags_rel::Entity)
+                    .and_where(
+                        Expr::col((
+                            entities::articles_tags_rel::Entity,
+                            entities::articles_tags_rel::Column::ArticleId,
+                        ))
+                        .equals((ArticleEntity, ArticleColumn::Id)),
+                    )
+                    .and_where(
+                        Expr::col((
+                            entities::articles_tags_rel::Entity,
+                            entities::articles_tags_rel::Column::TagId,
+                        ))
+                        .eq(*tag_id),
+                    )
+                    .to_owned(),
+            )),
         }
+    }
+
+    fn apply_query_filters(
+        &self,
+        query: Select<ArticleEntity>,
+        filters: &[ArticleQueryType],
+    ) -> Select<ArticleEntity> {
+        filters.iter().fold(query, |query, filter| {
+            self.find_many_get_filters(query, filter)
+        })
     }
 
     async fn associate_tags_if_not_empty(

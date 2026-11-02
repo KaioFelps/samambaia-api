@@ -5,7 +5,6 @@ use async_trait::async_trait;
 use mockall::automock;
 use uuid::Uuid;
 
-use crate::core::pagination::PaginationParameters;
 use crate::domain::aggregations::article_preview::ArticlePreview;
 use crate::domain::domain_entities::article::Article;
 use crate::domain::value_objects::slug::Slug;
@@ -21,6 +20,13 @@ pub enum ArticleQueryType {
     Author(Uuid),
 }
 
+#[derive(Clone)]
+pub struct ArticlesPaginationParameters {
+    pub page: u32,
+    pub items_per_page: u32,
+    pub queries: Vec<ArticleQueryType>,
+}
+
 #[cfg_attr(test, automock)]
 #[async_trait]
 pub trait ArticleRepositoryTrait {
@@ -32,13 +38,13 @@ pub trait ArticleRepositoryTrait {
 
     async fn find_many(
         &self,
-        params: PaginationParameters<ArticleQueryType>,
+        params: ArticlesPaginationParameters,
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesResponse, Box<dyn Error>>;
 
     async fn find_many_previews(
         &self,
-        params: PaginationParameters<ArticleQueryType>,
+        params: ArticlesPaginationParameters,
         show_only_approved_state: Option<bool>,
     ) -> Result<FindManyArticlesPreviewsResponse, Box<dyn Error>>;
 

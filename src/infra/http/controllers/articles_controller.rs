@@ -317,19 +317,21 @@ impl ArticlesController {
     ) -> AppResponse {
         let service = fetch_many_articles_service_factory::exec(db_conn);
 
-        let query = {
-            if let Some(title) = title {
-                Some(FetchArticleQuery::Title(title))
-            } else {
-                author.map(FetchArticleQuery::Author)
-            }
-        };
+        let mut queries = vec![];
+
+        if let Some(title) = title {
+            queries.push(FetchArticleQuery::Title(title));
+        }
+
+        if let Some(author) = author {
+            queries.push(FetchArticleQuery::Author(author));
+        }
 
         service
             .exec(FetchArticlesParams {
                 page,
                 per_page: per_page.map(|pp| pp as u32),
-                query,
+                queries,
                 approved_state,
             })
             .await
