@@ -1,24 +1,35 @@
 use actix_web::HttpRequest;
 use actix_web::web::{self, Data, Path, Query};
 use inertia_rust::{Inertia, InertiaFacade, InertiaProp, hashmap};
+use serde_qs::web::QsQuery;
 
 use crate::core::pagination::DEFAULT_PER_PAGE;
+use crate::domain::factories::journalism::article_tags::fetch_many_article_tags_service_factory;
 use crate::domain::factories::journalism::articles::{
     fetch_articles_previews_service_factory,
     get_expanded_article_service_factory,
 };
-use crate::domain::services::journalism::articles::fetch_articles_services::FetchArticlesParams;
+use crate::domain::services::journalism::article_tags::fetch_many_article_tags_service::FetchManyArticleTagsParams;
+use crate::domain::services::journalism::articles::fetch_articles_services::{
+    FetchArticleQuery,
+    FetchArticlesParams,
+};
 use crate::domain::services::journalism::articles::get_expanded_article_service::GetExpandedArticleParams;
 use crate::domain::value_objects::slug::Slug;
 use crate::error::IntoSamambaiaError;
 use crate::infra::http::controllers::AppResponse;
 use crate::infra::http::controllers::controller::ControllerTrait;
-use crate::infra::http::dtos::controllers::articles::ShowArticleQueryDto;
+use crate::infra::http::dtos::controllers::articles::{
+    ArticlesArchiveQueryDto,
+    ShowArticleQueryDto,
+};
 use crate::infra::http::middlewares::web::WebRequestUser;
 use crate::infra::http::presenters::article_preview::ArticlePreviewPresenter;
+use crate::infra::http::presenters::article_tag::ArticleTagPresenter;
 use crate::infra::http::presenters::expanded_article::ExpandedArticlePresenter;
 use crate::infra::http::presenters::presenter::PresenterTrait;
 use crate::infra::sea::sea_service::SeaService;
+use crate::libs::validator_extensions::FilterQueryExt;
 
 pub struct ArticlesController;
 
@@ -27,6 +38,7 @@ impl ControllerTrait for ArticlesController {
         cfg.service(
             web::scope("/noticias")
                 // CREATE
+                .route("/arquivo", web::get().to(Self::archive))
                 .route("/{slug}", web::get().to(Self::show)),
         );
     }
@@ -86,6 +98,69 @@ impl ArticlesController {
             hashmap![
                 "article" => InertiaProp::data(expanded_article),
                 "feed" => InertiaProp::data(last_16_articles)
+            ],
+        )
+        .await
+        .map_err(IntoSamambaiaError::into_samambaia_error)
+    }
+
+    pub async fn archive(
+        db_conn: Data<SeaService>,
+        query: QsQuery<ArticlesArchiveQueryDto>,
+        req: HttpRequest,
+    ) -> AppResponse {
+        const PER_PAGE: u8 = 10;
+
+        let fetch_articles_service = fetch_articles_previews_service_factory::exec(&db_conn);
+        let list_tags_service = fetch_many_article_tags_service_factory::exec(&db_conn);
+
+        let (query, query_errors) = query.into_inner().validate_and_sanitize();
+
+        dbg!(&query);
+        let service_queries = vec![
+            query.title.map(FetchArticleQuery::Title),
+            query.author.map(FetchArticleQuery::Author),
+            query.including_tags.map(FetchArticleQuery::Tags),
+        ]
+        .into_iter()
+        .flatten()
+        .collect();
+
+        dbg!(&service_queries);
+
+        let (article_tags, articles) = tokio::try_join!(
+            list_tags_service.exec(FetchManyArticleTagsParams {
+                page: None,
+                per_page: Some(100),
+                query: None,
+            }),
+            fetch_articles_service.exec(FetchArticlesParams {
+                approved_state: Some(true),
+                page: query.page.map(|page| page as u32),
+                per_page: Some(PER_PAGE as u32),
+                queries: service_queries,
+            }),
+        )?;
+
+        let article_tags = article_tags
+            .data
+            .into_iter()
+            .map(ArticleTagPresenter::to_http)
+            .collect::<Vec<_>>();
+
+        let articles = ArticlePreviewPresenter::to_json_paginated_wrapper(
+            articles.data,
+            articles.pagination,
+            PER_PAGE,
+        );
+
+        Inertia::render_with_props(
+            &req,
+            "articles/archive".into(),
+            hashmap![
+                "tags" => InertiaProp::data(article_tags),
+                "feed" => InertiaProp::data(articles),
+                "queryErrors" => InertiaProp::data(query_errors)
             ],
         )
         .await
