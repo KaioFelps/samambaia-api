@@ -57,6 +57,7 @@ jobs:
           fi
           
           cp package-lock.json __package
+          cp squarecloud.ignore __package
           cp package.json __package
           cp Cargo.toml __package
           cp Cargo.lock __package
