@@ -5,7 +5,7 @@ import * as React from "react";
 import type { CorePublicButtonProps } from ".";
 
 type Props = {
-  variant?: "default" | "black" | "success" | "yellow";
+  variant?: "default" | "black" | "success" | "yellow" | "blue";
   ref?: React.Ref<HTMLButtonElement>;
 } & CorePublicButtonProps;
 
@@ -18,7 +18,7 @@ export const DefaultPublicButton = React.forwardRef<HTMLButtonElement, Props>(
         role="button"
         className={clsx(
           "flex items-center justify-center gap-3 leading-tight",
-          "transition-all duration-150 will-change-[shadow,_filter]",
+          "transition-all duration-150 will-change-[shadow,filter]",
           "disabled:cursor-not-allowed [role='button']:not-enabled:cursor-not-allowed",
 
           variant === "default" && "btn",
@@ -32,6 +32,7 @@ export const DefaultPublicButton = React.forwardRef<HTMLButtonElement, Props>(
           variant === "success" && "btn-success",
           variant === "black" && "btn-black",
           variant === "yellow" && "btn-yellow",
+          variant === "blue" && "btn-blue",
 
           className && className,
         )}

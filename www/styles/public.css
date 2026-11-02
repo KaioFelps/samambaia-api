@@ -174,6 +174,54 @@
   }
 }
 
+@utility btn-blue {
+  border-radius: calc(var(--spacing) * 1.5);
+  background: var(--color-blue-500);
+  border: 2px solid var(--color-blue-800);
+  color: var(--color-white);
+  transition-property: all;
+  transition-timing-function: var(
+    --tw-ease,
+    var(--default-transition-timing-function)
+    /* cubic-bezier(0.4, 0, 0.2, 1) */
+  );
+  transition-duration: 150ms;
+  will-change: shadow, filter;
+  outline: none;
+
+  --btn-upper-shadow: color-mix(in oklab, var(--color-white) 50%, var(--color-transparent));
+  --btn-bottom-shadow: color-mix(in oklab, var(--color-black) 10%, var(--color-transparent));
+
+  --btn-upper-text-shadow: color-mix(in oklab, var(--color-black) 10%, transparent);
+  --btn-bottom-text-shadow: color-mix(in oklab, var(--color-white) 30%, transparent);
+
+  @apply ring-yellow-500/40 focus-visible:ring-4;
+
+  @variant button-like-disabled {
+    opacity: 0.7;
+  }
+
+  @variant button-like-enabled {
+    &:hover {
+      filter: brightness(0.95);
+    }
+
+    &:active {
+      filter: brightness(0.9);
+    }
+
+    text-shadow:
+      0 -2px 0 var(--btn-upper-text-shadow),
+      0 2px 0 var(--btn-bottom-text-shadow);
+
+    box-shadow:
+      inset 0 2px 0 0 var(--btn-upper-shadow),
+      inset 0 -2px 0 0 var(--btn-bottom-shadow),
+      var(--tw-ring-offset-shadow),
+      var(--tw-ring-shadow);
+  }
+}
+
 @utility btn-black {
   background: var(--color-gray-800);
   border-radius: calc(var(--spacing) * 1.5);
