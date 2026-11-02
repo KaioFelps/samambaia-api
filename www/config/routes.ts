@@ -10,6 +10,8 @@ export const routes = {
     article: {
       base: "/article",
       view: (slug: string): string => `/noticias/${slug}`,
+      archive: (params?: URLSearchParams | string) =>
+        `/noticias/arquivo${params ? `?${params.toString()}` : ""}`,
     },
     comment: {
       createComment: (articleId: string) => `/comments/${articleId}/new`,

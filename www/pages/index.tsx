@@ -39,7 +39,7 @@ const ArticlesSection = memo(({ articles }: { articles: ArticlePreview[] }) => (
       <h1>Últimas notícias</h1>
 
       <Link
-        href="/"
+        href="/noticias/arquivo"
         style={{
           boxShadow: `
             0 2px 0 0 color-mix(in oklab, var(--color-white) 25%, transparent),

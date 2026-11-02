@@ -3,6 +3,7 @@ import { memo } from "react";
 import { PublicAlert } from "@/components/alert/public-alert";
 import PublicButton from "@/components/button/public-button";
 import { Sprite } from "@/components/sprite";
+import { routes } from "@/config/routes";
 import type { ArticlePreview } from "@/types/article-preview";
 import type { Paginated } from "@/types/pagination";
 import { ArticleFeedLink } from "./article-feed-link";
@@ -27,7 +28,7 @@ export const ArticleFeed = memo(({ data }: Props) => {
           </ul>
 
           <PublicButton.Ghost asChild variant="blue">
-            <Link href="#">
+            <Link href={routes.web.article.archive()}>
               <Sprite width={14} height={14} x={-193} y={-97} />
               Mais notícias
             </Link>
