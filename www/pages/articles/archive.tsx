@@ -33,6 +33,9 @@ export default function ArticlesArchive({ feed, tags, queryErrors }: ArticlesArc
   const { processing, goToPage } = archiveFilters;
   const { currentPage, totalPages, totalItems } = feed.pagination;
 
+  const totalArticlesDisplayedSoFar =
+    (feed.pagination.currentPage - 1) * feed.pagination.itemsPerPage + feed.data.length;
+
   const toastQueryErrors = useEffectEvent(() => {
     Object.entries(queryErrors).forEach(([key, message]) => {
       const field = queryErrorsFieldsToName[key as keyof typeof queryErrorsFieldsToName];
@@ -61,7 +64,7 @@ export default function ArticlesArchive({ feed, tags, queryErrors }: ArticlesArc
 
         <div className="flex items-center justify-between">
           <span className="font-bold text-lg">
-            Resultados ({feed.data.length} de {totalItems})
+            Resultados ({totalArticlesDisplayedSoFar} de {totalItems})
           </span>
 
           <div className="flex gap-1">
@@ -87,7 +90,7 @@ export default function ArticlesArchive({ feed, tags, queryErrors }: ArticlesArc
         {feed.data.length > 0 ? (
           <div className="grid grid-flow-row grid-cols-2 gap-2">
             {feed.data.map((article) => (
-              <ArticleCard key={`article-archive-card-${article.id}`} {...article} />
+              <ArticleCard key={`article-archive-card-${article.id}`} {...article} showTags />
             ))}
           </div>
         ) : (
