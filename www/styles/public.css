@@ -314,9 +314,21 @@
   }
 }
 
-@utility btn-arrow-green {
+@utility btn-arrow {
   /* arrow buttons */
-  @apply grid place-items-center size-7 rounded-md border-2 border-black transition-[background] duration-100 bg-green-500 shadow-white/40 shadow-[inset_0_0_0_2px] enabled:hover:bg-green-600 enabled:active:bg-green-700 enabled:active:brightness-95 outline-hidden ring-0 focus:ring-4 ring-green-300 disabled:saturate-0;
+  @apply grid place-items-center size-7 rounded-md border-2 transition-[background] duration-100 enabled:active:brightness-95 outline-hidden ring-0 focus:ring-4 disabled:saturate-0;
+
+  &.green {
+    @apply border-black bg-green-500 shadow-white/40 shadow-[inset_0_0_0_2px] enabled:hover:bg-green-600 enabled:active:bg-green-700 ring-green-300;
+  }
+
+  &.gray {
+    @apply border-black bg-gray-400 shadow-white/40 shadow-[inset_0_0_0_2px] enabled:hover:bg-gray-500 enabled:active:bg-gray-600 ring-purple-500/40;
+  }
+
+  &.blue {
+    @apply border-black bg-blue-500 shadow-white/40 shadow-[inset_0_0_0_2px] enabled:hover:bg-blue-600 enabled:active:bg-blue-700 ring-blue-300;
+  }
 }
 
 @utility text-input {

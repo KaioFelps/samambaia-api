@@ -87,14 +87,14 @@ const FreeBadgeSection = memo(({ badges, currentPage }: FreeBadgeSectionProps) =
         <div className="flex gap-1">
           <button
             type="button"
-            className="btn-arrow-green"
+            className="btn-arrow green"
             disabled={currentPage === 1}
             onClick={handleGoToPrevPage}>
             <Sprite x={-184} y={-62} height={20} width={14} />
           </button>
           <button
             type="button"
-            className="btn-arrow-green"
+            className="btn-arrow green"
             disabled={badges.length <= PER_PAGE}
             onClick={handleGoToNextPage}>
             <Sprite x={-184} y={-62} height={20} width={14} className="rotate-180" />
